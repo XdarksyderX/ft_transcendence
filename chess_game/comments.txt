@@ -1,0 +1,18 @@
+Estructura:
+
+<index.html>: es el archivo principal de HTML donde se define la estructura del contenido de la 
+pagina web. Es el punto de entrada de la aplicacion web. Incluye referencias a los archivos CSS y JS.
+
+<index.js>: Archivo de JavaScript principal donde se maneja la lógica del juego. Es referenciado 
+desde el HTML para manipular el DOM (Document Object Model) y responder a eventos del usuario.
+
+
+
+<Data/data.js>: Archivo donde se almacenan los datos relacionados con el juego.
+
+<Render/main.js>: Archivo donde manejamos la renderizacion de elementos.
+
+<Styles/index.css>: Archivo CSS donde defines los estilos visuales de la pagina. Es referenciado desde 
+el archivo HTML para aplicar los estilos allí definidos.
+
+
