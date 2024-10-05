@@ -35,3 +35,7 @@ body {
 .black{
   background-color: #5c3973;
 }
+
+.piece{
+  width: 100%;
+}

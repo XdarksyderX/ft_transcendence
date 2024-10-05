@@ -6,4 +6,7 @@
 import { initGame } from "./Data/data.js";
 import { initGameRender } from "./Render/main.js";
 
-initGameRender(initGame());
+//will be usefull until game ends
+const globalState = initGame();
+
+initGameRender(globalState);
