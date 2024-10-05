@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+    <div class="container">
+
+        <div class="row">
+
+            <div class="col-8">
+                <h2>Sala de chat: {{ room.name }}</h2>
+                <h4 class="text-danger">Usuario logueado: {{ request.user }}</h4>
+                <hr>
+                <div id="boxMessages"></div>
+                <div id="chat">
+                    <input class="form-control" type="text" id="inputMessage" placeholder="Escribe un mensaje...">
+                    <button class="btn btn-success mt-2" submit" id="btnMessage" >Enviar</button>
+                    <a class="btn btn-primary mt-2 float-end" href="{% url 'home' %}">Salir</a>
+                </div>
+            </div>
+
+            <div class="col-4">
+                <div class="card-body">
+                    <h5 class="card-title">USUARIOS CONECTADOS</h5>
+                    <ul class="list-group">
+                        <li class="list-group-item">@usuario</li>
+                        <li class="list-group-item">@usuario</li>
+                        <li class="list-group-item list-group-item-success">@usuario</li>
+                        <li class="list-group-item">@usuario</li>
+                        <li class="list-group-item">@usuario</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+            var user = '{{ request.user }}'
+            var room_id = '{{ room.id }}'
+    </script>
+
+    <script src="{% static '/js/jquery-3.7.1.js' %}"></script>
+
+    <script src="{% static '/js/chat.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h2> Bienvenidos a CHATEANDO!!!</h2>
+    <h4> Elije una sala de chat</h4>
+
+    {% if error_message %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>{{ error_message }}</strong> Comuníquese con los administradores
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endif %}
+
+    {% for room in rooms %}
+        <a class="btn btn-success" href="{% url 'room' room.id %}">{{ room.name }} </a>
+    {% endfor %}
+{% endblock %}
