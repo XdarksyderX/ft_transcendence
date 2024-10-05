@@ -1,14 +1,24 @@
+/*all the visible content on the web page.*/
 body {
   background-color: #2f2e2a;
 }
-
+/*
+ *  Styles the root element to be a flex container with a column direccion, center it ahorizontally
+ *  and adjunst its width to fit its content. this is the main container where the chessboard and
+ *  other game elements are rendered.
+ *  flex: provides a more efficient way to align and distribute space among items in a container.
+*/
 #root{
-  display: flex;
+  display: flex; 
   flex-direction: column;
   width: fit-content;
   margin: auto;
 }
 
+/*
+ *  Targets any HTML element with the class squareRow. In your JavaScript, this class is applied to
+ * <div> elements that represent rows of squares on the chessboard.
+*/
 .squareRow {
   display: flex;
 }
