@@ -1,9 +1,5 @@
-import { blackPawn, whitePawn } from "../Data/pieces.js";
-
-/*We select the HTML element with the id 'root' and assign it to ROOT_DIV, which
-wil be used as a cointainer where the chessboad will be appended.
-*/
-const ROOT_DIV = document.getElementById("root");
+import * as piece from "../Data/pieces.js";
+import { ROOT_DIV } from "../Helper/constants.js";
 
 /**
  * used when you wawnt to render pieces on board
@@ -47,13 +43,42 @@ function initGameRender(data)
       squareDiv.id = square.id;
       squareDiv.classList.add(square.color, "square"); // that elemente is assigned to two CSS clasess: one for the square's color and one generic class("square").
       
-      //render blackpawn row
+      //me gustaria intentar dejar esto más bonito
       if (square.id[1] == 7) {
-        square.piece = blackPawn(square.id);
+        square.piece = piece.blackPawn(square.id); //render blackpawn row
       }
-      //render whitepawn row
-      if (square.id[1] == 2) {
-        square.piece = whitePawn(square.id)
+      else if (square.id == "h8" || square.id == "a8") {
+        square.piece = piece.blackRook(square.id); //render blackrook
+      }
+      else if (square.id == "g8" || square.id == "b8") {
+        square.piece = piece.blackKnight(square.id); //render blackknight
+      }
+      else if (square.id == "f8" || square.id == "c8") {
+        square.piece = piece.blackBishop(square.id); //render blackbishop
+      }
+      else if (square.id == "d8") {
+        square.piece = piece.blackKing(square.id); //render blackKing
+      }
+      else if (square.id == "e8") {
+        square.piece = piece.blackQueen(square.id); //render blackQueen
+      }
+      else if (square.id[1] == 2) {
+        square.piece = piece.whitePawn(square.id); //render whitepawn row
+      }
+      else if (square.id == "h1" || square.id == "a1") {
+        square.piece = piece.whiteRook(square.id); //render whiterook
+      }
+      else if (square.id == "g1" || square.id == "b1") {
+        square.piece = piece.whiteKnight(square.id); //render whiteknight
+      }
+      else if (square.id == "f1" || square.id == "c1") {
+        square.piece = piece.whiteBishop(square.id); //render whitebishop
+      }
+      else if (square.id == "d1") {
+        square.piece = piece.whiteKing(square.id); //render whiteKing
+      }
+      else if (square.id == "e1") {
+        square.piece = piece.whiteQueen(square.id); //render whiteQueen
       }
       
       rowEl.appendChild(squareDiv); //squareDiv element is appended to the rowEl

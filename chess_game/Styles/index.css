@@ -38,4 +38,5 @@ body {
 
 .piece{
   width: 100%;
+  cursor: pointer; /*grab?*/
 }
