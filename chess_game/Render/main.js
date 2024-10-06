@@ -1,9 +1,15 @@
 import * as piece from "../Data/pieces.js";
 import { ROOT_DIV } from "../Helper/constants.js";
+import { globalState } from "../index.js";
 
 /**
- * used when you wawnt to render pieces on board
- * @param {*} data 
+ * Used when you want to render pieces on board, whether its theinitial setup or an ongoing game.
+ * We double iterate over each row and square cheking if the current square contains a piece. If piece is not
+ * null, we retrieve the HTML element corresponding to the current square using its 'id', which its unique.
+ * Then, we create a new <img> element, set the 'src' attribute of the <img> element to the URL of the piece.
+ * We add a CSS class to the <img> element for styling  * purpose, and finally we append that new element
+ * representing the piece to the square's HTML element.
+ * @param {*} data data 2D array representing the chessboard
  */
 function pieceRender(data)
 {
@@ -33,7 +39,30 @@ function pieceRender(data)
  * for the squares, an consistent layout, such as discplay properties (flexbox or grid), spacing and
  * aligment for the rows. By using generic classes, we can easily update the appearance of all squares 
  * or rows by modifying a single CSS rule, rather than having to update each element individually.
+ * 
+ * piecePosition: Its an objet that maps the initial positions of the pieces to their rendering functions,
+ * which we'll then use to assign the pieces to the board squares.
  */
+
+const piecePositions = {
+  "h8": piece.blackRook,
+  "a8": piece.blackRook,
+  "g8": piece.blackKnight,
+  "b8": piece.blackKnight,
+  "f8": piece.blackBishop,
+  "c8": piece.blackBishop,
+  "d8": piece.blackKing,
+  "e8": piece.blackQueen,
+  "h1": piece.whiteRook,
+  "a1": piece.whiteRook,
+  "g1": piece.whiteKnight,
+  "b1": piece.whiteKnight,
+  "f1": piece.whiteBishop,
+  "c1": piece.whiteBishop,
+  "d1": piece.whiteKing,
+  "e1": piece.whiteQueen
+};
+
 function initGameRender(data)
 {
   data.forEach(element => {
@@ -43,43 +72,12 @@ function initGameRender(data)
       squareDiv.id = square.id;
       squareDiv.classList.add(square.color, "square"); // that elemente is assigned to two CSS clasess: one for the square's color and one generic class("square").
       
-      //me gustaria intentar dejar esto más bonito
-      if (square.id[1] == 7) {
+      if (square.id[1] == 7)
         square.piece = piece.blackPawn(square.id); //render blackpawn row
-      }
-      else if (square.id == "h8" || square.id == "a8") {
-        square.piece = piece.blackRook(square.id); //render blackrook
-      }
-      else if (square.id == "g8" || square.id == "b8") {
-        square.piece = piece.blackKnight(square.id); //render blackknight
-      }
-      else if (square.id == "f8" || square.id == "c8") {
-        square.piece = piece.blackBishop(square.id); //render blackbishop
-      }
-      else if (square.id == "d8") {
-        square.piece = piece.blackKing(square.id); //render blackKing
-      }
-      else if (square.id == "e8") {
-        square.piece = piece.blackQueen(square.id); //render blackQueen
-      }
-      else if (square.id[1] == 2) {
+      else if (square.id[1] == 2)
         square.piece = piece.whitePawn(square.id); //render whitepawn row
-      }
-      else if (square.id == "h1" || square.id == "a1") {
-        square.piece = piece.whiteRook(square.id); //render whiterook
-      }
-      else if (square.id == "g1" || square.id == "b1") {
-        square.piece = piece.whiteKnight(square.id); //render whiteknight
-      }
-      else if (square.id == "f1" || square.id == "c1") {
-        square.piece = piece.whiteBishop(square.id); //render whitebishop
-      }
-      else if (square.id == "d1") {
-        square.piece = piece.whiteKing(square.id); //render whiteKing
-      }
-      else if (square.id == "e1") {
-        square.piece = piece.whiteQueen(square.id); //render whiteQueen
-      }
+      else if (piecePositions[square.id])
+        square.piece = piecePositions[square.id](square.id); // render specific piece like if square.id == "d8") -> square.piece = piece.blackKing(square.id)
       
       rowEl.appendChild(squareDiv); //squareDiv element is appended to the rowEl
     });
@@ -90,5 +88,25 @@ function initGameRender(data)
   pieceRender(data);
 }
 
+// render highlight circle
+function renderHighlight(squareId)
+{
+  console.log(squareId);
+  const highlightSpan = document.createElement("span");
+  highlightSpan.classList.add("highlight");
+  document.getElementById(squareId).appendChild(highlightSpan);
+}
 
-export { initGameRender }
+// clear all hightlight from the board
+function clearHighlight()
+{
+  globalState.forEach(row => {
+    row.forEach(element => {
+      if (element.id == highlight) {
+        element.highlight = true;
+      }
+    });
+  });
+}
+
+export { initGameRender, renderHighlight }

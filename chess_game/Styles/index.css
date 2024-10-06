@@ -40,3 +40,13 @@ body {
   width: 100%;
   cursor: pointer; /*grab?*/
 }
+
+.highlight{
+  display: block;
+  width: 30px;
+  height: 30px;
+  margin: auto;
+  margin-top: 26px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.15);
+}

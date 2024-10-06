@@ -4,4 +4,7 @@ wil be used as a cointainer where the chessboad will be appended.
 */
 const ROOT_DIV = document.getElementById("root");
 
+//highlighted or not
+let highlight_state = false;
+
 export { ROOT_DIV };
