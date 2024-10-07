@@ -4,6 +4,9 @@ services:
     build: ./dockers/mywebsite
     env_file:
       - .env
+    environment:
+      - PGSYSCONFDIR=/conf/psg_service.conf
+      - PGPASSFILE=/conf/.pgpass
     volumes:
       - ./mywebsite/:/mywebsite
     networks:
@@ -12,6 +15,7 @@ services:
       - "8000:8000"
     depends_on:
       - redis
+    restart: always
   redis:
     container_name: redis_cont
     image: redis:7.4-alpine
@@ -19,6 +23,7 @@ services:
       - "6379"
     networks:
       - red
+    restart: always
     command: redis-server
 
 networks:
