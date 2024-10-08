@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Room, Message
+from .models import Room, Message, User, Group, Group_user
 # Register your models here.
 
 class MessageAdmin(admin.ModelAdmin):
@@ -11,3 +11,8 @@ class MessageAdmin(admin.ModelAdmin):
 
 admin.site.register(Message, MessageAdmin)
 admin.site.register(Room)
+
+# Transcenders
+admin.site.register(User)
+admin.site.register(Group)
+admin.site.register(Group_user)

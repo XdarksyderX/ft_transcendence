@@ -4,11 +4,9 @@ services:
     build: ./dockers/mywebsite
     env_file:
       - .env
-    environment:
-      - PGSYSCONFDIR=/conf/psg_service.conf
-      - PGPASSFILE=/conf/.pgpass
     volumes:
-      - ./mywebsite/:/mywebsite
+      - chat:/mywebsite
+      - db:/var/lib/postgresql/data
     networks:
       - red
     ports:
@@ -29,3 +27,17 @@ services:
 networks:
   red:
     driver: bridge
+
+volumes:
+  chat:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: './mywebsite/'
+  db:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: './db/'

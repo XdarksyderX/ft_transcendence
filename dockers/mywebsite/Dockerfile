@@ -10,7 +10,6 @@ COPY conf /conf
 COPY tools/utils.sh /utils.sh
 RUN chmod +x /utils.sh
 
-# RUN apt-get update
 
 RUN pip install -r /conf/requirements.txt
 
