@@ -13,21 +13,49 @@
 services:
 
   # Infrastructure services
-  rabbitmq:
-    image: rabbitmq:4.0.1-management
-    restart: always
-    ports:
-    - 5672:5672
-    - 15672:15672
-    env_file: .env
+  # rabbitmq:
+  #   image: rabbitmq:4.0.1-management
+  #   restart: always
+  #   ports:
+  #   - 5672:5672
+  #   - 15672:15672
+  #   env_file: .env
 
-  api-gateway:
-    build:
-      context: api-gateway
-      dockerfile: Dockerfile
+  # api-gateway:
+  #   build:
+  #     context: api-gateway
+  #     dockerfile: Dockerfile
+  #   ports:
+  #   - 443:443
+  #   - 80:80
+
+  #Chat Service
+  backend:
+    container_name: chat-online
+    build: ./chat
+    env_file:
+      - .env
+    volumes:
+      - chat-backend:/backend
+      - chat-db:/var/lib/postgresql/data
+    networks:
+      - ft_transcendence-network
     ports:
-    - 443:443
-    - 80:80
+      - "8000:8000"
+    depends_on:
+      - redis
+    restart: always
+
+  redis:
+    container_name: redis
+    image: redis:7.4-alpine
+    expose:
+      - "6379"
+    networks:
+      - ft_transcendence-network
+    restart: always
+    command: redis-server
+
 
 networks:
   ft_transcendence-network:
@@ -62,9 +90,16 @@ volumes:
       o: bind
       device: ./volume-data/chess
 
-  chat-data:
+  chat-backend:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ./volume-data/chat
+      device: ./volume-data/chat/backend
+
+  chat-db:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./volume-data/chat/database

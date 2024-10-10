@@ -1,0 +1,6 @@
+django
+daphne
+channels
+channels-redis
+psycopg
+djangorestframework

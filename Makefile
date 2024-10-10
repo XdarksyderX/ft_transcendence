@@ -3,25 +3,26 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: migarci2 <migarci2@student.42malaga.com    +#+  +:+       +#+         #
+#    By: jariza-o <jariza-o@student.42malaga.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/23 23:09:08 by migarci2          #+#    #+#              #
-#    Updated: 2024/09/23 23:09:28 by migarci2         ###   ########.fr        #
+#    Updated: 2024/10/09 09:44:25 by jariza-o         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
+DOCKER := docker compose
 COMPOSE_FILE := compose.yaml
 
 all: up
 
 up:
-	docker-compose -d -f $(COMPOSE_FILE) up --build
+	$(DOCKER) -f $(COMPOSE_FILE) up --build -d 
 
 down:
-	docker-compose -f $(COMPOSE_FILE) down
+	$(DOCKER) -f $(COMPOSE_FILE) down
 
 clean:
-	docker-compose -f $(COMPOSE_FILE) down --volumes --rmi all
+	$(DOCKER) -f $(COMPOSE_FILE) down --volumes --rmi all
 
 re: down up
 
