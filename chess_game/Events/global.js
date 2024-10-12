@@ -1,7 +1,7 @@
 import { ROOT_DIV } from "../Helper/constants.js";
 import { globalState } from "../index.js"; //import globalState object, a 2D array representing the state of the chessboard
 import { renderHighlight, selfHighlight } from "../Render/main.js";
-import { clearHighlight, clearPreviousSelfHighlight } from "../Render/main.js";
+import { clearHighlight, clearPreviousSelfHighlight, moveElement } from "../Render/main.js";
 
 //highlighted or not => state
 let highlight_state = false;
@@ -14,8 +14,13 @@ let moveState = null;
 
 function whitePawnClick({piece})
 {
-
-  console.log(moveState);
+  //if clicked on same element twice
+  if (piece == selfHighlightState) {
+    clearPreviousSelfHighlight(selfHighlightState);
+    selfHighlightState = null;
+    clearHighlight();
+    return;
+  }
 
   clearPreviousSelfHighlight(selfHighlightState);
   selfHighlight(piece);
@@ -36,7 +41,6 @@ function whitePawnClick({piece})
     clearHighlight();
       
     highlight.forEach(highlight => {
-
       globalState.forEach(row => {
         row.forEach(element => {
           if (element.id == highlight) {
@@ -61,10 +65,31 @@ function GlobalEvent() {
       const clickId = event.target.parentNode.id; //get the id of the parent element of the child, means the square, intead of the piece
       const flatArray = globalState.flat(); //flattens the 2D globalState array into a 1D array,to asily search a specific square by its id.
       const square = flatArray.find((el) => el.id == clickId); //Search in the flattened array for an square with the id that matched the clickId. The find method return the forst matching element
-      //console.log(`Cicked on ${clickId}, piece name is` + square.piece.piece_name);
       if (square.piece.piece_name == "WHITE_PAWN")
       {
         whitePawnClick(square);
+      }
+    }
+    else //this is to know if the click is in a square with the round highlight, which is the posible move of a piece. Ensure that only valid moves are processed.
+    {
+      const childElementsOfclickedEl = Array.from(event.target.childNodes); //Converts the child nodes (possible moves) of the clickd element into a array to manipulate it better
+      if (childElementsOfclickedEl.length == 1 || event.target.localName == "span") {
+        if (event.target.localName == "span") //if the person precisely click on the round hightlight
+        {
+          const id =  event.target.parentNode.id; //gets the id of the parent node of the clickd 'span'
+          moveElement(moveState, id); //call the function to move the piece to the new position
+          moveState = null; //reset the oceState to null indicating the move is done.
+        }
+        else //if the clicked element is not a span but still has exactly one child node, means the square minus the round highlight, to ensure the proper movement either way
+        {
+          const id =  event.target.id; //gets the id of the clicked element
+          moveElement(moveState, id);
+          moveState = null;
+        }
+      }
+      else { //if the click its an impossible move clear the highlighted elements
+        clearHighlight();
+        clearPreviousSelfHighlight(selfHighlightState);
       }
     }
   });

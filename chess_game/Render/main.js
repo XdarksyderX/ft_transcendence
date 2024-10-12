@@ -2,12 +2,43 @@ import * as piece from "../Data/pieces.js";
 import { ROOT_DIV } from "../Helper/constants.js";
 import { globalState } from "../index.js";
 
+/**
+ * move a piece by the highlight posibilities.
+ * @param {*} piece an object representing a game piece.
+ * @param {*} id the new position id where the piece should be moved.
+ */
+function moveElement(piece, id)
+{
+  const flatData =  globalState.flat();
+  //iterate throught each element to update the positions od the pieces.
+  flatData.forEach((el) => {
+    if (el.id == piece.current_pos) {
+      delete el.piece; //when the element with the current position is find, delete the piece property from it
+    }
+    if (el.id == id) {
+      el.piece = piece; //find the element with the new position and asign the piece to it
+    }
+  });
+  clearHighlight();
+  //Update the HTML elements to reflect the new positions of the piece
+  const previousPiece = document.getElementById(piece.current_pos);
+  previousPiece.classList.remove("highlightYellow");
+  const currentPiece = document.getElementById(id);
+  
+  currentPiece.innerHTML = previousPiece.innerHTML;
+  previousPiece.innerHTML = "";
+
+  piece.current_pos = id;
+}
+
+//simple function that clear the yellow highlight when you click a square with a piece
 function clearPreviousSelfHighlight(piece)
 {
   if (piece)
-   document.getElementById(piece.current_pos).classList.remove("highlightYellow");
+    document.getElementById(piece.current_pos).classList.remove("highlightYellow");
 }
 
+//simple function that highlight in the square you click if there is a piece on it
 function selfHighlight(piece)
 {
   document.getElementById(piece.current_pos).classList.add("highlightYellow");
@@ -120,4 +151,5 @@ function clearHighlight()
   });
 }
 
-export { initGameRender, renderHighlight, clearHighlight, selfHighlight, clearPreviousSelfHighlight };
+export { initGameRender, renderHighlight, clearHighlight, selfHighlight,
+  clearPreviousSelfHighlight, moveElement };
