@@ -41,6 +41,10 @@ body {
   cursor: pointer; /*grab?*/
 }
 
+.highlightYellow{
+  background: #f7f769;
+}
+
 .highlight{
   display: block;
   width: 30px;

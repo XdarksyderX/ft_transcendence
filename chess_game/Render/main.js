@@ -2,6 +2,17 @@ import * as piece from "../Data/pieces.js";
 import { ROOT_DIV } from "../Helper/constants.js";
 import { globalState } from "../index.js";
 
+function clearPreviousSelfHighlight(piece)
+{
+  if (piece)
+   document.getElementById(piece.current_pos).classList.remove("highlightYellow");
+}
+
+function selfHighlight(piece)
+{
+  document.getElementById(piece.current_pos).classList.add("highlightYellow");
+}
+
 /**
  * Used when you want to render pieces on board, whether its theinitial setup or an ongoing game.
  * We double iterate over each row and square cheking if the current square contains a piece. If piece is not
@@ -91,7 +102,6 @@ function initGameRender(data)
 // render highlight circle
 function renderHighlight(squareId)
 {
-  console.log(squareId);
   const highlightSpan = document.createElement("span");
   highlightSpan.classList.add("highlight");
   document.getElementById(squareId).appendChild(highlightSpan);
@@ -100,13 +110,14 @@ function renderHighlight(squareId)
 // clear all hightlight from the board
 function clearHighlight()
 {
-  globalState.forEach(row => {
-    row.forEach(element => {
-      if (element.id == highlight) {
-        element.highlight = true;
-      }
-    });
+  const flatData =  globalState.flat();
+  flatData.forEach((el) => {
+    if (el.highlighted)
+    {
+      document.getElementById(el.id).innerHTML = "";
+      el.highlighted = false;
+    }
   });
 }
 
-export { initGameRender, renderHighlight }
+export { initGameRender, renderHighlight, clearHighlight, selfHighlight, clearPreviousSelfHighlight };

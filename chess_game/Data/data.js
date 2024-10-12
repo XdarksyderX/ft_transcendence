@@ -1,6 +1,16 @@
+import { globalState } from "../index.js";
+import { renderHighlight } from "../Render/main.js";
+
+
 //Creates a square object for the chessboard. Right now, piece is null always
 function Square(color, id, piece) {
-  return { color, id, piece };
+
+  const highlight = function () {
+    renderHighlight(this.id);
+    this.highlighted = true;
+  };
+
+  return { color, id, piece, highlight };
 }
 
 /*Create a row of squares for the chessboard. From row 1 to 8, we iterate to create rows

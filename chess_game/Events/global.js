@@ -1,10 +1,29 @@
 import { ROOT_DIV } from "../Helper/constants.js";
 import { globalState } from "../index.js"; //import globalState object, a 2D array representing the state of the chessboard
-import { renderHighlight } from "../Render/main.js";
-import { highlight_state } from "../Helper/constants.js"
+import { renderHighlight, selfHighlight } from "../Render/main.js";
+import { clearHighlight, clearPreviousSelfHighlight } from "../Render/main.js";
+
+//highlighted or not => state
+let highlight_state = false;
+
+//current self-highlighted square state
+let selfHighlightState = null;
+
+//in move state or not
+let moveState = null;
 
 function whitePawnClick({piece})
 {
+
+  console.log(moveState);
+
+  clearPreviousSelfHighlight(selfHighlightState);
+  selfHighlight(piece);
+  selfHighlightState = piece;
+
+  //add piece as move state
+  moveState = piece;
+
   const curr_pos = piece.current_pos;
   const flatArray = globalState.flat();
   //on intial postion, pwns moves different
@@ -13,22 +32,21 @@ function whitePawnClick({piece})
     const highlight = [
       `${curr_pos[0]}${Number(curr_pos[1]) + 1}`,
       `${curr_pos[0]}${Number(curr_pos[1]) + 2}`, ]; //(curr_pos[1] + 1 = 21???)
+
+    clearHighlight();
+      
     highlight.forEach(highlight => {
 
       globalState.forEach(row => {
         row.forEach(element => {
           if (element.id == highlight) {
-            element.highlight = true;
+            element.highlight(true);
           }
         });
       });
-      if (highlight_state)
-        clearHighlight();
-      renderHighlight(highlight);
-      highlight_state = true;
     });
   }
-  console.log(globalState);
+  //console.log(globalState);
 }
 
 /**
