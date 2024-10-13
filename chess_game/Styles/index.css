@@ -41,6 +41,10 @@ body {
   cursor: pointer; /*grab?*/
 }
 
+.captureColor{
+  background-color: #ee4b2b;
+}
+
 .highlightYellow{
   background: #f7f769;
 }

@@ -2,6 +2,8 @@ import { ROOT_DIV } from "../Helper/constants.js";
 import { globalState } from "../index.js"; //import globalState object, a 2D array representing the state of the chessboard
 import { renderHighlight, selfHighlight } from "../Render/main.js";
 import { clearHighlight, clearPreviousSelfHighlight, moveElement } from "../Render/main.js";
+import { checkOpponetPieceByElement } from "../Helper/commonHelper.js";
+
 
 //highlighted or not => state
 let highlight_state = false;
@@ -12,8 +14,11 @@ let selfHighlightState = null;
 //in move state or not
 let moveState = null;
 
+//white pawn event
 function whitePawnClick({piece})
 {
+  clearPreviousSelfHighlight(selfHighlightState);
+
   //if clicked on same element twice
   if (piece == selfHighlightState) {
     clearPreviousSelfHighlight(selfHighlightState);
@@ -22,7 +27,6 @@ function whitePawnClick({piece})
     return;
   }
 
-  clearPreviousSelfHighlight(selfHighlightState);
   selfHighlight(piece);
   selfHighlightState = piece;
 
@@ -34,13 +38,99 @@ function whitePawnClick({piece})
   //on intial postion, pwns moves different
   if (curr_pos[1] == "2")
   {
-    const highlight = [
+    const highlightSquareIds = [
       `${curr_pos[0]}${Number(curr_pos[1]) + 1}`,
       `${curr_pos[0]}${Number(curr_pos[1]) + 2}`, ]; //(curr_pos[1] + 1 = 21???)
 
     clearHighlight();
       
-    highlight.forEach(highlight => {
+    highlightSquareIds.forEach(highlight => {
+      globalState.forEach(row => {
+        row.forEach(element => {
+          if (element.id == highlight) {
+            element.highlight(true);
+          }
+        });
+      });
+    });
+  }
+  else {
+
+    const col1 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) - 1)}${Number(curr_pos[1]) + 1}`;
+    const col2 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) + 1)}${Number(curr_pos[1]) + 1}`;
+
+    const captureIds = [col1, col2];
+
+    const highlightSquareIds = [`${curr_pos[0]}${Number(curr_pos[1]) + 1}`,];
+
+    captureIds.forEach(element => {
+/*       if (checkOpponetPieceByElement(element, "white")) {
+        highlightSquareIds.push(element);
+      } */
+      checkOpponetPieceByElement(element, "white");
+    });
+
+    //clearHighlight();
+      
+    highlightSquareIds.forEach(highlight => {
+      globalState.forEach(row => {
+        row.forEach(element => {
+          if (element.id == highlight) {
+            element.highlight(true);
+          }
+        });
+      });
+    });
+  }
+  //console.log(globalState);
+}
+
+//black pawn event 
+function blackPawnClick({piece})
+{
+  clearPreviousSelfHighlight(selfHighlightState);
+
+  //if clicked on same element twice
+  if (piece == selfHighlightState) {
+    clearPreviousSelfHighlight(selfHighlightState);
+    selfHighlightState = null;
+    clearHighlight();
+    return;
+  }
+
+  selfHighlight(piece);
+  selfHighlightState = piece;
+
+  //add piece as move state
+  moveState = piece;
+
+  const curr_pos = piece.current_pos;
+  const flatArray = globalState.flat();
+  //on intial postion, pwns moves different
+  if (curr_pos[1] == "7")
+  {
+    const highlightSquareIds = [
+      `${curr_pos[0]}${Number(curr_pos[1]) - 1}`,
+      `${curr_pos[0]}${Number(curr_pos[1]) - 2}`, ];
+
+    clearHighlight();
+      
+    highlightSquareIds.forEach(highlight => {
+      globalState.forEach(row => {
+        row.forEach(element => {
+          if (element.id == highlight) {
+            element.highlight(true);
+          }
+        });
+      });
+    });
+  }
+  else {
+    const highlightSquareIds = [`${curr_pos[0]}${Number(curr_pos[1]) - 1}`,];
+
+    clearHighlight();
+      
+    highlightSquareIds.forEach(highlight => {
       globalState.forEach(row => {
         row.forEach(element => {
           if (element.id == highlight) {
@@ -65,9 +155,11 @@ function GlobalEvent() {
       const clickId = event.target.parentNode.id; //get the id of the parent element of the child, means the square, intead of the piece
       const flatArray = globalState.flat(); //flattens the 2D globalState array into a 1D array,to asily search a specific square by its id.
       const square = flatArray.find((el) => el.id == clickId); //Search in the flattened array for an square with the id that matched the clickId. The find method return the forst matching element
-      if (square.piece.piece_name == "WHITE_PAWN")
-      {
+      if (square.piece.piece_name == "WHITE_PAWN") {
         whitePawnClick(square);
+      }
+      else if (square.piece.piece_name == "BLACK_PAWN") {
+        blackPawnClick(square);
       }
     }
     else //this is to know if the click is in a square with the round highlight, which is the posible move of a piece. Ensure that only valid moves are processed.
@@ -86,10 +178,14 @@ function GlobalEvent() {
           moveElement(moveState, id);
           moveState = null;
         }
+/*         clearHighlight();
+        clearPreviousSelfHighlight(selfHighlightState);
+        selfHighlightState = null; */
       }
       else { //if the click its an impossible move clear the highlighted elements
         clearHighlight();
         clearPreviousSelfHighlight(selfHighlightState);
+        selfHighlightState = null;
       }
     }
   });

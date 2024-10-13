@@ -23,8 +23,8 @@ function SquareRow(rowId) {
   const col = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
   if (rowId % 2 == 0) {
-    col.forEach((element, index) => {
-      if (index % 2 == 0) {
+    col.forEach((element, i) => {
+      if (i % 2 == 0) {
         squareRow.push(Square("white", element + rowId, null));
       }
       else {
@@ -33,8 +33,8 @@ function SquareRow(rowId) {
     });
   }
   else {
-    col.forEach((element, index) => {
-      if (index % 2 == 0) {
+    col.forEach((element, i) => {
+      if (i % 2 == 0) {
         squareRow.push(Square("black", element + rowId, null));
       }
       else {
