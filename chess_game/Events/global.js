@@ -1,7 +1,7 @@
 import { ROOT_DIV } from "../Helper/constants.js";
 import { globalState } from "../index.js"; //import globalState object, a 2D array representing the state of the chessboard
 import { renderHighlight, selfHighlight } from "../Render/main.js";
-import { clearHighlight, clearPreviousSelfHighlight, moveElement } from "../Render/main.js";
+import { clearHighlight, clearPreviousSelfHighlight, moveElement, globalStateRender } from "../Render/main.js";
 import { checkOpponetPieceByElement } from "../Helper/commonHelper.js";
 
 
@@ -14,20 +14,35 @@ let selfHighlightState = null;
 //in move state or not
 let moveState = null;
 
+//local function that will clear hightlight with state
+function clearHighlightLocal() {
+  clearHighlight();
+  highlight_state = false;
+}
+
+//move piece to x-square to y-square
+function movePieceFromXToY(from, to) {
+  //console.log(from, to);
+}
+
 //white pawn event
 function whitePawnClick({piece})
 {
+/*   if (highlight_state)
+    return; */
+  
   clearPreviousSelfHighlight(selfHighlightState);
 
   //if clicked on same element twice
   if (piece == selfHighlightState) {
-    clearPreviousSelfHighlight(selfHighlightState);
     selfHighlightState = null;
-    clearHighlight();
+    clearHighlightLocal();
     return;
   }
-
+  
+  //highlighting logic
   selfHighlight(piece);
+  highlight_state = true;
   selfHighlightState = piece;
 
   //add piece as move state
@@ -40,22 +55,23 @@ function whitePawnClick({piece})
   {
     const highlightSquareIds = [
       `${curr_pos[0]}${Number(curr_pos[1]) + 1}`,
-      `${curr_pos[0]}${Number(curr_pos[1]) + 2}`, ]; //(curr_pos[1] + 1 = 21???)
+      `${curr_pos[0]}${Number(curr_pos[1]) + 2}`, ];
 
-    clearHighlight();
+    clearHighlightLocal();
       
     highlightSquareIds.forEach(highlight => {
       globalState.forEach(row => {
         row.forEach(element => {
           if (element.id == highlight) {
-            element.highlight(true);
+            element.highlight = true;
           }
         });
       });
     });
+
+    globalStateRender();
   }
   else {
-
     const col1 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) - 1)}${Number(curr_pos[1]) + 1}`;
     const col2 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) + 1)}${Number(curr_pos[1]) + 1}`;
 
@@ -64,41 +80,44 @@ function whitePawnClick({piece})
     const highlightSquareIds = [`${curr_pos[0]}${Number(curr_pos[1]) + 1}`,];
 
     captureIds.forEach(element => {
-/*       if (checkOpponetPieceByElement(element, "white")) {
-        highlightSquareIds.push(element);
-      } */
       checkOpponetPieceByElement(element, "white");
     });
-
-    //clearHighlight();
       
     highlightSquareIds.forEach(highlight => {
       globalState.forEach(row => {
         row.forEach(element => {
           if (element.id == highlight) {
-            element.highlight(true);
+            element.highlight = true;
           }
         });
       });
     });
+    globalStateRender();
   }
   //console.log(globalState);
 }
 
-//black pawn event 
+//black pawn funciton
 function blackPawnClick({piece})
 {
+  if (highlight_state)
+  {
+    movePieceFromXToY(selfHighlightState, piece);
+    return;
+  }
+
   clearPreviousSelfHighlight(selfHighlightState);
 
   //if clicked on same element twice
   if (piece == selfHighlightState) {
-    clearPreviousSelfHighlight(selfHighlightState);
     selfHighlightState = null;
-    clearHighlight();
+    clearHighlightLocal();
     return;
   }
-
+  
+  //highlighting logic
   selfHighlight(piece);
+  highlight_state = true;
   selfHighlightState = piece;
 
   //add piece as move state
@@ -113,32 +132,42 @@ function blackPawnClick({piece})
       `${curr_pos[0]}${Number(curr_pos[1]) - 1}`,
       `${curr_pos[0]}${Number(curr_pos[1]) - 2}`, ];
 
-    clearHighlight();
+    clearHighlightLocal();
       
     highlightSquareIds.forEach(highlight => {
       globalState.forEach(row => {
         row.forEach(element => {
           if (element.id == highlight) {
-            element.highlight(true);
+            element.highlight = true;
           }
         });
       });
     });
+
+    globalStateRender();
   }
   else {
+    const col1 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) - 1)}${Number(curr_pos[1]) + 1}`;
+    const col2 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) + 1)}${Number(curr_pos[1]) + 1}`;
+
+    const captureIds = [col1, col2];
+
     const highlightSquareIds = [`${curr_pos[0]}${Number(curr_pos[1]) - 1}`,];
 
-    clearHighlight();
+    captureIds.forEach(element => {
+      checkOpponetPieceByElement(element, "black");
+    });
       
     highlightSquareIds.forEach(highlight => {
       globalState.forEach(row => {
         row.forEach(element => {
           if (element.id == highlight) {
-            element.highlight(true);
+            element.highlight = true;
           }
         });
       });
     });
+    globalStateRender();
   }
   //console.log(globalState);
 }
@@ -164,6 +193,7 @@ function GlobalEvent() {
     }
     else //this is to know if the click is in a square with the round highlight, which is the posible move of a piece. Ensure that only valid moves are processed.
     {
+      selfHighlightState = null;
       const childElementsOfclickedEl = Array.from(event.target.childNodes); //Converts the child nodes (possible moves) of the clickd element into a array to manipulate it better
       if (childElementsOfclickedEl.length == 1 || event.target.localName == "span") {
         if (event.target.localName == "span") //if the person precisely click on the round hightlight
@@ -183,9 +213,8 @@ function GlobalEvent() {
         selfHighlightState = null; */
       }
       else { //if the click its an impossible move clear the highlighted elements
-        clearHighlight();
+        clearHighlightLocal();
         clearPreviousSelfHighlight(selfHighlightState);
-        selfHighlightState = null;
       }
     }
   });

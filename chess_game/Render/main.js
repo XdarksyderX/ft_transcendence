@@ -3,6 +3,33 @@ import { ROOT_DIV } from "../Helper/constants.js";
 import { globalState } from "../index.js";
 
 /**
+ * funciton globlaStateRendere is usefull to render pieces from globalStateData,
+ * when updating globalState
+ */
+
+function globalStateRender() {
+  globalState.forEach(row => {
+    row.forEach(element => {
+      if (element.highlight) {
+        const highlightSpan = document.createElement("span");
+        highlightSpan.classList.add("highlight");
+        document.getElementById(element.id).appendChild(highlightSpan);
+      }
+      else if (element.highlight === null) {
+        const el = document.getElementById(element.id);
+        const highlights = Array.from(el.getElementsByTagName("span"));
+        highlights.forEach(element => {
+          el.removeChild(element);
+        });
+      }
+      if (element.piece != null) {
+        //console.log(element);
+      }
+    });
+  });
+}
+
+/**
  * move a piece by the highlight posibilities.
  * @param {*} piece an object representing a game piece.
  * @param {*} id the new position id where the piece should be moved.
@@ -143,15 +170,17 @@ function clearHighlight()
 {
   const flatData =  globalState.flat();
   flatData.forEach((el) => {
-    if (el.captureHighlight) {
+/*     if (el.captureHighlight) {
       document.getElementById(el.id).classList.remove("captureColor");
+    } */
+    if (el.highlight) {
+/*       document.getElementById(el.id).innerHTML = "";
+      el.highlighted = false; */
+      el.highlight = null;
     }
-    if (el.highlighted) {
-      document.getElementById(el.id).innerHTML = "";
-      el.highlighted = false;
-    }
+    globalStateRender();
   });
 }
 
 export { initGameRender, renderHighlight, clearHighlight, selfHighlight,
-  clearPreviousSelfHighlight, moveElement };
+  clearPreviousSelfHighlight, moveElement, globalStateRender };
