@@ -1,16 +1,4 @@
-# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    openapi.yaml                                       :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: migarci2 <migarci2@student.42malaga.com    +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2024/09/04 17:24:16 by migarci2          #+#    #+#              #
-#    Updated: 2024/09/23 23:10:30 by migarci2         ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
-
-openapi: 3.1.0
+openapi: 3.0.0
 info:
   title: Authentication Microservice HTTP API REST
   description: API for managing authentication, including 2FA, JWT, username and password change, and more.
@@ -63,7 +51,7 @@ paths:
               example:
                 status: error
                 message: Email or username is already registered.
-  /activate-email:
+  /verify-email:
     post:
       tags:
         - Activate
