@@ -15,7 +15,7 @@
 		<!-- card header -->
         <div id="chat-header" class="card-header d-flex justify-content-between align-items-center position-relative">
             <h5 class="mb-0">Chat</h5>
-            <span id="notification-indicator" class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle" style="display: none;">
+            <span id="notification-indicator" class="position-absolute top-0 start-100 translate-middle p-2 rounded-circle" style="display: none;">
                 <span class="visually-hidden">New messages</span>
             </span>
             <i class="fas fa-chevron-up" id="toggle-icon"></i>
@@ -53,7 +53,7 @@
                 <form id="chat-form" class="p-2 border-top">
                     <div class="input-group">
                         <input type="text" id="message-input" class="form-control" placeholder="Type a message">
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" id="send-btn" class="btn">
                             <i class="fas fa-paper-plane"></i>
                         </button>
                     </div>
@@ -62,6 +62,7 @@
         </div> <!-- this closes the card-body -->
     </div> <!-- this closes the whole chat-container -->
 	<script src="app.js"></script>
+    <script src="../neon.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 </body>
 </html>
