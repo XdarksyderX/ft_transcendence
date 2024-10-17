@@ -1,0 +1,100 @@
+
+:root { /* here I can put body too */
+    --dark: #2D1240;
+    --medium: #5C3973;
+    --accent: #00F56A;
+    --light: #84CCA3;
+    --title: #F59C00;
+    --lorange: #f1c478;
+/*     --dark: #152c30;
+    --medium: #305457;
+    --accent: #F5882F;
+    --light: #faaa69; */
+}
+
+#chat-container {
+	position: fixed;
+	bottom: 0;
+	right: 20px;
+	width: 300px;
+	transition: height 0.3s ease-in-out;
+	border-color: var(--light);
+}
+
+#chat-header {
+	background-color: var(--dark);
+	color: var(--title);
+	font-family: 'ROG LyonsType Regular';
+	cursor: pointer;
+}
+
+#new-chat-btn {
+	position: absolute;
+	bottom: 10px;
+	right: 10px;
+	z-index: 1000;
+	background-color: var(--title);
+}
+#chat-window, #recent-chats, #new-chat {
+	background-color: var(--medium);
+	height: 350px;
+	overflow-y: auto;
+
+}
+#chat-messages {
+	display: flex;
+	flex-direction: column;
+	padding: 10px;
+}
+#chat-form {
+	position: fixed;
+	bottom: 0;
+	width: 298px;
+	background-color: var(--dark);
+}
+
+.list-group-item {
+	background-color: var(--medium);
+	color: var(--light);
+	&:hover {
+		background-color: #2d124050;
+		color: var(--accent);
+	}
+}
+
+.unread {
+	font-weight: 500;
+	color: var(--accent);
+}
+
+.back-to-recents {
+	cursor: pointer;
+	color: var(--title);
+	background-color: #2d124050;
+	&:hover {
+		background-color: #2d124083;
+		color: var(--lorange);
+		font-weight: 600;
+	}
+}
+
+.message {
+	display: inline-block;
+	max-width: 80%;
+	margin-bottom: 10px;
+	padding: 8px 12px;
+	border-radius: 15px;
+	word-wrap: break-word;
+}
+.message.in {
+	background-color: var(--lorange);
+	color:var(--medium);
+	align-self: flex-start;
+	border-bottom-left-radius: 0;
+}
+.message.out {
+	background-color: var(--light);
+	color: var(--dark);
+	align-self: flex-end;
+	border-bottom-right-radius: 0;
+}

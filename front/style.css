@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&display=swap');
+
 :root { /* here I can put body too */
     --dark: #2D1240;
     --medium: #5C3973;
@@ -15,6 +17,23 @@
     font-style: normal;
     font-weight: normal;
     src: local('ROG LyonsType Regular'), url('resources/fonts/ROGLyonsTypeRegular3.woff') format('woff');
+}
+
+/* Apply different font weights */
+.fw-regular {
+    font-weight: 400; /* Regular */
+}
+
+.fw-medium {
+    font-weight: 500; /* Medium */
+}
+
+.fw-semibold {
+    font-weight: 600; /* SemiBold */
+}
+
+.fw-bold {
+    font-weight: 700; /* Bold */
 }
 
 #pong {
