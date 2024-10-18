@@ -28,6 +28,7 @@ const friends = [
 	{ id: 7, name: "jariza-o" },
 	{ id: 8, name: "marirodr" },
 	{ id: 9, name: "erivero-" },
+
 ];
 
 let chats = [
@@ -50,7 +51,7 @@ let chats = [
 chatHeader.addEventListener('click', toggleChat);
 
 function toggleChat() {
-	isExpanded = !isExpanded; // inverts the expanded state
+	isExpanded = !isExpanded; // inverts the current state
 	chatBody.style.display = isExpanded ? 'block' : 'none';
 	toggleIcon.className = isExpanded ? 'fas fa-chevron-down' : 'fas fa-chevron-up';
 	if (isExpanded && !currentChat) {
@@ -64,7 +65,7 @@ function showRecentChats() {
 	currentView = 'recent-chats';
 	newChatTab.style.display = 'none';
 	chatTab.style.display = 'none';
-	recentChatsTab.style.display = 'block';
+	recentChatsTab.style.display = 'flex';
 	renderRecentChats();
 }
 
@@ -91,7 +92,7 @@ newChatBtn.addEventListener('click', showFriendList);
 function showFriendList() {
 	currentView = 'friend-list';
 	recentChatsTab.style.display = 'none';
-	newChatTab.style.display = 'block';
+	newChatTab.style.display = 'flex';
 	renderFriendList();
 }
 
@@ -110,7 +111,7 @@ function openChat(chatId) {
 		currentView = 'chat';
 		recentChatsTab.style.display = 'none';
 		newChatTab.style.display = 'none';
-		chatTab.style.display = 'block';
+		chatTab.style.display = 'flex';
 		currentChatName.textContent = currentChat.name;
 		renderChat();
 		currentChat.messages.forEach(message => message.read = true);
