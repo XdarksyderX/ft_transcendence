@@ -1,3 +1,4 @@
+/* each big container */
 const chatContainer = document.getElementById('chat-container');
 const chatHeader = document.getElementById('chat-header');
 const chatBody = document.getElementById('chat-body');
@@ -6,10 +7,12 @@ const chatBody = document.getElementById('chat-body');
 const recentChatsTab = document.getElementById('recent-chats');
 const newChatTab = document.getElementById('new-chat');
 const chatTab = document.getElementById('chat-window');
+
 /* buttons and icons */
 const newChatBtn = document.getElementById('new-chat-btn');
 const toggleIcon = document.getElementById('toggle-icon');
 
+/* lists and chat elements */
 const friendList = document.getElementById('friends-list');
 const recentChatsList = document.getElementById('recent-chats-list');
 const chatMessages = document.getElementById('chat-messages');
@@ -18,6 +21,7 @@ const messageInput = document.getElementById('message-input');
 const currentChatName = document.getElementById('current-chat-name');
 const notificationIndicator = document.getElementById('notification-indicator');
 
+/* state variables */
 let isExpanded = false;
 let currentChat = null;
 let currentView = 'recent-chats';
@@ -48,8 +52,8 @@ let chats = [
 	]},
 ];
 
+/* function to toggle chat visibility so it is chollapsible */
 chatHeader.addEventListener('click', toggleChat);
-
 function toggleChat() {
 	isExpanded = !isExpanded; // inverts the current state
 	chatBody.style.display = isExpanded ? 'block' : 'none';
@@ -70,10 +74,12 @@ function showRecentChats() {
 }
 
 function renderRecentChats() {
-	recentChatsList.innerHTML = chats.map(chat => {
-		const lastMessage = chat.messages[chat.messages.length - 1];
-		const unreadClass = /* lastMessage && */ !lastMessage.read && lastMessage.sender === 'in' ? 'unread' : '';
-		return `
+	// sets the innerHTML of the recentChatsList to the chats array
+	recentChatsList.innerHTML = chats.map(chat => { // with API, it will be a fetch I guess
+		const lastMessage = chat.messages[chat.messages.length - 1]; // gets the last message
+		const unreadClass = !lastMessage.read && lastMessage.sender === 'in' ? 'unread' : ''; //sets the unread status 
+		// returns the chat item with the name, last message and unread status on html format
+		return ` 
 			<a href="#" class="list-group-item list-group-item-action chat-item" data-chat-id="${chat.id}">
 				<div class="d-flex w-100 justify-content-between">
 					<h5 class="mb-1">${chat.name}</h5>
@@ -82,7 +88,7 @@ function renderRecentChats() {
 				<p class="mb-1 ${unreadClass}">${lastMessage ? lastMessage.text : 'No messages yet'}</p>
 			</a>
 		`;
-	}).join('');
+	}).join(''); // joins the array of HTML strings into a single string
 	updateNotificationIndicator();
 }
 
