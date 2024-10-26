@@ -1,6 +1,7 @@
 import * as piece from "../Data/pieces.js";
 import { ROOT_DIV } from "../Helper/constants.js";
 import { globalState } from "../index.js";
+import { movePieceFromXToY } from "../Events/global.js";
 
 /**
  * funciton globlaStateRendere is usefull to render pieces from globalStateData,
@@ -21,9 +22,7 @@ function globalStateRender() {
         highlights.forEach(element => {
           el.removeChild(element);
         });
-      }
-      if (element.piece != null) {
-        //console.log(element);
+        //document.getElementById(element.id).innerHTML = "";
       }
     });
   });
@@ -56,14 +55,10 @@ function moveElement(piece, id)
   previousPiece.innerHTML = "";
 
   piece.current_pos = id;
+  //globalStateRender();
 }
 
-//simple function that clear the yellow highlight when you click a square with a piece
-function clearPreviousSelfHighlight(piece)
-{
-  if (piece)
-    document.getElementById(piece.current_pos).classList.remove("highlightYellow");
-}
+
 
 //simple function that highlight in the square you click if there is a piece on it
 function selfHighlight(piece)
@@ -170,12 +165,11 @@ function clearHighlight()
 {
   const flatData =  globalState.flat();
   flatData.forEach((el) => {
-/*     if (el.captureHighlight) {
+    if (el.captureHightlight) {
       document.getElementById(el.id).classList.remove("captureColor");
-    } */
+      el.captureHightlight = false;
+    }
     if (el.highlight) {
-/*       document.getElementById(el.id).innerHTML = "";
-      el.highlighted = false; */
       el.highlight = null;
     }
     globalStateRender();
@@ -183,4 +177,4 @@ function clearHighlight()
 }
 
 export { initGameRender, renderHighlight, clearHighlight, selfHighlight,
-  clearPreviousSelfHighlight, moveElement, globalStateRender };
+  moveElement, globalStateRender };

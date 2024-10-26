@@ -1,7 +1,7 @@
 import { ROOT_DIV } from "../Helper/constants.js";
 import { globalState } from "../index.js"; //import globalState object, a 2D array representing the state of the chessboard
 import { renderHighlight, selfHighlight } from "../Render/main.js";
-import { clearHighlight, clearPreviousSelfHighlight, moveElement, globalStateRender } from "../Render/main.js";
+import { clearHighlight, moveElement, globalStateRender } from "../Render/main.js";
 import { checkOpponetPieceByElement } from "../Helper/commonHelper.js";
 
 
@@ -22,23 +22,29 @@ function clearHighlightLocal() {
 
 //move piece to x-square to y-square
 function movePieceFromXToY(from, to) {
-  //console.log(from, to);
+  to.piece = from.piece;
+  from.piece = null;
+  globalStateRender();
 }
 
 //white pawn event
-function whitePawnClick({piece})
+function whitePawnClick(square)
 {
-/*   if (highlight_state)
-    return; */
-  
-  clearPreviousSelfHighlight(selfHighlightState);
+  const piece = square.piece;
 
-  //if clicked on same element twice
   if (piece == selfHighlightState) {
-    selfHighlightState = null;
     clearHighlightLocal();
+    clearPreviousSelfHighlight(selfHighlightState);
     return;
   }
+
+  if (square.captureHightlight) {
+    //movePieceFromXToY();
+    moveElement(selfHighlightState, piece.current_pos);
+    clearPreviousSelfHighlight(selfHighlightState);
+    return;
+  }
+  clearPreviousSelfHighlight(selfHighlightState);
   
   //highlighting logic
   selfHighlight(piece);
@@ -98,23 +104,24 @@ function whitePawnClick({piece})
 }
 
 //black pawn funciton
-function blackPawnClick({piece})
+function blackPawnClick(square)
 {
-  if (highlight_state)
-  {
-    movePieceFromXToY(selfHighlightState, piece);
-    return;
-  }
+  const piece = square.piece;
 
-  clearPreviousSelfHighlight(selfHighlightState);
-
-  //if clicked on same element twice
   if (piece == selfHighlightState) {
-    selfHighlightState = null;
+    clearPreviousSelfHighlight(selfHighlightState);
     clearHighlightLocal();
     return;
   }
-  
+
+  if (square.captureHightlight) {
+    //movePieceFromXToY();
+    moveElement(selfHighlightState, piece.current_pos);
+    clearPreviousSelfHighlight(selfHighlightState);
+    return;
+  }
+  clearPreviousSelfHighlight(selfHighlightState);
+
   //highlighting logic
   selfHighlight(piece);
   highlight_state = true;
@@ -147,8 +154,8 @@ function blackPawnClick({piece})
     globalStateRender();
   }
   else {
-    const col1 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) - 1)}${Number(curr_pos[1]) + 1}`;
-    const col2 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) + 1)}${Number(curr_pos[1]) + 1}`;
+    const col1 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) - 1)}${Number(curr_pos[1]) - 1}`;
+    const col2 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) + 1)}${Number(curr_pos[1]) - 1}`;
 
     const captureIds = [col1, col2];
 
@@ -172,6 +179,17 @@ function blackPawnClick({piece})
   //console.log(globalState);
 }
 
+//simple function that clear the yellow highlight when you click a square with a piece
+function clearPreviousSelfHighlight(piece)
+{
+  if (piece) {
+    document.getElementById(piece.current_pos).classList.remove("highlightYellow");
+    //console.log(piece);
+    //selfHighlight = false;
+    selfHighlightState = null;
+  } 
+}
+
 /**
  * Set up an event listener for click events on the ROOT_DIV element. When a cloc event ocurrs within ROOT_DIV, the provided
  * callback function is executed. We check if the clicked element is an <img> tag. This ensure that the code ontly runs when
@@ -193,24 +211,22 @@ function GlobalEvent() {
     }
     else //this is to know if the click is in a square with the round highlight, which is the posible move of a piece. Ensure that only valid moves are processed.
     {
-      selfHighlightState = null;
       const childElementsOfclickedEl = Array.from(event.target.childNodes); //Converts the child nodes (possible moves) of the clickd element into a array to manipulate it better
       if (childElementsOfclickedEl.length == 1 || event.target.localName == "span") {
         if (event.target.localName == "span") //if the person precisely click on the round hightlight
         {
+          clearPreviousSelfHighlight(selfHighlightState);
           const id =  event.target.parentNode.id; //gets the id of the parent node of the clickd 'span'
           moveElement(moveState, id); //call the function to move the piece to the new position
           moveState = null; //reset the oceState to null indicating the move is done.
         }
         else //if the clicked element is not a span but still has exactly one child node, means the square minus the round highlight, to ensure the proper movement either way
         {
+          clearPreviousSelfHighlight(selfHighlightState);
           const id =  event.target.id; //gets the id of the clicked element
           moveElement(moveState, id);
           moveState = null;
         }
-/*         clearHighlight();
-        clearPreviousSelfHighlight(selfHighlightState);
-        selfHighlightState = null; */
       }
       else { //if the click its an impossible move clear the highlighted elements
         clearHighlightLocal();
@@ -220,4 +236,4 @@ function GlobalEvent() {
   });
 }
 
-export { GlobalEvent };
+export { GlobalEvent, movePieceFromXToY };
