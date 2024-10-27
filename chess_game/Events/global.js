@@ -2,7 +2,7 @@ import { ROOT_DIV } from "../Helper/constants.js";
 import { globalState, keySquareMapper } from "../index.js"; //import globalState object, a 2D array representing the state of the chessboard
 import { renderHighlight, selfHighlight } from "../Render/main.js";
 import { clearHighlight, moveElement, globalStateRender } from "../Render/main.js";
-import { checkOpponetPieceByElement } from "../Helper/commonHelper.js";
+import { checkOpponetPieceByElement, checkSquareCaptureId, giveBishopHighlightIds } from "../Helper/commonHelper.js";
 
 
 //highlighted or not => state
@@ -60,39 +60,104 @@ function whitePawnClick(square)
   
   const curr_pos = piece.current_pos;
   const flatArray = globalState.flat();
-  //on intial postion, pwns moves different
-  if (curr_pos[1] == "2")
-  {
-    const highlightSquareIds = [
-      `${curr_pos[0]}${Number(curr_pos[1]) + 1}`,
-      `${curr_pos[0]}${Number(curr_pos[1]) + 2}`, ];
-      
-    highlightSquareIds.forEach(highlight => {
-      const element = keySquareMapper[highlight];
-      element.highlight = true;
-    });
 
-    globalStateRender();
+  let highlightSquareIds = null;
+  //on intial postion, pawns moves different
+  if (curr_pos[1] == "2") {
+  highlightSquareIds = [
+    `${curr_pos[0]}${Number(curr_pos[1]) + 1}`,
+    `${curr_pos[0]}${Number(curr_pos[1]) + 2}`, ];
   }
   else {
-    const col1 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) - 1)}${Number(curr_pos[1]) + 1}`;
-    const col2 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) + 1)}${Number(curr_pos[1]) + 1}`;
-
-    const captureIds = [col1, col2];
-
-    const highlightSquareIds = [`${curr_pos[0]}${Number(curr_pos[1]) + 1}`,];
-
-    captureIds.forEach(element => {
-      checkOpponetPieceByElement(element, "white");
-    });
-      
-    highlightSquareIds.forEach(highlight => {
-      const element = keySquareMapper[highlight];
-      element.highlight = true;
-    });
-    globalStateRender();
+    highlightSquareIds = [`${curr_pos[0]}${Number(curr_pos[1]) + 1}`,];
   }
-  //console.log(globalState);
+  highlightSquareIds = checkSquareCaptureId(highlightSquareIds);
+
+  highlightSquareIds.forEach(highlight => {
+    const element = keySquareMapper[highlight];
+    element.highlight = true;
+  });
+
+
+  highlightSquareIds.forEach(highlight => {
+    const element = keySquareMapper[highlight];
+    element.highlight = true;
+  });
+
+  //capture id logic
+  const col1 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) - 1)}${Number(curr_pos[1]) + 1}`;
+  const col2 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) + 1)}${Number(curr_pos[1]) + 1}`;
+
+  let captureIds = [col1, col2];
+  //captureIds = checkSquareCaptureId(captureIds);
+
+  captureIds.forEach(element => {
+    checkOpponetPieceByElement(element, "white");
+  });
+    
+  globalStateRender();
+}
+
+//white bishop event
+function whiteBishopClick(square)
+{
+  const piece = square.piece;
+  
+  if (piece == selfHighlightState) {
+    clearPreviousSelfHighlight(selfHighlightState);
+    clearHighlightLocal();
+    return;
+  }
+  
+  if (square.captureHightlight) {
+    //movePieceFromXToY();
+    moveElement(selfHighlightState, piece.current_pos);
+    clearPreviousSelfHighlight(selfHighlightState);
+    clearHighlightLocal();
+    return;
+  }
+
+  //clear all highlights
+  clearPreviousSelfHighlight(selfHighlightState);
+  clearHighlightLocal();
+  
+  //highlighting logic
+  selfHighlight(piece);
+  highlight_state = true;
+  selfHighlightState = piece;
+  
+  //add piece as move state
+  moveState = piece;
+  
+  const curr_pos = piece.current_pos;
+  const flatArray = globalState.flat();
+
+  let highlightSquareIds = giveBishopHighlightIds(curr_pos);
+
+  highlightSquareIds = checkSquareCaptureId(highlightSquareIds);
+
+  highlightSquareIds.forEach(highlight => {
+    const element = keySquareMapper[highlight];
+    element.highlight = true;
+  });
+
+  highlightSquareIds.forEach(highlight => {
+    const element = keySquareMapper[highlight];
+    element.highlight = true;
+  });
+
+  //capture id logic
+  const col1 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) - 1)}${Number(curr_pos[1]) + 1}`;
+  const col2 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) + 1)}${Number(curr_pos[1]) + 1}`;
+
+  let captureIds = [col1, col2];
+  //captureIds = checkSquareCaptureId(captureIds);
+
+  captureIds.forEach(element => {
+    checkOpponetPieceByElement(element, "white");
+  });
+    
+  globalStateRender();
 }
 
 //black pawn funciton
@@ -101,8 +166,8 @@ function blackPawnClick(square)
   const piece = square.piece;
   
   if (piece == selfHighlightState) {
-    clearHighlightLocal();
     clearPreviousSelfHighlight(selfHighlightState);
+    clearHighlightLocal();
     return;
   }
   
@@ -128,39 +193,43 @@ function blackPawnClick(square)
 
   const curr_pos = piece.current_pos;
   const flatArray = globalState.flat();
+
+  let highlightSquareIds = null;
+
   //on intial postion, pwns moves different
-  if (curr_pos[1] == "7")
-  {
-    const highlightSquareIds = [
+  if (curr_pos[1] == "7") {
+    highlightSquareIds = [
       `${curr_pos[0]}${Number(curr_pos[1]) - 1}`,
       `${curr_pos[0]}${Number(curr_pos[1]) - 2}`, ];
-      
-    highlightSquareIds.forEach(highlight => {
-      const element = keySquareMapper[highlight];
-      element.highlight = true;
-    });
-
-    globalStateRender();
   }
   else {
-    const col1 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) - 1)}${Number(curr_pos[1]) - 1}`;
-    const col2 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) + 1)}${Number(curr_pos[1]) - 1}`;
-
-    const captureIds = [col1, col2];
-
-    const highlightSquareIds = [`${curr_pos[0]}${Number(curr_pos[1]) - 1}`,];
-
-    captureIds.forEach(element => {
-      checkOpponetPieceByElement(element, "black");
-    });
-      
-    highlightSquareIds.forEach(highlight => {
-      const element = keySquareMapper[highlight];
-      element.highlight = true;
-    });
-    globalStateRender();
+    highlightSquareIds = [`${curr_pos[0]}${Number(curr_pos[1]) - 1}`,];
   }
-  //console.log(globalState);
+
+  highlightSquareIds = checkSquareCaptureId(highlightSquareIds);
+
+  highlightSquareIds.forEach(highlight => {
+    const element = keySquareMapper[highlight];
+    element.highlight = true;
+  });
+
+  highlightSquareIds.forEach(highlight => {
+    const element = keySquareMapper[highlight];
+    element.highlight = true;
+  });
+
+  //capture id logic
+  const col1 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) - 1)}${Number(curr_pos[1]) - 1}`;
+  const col2 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) + 1)}${Number(curr_pos[1]) - 1}`;
+
+  let captureIds = [col1, col2];
+  //captureIds = checkSquareCaptureId(captureIds);
+
+  captureIds.forEach(element => {
+    checkOpponetPieceByElement(element, "black");
+  });
+    
+  globalStateRender();
 }
 
 //simple function that clear the yellow highlight when you click a square with a piece
@@ -192,6 +261,9 @@ function GlobalEvent() {
       }
       else if (square.piece.piece_name == "BLACK_PAWN") {
         blackPawnClick(square);
+      }
+      else if (square.piece.piece_name == "WHITE_BISHOP") {
+        whiteBishopClick(square);
       }
     }
     else //this is to know if the click is in a square with the round highlight, which is the posible move of a piece. Ensure that only valid moves are processed.

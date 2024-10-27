@@ -18,4 +18,26 @@ function checkOpponetPieceByElement(id, color) {
     return false;
 }
 
-export { checkOpponetPieceByElement };
+//function to check capture id square
+function checkSquareCaptureId(array) {
+    let returnArray = [];
+
+    for (let i = 0; i < array.length; i++) {
+        const squareId = array[i];
+        const square = keySquareMapper[squareId];
+
+        if (square.piece) {
+            break;
+        }
+        returnArray.push(squareId);
+    }
+    return (returnArray);
+}
+
+//function to give highlight ids for bishop
+function giveBishopHighlightIds(id) {
+    console.log(keySquareMapper[id]);
+    return [];
+}
+
+export { checkOpponetPieceByElement, checkSquareCaptureId, giveBishopHighlightIds };
