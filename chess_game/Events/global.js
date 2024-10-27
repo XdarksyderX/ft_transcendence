@@ -1,5 +1,5 @@
 import { ROOT_DIV } from "../Helper/constants.js";
-import { globalState } from "../index.js"; //import globalState object, a 2D array representing the state of the chessboard
+import { globalState, keySquareMapper } from "../index.js"; //import globalState object, a 2D array representing the state of the chessboard
 import { renderHighlight, selfHighlight } from "../Render/main.js";
 import { clearHighlight, moveElement, globalStateRender } from "../Render/main.js";
 import { checkOpponetPieceByElement } from "../Helper/commonHelper.js";
@@ -31,29 +31,33 @@ function movePieceFromXToY(from, to) {
 function whitePawnClick(square)
 {
   const piece = square.piece;
-
+  
   if (piece == selfHighlightState) {
-    clearHighlightLocal();
     clearPreviousSelfHighlight(selfHighlightState);
+    clearHighlightLocal();
     return;
   }
-
+  
   if (square.captureHightlight) {
     //movePieceFromXToY();
     moveElement(selfHighlightState, piece.current_pos);
     clearPreviousSelfHighlight(selfHighlightState);
+    clearHighlightLocal();
     return;
   }
+
+  //clear all highlights
   clearPreviousSelfHighlight(selfHighlightState);
+  clearHighlightLocal();
   
   //highlighting logic
   selfHighlight(piece);
   highlight_state = true;
   selfHighlightState = piece;
-
+  
   //add piece as move state
   moveState = piece;
-
+  
   const curr_pos = piece.current_pos;
   const flatArray = globalState.flat();
   //on intial postion, pwns moves different
@@ -62,17 +66,10 @@ function whitePawnClick(square)
     const highlightSquareIds = [
       `${curr_pos[0]}${Number(curr_pos[1]) + 1}`,
       `${curr_pos[0]}${Number(curr_pos[1]) + 2}`, ];
-
-    clearHighlightLocal();
       
     highlightSquareIds.forEach(highlight => {
-      globalState.forEach(row => {
-        row.forEach(element => {
-          if (element.id == highlight) {
-            element.highlight = true;
-          }
-        });
-      });
+      const element = keySquareMapper[highlight];
+      element.highlight = true;
     });
 
     globalStateRender();
@@ -90,13 +87,8 @@ function whitePawnClick(square)
     });
       
     highlightSquareIds.forEach(highlight => {
-      globalState.forEach(row => {
-        row.forEach(element => {
-          if (element.id == highlight) {
-            element.highlight = true;
-          }
-        });
-      });
+      const element = keySquareMapper[highlight];
+      element.highlight = true;
     });
     globalStateRender();
   }
@@ -107,20 +99,24 @@ function whitePawnClick(square)
 function blackPawnClick(square)
 {
   const piece = square.piece;
-
+  
   if (piece == selfHighlightState) {
+    clearHighlightLocal();
+    clearPreviousSelfHighlight(selfHighlightState);
+    return;
+  }
+  
+  if (square.captureHightlight) {
+    //movePieceFromXToY();
+    moveElement(selfHighlightState, piece.current_pos);
     clearPreviousSelfHighlight(selfHighlightState);
     clearHighlightLocal();
     return;
   }
 
-  if (square.captureHightlight) {
-    //movePieceFromXToY();
-    moveElement(selfHighlightState, piece.current_pos);
-    clearPreviousSelfHighlight(selfHighlightState);
-    return;
-  }
+  //clears all the higlights
   clearPreviousSelfHighlight(selfHighlightState);
+  clearHighlightLocal();
 
   //highlighting logic
   selfHighlight(piece);
@@ -138,17 +134,10 @@ function blackPawnClick(square)
     const highlightSquareIds = [
       `${curr_pos[0]}${Number(curr_pos[1]) - 1}`,
       `${curr_pos[0]}${Number(curr_pos[1]) - 2}`, ];
-
-    clearHighlightLocal();
       
     highlightSquareIds.forEach(highlight => {
-      globalState.forEach(row => {
-        row.forEach(element => {
-          if (element.id == highlight) {
-            element.highlight = true;
-          }
-        });
-      });
+      const element = keySquareMapper[highlight];
+      element.highlight = true;
     });
 
     globalStateRender();
@@ -166,13 +155,8 @@ function blackPawnClick(square)
     });
       
     highlightSquareIds.forEach(highlight => {
-      globalState.forEach(row => {
-        row.forEach(element => {
-          if (element.id == highlight) {
-            element.highlight = true;
-          }
-        });
-      });
+      const element = keySquareMapper[highlight];
+      element.highlight = true;
     });
     globalStateRender();
   }
@@ -200,8 +184,9 @@ function GlobalEvent() {
     if (event.target.localName === "img") // '===' compares both the value and the type without converting either value as '==' do (eg: 5 == '5')
     {
       const clickId = event.target.parentNode.id; //get the id of the parent element of the child, means the square, intead of the piece
-      const flatArray = globalState.flat(); //flattens the 2D globalState array into a 1D array,to asily search a specific square by its id.
-      const square = flatArray.find((el) => el.id == clickId); //Search in the flattened array for an square with the id that matched the clickId. The find method return the forst matching element
+      //const flatArray = globalState.flat(); //flattens the 2D globalState array into a 1D array,to asily search a specific square by its id.
+      //const square = flatArray.find((el) => el.id == clickId); //Search in the flattened array for an square with the id that matched the clickId. The find method return the forst matching element
+      const square = keySquareMapper[clickId]; //Search in the flattened array for an square with the id that matched the clickId. The find method return the forst matching element
       if (square.piece.piece_name == "WHITE_PAWN") {
         whitePawnClick(square);
       }
