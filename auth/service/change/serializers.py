@@ -34,9 +34,6 @@ class ChangeUsernameSerializer(serializers.Serializer):
         user.save()
         return user
 
-from rest_framework import serializers
-from core.models import User
-
 class ChangeEmailSerializer(serializers.Serializer):
     new_email = serializers.EmailField()
 
@@ -54,9 +51,6 @@ class ChangeEmailSerializer(serializers.Serializer):
         user.save()
         return user
 
-from rest_framework import serializers
-from core.models import User
-
 class ResetPasswordRequestSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
@@ -67,10 +61,6 @@ class ResetPasswordRequestSerializer(serializers.Serializer):
                 "message": "Email not registered."
             })
         return value
-
-
-from rest_framework import serializers
-from core.models import User
 
 class ResetPasswordSerializer(serializers.Serializer):
     reset_token = serializers.CharField()

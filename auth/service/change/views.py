@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from .serializers import ChangeUsernameSerializer, ChangeEmailSerializer, ResetPasswordRequestSerializer, ResetPasswordSerializer
 from django.core.mail import send_mail
 from django.conf import settings
-from core.models import EmailVerification
+from core.models import EmailVerification, User
 from django.utils import timezone
 from core.utils.rabbitmq_client import RabbitMQClient
 from core.utils.event_domain import wrap_event_data
@@ -16,6 +16,12 @@ class ChangeUsernameView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        if request.user.oauth_registered:
+            return Response({
+                "status": "error",
+                "message": "Username cannot be changed for users registered with OAuth."
+            }, status=status.HTTP_403_FORBIDDEN)
+
         serializer = ChangeUsernameSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
@@ -44,6 +50,12 @@ class ChangeEmailView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        if request.user.oauth_registered:
+            return Response({
+                "status": "error",
+                "message": "Email cannot be changed for users registered with OAuth."
+            }, status=status.HTTP_403_FORBIDDEN)
+
         serializer = ChangeEmailSerializer(data=request.data)
         if serializer.is_valid():
             user = request.user
@@ -89,6 +101,12 @@ class ResetPasswordRequestView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        if request.user.oauth_registered:
+            return Response({
+                "status": "error",
+                "message": "Password cannot be reset for users registered with OAuth."
+            }, status=status.HTTP_403_FORBIDDEN)
+
         serializer = ResetPasswordRequestSerializer(data=request.data)
         if serializer.is_valid():
             rabbit_client = RabbitMQClient()
@@ -115,6 +133,12 @@ class ResetPasswordView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        if request.user.oauth_registered:
+            return Response({
+                "status": "error",
+                "message": "Password cannot be reset for users registered with OAuth."
+            }, status=status.HTTP_403_FORBIDDEN)
+
         serializer = ResetPasswordSerializer(data=request.data)
         if serializer.is_valid():
             rabbit_client = RabbitMQClient()

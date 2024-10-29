@@ -34,12 +34,27 @@ class VerifyEmailView(APIView):
                 "status": "success",
                 "message": "Email verified successfully."
             }, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({
+            "status": "error",
+            "message": "Invalid token"
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 class Activate2FAView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        if request.user.is_anonymous:
+            return Response({
+                "status": "error",
+                "message": "User must be authenticated to activate 2FA."
+            }, status=status.HTTP_401_UNAUTHORIZED)
+
+        if request.user.oauth_registered:
+            return Response({
+                "status": "error",
+                "message": "2FA cannot be activated or deactivated for users registered with OAuth."
+            }, status=status.HTTP_403_FORBIDDEN)
+
         serializer = Activate2FASerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             enable_2fa = serializer.validated_data['enable']
@@ -94,4 +109,7 @@ class Activate2FAView(APIView):
 
             return Response(response_data, status=status.HTTP_200_OK)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({
+            "status": "error",
+            "message": "Required enable property"
+        }, status=status.HTTP_400_BAD_REQUEST)

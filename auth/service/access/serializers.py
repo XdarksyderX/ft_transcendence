@@ -1,12 +1,12 @@
 import jwt
+import uuid
+import datetime
 from django.conf import settings
 from django.core.mail import send_mail
 from django.utils import timezone
 from rest_framework import serializers
 from core.models import User, EmailVerification
-from rest_framework.exceptions import ValidationError
-import uuid
-import datetime
+from django.core.signing import BadSignature, Signer
 
 class RegisterUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -17,20 +17,14 @@ class RegisterUserSerializer(serializers.ModelSerializer):
         }
 
     def validate(self, data):
-        if User.objects.filter(email=data['email']).exists():
-            raise ValidationError({
+        if User.objects.filter(email=data['email']).exists() or User.objects.filter(username=data['username']).exists():
+            raise serializers.ValidationError({
                 "status": "error",
-                "message": "This email is already registered."
-            })
-
-        if User.objects.filter(username=data['username']).exists():
-            raise ValidationError({
-                "status": "error",
-                "message": "This username is already taken."
+                "message": "This email or username is already registered."
             })
 
         if 'password' in data and len(data['password']) < 8:
-            raise ValidationError({
+            raise serializers.ValidationError({
                 "status": "error",
                 "message": "Password must be at least 8 characters long."
             })
@@ -73,14 +67,14 @@ class LoginSerializer(serializers.Serializer):
 
     def validate(self, data):
         if not User.objects.filter(username=data['username']).exists():
-            raise ValidationError({
+            raise serializers.ValidationError({
                 "status": "error",
                 "message": "Invalid credentials"
             })
         
         user = User.objects.get(username=data['username'])
         if not user.is_email_verified:
-            raise ValidationError({
+            raise serializers.ValidationError({
                 "status": "error",
                 "message": "Email is not verified."
             })
@@ -91,7 +85,7 @@ class RefreshTokenValidator:
     @staticmethod
     def validate_token(value):
         if not value.strip():
-            raise ValidationError({
+            raise serializers.ValidationError({
                 "status": "error",
                 "message": "Refresh token is required."
             })
@@ -99,12 +93,12 @@ class RefreshTokenValidator:
         try:
             jwt.decode(value, settings.JWT_SECRET, algorithms=["HS256"])
         except jwt.ExpiredSignatureError:
-            raise ValidationError({
+            raise serializers.ValidationError({
                 "status": "error",
                 "message": "Refresh token has expired."
             })
         except jwt.InvalidTokenError:
-            raise ValidationError({
+            raise serializers.ValidationError({
                 "status": "error",
                 "message": "Invalid refresh token."
             })
@@ -116,3 +110,31 @@ class LogoutSerializer(serializers.Serializer):
 
     def validate_refresh_token(self, value):
         return RefreshTokenValidator.validate_token(value)
+
+signer = Signer()
+
+class VerifyOTPSerializer(serializers.Serializer):
+    temp_token = serializers.CharField()
+    two_fa_code = serializers.CharField()
+
+    def validate(self, data):
+        temp_token = data.get('temp_token')
+        two_fa_code = data.get('two_fa_code')
+
+        if not temp_token or not two_fa_code:
+            raise serializers.ValidationError({
+                "status": "error",
+                "message": "Temp token and 2FA code are required."
+            })
+
+        try:
+            user_id = signer.unsign(temp_token)
+            user = User.objects.get(id=user_id)
+        except (BadSignature, User.DoesNotExist):
+            raise serializers.ValidationError({
+                "status": "error",
+                "message": "Invalid or expired temp token."
+            })
+
+        data['user'] = user
+        return data

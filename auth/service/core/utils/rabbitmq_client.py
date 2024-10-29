@@ -2,10 +2,6 @@ import pika
 import json
 from django.conf import settings
 
-import pika
-import json
-from django.conf import settings
-
 class RabbitMQClient:
     def __init__(self):
         self.mock_enabled = not settings.AMQP_ENABLED

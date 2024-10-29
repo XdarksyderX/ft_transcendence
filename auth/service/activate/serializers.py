@@ -37,8 +37,6 @@ class VerifyEmailSerializer(serializers.Serializer):
         verification.user.save()
         return verification.user
 
-from rest_framework import serializers
-
 class Activate2FASerializer(serializers.Serializer):
     enable = serializers.BooleanField()
 
