@@ -133,8 +133,108 @@ function whiteBishopClick(square)
   const flatArray = globalState.flat();
 
   let highlightSquareIds = giveBishopHighlightIds(curr_pos);
+  
+  const { bottomLeft, bottomRight, topLeft, topRight } = highlightSquareIds;
+  
+  console.log(bottomLeft);
+  console.log(bottomRight);
+  console.log(topLeft);
+  console.log(topRight);
 
-  highlightSquareIds = checkSquareCaptureId(highlightSquareIds);
+  let res = [];
+  if (bottomLeft) res.push(checkSquareCaptureId(bottomLeft));
+  if (bottomRight) res.push(checkSquareCaptureId(bottomRight));
+  if (topLeft) res.push(checkSquareCaptureId(topLeft));
+  if (topRight) res.push(checkSquareCaptureId(topRight));
+  /* res.push(checkSquareCaptureId(bottomLeft));
+  res.push(checkSquareCaptureId(bottomRight));
+  res.push(checkSquareCaptureId(topLeft));
+  res.push(checkSquareCaptureId(topRight)); */
+
+  //highlightSquareIds = checkSquareCaptureId(highlightSquareIds);
+  highlightSquareIds = res.flat();
+  
+
+  highlightSquareIds.forEach(highlight => {
+    const element = keySquareMapper[highlight];
+    element.highlight = true;
+  });
+
+  highlightSquareIds.forEach(highlight => {
+    const element = keySquareMapper[highlight];
+    element.highlight = true;
+  });
+
+  //capture id logic
+  const col1 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) - 1)}${Number(curr_pos[1]) + 1}`;
+  const col2 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) + 1)}${Number(curr_pos[1]) + 1}`;
+
+  let captureIds = [col1, col2];
+  //captureIds = checkSquareCaptureId(captureIds);
+
+  captureIds.forEach(element => {
+    checkOpponetPieceByElement(element, "white");
+  });
+    
+  globalStateRender();
+}
+
+//black bishop event
+function blackBishopClick(square)
+{
+  const piece = square.piece;
+  
+  if (piece == selfHighlightState) {
+    clearPreviousSelfHighlight(selfHighlightState);
+    clearHighlightLocal();
+    return;
+  }
+  
+  if (square.captureHightlight) {
+    //movePieceFromXToY();
+    moveElement(selfHighlightState, piece.current_pos);
+    clearPreviousSelfHighlight(selfHighlightState);
+    clearHighlightLocal();
+    return;
+  }
+
+  //clear all highlights
+  clearPreviousSelfHighlight(selfHighlightState);
+  clearHighlightLocal();
+  
+  //highlighting logic
+  selfHighlight(piece);
+  highlight_state = true;
+  selfHighlightState = piece;
+  
+  //add piece as move state
+  moveState = piece;
+  
+  const curr_pos = piece.current_pos;
+  const flatArray = globalState.flat();
+
+  let highlightSquareIds = giveBishopHighlightIds(curr_pos);
+  
+  const { bottomLeft, bottomRight, topLeft, topRight } = highlightSquareIds;
+  
+  console.log(bottomLeft);
+  console.log(bottomRight);
+  console.log(topLeft);
+  console.log(topRight);
+
+  let res = [];
+  if (bottomLeft) res.push(checkSquareCaptureId(bottomLeft));
+  if (bottomRight) res.push(checkSquareCaptureId(bottomRight));
+  if (topLeft) res.push(checkSquareCaptureId(topLeft));
+  if (topRight) res.push(checkSquareCaptureId(topRight));
+  /* res.push(checkSquareCaptureId(bottomLeft));
+  res.push(checkSquareCaptureId(bottomRight));
+  res.push(checkSquareCaptureId(topLeft));
+  res.push(checkSquareCaptureId(topRight)); */
+
+  //highlightSquareIds = checkSquareCaptureId(highlightSquareIds);
+  highlightSquareIds = res.flat();
+  
 
   highlightSquareIds.forEach(highlight => {
     const element = keySquareMapper[highlight];

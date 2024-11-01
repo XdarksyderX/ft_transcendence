@@ -19,6 +19,11 @@ function checkOpponetPieceByElement(id, color) {
 }
 
 //function to check capture id square
+/*  part22 min13:00
+    commonHelper.js:25 Uncaught TypeError: Cannot read properties of undefined (reading 'length')
+    at checkSquareCaptureId (commonHelper.js:25:31)
+    at whiteBishopClick (global.js:140:12)
+    at HTMLDivElement.<anonymous> (global.js:277:9) */
 function checkSquareCaptureId(array) {
     let returnArray = [];
 
@@ -36,48 +41,67 @@ function checkSquareCaptureId(array) {
 
 //function to give highlight ids for bishop. The movement is diagonal
 function giveBishopHighlightIds(id) {
-    //will give top left ids
-    function topLeft(id) {
+    let finalReturnArray = [];
+    
+   //will give top left ids
+   function topLeft(id) {
         let alpha = id[0];
         let num = Number(id[1]);
-        let returnArr = [];
-
-        while (alpha == "a" || num == 8) {
-            num = Number(id[1]) + 1;
-            alpha = String.fromCharCode(id[0].charCodeAt(0) - 1);
-            returnArr.push(`${alpha}${num}`);
+        let resArr = [];
+        
+        while (alpha != "a" && num != 8) {
+            alpha = String.fromCharCode(alpha.charCodeAt(0) - 1);
+            num = num + 1;
+            resArr.push(`${alpha}${num}`);
         }
-    
-        //return `${String.fromCharCode(id[0].charCodeAt(0) - 1)}${num}`;
-        return returnArr;
-    }
+        return resArr;
+   }
     //will give bottom left ids
     function bottonLeft(id) {
-        if (id[0] == "a" || Number(id[1]) == 1)
-            return false;
-        let num = Number(id[1]) - 1;
-        return `${String.fromCharCode(id[0].charCodeAt(0) - 1)}${num}`;
+        let alpha = id[0];
+        let num = Number(id[1]);
+        let resArr = [];
+
+        while (alpha != "a" && num != 1) {
+            alpha = String.fromCharCode(alpha.charCodeAt(0) - 1);
+            num = num - 1;
+            resArr.push(`${alpha}${num}`);
+        }
+        return resArr;
     }
     //will give top right ids
     function topRight(id) {
-        if (id[0] == "h" || Number(id[1]) == 8)
-            return false;
-        
-        let num = Number(id[1]) + 1;
-        return `${String.fromCharCode(id[0].charCodeAt(0) + 1)}${num}`;
+        let alpha = id[0];
+        let num = Number(id[1]);
+        let resArr = [];
+
+        while (alpha != "h" && num != 8) {
+            alpha = String.fromCharCode(alpha.charCodeAt(0) + 1);
+            num = num + 1;
+            resArr.push(`${alpha}${num}`);
+        }
+        return resArr;
     }
     //will give bottom right ids
     function bottonRight(id) {
-        if (id[0] == "h" || Number(id[1]) == 1)
-            return false;
-        let num = Number(id[1]) - 1;
-        return `${String.fromCharCode(id[0].charCodeAt(0) + 1)}${num}`;
+        let alpha = id[0];
+        let num = Number(id[1]);
+        let resArr = [];
+
+        while (alpha != "h" && num != 1) {
+            alpha = String.fromCharCode(alpha.charCodeAt(0) + 1);
+            num = num - 1;
+            resArr.push(`${alpha}${num}`);
+        }
+        return resArr;
     }
     
-    //console.log(keySquareMapper[id]);
-    console.log(topLeft("g7"));
-    //console.log(bottonLeft("a7"));
-    return [];
+    return {
+        topLeft: topLeft(id),
+        topRight: topRight(id),
+        bottonLeft: bottonLeft(id),
+        bottonRight: bottonRight(id),
+    };
 }
 
 export { checkOpponetPieceByElement, checkSquareCaptureId, giveBishopHighlightIds };
