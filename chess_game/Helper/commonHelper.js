@@ -19,14 +19,8 @@ function checkOpponetPieceByElement(id, color) {
 }
 
 //function to check capture id square
-/*  part22 min13:00
-    commonHelper.js:25 Uncaught TypeError: Cannot read properties of undefined (reading 'length')
-    at checkSquareCaptureId (commonHelper.js:25:31)
-    at whiteBishopClick (global.js:140:12)
-    at HTMLDivElement.<anonymous> (global.js:277:9) */
 function checkSquareCaptureId(array) {
     let returnArray = [];
-
     for (let i = 0; i < array.length; i++) {
         const squareId = array[i];
         const square = keySquareMapper[squareId];
@@ -39,12 +33,37 @@ function checkSquareCaptureId(array) {
     return (returnArray);
 }
 
-//function to give highlight ids for bishop. The movement is diagonal
+/*function to calculate diagonal moves for a bishop in chess, first we extract the letter of the 
+position of the piece, and then the number. We do a loop until the position reaches the limits of
+the cheeseboard. */
+function diagonalMove(id, charLimit, numLimit, alphaStep, numStep) {
+    let alpha = id[0];
+    let num = Number(id[1]);
+    let resArr = [];
+    
+    while (alpha != charLimit && num != numLimit) {
+        alpha = String.fromCharCode(alpha.charCodeAt(0) + alphaStep); //we 'move' the letter part of the position; if the value is positive we go one letter up in the alphabeth, and if the value is negative we go down
+        num = num + numStep; //we 'move' the number part of the position; if the value is positive we add , and if the value is negative we substract
+        resArr.push(`${alpha}${num}`);
+    }
+    return resArr;
+}
+
 function giveBishopHighlightIds(id) {
+    return {
+        topLeft: diagonalMove(id, 'a', 8, -1, 1),
+        topRight: diagonalMove(id, 'h', 8, 1, 1),
+        bottomLeft: diagonalMove(id, 'a', 1, -1, -1),
+        bottomRight: diagonalMove(id, 'h', 1, 1, -1),
+    };
+}
+
+/* original function to give highlight ids for bishop. The movement is diagonal
+I'm going to keep this for a while to be sure */
+/* function giveBishopHighlightIds(id) {
     let finalReturnArray = [];
     
-   //will give top left ids
-   function topLeft(id) {
+    function topLeft(id) {
         let alpha = id[0];
         let num = Number(id[1]);
         let resArr = [];
@@ -55,9 +74,9 @@ function giveBishopHighlightIds(id) {
             resArr.push(`${alpha}${num}`);
         }
         return resArr;
-   }
-    //will give bottom left ids
-    function bottonLeft(id) {
+    }
+
+    function bottomLeft(id) {
         let alpha = id[0];
         let num = Number(id[1]);
         let resArr = [];
@@ -69,7 +88,7 @@ function giveBishopHighlightIds(id) {
         }
         return resArr;
     }
-    //will give top right ids
+
     function topRight(id) {
         let alpha = id[0];
         let num = Number(id[1]);
@@ -82,8 +101,8 @@ function giveBishopHighlightIds(id) {
         }
         return resArr;
     }
-    //will give bottom right ids
-    function bottonRight(id) {
+
+    function bottomRight(id) {
         let alpha = id[0];
         let num = Number(id[1]);
         let resArr = [];
@@ -95,13 +114,13 @@ function giveBishopHighlightIds(id) {
         }
         return resArr;
     }
-    
+
     return {
         topLeft: topLeft(id),
         topRight: topRight(id),
-        bottonLeft: bottonLeft(id),
-        bottonRight: bottonRight(id),
+        bottomLeft: bottomLeft(id),
+        bottomRight: bottomRight(id),
     };
-}
+} */
 
 export { checkOpponetPieceByElement, checkSquareCaptureId, giveBishopHighlightIds };

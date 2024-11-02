@@ -135,26 +135,16 @@ function whiteBishopClick(square)
   let highlightSquareIds = giveBishopHighlightIds(curr_pos);
   
   const { bottomLeft, bottomRight, topLeft, topRight } = highlightSquareIds;
-  
-  console.log(bottomLeft);
-  console.log(bottomRight);
-  console.log(topLeft);
-  console.log(topRight);
 
   let res = [];
-  if (bottomLeft) res.push(checkSquareCaptureId(bottomLeft));
-  if (bottomRight) res.push(checkSquareCaptureId(bottomRight));
-  if (topLeft) res.push(checkSquareCaptureId(topLeft));
-  if (topRight) res.push(checkSquareCaptureId(topRight));
-  /* res.push(checkSquareCaptureId(bottomLeft));
+  res.push(checkSquareCaptureId(bottomLeft));
   res.push(checkSquareCaptureId(bottomRight));
   res.push(checkSquareCaptureId(topLeft));
-  res.push(checkSquareCaptureId(topRight)); */
+  res.push(checkSquareCaptureId(topRight));
 
   //highlightSquareIds = checkSquareCaptureId(highlightSquareIds);
   highlightSquareIds = res.flat();
   
-
   highlightSquareIds.forEach(highlight => {
     const element = keySquareMapper[highlight];
     element.highlight = true;
@@ -216,25 +206,15 @@ function blackBishopClick(square)
   let highlightSquareIds = giveBishopHighlightIds(curr_pos);
   
   const { bottomLeft, bottomRight, topLeft, topRight } = highlightSquareIds;
-  
-  console.log(bottomLeft);
-  console.log(bottomRight);
-  console.log(topLeft);
-  console.log(topRight);
 
   let res = [];
-  if (bottomLeft) res.push(checkSquareCaptureId(bottomLeft));
-  if (bottomRight) res.push(checkSquareCaptureId(bottomRight));
-  if (topLeft) res.push(checkSquareCaptureId(topLeft));
-  if (topRight) res.push(checkSquareCaptureId(topRight));
-  /* res.push(checkSquareCaptureId(bottomLeft));
+  res.push(checkSquareCaptureId(bottomLeft));
   res.push(checkSquareCaptureId(bottomRight));
   res.push(checkSquareCaptureId(topLeft));
-  res.push(checkSquareCaptureId(topRight)); */
+  res.push(checkSquareCaptureId(topRight));
 
   //highlightSquareIds = checkSquareCaptureId(highlightSquareIds);
   highlightSquareIds = res.flat();
-  
 
   highlightSquareIds.forEach(highlight => {
     const element = keySquareMapper[highlight];
@@ -254,7 +234,7 @@ function blackBishopClick(square)
   //captureIds = checkSquareCaptureId(captureIds);
 
   captureIds.forEach(element => {
-    checkOpponetPieceByElement(element, "white");
+    checkOpponetPieceByElement(element, "black");
   });
     
   globalStateRender();
@@ -364,6 +344,9 @@ function GlobalEvent() {
       }
       else if (square.piece.piece_name == "WHITE_BISHOP") {
         whiteBishopClick(square);
+      }
+      else if (square.piece.piece_name == "BLACK_BISHOP") {
+        blackBishopClick(square);
       }
     }
     else //this is to know if the click is in a square with the round highlight, which is the posible move of a piece. Ensure that only valid moves are processed.
