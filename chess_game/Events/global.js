@@ -2,7 +2,7 @@ import { ROOT_DIV } from "../Helper/constants.js";
 import { globalState, keySquareMapper } from "../index.js"; //import globalState object, a 2D array representing the state of the chessboard
 import { renderHighlight, selfHighlight } from "../Render/main.js";
 import { clearHighlight, moveElement, globalStateRender } from "../Render/main.js";
-import { checkOpponetPieceByElement, checkSquareCaptureId, giveBishopHighlightIds, checkPieceExist } from "../Helper/commonHelper.js";
+import { checkOpponetPieceByElement, checkSquareCaptureId, giveBishopHighlightIds, checkPieceExist, giveRookHighlightIds } from "../Helper/commonHelper.js";
 
 
 //highlighted or not => state
@@ -261,6 +261,168 @@ function blackBishopClick(square)
   globalStateRender();
 }
 
+//white rook event
+function whiteRookClick(square)
+{
+  const piece = square.piece;
+  
+  if (piece == selfHighlightState) {
+    clearPreviousSelfHighlight(selfHighlightState);
+    clearHighlightLocal();
+    return;
+  }
+  
+  if (square.captureHightlight) {
+    //movePieceFromXToY();
+    moveElement(selfHighlightState, piece.current_pos);
+    clearPreviousSelfHighlight(selfHighlightState);
+    clearHighlightLocal();
+    return;
+  }
+
+  //clear all highlights
+  clearPreviousSelfHighlight(selfHighlightState);
+  clearHighlightLocal();
+  
+  //highlighting logic
+  selfHighlight(piece);
+  highlight_state = true;
+  selfHighlightState = piece;
+  
+  //add piece as move state
+  moveState = piece;
+  
+  const curr_pos = piece.current_pos;
+  const flatArray = globalState.flat();
+
+  let highlightSquareIds = giveRookHighlightIds(curr_pos);
+  let tmp = [];
+  
+  const { front, back, left, right } = highlightSquareIds;
+
+  let res = [];
+  res.push(checkSquareCaptureId(front));
+  res.push(checkSquareCaptureId(back));
+  res.push(checkSquareCaptureId(left));
+  res.push(checkSquareCaptureId(right));
+
+  tmp.push(front);
+  tmp.push(back);
+  tmp.push(left);
+  tmp.push(right);
+
+  //highlightSquareIds = checkSquareCaptureId(highlightSquareIds);
+  highlightSquareIds = res.flat();
+  
+  highlightSquareIds.forEach(highlight => {
+    const element = keySquareMapper[highlight];
+    element.highlight = true;
+  });
+
+  highlightSquareIds.forEach(highlight => {
+    const element = keySquareMapper[highlight];
+    element.highlight = true;
+  });
+
+  let captureIds = [];
+  for (let i = 0; i < tmp.length; i++) {
+    const arr = tmp[i];
+
+    for (let j = 0; j < arr.length; j++) {
+      const element = arr[j];
+      let pieceRes = checkPieceExist(element);
+      if (pieceRes && pieceRes.piece && pieceRes.piece.piece_name.toLowerCase().includes("white")) {
+        break;
+      }
+      if (checkOpponetPieceByElement(element, "white")) {
+        break;
+      }
+    }
+  } 
+  globalStateRender();
+}
+
+//black rook event
+function blackRookClick(square)
+{
+  const piece = square.piece;
+  
+  if (piece == selfHighlightState) {
+    clearPreviousSelfHighlight(selfHighlightState);
+    clearHighlightLocal();
+    return;
+  }
+  
+  if (square.captureHightlight) {
+    //movePieceFromXToY();
+    moveElement(selfHighlightState, piece.current_pos);
+    clearPreviousSelfHighlight(selfHighlightState);
+    clearHighlightLocal();
+    return;
+  }
+
+  //clear all highlights
+  clearPreviousSelfHighlight(selfHighlightState);
+  clearHighlightLocal();
+  
+  //highlighting logic
+  selfHighlight(piece);
+  highlight_state = true;
+  selfHighlightState = piece;
+  
+  //add piece as move state
+  moveState = piece;
+  
+  const curr_pos = piece.current_pos;
+  const flatArray = globalState.flat();
+
+  let highlightSquareIds = giveRookHighlightIds(curr_pos);
+  let tmp = [];
+  
+  const { front, back, left, right } = highlightSquareIds;
+
+  let res = [];
+  res.push(checkSquareCaptureId(front));
+  res.push(checkSquareCaptureId(back));
+  res.push(checkSquareCaptureId(left));
+  res.push(checkSquareCaptureId(right));
+
+  tmp.push(front);
+  tmp.push(back);
+  tmp.push(left);
+  tmp.push(right);
+
+  //highlightSquareIds = checkSquareCaptureId(highlightSquareIds);
+  highlightSquareIds = res.flat();
+  
+  highlightSquareIds.forEach(highlight => {
+    const element = keySquareMapper[highlight];
+    element.highlight = true;
+  });
+
+  highlightSquareIds.forEach(highlight => {
+    const element = keySquareMapper[highlight];
+    element.highlight = true;
+  });
+
+  let captureIds = [];
+  for (let i = 0; i < tmp.length; i++) {
+    const arr = tmp[i];
+
+    for (let j = 0; j < arr.length; j++) {
+      const element = arr[j];
+      let pieceRes = checkPieceExist(element);
+      if (pieceRes && pieceRes.piece && pieceRes.piece.piece_name.toLowerCase().includes("black")) {
+        break;
+      }
+      if (checkOpponetPieceByElement(element, "black")) {
+        break;
+      }
+    }
+  } 
+  globalStateRender();
+}
+
 //black pawn funciton
 function blackPawnClick(square)
 {
@@ -368,6 +530,12 @@ function GlobalEvent() {
       }
       else if (square.piece.piece_name == "BLACK_BISHOP") {
         blackBishopClick(square);
+      }
+      else if (square.piece.piece_name == "WHITE_ROOK") {
+        whiteRookClick(square);
+      }
+      else if (square.piece.piece_name == "BLACK_ROOK") {
+        blackRookClick(square);
       }
     }
     else //this is to know if the click is in a square with the round highlight, which is the posible move of a piece. Ensure that only valid moves are processed.

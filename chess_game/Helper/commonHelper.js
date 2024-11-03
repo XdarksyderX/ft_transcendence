@@ -67,69 +67,30 @@ function giveBishopHighlightIds(id) {
     };
 }
 
-/* original function to give highlight ids for bishop. The movement is diagonal
-I'm going to keep this for a while to be sure */
-/* function giveBishopHighlightIds(id) {
-    let finalReturnArray = [];
+function straightMove(id, alphaStep, numStep) {
+    let alpha = id[0];
+    let num = Number(id[1]);
+    let resArr = [];
     
-    function topLeft(id) {
-        let alpha = id[0];
-        let num = Number(id[1]);
-        let resArr = [];
-        
-        while (alpha != "a" && num != 8) {
-            alpha = String.fromCharCode(alpha.charCodeAt(0) - 1);
-            num = num + 1;
-            resArr.push(`${alpha}${num}`);
+    while (true) {
+        alpha = String.fromCharCode(alpha.charCodeAt(0) + alphaStep); // Move the letter part
+        num = num + numStep; // Move the number part
+        // Verify if the coordinates are within the limits of the chessboard
+        if (alpha < 'a' || alpha > 'h' || num < 1 || num > 8) {
+            break;
         }
-        return resArr;
+        resArr.push(`${alpha}${num}`);
     }
+    return resArr;
+}
 
-    function bottomLeft(id) {
-        let alpha = id[0];
-        let num = Number(id[1]);
-        let resArr = [];
-
-        while (alpha != "a" && num != 1) {
-            alpha = String.fromCharCode(alpha.charCodeAt(0) - 1);
-            num = num - 1;
-            resArr.push(`${alpha}${num}`);
-        }
-        return resArr;
-    }
-
-    function topRight(id) {
-        let alpha = id[0];
-        let num = Number(id[1]);
-        let resArr = [];
-
-        while (alpha != "h" && num != 8) {
-            alpha = String.fromCharCode(alpha.charCodeAt(0) + 1);
-            num = num + 1;
-            resArr.push(`${alpha}${num}`);
-        }
-        return resArr;
-    }
-
-    function bottomRight(id) {
-        let alpha = id[0];
-        let num = Number(id[1]);
-        let resArr = [];
-
-        while (alpha != "h" && num != 1) {
-            alpha = String.fromCharCode(alpha.charCodeAt(0) + 1);
-            num = num - 1;
-            resArr.push(`${alpha}${num}`);
-        }
-        return resArr;
-    }
-
+function giveRookHighlightIds(id) {
     return {
-        topLeft: topLeft(id),
-        topRight: topRight(id),
-        bottomLeft: bottomLeft(id),
-        bottomRight: bottomRight(id),
+        front: straightMove(id, 0, 1),
+        back: straightMove(id, 0, -1),
+        left: straightMove(id, -1, 0),
+        right: straightMove(id, 1, 0),
     };
-} */
+}
 
-export { checkOpponetPieceByElement, checkSquareCaptureId, giveBishopHighlightIds, checkPieceExist };
+export { checkOpponetPieceByElement, checkSquareCaptureId, giveBishopHighlightIds, checkPieceExist, giveRookHighlightIds };

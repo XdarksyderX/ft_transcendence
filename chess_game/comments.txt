@@ -16,4 +16,132 @@ desde el HTML para manipular el DOM (Document Object Model) y responder a evento
 el archivo HTML para aplicar los estilos allí definidos.
 
 
+/* original function to give highlight ids for rook. The movement is diagonal
+I'm going to keep this for a while to be sure */
+/* function giveRookHighlightId(id) {
+    let finalReturnArray = [];
 
+    function top(id) {
+        let alpha = id[0];
+        let num = Number(id[1]);
+        let resArr = [];
+        
+        while (num != 8) {
+            //alpha = String.fromCharCode(alpha.charCodeAt(0) - 1);
+            num = num + 1;
+            resArr.push(`${alpha}${num}`);
+        }
+        return resArr;
+    }
+
+    function bottom(id) {
+        let alpha = id[0];
+        let num = Number(id[1]);
+        let resArr = [];
+        
+        while (num != 1) {
+            //alpha = String.fromCharCode(alpha.charCodeAt(0) - 1);
+            num = num - 1;
+            resArr.push(`${alpha}${num}`);
+        }
+        return resArr;
+    }
+
+    function right(id) {
+        let alpha = id[0];
+        let num = Number(id[1]);
+        let resArr = [];
+
+        while (alpha != "h") {
+            alpha = String.fromCharCode(alpha.charCodeAt(0) + 1);
+            //num = num + 1;
+            resArr.push(`${alpha}${num}`);
+        }
+        return resArr;
+    }
+
+    function left(id) {
+        let alpha = id[0];
+        let num = Number(id[1]);
+        let resArr = [];
+
+        while (alpha != "a") {
+            alpha = String.fromCharCode(alpha.charCodeAt(0) - 1);
+            //num = num + 1;
+            resArr.push(`${alpha}${num}`);
+        }
+        return resArr;
+    }
+
+    return {
+        back: top(id),
+        front: bottom(id),
+        right: right(id),
+        left: left(id),
+    };
+} */
+
+/* original function to give highlight ids for bishop. The movement is diagonal
+I'm going to keep this for a while to be sure */
+/* function giveBishopHighlightIds(id) {
+    let finalReturnArray = [];
+    
+    function topLeft(id) {
+        let alpha = id[0];
+        let num = Number(id[1]);
+        let resArr = [];
+        
+        while (alpha != "a" && num != 8) {
+            alpha = String.fromCharCode(alpha.charCodeAt(0) - 1);
+            num = num + 1;
+            resArr.push(`${alpha}${num}`);
+        }
+        return resArr;
+    }
+
+    function bottomLeft(id) {
+        let alpha = id[0];
+        let num = Number(id[1]);
+        let resArr = [];
+
+        while (alpha != "a" && num != 1) {
+            alpha = String.fromCharCode(alpha.charCodeAt(0) - 1);
+            num = num - 1;
+            resArr.push(`${alpha}${num}`);
+        }
+        return resArr;
+    }
+
+    function topRight(id) {
+        let alpha = id[0];
+        let num = Number(id[1]);
+        let resArr = [];
+
+        while (alpha != "h" && num != 8) {
+            alpha = String.fromCharCode(alpha.charCodeAt(0) + 1);
+            num = num + 1;
+            resArr.push(`${alpha}${num}`);
+        }
+        return resArr;
+    }
+
+    function bottomRight(id) {
+        let alpha = id[0];
+        let num = Number(id[1]);
+        let resArr = [];
+
+        while (alpha != "h" && num != 1) {
+            alpha = String.fromCharCode(alpha.charCodeAt(0) + 1);
+            num = num - 1;
+            resArr.push(`${alpha}${num}`);
+        }
+        return resArr;
+    }
+
+    return {
+        topLeft: topLeft(id),
+        topRight: topRight(id),
+        bottomLeft: bottomLeft(id),
+        bottomRight: bottomRight(id),
+    };
+} */
