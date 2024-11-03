@@ -18,6 +18,15 @@ function checkOpponetPieceByElement(id, color) {
     return false;
 }
 
+//function to check weather piece exists or not by square-id
+function checkPieceExist(squareId) {
+    const square = keySquareMapper[squareId];
+    if (square.piece)
+        return square;
+    else
+        return false;
+}
+
 //function to check capture id square
 function checkSquareCaptureId(array) {
     let returnArray = [];
@@ -123,4 +132,4 @@ I'm going to keep this for a while to be sure */
     };
 } */
 
-export { checkOpponetPieceByElement, checkSquareCaptureId, giveBishopHighlightIds };
+export { checkOpponetPieceByElement, checkSquareCaptureId, giveBishopHighlightIds, checkPieceExist };

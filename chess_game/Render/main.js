@@ -109,22 +109,22 @@ function pieceRender(data)
  */
 
 const piecePositions = {
-  "h8": piece.blackRook,
   "a8": piece.blackRook,
-  "g8": piece.blackKnight,
+  "h8": piece.blackRook,
   "b8": piece.blackKnight,
-  "f8": piece.blackBishop,
+  "g8": piece.blackKnight,
   "c8": piece.blackBishop,
-  "d8": piece.blackKing,
-  "e8": piece.blackQueen,
-  "h1": piece.whiteRook,
+  "f8": piece.blackBishop,
+  "d8": piece.blackQueen,
+  "e8": piece.blackKing,
   "a1": piece.whiteRook,
-  "g1": piece.whiteKnight,
+  "h1": piece.whiteRook,
   "b1": piece.whiteKnight,
-  "f1": piece.whiteBishop,
+  "g1": piece.whiteKnight,
   "c1": piece.whiteBishop,
-  "d1": piece.whiteKing,
-  "e1": piece.whiteQueen
+  "f1": piece.whiteBishop,
+  "d1": piece.whiteQueen,
+  "e1": piece.whiteKing
 };
 
 function initGameRender(data)

@@ -2,7 +2,7 @@ import { ROOT_DIV } from "../Helper/constants.js";
 import { globalState, keySquareMapper } from "../index.js"; //import globalState object, a 2D array representing the state of the chessboard
 import { renderHighlight, selfHighlight } from "../Render/main.js";
 import { clearHighlight, moveElement, globalStateRender } from "../Render/main.js";
-import { checkOpponetPieceByElement, checkSquareCaptureId, giveBishopHighlightIds } from "../Helper/commonHelper.js";
+import { checkOpponetPieceByElement, checkSquareCaptureId, giveBishopHighlightIds, checkPieceExist } from "../Helper/commonHelper.js";
 
 
 //highlighted or not => state
@@ -133,6 +133,7 @@ function whiteBishopClick(square)
   const flatArray = globalState.flat();
 
   let highlightSquareIds = giveBishopHighlightIds(curr_pos);
+  let tmp = []; //for capture
   
   const { bottomLeft, bottomRight, topLeft, topRight } = highlightSquareIds;
 
@@ -141,6 +142,11 @@ function whiteBishopClick(square)
   res.push(checkSquareCaptureId(bottomRight));
   res.push(checkSquareCaptureId(topLeft));
   res.push(checkSquareCaptureId(topRight));
+
+  tmp.push(bottomLeft);
+  tmp.push(bottomRight);
+  tmp.push(topLeft);
+  tmp.push(topRight);
 
   //highlightSquareIds = checkSquareCaptureId(highlightSquareIds);
   highlightSquareIds = res.flat();
@@ -155,17 +161,22 @@ function whiteBishopClick(square)
     element.highlight = true;
   });
 
-  //capture id logic
-  const col1 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) - 1)}${Number(curr_pos[1]) + 1}`;
-  const col2 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) + 1)}${Number(curr_pos[1]) + 1}`;
+  //capture logic for bishop
+  let captureIds = [];
+  for (let i = 0; i < tmp.length; i++) {
+    const arr = tmp[i];
 
-  let captureIds = [col1, col2];
-  //captureIds = checkSquareCaptureId(captureIds);
-
-  captureIds.forEach(element => {
-    checkOpponetPieceByElement(element, "white");
-  });
-    
+    for (let j = 0; j < arr.length; j++) {
+      const element = arr[j];
+      let pieceRes = checkPieceExist(element);
+      if (pieceRes && pieceRes.piece && pieceRes.piece.piece_name.toLowerCase().includes("white")) {
+        break;
+      }
+      if (checkOpponetPieceByElement(element, "white")) {
+        break;
+      }
+    }
+  }
   globalStateRender();
 }
 
@@ -204,6 +215,7 @@ function blackBishopClick(square)
   const flatArray = globalState.flat();
 
   let highlightSquareIds = giveBishopHighlightIds(curr_pos);
+  let tmp = [];
   
   const { bottomLeft, bottomRight, topLeft, topRight } = highlightSquareIds;
 
@@ -213,9 +225,14 @@ function blackBishopClick(square)
   res.push(checkSquareCaptureId(topLeft));
   res.push(checkSquareCaptureId(topRight));
 
+  tmp.push(bottomLeft);
+  tmp.push(bottomRight);
+  tmp.push(topLeft);
+  tmp.push(topRight);
+
   //highlightSquareIds = checkSquareCaptureId(highlightSquareIds);
   highlightSquareIds = res.flat();
-
+  
   highlightSquareIds.forEach(highlight => {
     const element = keySquareMapper[highlight];
     element.highlight = true;
@@ -226,17 +243,21 @@ function blackBishopClick(square)
     element.highlight = true;
   });
 
-  //capture id logic
-  const col1 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) - 1)}${Number(curr_pos[1]) + 1}`;
-  const col2 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) + 1)}${Number(curr_pos[1]) + 1}`;
+  let captureIds = [];
+  for (let i = 0; i < tmp.length; i++) {
+    const arr = tmp[i];
 
-  let captureIds = [col1, col2];
-  //captureIds = checkSquareCaptureId(captureIds);
-
-  captureIds.forEach(element => {
-    checkOpponetPieceByElement(element, "black");
-  });
-    
+    for (let j = 0; j < arr.length; j++) {
+      const element = arr[j];
+      let pieceRes = checkPieceExist(element);
+      if (pieceRes && pieceRes.piece && pieceRes.piece.piece_name.toLowerCase().includes("black")) {
+        break;
+      }
+      if (checkOpponetPieceByElement(element, "black")) {
+        break;
+      }
+    }
+  } 
   globalStateRender();
 }
 
