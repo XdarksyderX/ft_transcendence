@@ -48,14 +48,14 @@ the cheeseboard. */
 function diagonalMove(id, charLimit, numLimit, alphaStep, numStep) {
     let alpha = id[0];
     let num = Number(id[1]);
-    let resArr = [];
+    let moves = [];
     
     while (alpha != charLimit && num != numLimit) {
         alpha = String.fromCharCode(alpha.charCodeAt(0) + alphaStep); //we 'move' the letter part of the position; if the value is positive we go one letter up in the alphabeth, and if the value is negative we go down
         num += numStep; //we 'move' the number part of the position; if the value is positive we add , and if the value is negative we substract
-        resArr.push(`${alpha}${num}`);
+        moves.push(`${alpha}${num}`);
     }
-    return resArr;
+    return moves;
 }
 
 function giveBishopHighlightIds(id) {
@@ -70,7 +70,7 @@ function giveBishopHighlightIds(id) {
 function straightMove(id, alphaStep, numStep) {
     let alpha = id[0];
     let num = Number(id[1]);
-    let resArr = [];
+    let moves = [];
     
     while (true) {
         alpha = String.fromCharCode(alpha.charCodeAt(0) + alphaStep); // Move the letter part
@@ -79,9 +79,9 @@ function straightMove(id, alphaStep, numStep) {
         if (alpha < 'a' || alpha > 'h' || num < 1 || num > 8) {
             break;
         }
-        resArr.push(`${alpha}${num}`);
+        moves.push(`${alpha}${num}`);
     }
-    return resArr;
+    return moves;
 }
 
 function giveRookHighlightIds(id) {
@@ -93,154 +93,34 @@ function giveRookHighlightIds(id) {
     };
 }
 
+function knightMoves(id, alphaStep, numStep, alphaStep2, numStep2)
+{
+    let alpha = id[0];
+    let num = Number(id[1]);
+    let moves = [];
+
+    //first direction of L movement
+    let newAlpha1 = String.fromCharCode(alpha.charCodeAt(0) + alphaStep);
+    let newNum1 = num + numStep;
+    if (newAlpha1 >= 'a' && newAlpha1 <= 'h' && newNum1 >= 1 && newNum1 <= 8) {
+        moves.push(`${newAlpha1}${newNum1}`);
+    }
+    //second direction of L movement
+    let newAlpha2 = String.fromCharCode(alpha.charCodeAt(0) + alphaStep2);
+    let newNum2 = num + numStep2;
+    if (newAlpha2 >= 'a' && newAlpha2 <= 'h' && newNum2 >= 1 && newNum2 <= 8) {
+        moves.push(`${newAlpha2}${newNum2}`);
+    }
+    return moves;
+}
+
 function giveKnightHighlightIds(id) {
-    if (!id)
-        return;
-    function left() {
-        let alpha = id[0];
-        let num = Number(id[1]);
-        let resArr = [];
-
-        let tmp = 0;
-
-        while (alpha != "a") {
-            if (tmp == 2)
-                break;
-            alpha = String.fromCharCode(alpha.charCodeAt(0) - 1);
-            //num = num + 1;
-            resArr.push(`${alpha}${num}`);
-            tmp += 1;
-        }
-        
-        if (resArr.length == 2) {
-            let finalArr = [];
-            const lastElement = resArr[resArr.length - 1];
-            let alpha = lastElement[0];
-            let num = Number(lastElement[1]);
-            if (num < 8) {
-                finalArr.push(`${alpha}${Number(num + 1)}`)
-            }
-            if (num > 1) {
-                finalArr.push(`${alpha}${Number(num - 1)}`)
-            }
-            //resArr.push(`${Number(lastElement[1])}`)
-            return finalArr;
-        }
-        else {
-            return [];
-        }
-    }
-    function right() {
-        let alpha = id[0];
-        let num = Number(id[1]);
-        let resArr = [];
-
-        let tmp = 0;
-
-        while (alpha != "h") {
-            if (tmp == 2)
-                break;
-            alpha = String.fromCharCode(alpha.charCodeAt(0) + 1);
-            //num = num + 1;
-            resArr.push(`${alpha}${num}`);
-            tmp += 1;
-        }
-        
-        if (resArr.length == 2) {
-            let finalArr = [];
-            const lastElement = resArr[resArr.length - 1];
-            let alpha = lastElement[0];
-            let num = Number(lastElement[1]);
-            if (num < 8) {
-                finalArr.push(`${alpha}${Number(num + 1)}`)
-            }
-            if (num > 1) {
-                finalArr.push(`${alpha}${Number(num - 1)}`)
-            }
-            //resArr.push(`${Number(lastElement[1])}`)
-            return finalArr;
-        }
-        else {
-            return [];
-        }
-    }
-    function top() {
-        let alpha = id[0];
-        let num = Number(id[1]);
-        let resArr = [];
-
-        let tmp = 0;
-
-        while (num != 8) {
-            if (tmp == 2)
-                break;
-            //alpha = String.fromCharCode(alpha.charCodeAt(0) + 1);
-            num += 1;
-            resArr.push(`${alpha}${num}`);
-            tmp += 1;
-        }
-        
-        if (resArr.length == 2) {
-            let finalArr = [];
-            const lastElement = resArr[resArr.length - 1];
-            let alpha = lastElement[0];
-            let num = Number(lastElement[1]);
-            if (alpha != "a") {
-                let alpha2 = String.fromCharCode(alpha.charCodeAt(0) - 1);
-                finalArr.push(`${alpha2}${num}`)
-            }
-            if (alpha != "h") {
-                let alpha2 = String.fromCharCode(alpha.charCodeAt(0) + 1);
-                finalArr.push(`${alpha2}${num}`)
-            }
-            //resArr.push(`${Number(lastElement[1])}`)
-            return finalArr;
-        }
-        else {
-            return [];
-        }
-    }
-    function bottom() {
-        let alpha = id[0];
-        let num = Number(id[1]);
-        let resArr = [];
-
-        let tmp = 0;
-
-        while (num != 1) {
-            if (tmp == 2)
-                break;
-            //alpha = String.fromCharCode(alpha.charCodeAt(0) + 1);
-            num -= 1;
-            resArr.push(`${alpha}${num}`);
-            tmp += 1;
-        }
-        
-        if (resArr.length == 2) {
-            let finalArr = [];
-            const lastElement = resArr[resArr.length - 1];
-            let alpha = lastElement[0];
-            let num = Number(lastElement[1]);
-            if (alpha != "a") {
-                let alpha2 = String.fromCharCode(alpha.charCodeAt(0) - 1);
-                finalArr.push(`${alpha2}${num}`)
-            }
-            if (alpha != "h") {
-                let alpha2 = String.fromCharCode(alpha.charCodeAt(0) + 1);
-                finalArr.push(`${alpha2}${num}`)
-            }
-            //resArr.push(`${Number(lastElement[1])}`)
-            return finalArr;
-        }
-        else {
-            return [];
-        }
-    }
-/*     console.log("left", left());
-    console.log("right", right());
-    console.log("bottom", bottom());
-    console.log("top", top()); */
-    return [...top(), ...bottom(), ...left(), ...right()]
+    return [
+        ...knightMoves(id, -1, 2, 1, 2),   // top moves
+        ...knightMoves(id, -1, -2, 1, -2),  // bottom moves
+        ...knightMoves(id, -2, 1, -2, -1), // left moves
+        ...knightMoves(id, 2, 1, 2, -1)   // right moves
+    ];
 }
 
 export { checkOpponetPieceByElement, checkSquareCaptureId, giveBishopHighlightIds, checkPieceExist, giveRookHighlightIds, giveKnightHighlightIds };
