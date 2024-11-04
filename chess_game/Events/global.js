@@ -295,6 +295,19 @@ function whiteKnightClick(square)
   const flatArray = globalState.flat();
 
   let highlightSquareIds = giveKnightHighlightIds(curr_pos);
+  
+  //fix the bug of the 'moved' highlights of pieces of their own color 25
+  //maybe i can do better in giveKnightHighlightIds()
+  for (let i = 0; i < highlightSquareIds.length; i++) {
+    if (checkPieceExist(highlightSquareIds[i])) {
+      let str = keySquareMapper[highlightSquareIds[i]].piece.piece_name;
+      if (highlightSquareIds[i], str.includes("WHITE")) {
+        highlightSquareIds.splice(i, 1);
+        i--;
+      }
+    }
+  }
+  
 /*   let tmp = [];
   
   const { front, back, left, right } = highlightSquareIds;
@@ -341,6 +354,105 @@ function whiteKnightClick(square)
 
   highlightSquareIds.forEach(element => {
     checkOpponetPieceByElement(element, "white");
+  });
+  globalStateRender();
+}
+
+//black knight event
+function blackKnightClick(square)
+{
+  const piece = square.piece;
+  
+  if (piece == selfHighlightState) {
+    clearPreviousSelfHighlight(selfHighlightState);
+    clearHighlightLocal();
+    return;
+  }
+  
+  if (square.captureHightlight) {
+    //movePieceFromXToY();
+    moveElement(selfHighlightState, piece.current_pos);
+    clearPreviousSelfHighlight(selfHighlightState);
+    clearHighlightLocal();
+    return;
+  }
+
+  //clear all highlights
+  clearPreviousSelfHighlight(selfHighlightState);
+  clearHighlightLocal();
+  
+  //highlighting logic
+  selfHighlight(piece);
+  highlight_state = true;
+  selfHighlightState = piece;
+  
+  //add piece as move state
+  moveState = piece;
+  
+  const curr_pos = piece.current_pos;
+  const flatArray = globalState.flat();
+
+  let highlightSquareIds = giveKnightHighlightIds(curr_pos);
+  
+  //try to fix the bug of the 'moved' highlights of pieces of their own color 25
+  //doesn't fully fix the bug because when the black knight goes to row3, shows the highlight outside the board
+  //maybe i can do better in giveKnightHighlightIds()
+  for (let i = 0; i < highlightSquareIds.length; i++) {
+    if (checkPieceExist(highlightSquareIds[i])) {
+      let str = keySquareMapper[highlightSquareIds[i]].piece.piece_name;
+      if (highlightSquareIds[i], str.includes("BLACK")) {
+        highlightSquareIds.splice(i, 1);
+        i--;
+      }
+    }
+  }
+  
+/*   let tmp = [];
+  
+  const { front, back, left, right } = highlightSquareIds;
+
+  let res = [];
+  res.push(checkSquareCaptureId(front));
+  res.push(checkSquareCaptureId(back));
+  res.push(checkSquareCaptureId(left));
+  res.push(checkSquareCaptureId(right));
+
+  tmp.push(front);
+  tmp.push(back);
+  tmp.push(left);
+  tmp.push(right);
+
+  //highlightSquareIds = checkSquareCaptureId(highlightSquareIds);
+  highlightSquareIds = res.flat();
+  
+  highlightSquareIds.forEach(highlight => {
+    const element = keySquareMapper[highlight];
+    element.highlight = true;
+  }); */
+
+  highlightSquareIds.forEach(highlight => {
+    const element = keySquareMapper[highlight];
+    element.highlight = true;
+  });
+
+  let captureIds = [];
+/*   for (let i = 0; i < tmp.length; i++) {
+    const arr = tmp[i];
+
+    for (let j = 0; j < arr.length; j++) {
+      const element = arr[j];
+      let pieceRes = checkPieceExist(element);
+      if (pieceRes && pieceRes.piece && pieceRes.piece.piece_name.toLowerCase().includes("white")) {
+        break;
+      }
+      if (checkOpponetPieceByElement(element, "white")) {
+        break;
+      }
+    }
+  }  */
+
+  highlightSquareIds.forEach(element => {
+    checkOpponetPieceByElement(element, "black");
   });
   globalStateRender();
 }
