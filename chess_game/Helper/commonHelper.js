@@ -86,8 +86,8 @@ function straightMove(id, alphaStep, numStep) {
 
 function giveRookHighlightIds(id) {
     return {
-        front: straightMove(id, 0, 1),
-        back: straightMove(id, 0, -1),
+        top: straightMove(id, 0, 1),
+        bottom: straightMove(id, 0, -1),
         left: straightMove(id, -1, 0),
         right: straightMove(id, 1, 0),
     };
@@ -123,4 +123,17 @@ function giveKnightHighlightIds(id) {
     ];
 }
 
-export { checkOpponetPieceByElement, checkSquareCaptureId, giveBishopHighlightIds, checkPieceExist, giveRookHighlightIds, giveKnightHighlightIds };
+function giveQueenHighlightIds(id) {
+    return {
+        "top": giveRookHighlightIds(id).top,
+        "bottom": giveRookHighlightIds(id).bottom,
+        "left": giveRookHighlightIds(id).left,
+        "right": giveRookHighlightIds(id).right,
+        "topLeft": giveBishopHighlightIds(id).topLeft,
+        "topRight": giveBishopHighlightIds(id).topRight,
+        "bottomLeft": giveBishopHighlightIds(id).bottomLeft,
+        "bottomRight": giveBishopHighlightIds(id).bottomRight
+    }
+}
+
+export { checkOpponetPieceByElement, checkSquareCaptureId, giveBishopHighlightIds, checkPieceExist, giveRookHighlightIds, giveKnightHighlightIds, giveQueenHighlightIds };
