@@ -39,6 +39,12 @@ services:
       - .env
       - auth/service/.env
 
+  fronted:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    ports:
+      - 80
 
 networks:
   ft_transcendence-network:
@@ -72,10 +78,3 @@ volumes:
       type: none
       o: bind
       device: ./volume-data/chess
-
-  chat-data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ./volume-data/chat

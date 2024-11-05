@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>stats</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">    
+    <link rel="stylesheet" href="style.css">
+    <script>
+/*         if (!localStorage.getItem('authToken')) { // If the user is not logged in
+          window.location.href = '/login.html'; // Redirect to the login page
+        } */
+      </script>      
+</head>
+<body>
+    <!-- navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark ctm-navbar">
+        <div class="container-fluid">
+            <span class="navbar-brand" id="pong">PONG</span>
+            <div class="d-flex ms-auto align-items-center">
+                <button class="nav-link ctm-link btn btn-link me-3" type="button" data-bs-toggle="collapse" data-bs-target="#userMenu" aria-expanded="false" aria-controls="userMenu" id="welcomeButton"></button>
+            </div>
+        </div>
+    </nav>
+    <!-- collapsible navbar -->
+    <div class="position-fixed top-0 end-0 mt-5 me-3">
+        <div class="collapse" id="userMenu">
+            <div class="p-4 ctm-card" style="width: 225px;"> <!-- Set a fixed width using inline style -->
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link ctm-link" href="#">My profile</a> <!-- Ensure links take full width -->
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link ctm-link" href="#">Stats</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link ctm-link" href="#">Settings</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link ctm-link" href="#">Friends</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link ctm-link" href="#" data-bs-toggle="modal" data-bs-target="#log-out">Log out</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- log out modal -->
+    <div class="modal fade" id="log-out" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Log out</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              Are you sure you want to log out?
+            </div>
+            <div class="modal-footer">
+                <a href="index.html" id="logout" class="btn btn-secondary">Yes</a>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    <!-- header -->
+    <h5 class="text-center ctm-text-light mt-4 p-5" id="neon-text">what do you want to play?</h5>
+    <!-- gif -->
+    <div class="container justify-content-center w-75">
+        <div class="row mt-5 justify-content-center align-items-stretch">
+            <div class="col-md-6 mb-4 d-flex">
+                <a href="pong.html" class="card-link h-100 w-100">
+                    <div class="card ctm-card h-100 card-hover">
+                        <div class="card-body text-center">
+                            <h2 class="ctm-text-title">play pong</h2>
+                            <div class="d-flex flex-column justify-content-center align-items-center">
+                                <div class="text-center mt-3">
+                                    <img src="https://media.tenor.com/2gyJVMt_L6wAAAAM/pong-video-game.gif" alt="Loading GIF" class="img-fluid gif-66vh h-100">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-6 mb-4 d-flex">
+                <a href="pong.html" class="card-link h-100 w-100">
+                    <div class="card ctm-card h-100 card-hover">
+                        <div class="card-body text-center">
+                            <h2 class="ctm-text-title">play chess</h2>
+                            <div class="d-flex flex-column justify-content-center align-items-center">
+                                <div class="text-center mt-3">
+                                    <img src="https://media.tenor.com/2gyJVMt_L6wAAAAM/pong-video-game.gif" alt="Loading GIF" class="img-fluid gif-66vh h-100">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+      
+        </div> 
+    </div>
+    <script src="neon.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <script>
+        // hardcoded user for now
+        const loggedInUser = 'erivero-';
+
+        // Update the welcome button text
+        document.addEventListener('DOMContentLoaded', () => {
+            const welcomeButton = document.getElementById('welcomeButton');
+            welcomeButton.textContent = `${loggedInUser}`;
+        });
+
+        document.addEventListener('click', function(event) {
+        const userMenu = document.getElementById('userMenu');
+        const isClickInside = userMenu.contains(event.target) || event.target === welcomeButton;
+
+        if (!isClickInside) {
+            const bsCollapse = new bootstrap.Collapse(userMenu, {
+                toggle: false
+            });
+            bsCollapse.hide();
+        }
+        });
+
+        const logoutButton = document.getElementById('logout');
+        logoutButton.addEventListener('click', () => {
+           // localStorage.removeItem('user');
+        });
+    </script>
+</body>
+</html>
