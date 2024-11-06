@@ -93,6 +93,16 @@ body::before {
     box-shadow: 0 0 10px #00F56A, 0 0 10px #00F56A, 0 0 15px #00F56A, 0 0 30px #00F56Acc;
 }
 
+.scroll-card::-webkit-scrollbar{
+	width: 8px;
+	background: var(--dark);
+}
+
+.scroll-card::-webkit-scrollbar-thumb {
+	background-color: var(--lorange);
+	border-radius: 10px;
+	border: 2px solid var(--dark);
+}
 
 .ctm-link {
     color: var(--light);

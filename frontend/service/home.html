@@ -54,7 +54,6 @@
         }
         .friend-card {
             background-color: var(--darkish);
-            border: 1px solid var(--light);
             border-radius: 5px;
             padding: 10px;
             margin-bottom: 10px;
@@ -66,6 +65,7 @@
         }
         .friend-card.selected {
             background-color: var(--title);
+            color: var(--dark) !important;
         }
         #friends-container {
             overflow-y: auto;
@@ -135,7 +135,7 @@
                                     </div>
                                     <div id="friend-list" class="h-100 flex-column" style="display: none;">
                                         <h4 class="ctm-text-light mb-3">Select a friend to play with:</h4>
-                                        <div id="friends-container" class="mb-3"></div>
+                                        <div id="friends-container" class="mb-3 scroll-card"></div>
                                         <button id="start-game-with-friend" class="btn ctm-btn mb-3" disabled>Start Game with Friend</button>
                                         <!-- <button id="back-to-options" class="btn ctm-btn mb-3">Back to Options</button> -->
                                     </div>
@@ -179,22 +179,23 @@
 
         let selectedFriend = null;
 
-        // Set welcome button text
+        // render's the username in the sidebar and the navbar
         userNames.forEach(userName => {
             userName.textContent += `${loggedInUser}`;
         });
 
+        //this will activate when you press the toggle btn
         function toggleSidebar(event) {
-            event.stopPropagation();
-            sidebar.classList.toggle('show');
-            if (window.innerWidth >= 992) {
+            event.stopPropagation(); // Prevent event from bubbling up
+            sidebar.classList.toggle('show'); // Toggle the 'show' class on the sidebar so if it is shown it will hide and vice versa
+/*             if (window.innerWidth >= 992) { // If the screen is large enough adjusts the margin so is not too big
                 content.style.marginLeft = sidebar.classList.contains('show') ? '250px' : '0';
-            }
+            } */
         }
-
-        // Toggle sidebar
+        //adds previous function to the toggle btn
         sidebarToggle.addEventListener('click', toggleSidebar);
-
+        
+        // Toggle sidebar or pong-options when clicking outside
         function handleOutsideClick(event) {
             const isSmallScreen = window.innerWidth < 992;
             const clickedOutsideSidebar = !sidebar.contains(event.target) && event.target !== sidebarToggle;
@@ -204,26 +205,25 @@
             }
 
             if (!pongBtn.contains(event.target)) {
+                // console.log('click outside');
                 playPong.style.display = 'block';
                 pongOptions.style.display = 'none';
                 friendList.style.display = 'none';
             }
         }
-
-        // Close sidebar when clicking outside on small screens
+        // listen clicks on all the document to aplpy the previous function
         document.addEventListener('click', handleOutsideClick);
 
         function togglePongOptions(event) {
             event.stopPropagation();
-            playPong.style.display = playPong.style.display === 'none' ? 'block' : 'none';
-            pongOptions.style.display = pongOptions.style.display === 'none' ? 'flex' : 'none';
-            friendList.style.display = 'none';
-            if (window.innerWidth < 992) {
+            if (friendList.style.display === 'none') { // this allows to click on a friend without messing with toggling
+                playPong.style.display = playPong.style.display === 'none' ? 'block' : 'none'; //toggles the playPong visibility
+                pongOptions.style.display = pongOptions.style.display === 'none' ? 'flex' : 'none'; // toggles the pongOptions visibility
+            }
+            if (window.innerWidth < 992) { // this is what makes the sidebar hide when you press the pong button
                 sidebar.classList.remove('show');
             }
         }
-
-        // Toggle Pong options
         pongBtn.addEventListener('click', togglePongOptions);
 
         function handleResize() {
@@ -253,10 +253,12 @@
             const card = document.createElement('div');
             card.className = 'friend-card';
             card.setAttribute('data-friend-id', friend.id);
-            let color = (friend.status === 'online') ? 'ctm-text-accent' : 'ctm-text-light';
+            let color = (friend.status === 'online') ? 'accent' : 'light';
             card.innerHTML = `
-                <p class="${color} mb-0">${friend.name}</p>
+                <p class="mb-0">${friend.name}</p>
             `;
+            card.style.color = `var(--${color})`;
+            card.style.border = `1px solid var(--${color})`;
             card.addEventListener('click', () => selectFriend(friend));
             return card;
         }
@@ -270,6 +272,7 @@
             document.querySelectorAll('.friend-card').forEach(card => card.classList.remove('selected'));
             document.querySelector(`.friend-card[data-friend-id="${friend.id}"]`).classList.add('selected');
             startGameWithFriendButton.disabled = false;
+            console.log(selectedFriend);
         }
 
         function renderFriendList() {

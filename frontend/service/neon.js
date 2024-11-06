@@ -127,14 +127,18 @@ function animateCardHover() {
 
 
 document.addEventListener("DOMContentLoaded", () => {
-
     const neonText = document.getElementById("neon-text");
     const neonFrame = document.querySelector(".blinking-neon-frame");
     const notification = document.getElementById("notification-indicator");
 
-    animateNeon(neonText, 10, 100);
-    animateNeonFrame(neonFrame, 10, 35, 2, 1000);
-    animateNeonFrame(notification, 10, 35, 2, 1000);
+    if (neonText) {
+        animateNeon(neonText, 10, 100);
+    }
+    if (neonFrame) {
+        animateNeonFrame(neonFrame, 10, 35, 2, 1000);
+    }
+    if (notification) {
+        animateNeonFrame(notification, 10, 35, 2, 1000);
+    }
     animateCardHover();
-
 });
