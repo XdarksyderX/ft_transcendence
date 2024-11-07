@@ -175,7 +175,7 @@
         const friendList = document.getElementById('friend-list');
         const friendsContainer = document.getElementById('friends-container');
         const startGameWithFriendButton = document.getElementById('start-game-with-friend');
-        const backToOptionsButton = document.getElementById('back-to-options');
+        // const backToOptionsButton = document.getElementById('back-to-options');
 
         let selectedFriend = null;
 
@@ -188,9 +188,6 @@
         function toggleSidebar(event) {
             event.stopPropagation(); // Prevent event from bubbling up
             sidebar.classList.toggle('show'); // Toggle the 'show' class on the sidebar so if it is shown it will hide and vice versa
-/*             if (window.innerWidth >= 992) { // If the screen is large enough adjusts the margin so is not too big
-                content.style.marginLeft = sidebar.classList.contains('show') ? '250px' : '0';
-            } */
         }
         //adds previous function to the toggle btn
         sidebarToggle.addEventListener('click', toggleSidebar);
@@ -209,6 +206,7 @@
                 playPong.style.display = 'block';
                 pongOptions.style.display = 'none';
                 friendList.style.display = 'none';
+                unselectFriend();
             }
         }
         // listen clicks on all the document to aplpy the previous function
@@ -226,6 +224,7 @@
         }
         pongBtn.addEventListener('click', togglePongOptions);
 
+        // handle window resize to show/hide sidebar
         function handleResize() {
             if (window.innerWidth >= 992) {
                 sidebar.classList.add('show');
@@ -235,51 +234,57 @@
                 content.style.marginLeft = '0';
             }
         }
-
-        // Handle window resize
         window.addEventListener('resize', handleResize);
-
         // Trigger initial resize event to set correct state
         handleResize();
-
+        // provisionally hardcoded
         const friends = [
             { id: 1, name: 'Alice', status: 'online' },
             { id: 2, name: 'Bob', status: 'offline' },
             { id: 3, name: 'Charlie', status: 'online' },
             { id: 4, name: 'David', status: 'away' }
         ];
-
+        //it creates each friend card
         function createFriendCard(friend) {
             const card = document.createElement('div');
             card.className = 'friend-card';
-            card.setAttribute('data-friend-id', friend.id);
+            card.setAttribute('data-friend-id', friend.id); // this is to identify the friend when it is selected
             let color = (friend.status === 'online') ? 'accent' : 'light';
             card.innerHTML = `
                 <p class="mb-0">${friend.name}</p>
             `;
             card.style.color = `var(--${color})`;
             card.style.border = `1px solid var(--${color})`;
-            card.addEventListener('click', () => selectFriend(friend));
+            card.addEventListener('click', () => selectFriend(friend)); // gives the card the ability to be selected
             return card;
         }
-
+        // gives each friendCard its functionality
         function selectFriend(friend) {
-            if (friend.status !== 'online') {
+            if (friend.status !== 'online') { //maybe in the future i just wont show the offline friends
                 alert('This friend is not available to play right now.');
                 return;
             }
-            selectedFriend = friend;
-            document.querySelectorAll('.friend-card').forEach(card => card.classList.remove('selected'));
-            document.querySelector(`.friend-card[data-friend-id="${friend.id}"]`).classList.add('selected');
-            startGameWithFriendButton.disabled = false;
-            console.log(selectedFriend);
+            if (selectedFriend === friend) { // if friend were already selected, unselect it
+                unselectFriend();
+            } else {
+                selectedFriend = friend; // selectedFriend is global 
+                document.querySelectorAll('.friend-card').forEach(card => card.classList.remove('selected')); // unselect all friends
+                document.querySelector(`.friend-card[data-friend-id="${selectedFriend.id}"]`).classList.add('selected'); // select the clicked one
+                startGameWithFriendButton.disabled = false; // enable the button to start the game
+            }
         }
-
+        // will be called if the selected friend is clicked again or if you click outside the pong card
+        function unselectFriend() {
+            selectedFriend = null;
+            document.querySelectorAll('.friend-card').forEach(card => card.classList.remove('selected'));
+            startGameWithFriendButton.disabled = true;
+        }
+        // creates and appends each friend card to the friend container
         function renderFriendList() {
             friendsContainer.innerHTML = '';
             friends.forEach(friend => friendsContainer.appendChild(createFriendCard(friend)));
         }
-
+        // this will be called when the play with a friend button is clicked
         playFriend.addEventListener('click', (event) => {
             event.stopPropagation();
             playPong.style.display = 'none';
@@ -287,7 +292,7 @@
             friendList.style.display = 'flex';
             renderFriendList();
         });
-
+        
         startGameWithFriendButton.addEventListener('click', () => {
             if (selectedFriend) {
                 alert(`Starting game with ${selectedFriend.name}`);

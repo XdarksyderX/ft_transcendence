@@ -58,7 +58,7 @@
 	padding: 10px;
 }
 
-#chat-window::-webkit-scrollbar,
+/* #chat-window::-webkit-scrollbar,
 #recent-chats::-webkit-scrollbar,
 #new-chat::-webkit-scrollbar,
 #chat-messages::-webkit-scrollbar,
@@ -77,7 +77,7 @@
 	background-color: var(--lorange);
 	border-radius: 10px;
 	border: 2px solid var(--dark);
-}
+} */
 
 #chat-form {
 	background-color: var(--dark);
