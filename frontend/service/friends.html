@@ -116,18 +116,7 @@
                     <h2 class="text-center ctm-text-light p-3" id="neon-text">Pong - Play with a Friend</h2>
                 </div>
             </div>
-            <div id="friendSelection" class="row justify-content-center">
-                <div class="col-md-8">
-                    <h3 class="ctm-text-light mb-3">Select a friend to play with:</h3>
-                    <div id="friendList" class="row">
-                        <!-- Friend cards will be dynamically added here -->
-                    </div>
-                    <div class="text-center mt-3">
-                        <button id="startGameWithFriend" class="btn ctm-btn-dark" disabled>Start Game with Friend</button>
-                    </div>
-                </div>
-            </div>
-            <div id="gameArea" class="row justify-content-center" style="display: none;">
+            <div id="gameArea" class="row justify-content-center">
                 <div class="col-md-8">
                     <div class="d-flex justify-content-between mb-3">
                         <div class="player-info">
@@ -142,8 +131,7 @@
                     <canvas id="pongCanvas" width="800" height="400"></canvas>
                     <div class="text-center mt-3">
                         <button id="startGame" class="btn ctm-btn-dark">Start Game</button>
-                        <button id="resetGame" class="btn ctm-btn-dark" style="display: none;">Reset Game</button>
-                        <button id="backToFriendSelection" class="btn ctm-btn-dark">Back to Friend Selection</button>
+                        <button id="resetGame" class="btn ctm-btn-dark">Reset Game</button>
                     </div>
                     <div class="mt-3">
                         <h4 class="ctm-text-light">Controls:</h4>
@@ -217,151 +205,7 @@
 
             window.addEventListener('resize', handleResize);
             handleResize();
-
-            // Friend selection functionality
-            const friends = [
-                { id: 1, name: 'Alice', status: 'online' },
-                { id: 2, name: 'Bob', status: 'offline' },
-                { id: 3, name: 'Charlie', status: 'online' },
-                { id: 4, name: 'David', status: 'away' }
-            ];
-
-            function createFriendCard(friend) {
-                const card = document.createElement('div');
-                card.className = 'col-md-6 mb-3';
-                card.innerHTML = `
-                    <div class="friend-card" data-friend-id="${friend.id}">
-                        <h5 class="ctm-text-light">${friend.name}</h5>
-                        <p class="ctm-text-light mb-0">Status: ${friend.status}</p>
-                    </div>
-                `;
-                card.querySelector('.friend-card').addEventListener('click', () => selectFriend(friend));
-                return card;
-            }
-
-            function selectFriend(friend) {
-                if (friend.status !== 'online') {
-                    alert('This friend is not available to play right now.');
-                    return;
-                }
-                selectedFriend = friend;
-                document.querySelectorAll('.friend-card').forEach(card => card.classList.remove('selected'));
-                document.querySelector(`.friend-card[data-friend-id="${friend.id}"]`).classList.add('selected');
-                startGameWithFriendButton.disabled = false;
-            }
-
-            friends.forEach(friend => friendList.appendChild(createFriendCard(friend)));
-
-            startGameWithFriendButton.addEventListener('click', () => {
-                if (selectedFriend) {
-                    friendSelectionArea.style.display = 'none';
-                    gameArea.style.display = 'block';
-                    player2NameElement.textContent = selectedFriend.name;
-                }
-            });
-
-            backToFriendSelectionButton.addEventListener('click', () => {
-                gameArea.style.display = 'none';
-                friendSelectionArea.style.display = 'block';
-                resetGame();
-            });
-
-            // Pong game logic
-            const paddleHeight = 100;
-            const paddleWidth = 10;
-            const ballSize = 10;
-            let player1Y = (canvas.height - paddleHeight) / 2;
-            let player2Y = (canvas.height - paddleHeight) / 2;
-            let ballX = canvas.width / 2;
-            let ballY = canvas.height / 2;
-            let ballSpeedX = 5;
-            let ballSpeedY = 5;
-            let player1Score = 0;
-            let player2Score = 0;
-            let gameRunning = false;
-
-            function drawRect(x, y, width, height, color) {
-                ctx.fillStyle = color;
-                ctx.fillRect(x, y, width, height);
-            }
-
-            function drawCircle(x, y, radius, color) {
-                ctx.fillStyle = color;
-                ctx.beginPath();
-                ctx.arc(x, y, radius, 0, Math.PI * 2, true);
-                ctx.fill();
-            }
-
-            function drawGame() {
-                // Clear canvas
-                drawRect(0, 0, canvas.width, canvas.height, 'rgba(0, 0, 0, 0.8)');
-
-                // Draw paddles
-                drawRect(0, player1Y, paddleWidth, paddleHeight, '#00F56A');
-                drawRect(canvas.width - paddleWidth, player2Y, paddleWidth, paddleHeight, '#00F56A');
-
-                // Draw ball
-                drawCircle(ballX, ballY, ballSize, '#00F56A');
-            }
-
-            function moveBall() {
-                ballX += ballSpeedX;
-                ballY += ballSpeedY;
-
-                // Top and bottom collision
-                if (ballY < 0 || ballY > canvas.height) {
-                    ballSpeedY = -ballSpeedY;
-                }
-
-                // Paddle collision
-                if (
-                    (ballX < paddleWidth && ballY > player1Y && ballY < player1Y + paddleHeight) ||
-                    (ballX > canvas.width - paddleWidth && ballY > player2Y && ballY < player2Y + paddleHeight)
-                ) {
-                    ballSpeedX = -ballSpeedX;
-                }
-
-                // Score
-                if (ballX < 0) {
-                    player2Score++;
-                    resetBall();
-                } else if (ballX > canvas.width) {
-                    player1Score++;
-                    resetBall();
-                }
-
-                player1ScoreElement.textContent = player1Score;
-                
-                player2ScoreElement.textContent = player2Score;
-            }
-
-            function resetBall() {
-                ballX = canvas.width / 2;
-                ballY = canvas.height / 2;
-                ballSpeedX = -ballSpeedX;
-            }
-
-            function gameLoop() {
-                if (gameRunning) {
-                    moveBall();
-                    drawGame();
-                    requestAnimationFrame(gameLoop);
-                }
-            }
-
-            function resetGame() {
-                gameRunning = false;
-                player1Score = 0;
-                player2Score = 0;
-                player1Y = (canvas.height - paddleHeight) / 2;
-                player2Y = (canvas.height - paddleHeight) / 2;
-                resetBall();
-                player1ScoreElement.textContent = '0';
-                player2ScoreElement.textContent = '0';
-                startButton.style.display = 'inline-block';
-                resetButton.style.display = 'none';
-                drawGame();
-            }
+    
 
             startButton.addEventListener('click', () => {
                 gameRunning = true;
@@ -372,26 +216,6 @@
 
             resetButton.addEventListener('click', resetGame);
 
-            document.addEventListener('keydown', (e) => {
-                if (gameRunning) {
-                    switch (e.key) {
-                        case 'w':
-                            player1Y = Math.max(0, player1Y - 10);
-                            break;
-                        case 's':
-                            player1Y = Math.min(canvas.height - paddleHeight, player1Y + 10);
-                            break;
-                        case 'ArrowUp':
-                            player2Y = Math.max(0, player2Y - 10);
-                            break;
-                        case 'ArrowDown':
-                            player2Y = Math.min(canvas.height - paddleHeight, player2Y + 10);
-                            break;
-                    }
-                }
-            });
-
-            drawGame();
         });
     </script>
 </body>
