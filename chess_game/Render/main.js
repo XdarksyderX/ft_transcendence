@@ -28,38 +28,6 @@ function globalStateRender() {
   });
 }
 
-/**
- * move a piece by the highlight posibilities.
- * @param {*} piece an object representing a game piece.
- * @param {*} id the new position id where the piece should be moved.
- */
-function moveElement(piece, id)
-{
-  const flatData =  globalState.flat();
-  //iterate throught each element to update the positions od the pieces.
-  flatData.forEach((el) => {
-    if (el.id == piece.current_pos) {
-      delete el.piece; //when the element with the current position is find, delete the piece property from it
-    }
-    if (el.id == id) {
-      el.piece = piece; //find the element with the new position and asign the piece to it
-    }
-  });
-  clearHighlight();
-  //Update the HTML elements to reflect the new positions of the piece
-  const previousPiece = document.getElementById(piece.current_pos);
-  previousPiece.classList.remove("highlightYellow");
-  const currentPiece = document.getElementById(id);
-  
-  currentPiece.innerHTML = previousPiece.innerHTML;
-  previousPiece.innerHTML = "";
-
-  piece.current_pos = id;
-  //globalStateRender();
-}
-
-
-
 //simple function that highlight in the square you click if there is a piece on it
 function selfHighlight(piece)
 {
@@ -176,5 +144,4 @@ function clearHighlight()
   });
 }
 
-export { initGameRender, renderHighlight, clearHighlight, selfHighlight,
-  moveElement, globalStateRender };
+export { initGameRender, renderHighlight, clearHighlight, selfHighlight, globalStateRender };
