@@ -1,0 +1,196 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    asyncapi.yaml                                      :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: migarci2 <migarci2@student.42malaga.com    +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2024/08/29 18:02:53 by migarci2          #+#    #+#              #
+#    Updated: 2024/08/29 18:02:56 by migarci2         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
+asyncapi: '2.2.0'
+info:
+  title: Authentication Microservice AsyncAPI
+  version: '1.0.0'
+  description: |
+    This document describes the asynchronous events published by the Authentication Microservice using RabbitMQ. These events include user registration, login, email verification, and more.
+
+servers:
+  rabbitmq:
+    url: amqp://localhost:5672
+    protocol: amqp
+    description: RabbitMQ message broker for local development
+
+channels:
+  auth.user_registered:
+    description: Event emitted when a new user registers.
+    publish:
+      summary: User registered event
+      operationId: userRegistered
+      message:
+        contentType: application/json
+        payload:
+          type: object
+          properties:
+            username:
+              type: string
+              example: user123
+            user_id:
+              type: integer
+              example: 1
+  auth.user_logged_in:
+    description: Event emitted when a user successfully logs in.
+    publish:
+      summary: User logged in event
+      operationId: userLoggedIn
+      message:
+        contentType: application/json
+        payload:
+          type: object
+          properties:
+            username:
+              type: string
+              example: user123
+            email:
+              type: string
+              example: user@example.com
+  auth.token_refreshed:
+    description: Event emitted when a user refreshes their JWT token.
+    publish:
+      summary: Token refreshed event
+      operationId: tokenRefreshed
+      message:
+        contentType: application/json
+        payload:
+          type: object
+          properties:
+            user_id:
+              type: integer
+              example: 1
+            username:
+              type: string
+              example: user123
+  auth.user_logged_out:
+    description: Event emitted when a user logs out.
+    publish:
+      summary: User logged out event
+      operationId: userLoggedOut
+      message:
+        contentType: application/json
+        payload:
+          type: object
+          properties:
+            user_id:
+              type: integer
+              example: 1
+  auth.email_verified:
+    description: Event emitted when a user verifies their email.
+    publish:
+      summary: Email verified event
+      operationId: emailVerified
+      message:
+        contentType: application/json
+        payload:
+          type: object
+          properties:
+            user_id:
+              type: integer
+              example: 1
+            username:
+              type: string
+              example: user123
+  auth.2fa_enabled:
+    description: Event emitted when a user enables 2FA.
+    publish:
+      summary: 2FA enabled event
+      operationId: twoFAEnabled
+      message:
+        contentType: application/json
+        payload:
+          type: object
+          properties:
+            user_id:
+              type: integer
+              example: 1
+            username:
+              type: string
+              example: user123
+  auth.2fa_disabled:
+    description: Event emitted when a user disables 2FA.
+    publish:
+      summary: 2FA disabled event
+      operationId: twoFADisabled
+      message:
+        contentType: application/json
+        payload:
+          type: object
+          properties:
+            user_id:
+              type: integer
+              example: 1
+            username:
+              type: string
+              example: user123
+  auth.username_changed:
+    description: Event emitted when a user changes their username.
+    publish:
+      summary: Username changed event
+      operationId: usernameChanged
+      message:
+        contentType: application/json
+        payload:
+          type: object
+          properties:
+            user_id:
+              type: integer
+              example: 1
+            username:
+              type: string
+              example: new_username
+  auth.email_changed:
+    description: Event emitted when a user changes their email.
+    publish:
+      summary: Email changed event
+      operationId: emailChanged
+      message:
+        contentType: application/json
+        payload:
+          type: object
+          properties:
+            user_id:
+              type: integer
+              example: 1
+            new_email:
+              type: string
+              example: new_email@example.com
+  auth.password_reset_requested:
+    description: Event emitted when a user requests a password reset.
+    publish:
+      summary: Password reset requested event
+      operationId: passwordResetRequested
+      message:
+        contentType: application/json
+        payload:
+          type: object
+          properties:
+            user_id:
+              type: integer
+              example: 1
+            email:
+              type: string
+              example: user@example.com
+  auth.password_reset:
+    description: Event emitted when a user's password is reset.
+    publish:
+      summary: Password reset event
+      operationId: passwordReset
+      message:
+        contentType: application/json
+        payload:
+          type: object
+          properties:
+            user_id:
+              type: integer
+              example: 1

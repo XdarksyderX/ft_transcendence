@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pong - Play with a Friend</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .sidebar {
+            height: calc(100vh - 56px);
+            width: 250px;
+            position: fixed;
+            top: 56px;
+            left: -250px;
+            z-index: 1000;
+            transition: 0.3s;
+            background: linear-gradient(225deg, var(--dark), var(--darkish),  #920505, var(--title));
+            box-shadow: 0 0 10px -5px #00F56A, 10px 0 10px -5px #00F56A, 10px 0 15px -5px #00F56A, 10px 0 30px -5px #00F56Acc;
+        }
+        .sidebar.show {
+            left: 0;
+        }
+        .content {
+            transition: margin-left 0.3s;
+        }
+        .toggle-btn {
+            background-color: transparent;
+            border: none;
+            color: var(--light);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        @media (min-width: 992px) {
+            .sidebar {
+                left: 0;
+            }
+            .content {
+                margin-left: 250px;
+            }
+            #sidebarToggle {
+                display: none;
+            }
+        }
+        .sidebar-item {
+            color: var(--light);
+            text-decoration: none;
+        }
+        #pongCanvas {
+            border: 2px solid var(--light);
+            background-color: var(--dark);
+        }
+        .player-info {
+            background-color: var(--darkish);
+            border: 1px solid var(--light);
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .friend-card {
+            background-color: var(--darkish);
+            border: 1px solid var(--light);
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .friend-card:hover {
+            background-color: var(--dark);
+        }
+        .friend-card.selected {
+            background-color: var(--title);
+        }
+    </style>     
+</head>
+<body>
+    <!-- navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark ctm-navbar">
+        <div class="container-fluid">
+            <button id="sidebarToggle" class="toggle-btn me-2">
+                <i class="bi bi-list"></i>
+            </button>
+            <span class="navbar-brand" id="pong">PONG</span>
+            <div class="d-flex ms-auto align-items-center">
+                <div id="welcomeButton" class="username">welcome </div>
+            </div>
+        </div>
+    </nav>
+    <!-- sidebar -->
+    <div id="sidebar" class="sidebar d-flex flex-column">
+        <div class="p-3">
+            <h3 class="username ctm-text-title"></h3>
+            <ul class="nav flex-column">
+                <li class="nav-item"><a href="#" class="nav-link ctm-link">My Profile</a></li>
+                <li class="nav-item"><a href="#" class="nav-link ctm-link">Friends</a></li>
+                <li class="nav-item"><a href="#" class="nav-link ctm-link">Game Stats</a></li>
+                <li class="nav-item"><a href="#" class="nav-link ctm-link">Whenever</a></li>
+                <li class="nav-item"><a href="#" class="nav-link ctm-link">Wherever</a></li>
+                <li class="nav-item"><a href="#" class="nav-link ctm-link">Were meant</a></li>
+                <li class="nav-item"><a href="#" class="nav-link ctm-link">to be together</a></li>
+            </ul>
+        </div>
+        <div class="mt-auto p-3">
+            <ul class="nav mb-5 flex-column">
+                <li class="nav-item text-center"><a href="#" class="btn ctm-btn-dark p-3">log out</a></li>
+            </ul>
+        </div>
+    </div>
+    <!-- main content -->
+    <div class="content">
+        <main class="container-fluid mt-3">
+            <div class="row">
+                <div class="col-12 mb-4">
+                    <h2 class="text-center ctm-text-light p-3" id="neon-text">Pong - Play with a Friend</h2>
+                </div>
+            </div>
+            <div id="gameArea" class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="d-flex justify-content-between mb-3">
+                        <div class="player-info">
+                            <h4 class="ctm-text-light">Player 1</h4>
+                            <p class="ctm-text-light mb-0">Score: <span id="player1Score">0</span></p>
+                        </div>
+                        <div class="player-info">
+                            <h4 class="ctm-text-light" id="player2Name">Player 2</h4>
+                            <p class="ctm-text-light mb-0">Score: <span id="player2Score">0</span></p>
+                        </div>
+                    </div>
+                    <canvas id="pongCanvas" width="800" height="400"></canvas>
+                    <div class="text-center mt-3">
+                        <button id="startGame" class="btn ctm-btn-dark">Start Game</button>
+                        <button id="resetGame" class="btn ctm-btn-dark">Reset Game</button>
+                    </div>
+                    <div class="mt-3">
+                        <h4 class="ctm-text-light">Controls:</h4>
+                        <p class="ctm-text-light">Player 1: W (up), S (down)</p>
+                        <p class="ctm-text-light">Player 2: Up Arrow (up), Down Arrow (down)</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loggedInUser = 'erivero-';
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const content = document.querySelector('.content');
+            const userNames = document.querySelectorAll('.username');
+            const canvas = document.getElementById('pongCanvas');
+            const ctx = canvas.getContext('2d');
+            const startButton = document.getElementById('startGame');
+            const resetButton = document.getElementById('resetGame');
+            const backToFriendSelectionButton = document.getElementById('backToFriendSelection');
+            const player1ScoreElement = document.getElementById('player1Score');
+            const player2ScoreElement = document.getElementById('player2Score');
+            const player2NameElement = document.getElementById('player2Name');
+            const friendSelectionArea = document.getElementById('friendSelection');
+            const gameArea = document.getElementById('gameArea');
+            const friendList = document.getElementById('friendList');
+            const startGameWithFriendButton = document.getElementById('startGameWithFriend');
+
+            let selectedFriend = null;
+
+            // Set welcome button text
+            userNames.forEach(userName => {
+                userName.textContent += `${loggedInUser}`;
+            });
+
+            // Sidebar toggle functionality
+            function toggleSidebar(event) {
+                event.stopPropagation();
+                sidebar.classList.toggle('show');
+                if (window.innerWidth >= 992) {
+                    content.style.marginLeft = sidebar.classList.contains('show') ? '250px' : '0';
+                }
+            }
+
+            sidebarToggle.addEventListener('click', toggleSidebar);
+
+            function handleOutsideClick(event) {
+                const isSmallScreen = window.innerWidth < 992;
+                const clickedOutsideSidebar = !sidebar.contains(event.target) && event.target !== sidebarToggle;
+                
+                if (isSmallScreen && sidebar.classList.contains('show') && clickedOutsideSidebar) {
+                    sidebar.classList.remove('show');
+                }
+            }
+
+            document.addEventListener('click', handleOutsideClick);
+
+            function handleResize() {
+                if (window.innerWidth >= 992) {
+                    sidebar.classList.add('show');
+                    content.style.marginLeft = '250px';
+                } else {
+                    sidebar.classList.remove('show');
+                    content.style.marginLeft = '0';
+                }
+            }
+
+            window.addEventListener('resize', handleResize);
+            handleResize();
+    
+
+            startButton.addEventListener('click', () => {
+                gameRunning = true;
+                startButton.style.display = 'none';
+                resetButton.style.display = 'inline-block';
+                gameLoop();
+            });
+
+            resetButton.addEventListener('click', resetGame);
+
+        });
+    </script>
+</body>
+</html>

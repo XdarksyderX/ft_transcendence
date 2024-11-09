@@ -1,0 +1,342 @@
+openapi: 3.1.0
+info:
+  title: Authentication Microservice HTTP API REST
+  description: API for managing authentication, including 2FA, JWT, username and password change, and more.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+tags:
+  - name: Access
+    description: Endpoints related to token access, refresh, and logout
+  - name: Change
+    description: Endpoints for changing user information, such as username and password
+  - name: Activate
+    description: Endpoints for activating features like 2FA and email verification
+paths:
+  /register:
+    post:
+      tags:
+          - Access
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: user@example.com
+                username:
+                  type: string
+                  example: user123
+                password:
+                  type: string
+                  example: password
+      responses:
+        '201':
+          description: User registered successfully.
+          content:
+            application/json:
+              example:
+                status: success
+                message: User registered successfully.
+                user_id: 1
+        '400':
+          description: Email or username is already registered or the data is invalid.
+          content:
+            application/json:
+              example:
+                status: error
+                message: Email or username is already registered.
+  /verify-email:
+    post:
+      tags:
+        - Activate
+      summary: Verify a user's email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: user@example.com
+                verification_code:
+                  type: string
+                  example: '123456'
+      responses:
+        '200':
+          description: Email verified successfully.
+          content:
+            application/json:
+              example:
+                status: success
+                message: Email verified successfully.
+        '400':
+          description: Invalid or expired verification code.
+          content:
+            application/json:
+              example:
+                status: error
+                message: Invalid verification code.
+  /activate-2fa:
+    post:
+      tags:
+        - Activate
+      summary: Enable or disable 2FA for the user
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+            example: Bearer <access_token>
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                enable:
+                  type: boolean
+                  example: true
+                  description: Set to true to enable 2FA or false to disable it.
+      responses:
+        '200':
+          description: 2FA status updated successfully.
+          content:
+            application/json:
+              example:
+                status: success
+                message: 2FA enabled successfully.
+                secret: OTP_SECRET_HASH
+        '400':
+          description: Failed to update 2FA status.
+          content:
+            application/json:
+              example:
+                status: error
+                message: Unable to update 2FA status.
+  /login:
+    post:
+      tags:
+        - Access
+      summary: Log in a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: user@example.com
+                password:
+                  type: string
+                  example: password
+                two_fa_code:
+                  type: string
+                  example: '123456'
+                  description: Optional 2FA code, required if the user has 2FA enabled.
+      responses:
+        '200':
+          description: Authentication successful, JWT tokens returned. JWT refresh_token is returned through a HttpOnly secure cookie.
+          content:
+            application/json:
+              example:
+                status: success
+                access_token: jwt_access_token_value
+        '401':
+          description: Invalid credentials or 2FA code required.
+          content:
+            application/json:
+              example:
+                status: error
+                message: Invalid credentials or 2FA code required.
+  /refresh:
+    get:
+      tags:
+        - Access
+      summary: Refresh access token using the refresh_token passed through HttpOnly secure cookie.
+      responses:
+        '200':
+          description: New access token generated.
+          content:
+            application/json:
+              example:
+                status: success
+                access_token: new_jwt_access_token_value
+        '401':
+          description: Invalid or expired refresh token.
+          content:
+            application/json:
+              example:
+                status: error
+                message: Invalid or expired refresh token.
+  /logout:
+    post:
+      tags:
+        - Access
+      summary: Log out and invalidate tokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh_token:
+                  type: string
+                  example: refresh_token_value
+      responses:
+        '200':
+          description: Logout successful, tokens invalidated.
+          content:
+            application/json:
+              example:
+                status: success
+                message: Logged out successfully.
+  /change-password:
+    post:
+      tags:
+        - Change
+      summary: Change user password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: user@example.com
+                current_password:
+                  type: string
+                  example: current_password
+                new_password:
+                  type: string
+                  example: new_password
+      responses:
+        '200':
+          description: Password changed successfully.
+          content:
+            application/json:
+              example:
+                status: success
+                message: Password changed successfully.
+        '400':
+          description: Invalid current password or new password does not meet requirements.
+          content:
+            application/json:
+              example:
+                status: error
+                message: Invalid current password.
+  /change-username:
+    post:
+      tags:
+        - Change
+      summary: Change user username
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: user@example.com
+                current_password:
+                  type: string
+                  example: current_password
+                new_username:
+                  type: string
+                  example: new_username
+      responses:
+        '200':
+          description: Username changed successfully.
+          content:
+            application/json:
+              example:
+                status: success
+                message: Username changed successfully.
+        '400':
+          description: Invalid credentials or username already taken.
+          content:
+            application/json:
+              example:
+                status: error
+                message: Invalid credentials or username already taken.
+  /reset-password-request:
+    post:
+      tags:
+          - Change
+      summary: Request password reset token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: user@example.com
+      responses:
+        '200':
+          description: Password reset email sent.
+          content:
+            application/json:
+              example:
+                status: success
+                message: Password reset email sent.
+        '400':
+          description: Email not registered.
+          content:
+            application/json:
+              example:
+                status: error
+                message: Email not registered.
+  /reset-password:
+    post:
+      tags:
+          - Change
+      summary: Reset user password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reset_token:
+                  type: string
+                  example: reset_token_value
+                new_password:
+                  type: string
+                  example: new_password
+      responses:
+        '200':
+          description: Password reset successfully.
+          content:
+            application/json:
+              example:
+                status: success
+                message: Password reset successfully.
+        '400':
+          description: Invalid or expired reset token.
+          content:
+            application/json:
+              example:
+                status: error
+                message: Invalid or expired reset token.
+
+
