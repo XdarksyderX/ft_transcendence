@@ -1,7 +1,8 @@
 import * as piece from "../Data/pieces.js";
 import { ROOT_DIV } from "../Helper/constants.js";
 import { globalState } from "../index.js";
-import { movePieceFromXToY } from "../Events/global.js";
+
+const globalPiece = new Object();
 
 /**
  * funciton globlaStateRendere is usefull to render pieces from globalStateData,
@@ -27,38 +28,6 @@ function globalStateRender() {
     });
   });
 }
-
-/**
- * move a piece by the highlight posibilities.
- * @param {*} piece an object representing a game piece.
- * @param {*} id the new position id where the piece should be moved.
- */
-function moveElement(piece, id)
-{
-  const flatData =  globalState.flat();
-  //iterate throught each element to update the positions od the pieces.
-  flatData.forEach((el) => {
-    if (el.id == piece.current_pos) {
-      delete el.piece; //when the element with the current position is find, delete the piece property from it
-    }
-    if (el.id == id) {
-      el.piece = piece; //find the element with the new position and asign the piece to it
-    }
-  });
-  clearHighlight();
-  //Update the HTML elements to reflect the new positions of the piece
-  const previousPiece = document.getElementById(piece.current_pos);
-  previousPiece.classList.remove("highlightYellow");
-  const currentPiece = document.getElementById(id);
-  
-  currentPiece.innerHTML = previousPiece.innerHTML;
-  previousPiece.innerHTML = "";
-
-  piece.current_pos = id;
-  //globalStateRender();
-}
-
-
 
 //simple function that highlight in the square you click if there is a piece on it
 function selfHighlight(piece)
@@ -140,8 +109,15 @@ function initGameRender(data)
         square.piece = piece.blackPawn(square.id); //render blackpawn row
       else if (square.id[1] == 2)
         square.piece = piece.whitePawn(square.id); //render whitepawn row
-      else if (piecePositions[square.id])
+      else if (piecePositions[square.id]) {
         square.piece = piecePositions[square.id](square.id); // render specific piece like if square.id == "d8") -> square.piece = piece.blackKing(square.id)
+        if (square.id == "e8") {
+          globalPiece.black_king = square.piece;
+        }
+        else if (square.id == "e1") {
+          globalPiece.white_king = square.piece;
+        }
+      }
       
       rowEl.appendChild(squareDiv); //squareDiv element is appended to the rowEl
     });
@@ -176,5 +152,4 @@ function clearHighlight()
   });
 }
 
-export { initGameRender, renderHighlight, clearHighlight, selfHighlight,
-  moveElement, globalStateRender };
+export { initGameRender, renderHighlight, clearHighlight, selfHighlight, globalStateRender, globalPiece };

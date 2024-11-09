@@ -136,4 +136,28 @@ function giveQueenHighlightIds(id) {
     }
 }
 
-export { checkOpponetPieceByElement, checkSquareCaptureId, giveBishopHighlightIds, checkPieceExist, giveRookHighlightIds, giveKnightHighlightIds, giveQueenHighlightIds };
+function giveKingHighlightIds(id) {
+    const res = {
+        "top": giveRookHighlightIds(id).top,
+        "bottom": giveRookHighlightIds(id).bottom,
+        "left": giveRookHighlightIds(id).left,
+        "right": giveRookHighlightIds(id).right,
+        "topLeft": giveBishopHighlightIds(id).topLeft,
+        "topRight": giveBishopHighlightIds(id).topRight,
+        "bottomLeft": giveBishopHighlightIds(id).bottomLeft,
+        "bottomRight": giveBishopHighlightIds(id).bottomRight
+    }
+
+    for (const key in res) {
+        if (Object.prototype.hasOwnProperty.call(res, key)) {
+            const element = res[key];
+            
+            if (element.length != 0) {
+                res[key] = new Array(element[0]);
+            }
+        }
+    }
+    return res;
+}
+
+export { checkOpponetPieceByElement, checkSquareCaptureId, giveBishopHighlightIds, checkPieceExist, giveRookHighlightIds, giveKnightHighlightIds, giveQueenHighlightIds, giveKingHighlightIds };
