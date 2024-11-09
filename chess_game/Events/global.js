@@ -1,8 +1,8 @@
 import { ROOT_DIV } from "../Helper/constants.js";
 import { globalState, keySquareMapper } from "../index.js"; //import globalState object, a 2D array representing the state of the chessboard
-import { renderHighlight, selfHighlight } from "../Render/main.js";
-import { clearHighlight, globalStateRender } from "../Render/main.js";
+import { clearHighlight, globalStateRender, selfHighlight, globalPiece } from "../Render/main.js";
 import { checkOpponetPieceByElement, checkSquareCaptureId, giveBishopHighlightIds, checkPieceExist, giveRookHighlightIds, giveKnightHighlightIds, giveQueenHighlightIds, giveKingHighlightIds } from "../Helper/commonHelper.js";
+import { blackKing } from "../Data/pieces.js";
 
 //highlighted or not => state
 let highlight_state = false;
@@ -36,14 +36,25 @@ function captureInTurn(square) {
   return;
 }
 
+function checkForCheck() {
+  if (inTurn === "white") {
+    const whiteKingCurrentPos = globalPiece.white_king.current_pos;
+    console.log(whiteKingCurrentPos);
+  }
+  else {
+    const blackKingCurrentPos = globalPiece.black_king.current_pos;
+    console.log(blackKingCurrentPos);
+  }
+}
+
 /**
  * move a piece by the highlight posibilities.
  * @param {*} piece an object representing a game piece.
  * @param {*} id the new position id where the piece should be moved.
  */
-function moveElement(piece, id)
-{
+function moveElement(piece, id) {
   changeTurn();
+  checkForCheck();
   const flatData =  globalState.flat();
   //iterate throught each element to update the positions od the pieces.
   flatData.forEach((el) => {

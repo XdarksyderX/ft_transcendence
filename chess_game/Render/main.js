@@ -1,7 +1,8 @@
 import * as piece from "../Data/pieces.js";
 import { ROOT_DIV } from "../Helper/constants.js";
 import { globalState } from "../index.js";
-import { movePieceFromXToY } from "../Events/global.js";
+
+const globalPiece = new Object();
 
 /**
  * funciton globlaStateRendere is usefull to render pieces from globalStateData,
@@ -108,8 +109,15 @@ function initGameRender(data)
         square.piece = piece.blackPawn(square.id); //render blackpawn row
       else if (square.id[1] == 2)
         square.piece = piece.whitePawn(square.id); //render whitepawn row
-      else if (piecePositions[square.id])
+      else if (piecePositions[square.id]) {
         square.piece = piecePositions[square.id](square.id); // render specific piece like if square.id == "d8") -> square.piece = piece.blackKing(square.id)
+        if (square.id == "e8") {
+          globalPiece.black_king = square.piece;
+        }
+        else if (square.id == "e1") {
+          globalPiece.white_king = square.piece;
+        }
+      }
       
       rowEl.appendChild(squareDiv); //squareDiv element is appended to the rowEl
     });
@@ -144,4 +152,4 @@ function clearHighlight()
   });
 }
 
-export { initGameRender, renderHighlight, clearHighlight, selfHighlight, globalStateRender };
+export { initGameRender, renderHighlight, clearHighlight, selfHighlight, globalStateRender, globalPiece };
