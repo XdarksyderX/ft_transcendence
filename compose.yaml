@@ -26,25 +26,25 @@ services:
       context: api-gateway
       dockerfile: Dockerfile
     ports:
-    - 443:443
-    - 80:80
+    - 5443:443
+    - 5081:80
 
   auth:
     build:
       context: auth
       dockerfile: Dockerfile
     ports:
-      - 5000
+      - 5000:5000
     env_file:
       - .env
       - auth/service/.env
 
-  fronted:
+  frontend:
     build:
       context: frontend
       dockerfile: Dockerfile
     ports:
-      - 80
+      - 5080:80
 
 networks:
   ft_transcendence-network:

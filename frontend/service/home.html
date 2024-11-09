@@ -104,7 +104,7 @@
         </div>
         <div class="mt-auto p-3">
             <ul class="nav mb-5 flex-column">
-                <li class="nav-item text-center"><a href="#" class="btn ctm-btn-dark p-3">log out</a></li>
+                <li id="logout-btn" class="nav-item text-center"><a href="#" class=" btn ctm-btn-dark p-3">log out</a></li>
             </ul>
         </div>
     </div>
@@ -297,6 +297,13 @@
             if (selectedFriend) {
                 alert(`Starting game with ${selectedFriend.name}`);
             }
+        });
+
+        const logoutButton = document.getElementById('logout-btn');
+
+        logoutButton.addEventListener('click', () => {
+        //    localStorage.removeItem('authToken');
+            window.location.href = './index.html';
         });
 
         // backToOptionsButton.addEventListener('click', () => {
