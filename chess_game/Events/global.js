@@ -2,7 +2,7 @@ import { ROOT_DIV } from "../Helper/constants.js";
 import { globalState, keySquareMapper } from "../index.js"; //import globalState object, a 2D array representing the state of the chessboard
 import { clearHighlight, globalStateRender, selfHighlight, globalPiece } from "../Render/main.js";
 import { checkOpponetPieceByElement, checkSquareCaptureId, giveBishopHighlightIds, checkPieceExist, giveRookHighlightIds, giveKnightHighlightIds, giveQueenHighlightIds, giveKingHighlightIds } from "../Helper/commonHelper.js";
-import { blackKing } from "../Data/pieces.js";
+import { giveKnightCaptureIds, giveKingCaptureIds, giveBishopCaptureIds, giveRookCaptureIds } from "../Helper/commonHelper.js";
 
 //highlighted or not => state
 let highlight_state = false;
@@ -39,7 +39,24 @@ function captureInTurn(square) {
 function checkForCheck() {
   if (inTurn === "white") {
     const whiteKingCurrentPos = globalPiece.white_king.current_pos;
-    console.log(whiteKingCurrentPos);
+    const knight_1 = globalPiece.black_knight_1.current_pos;
+    const knight_2 = globalPiece.black_knight_2.current_pos;
+    const king = globalPiece.black_king.current_pos;
+    const bishop_1 = globalPiece.black_bishop_1.current_pos;
+    const bishop_2 = globalPiece.black_bishop_2.current_pos;
+    const rook_1 = globalPiece.black_rook_1.current_pos;
+    const rook_2 = globalPiece.black_rook_2.current_pos;
+    const queen = globalPiece.black_queen.current_pos;
+
+    const finalListCheck = [];
+    finalListCheck.push(giveKnightCaptureIds(knight_1));
+    finalListCheck.push(giveKnightCaptureIds(knight_2));
+    finalListCheck.push(giveKingCaptureIds(king));
+    finalListCheck.push(giveBishopCaptureIds(bishop_1));
+    finalListCheck.push(giveBishopCaptureIds(bishop_2));
+    finalListCheck.push(giveRookCaptureIds(rook_1));
+    finalListCheck.push(giveRookCaptureIds(rook_2));
+    console.log(finalListCheck);
   }
   else {
     const blackKingCurrentPos = globalPiece.black_king.current_pos;
@@ -54,7 +71,6 @@ function checkForCheck() {
  */
 function moveElement(piece, id) {
   changeTurn();
-  checkForCheck();
   const flatData =  globalState.flat();
   //iterate throught each element to update the positions od the pieces.
   flatData.forEach((el) => {
@@ -62,12 +78,16 @@ function moveElement(piece, id) {
       delete el.piece; //when the element with the current position is find, delete the piece property from it
     }
     if (el.id == id) {
+      if (el.piece) {
+        el.piece.current_pos = null;
+      }
       el.piece = piece; //find the element with the new position and asign the piece to it
     }
   });
   clearHighlight();
   //Update the HTML elements to reflect the new positions of the piece
   const previousPiece = document.getElementById(piece.current_pos);
+  piece.current_pos = null;
   previousPiece.classList.remove("highlightYellow");
   const currentPiece = document.getElementById(id);
   
@@ -75,6 +95,7 @@ function moveElement(piece, id) {
   previousPiece.innerHTML = "";
 
   piece.current_pos = id;
+  checkForCheck();
   //globalStateRender();
 }
 

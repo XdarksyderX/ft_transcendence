@@ -18,6 +18,20 @@ function checkOpponetPieceByElement(id, color) {
     return false;
 }
 
+//function to check if opponnet piece exist
+function checkOpponetPieceByElementNoDom(id, color) {
+    const opponentColor = color === "white" ? "BLACK" : "WHITE";
+    const element = keySquareMapper[id];
+
+    if (!element)
+        return false;
+
+    if (element.piece && element.piece.piece_name.includes(opponentColor)) {
+        return true;
+    }
+    return false;
+}
+
 //function to check weather piece exists or not by square-id
 function checkPieceExist(squareId) {
     const square = keySquareMapper[squareId];
@@ -67,6 +81,16 @@ function giveBishopHighlightIds(id) {
     };
 }
 
+function giveBishopCaptureIds(id) {
+    let res = giveBishopHighlightIds(id);
+    res = Object.values(res).flat();
+    res = res.filter(element => {
+        if (checkOpponetPieceByElementNoDom(element, "black"))
+            return true;
+    })
+    return res;
+}
+
 function straightMove(id, alphaStep, numStep) {
     let alpha = id[0];
     let num = Number(id[1]);
@@ -93,8 +117,21 @@ function giveRookHighlightIds(id) {
     };
 }
 
+function giveRookCaptureIds(id) {
+    let res = giveRookHighlightIds(id);
+    console.log(res);
+    res = Object.values(res).flat();
+    res = res.filter(element => {
+        if (checkOpponetPieceByElementNoDom(element, "black"))
+            return true;
+    })
+    return res;
+}
+
 function knightMoves(id, alphaStep, numStep, alphaStep2, numStep2)
 {
+/*     if (!id)
+        return; */
     let alpha = id[0];
     let num = Number(id[1]);
     let moves = [];
@@ -121,6 +158,19 @@ function giveKnightHighlightIds(id) {
         ...knightMoves(id, -2, 1, -2, -1), // left moves
         ...knightMoves(id, 2, 1, 2, -1)   // right moves
     ];
+}
+
+function giveKnightCaptureIds(id) {
+    if (!id)
+        return;
+    let resArr =  giveKnightHighlightIds(id);
+
+    resArr = resArr.filter(element => {
+        if (checkOpponetPieceByElementNoDom(element, "black")) {
+            return true;
+        }
+    });
+    return resArr;
 }
 
 function giveQueenHighlightIds(id) {
@@ -159,5 +209,15 @@ function giveKingHighlightIds(id) {
     }
     return res;
 }
+function giveKingCaptureIds(id) {
+    let res = giveKingHighlightIds(id);
+    res = Object.values(res).flat();
+    res = res.filter(element => {
+        if (checkOpponetPieceByElementNoDom(element, "black"))
+            return true;
+    })
+    return res;
+}
 
-export { checkOpponetPieceByElement, checkSquareCaptureId, giveBishopHighlightIds, checkPieceExist, giveRookHighlightIds, giveKnightHighlightIds, giveQueenHighlightIds, giveKingHighlightIds };
+export { checkOpponetPieceByElement, checkSquareCaptureId, giveBishopHighlightIds, checkPieceExist, giveRookHighlightIds, giveKnightHighlightIds, giveQueenHighlightIds, giveKingHighlightIds,
+    giveKnightCaptureIds, giveKingCaptureIds, giveBishopCaptureIds, giveRookCaptureIds };

@@ -96,6 +96,25 @@ const piecePositions = {
   "e1": piece.whiteKing
 };
 
+const globalPieceMap = {
+  "a8": "black_rook",
+  "h8": "black_rook",
+  "b8": "black_knight",
+  "g8": "black_knight",
+  "c8": "black_bishop",
+  "f8": "black_bishop",
+  "d8": "black_queen",
+  "e8": "black_king",
+  "a1": "white_rook",
+  "h1": "white_rook",
+  "b1": "white_knight",
+  "g1": "white_knight",
+  "c1": "white_bishop",
+  "f1": "white_bishop",
+  "d1": "white_queen",
+  "e1": "white_king"
+};
+
 function initGameRender(data)
 {
   data.forEach(element => {
@@ -105,18 +124,64 @@ function initGameRender(data)
       squareDiv.id = square.id;
       squareDiv.classList.add(square.color, "square"); // that elemente is assigned to two CSS clasess: one for the square's color and one generic class("square").
       
-      if (square.id[1] == 7)
-        square.piece = piece.blackPawn(square.id); //render blackpawn row
-      else if (square.id[1] == 2)
-        square.piece = piece.whitePawn(square.id); //render whitepawn row
+      if (square.id[1] == 7) {  //render blackpawn row
+        square.piece = piece.blackPawn(square.id);
+        globalPiece.black_pawn = square.piece;
+      }
+      else if (square.id[1] == 2) { //render whitepawn row
+        square.piece = piece.whitePawn(square.id);
+        globalPiece.white_pawn = square.piece;
+      }
       else if (piecePositions[square.id]) {
         square.piece = piecePositions[square.id](square.id); // render specific piece like if square.id == "d8") -> square.piece = piece.blackKing(square.id)
-        if (square.id == "e8") {
+        if (square.id == "e8")
           globalPiece.black_king = square.piece;
-        }
-        else if (square.id == "e1") {
+        else if (square.id == "e1")
           globalPiece.white_king = square.piece;
+        else if (square.id == "d8")
+          globalPiece.black_queen = square.piece;
+        else if (square.id == "d1")
+          globalPiece.white_queen = square.piece;
+        else if (square.id == "a8" || square.id == "h8") {
+          if (globalPiece.black_rook_1)
+            globalPiece.black_rook_2 = square.piece;
+          else
+            globalPiece.black_rook_1 = square.piece;
         }
+        else if (square.id == "a1" || square.id == "h1") {
+          if (globalPiece.white_rook_1)
+            globalPiece.white_rook_2 = square.piece;
+          else
+            globalPiece.white_rook_1 = square.piece;
+        }
+        else if (square.id == "b8" || square.id == "g8") {
+          if (globalPiece.black_knight_1)
+            globalPiece.black_knight_2 = square.piece;
+          else
+            globalPiece.black_knight_1 = square.piece;
+        }
+        else if (square.id == "b1" || square.id == "g1") {
+          if (globalPiece.white_knight_1)
+            globalPiece.white_knight_2 = square.piece;
+          else
+            globalPiece.white_knight_1 = square.piece;
+        }
+        else if (square.id == "c8" || square.id == "f8") {
+          if (globalPiece.black_bishop_1)
+            globalPiece.black_bishop_2 = square.piece;
+          else
+            globalPiece.black_bishop_1 = square.piece;
+        }
+        else if (square.id == "c1" || square.id == "f1") {
+          if (globalPiece.white_bishop_1)
+            globalPiece.white_bishop_2 = square.piece;
+          else
+            globalPiece.white_bishop_1 = square.piece;
+        }
+/*         const globalPieceKey = globalPieceMap[square.id]; //alternativa
+        if (globalPieceKey) {
+          globalPiece[globalPieceKey] = square.piece;
+        } */
       }
       
       rowEl.appendChild(squareDiv); //squareDiv element is appended to the rowEl
@@ -124,7 +189,8 @@ function initGameRender(data)
     rowEl.classList.add("squareRow"); //after all squares in the row have been processed, the rowEl is assigned a CSS class("squareRow") to style the row.
     ROOT_DIV.appendChild(rowEl); //the rowEl is the appended to the ROOT_DIV, adding the row to the web page
   });
-
+  
+  //console.log(globalPiece);
   pieceRender(data);
 }
 
