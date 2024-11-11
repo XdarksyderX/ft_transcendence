@@ -162,18 +162,18 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="waitGameLabel">Waiting for Friend</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <h5 class="modal-title ctm-text-title" id="waitGameLabel">Waiting for Friend</h5>
+                        <button type="button" class="close-modal" data-bs-dismiss="modal" aria-label="Close">x</button>
                     </div>
                     <div class="modal-body">
                         <p id="modal-text"></p>
                         <div class="progress mt-3 position-relative" style="height: 30px;">
-                            <div id="progress-bar" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                            <div id="progress-bar" class="progress-bar" style="width: 100%" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                             <span id="timer" class="position-absolute top-50 start-50 translate-middle"></span>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn ctm-btn" data-bs-dismiss="modal">Cancel</button>
                     </div>
                 </div>
             </div>
@@ -319,22 +319,35 @@
                 const modalText = document.getElementById('modal-text');
                 modalText.innerHTML = `Waiting for ${selectedFriend.name} to accept the game...`;
                 modal.show();
-
-            const progressBar = document.getElementById('progress-bar');
-            let progress = 100;
-            const timer = document.getElementById('timer');
-            const interval = setInterval(() => {
-                let time = Math.floor(-progress / 100 * 30);
-                progress -= 1;
-                progressBar.style.width = `${progress}%`;
-                progressBar.setAttribute('aria-valuenow', progress);
-                timer.textContent = `${time}s`;
-                if (progress <= 0) {
+        
+                const progressBar = document.getElementById('progress-bar');
+                let progress = 100;
+                const timer = document.getElementById('timer');
+                const interval = setInterval(() => {
+                    let time = Math.floor(progress / 100 * 30);
+                    progress -= 1;
+                    progressBar.style.width = `${progress}%`;
+                    progressBar.setAttribute('aria-valuenow', progress);
+                    timer.textContent = `${time}s`;
+                    if (progress <= 0) {
+                        clearInterval(interval);
+                        modal.hide();
+                    }
+                    if (progress < 50) {
+                        timer.style.color = 'var(--light)'; // Change to your desired color
+                    } else {
+                        timer.style.color = 'var(--dark)'; // Reset to default color
+                    }
+                }, 300); // 300ms interval for 30 seconds total
+        
+                // Reset interval and progress bar when the modal is closed
+                document.getElementById('wait-game').addEventListener('hidden.bs.modal', () => {
                     clearInterval(interval);
-                    modal.hide();
-                }
-            }, 300); // 300ms interval for 30 seconds total  
-                
+                    progressBar.style.width = '100%';
+                    progressBar.setAttribute('aria-valuenow', 100);
+                    timer.textContent = '30s';
+                    timer.style.color = 'var(--dark)'; // Reset to default color
+                });
             }
         });
 

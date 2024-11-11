@@ -185,3 +185,24 @@ input[type="checkbox"]:checked {
     display: block;
     height: 100%;
 }
+
+.modal-header, .modal-footer {
+    border: none;
+}
+
+.close-modal {
+   color: var(--title);
+   background: none;
+   border-radius: 5px;
+}
+.modal-content {
+    color: var(--light);
+    background: linear-gradient(to top, var(--medium), var(--dark));
+}
+
+.progress {
+    background-color: var(--dark);
+}
+.progress-bar {
+    background: linear-gradient(to left, var(--lorange), var(--title), #920505cc);
+}
