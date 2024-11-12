@@ -1,5 +1,5 @@
-const user = 'erivero-';
-const pass = 'patata';
+// const user = 'erivero-';
+// const pass = 'patata';
 
 // document.addEventListener('DOMContentLoaded', () => {
 //     const loginForm = document.getElementById('submit');
@@ -52,12 +52,18 @@ document.addEventListener('DOMContentLoaded', () => {
 function login(userCredentials) {
   console.log('Attempting to log in with credentials:', userCredentials);
 
+  // Log the JSON stringified payload
+  console.log('Request payload:', JSON.stringify(userCredentials));
+
   fetch('http://localhost:5000/login/', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(userCredentials),
   })
     .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       console.log('Received response:', response);
       return response.json();
     })
@@ -67,7 +73,6 @@ function login(userCredentials) {
         console.log('Login successful, received JWT:', data.jwt); 
         localStorage.setItem('authToken', data.jwt); // Store the JWT in localStorage
         window.location.href = '/home.html'; // Redirect the user to the protected page
-
       } else {
         console.log('Authentication error, no JWT received');
         alert('Authentication error');
@@ -75,5 +80,6 @@ function login(userCredentials) {
     })
     .catch(error => {
       console.error('Authentication error:', error);
+      alert('An error occurred during login. Please try again later.');
     });
 }
