@@ -23,8 +23,8 @@ class LoginView(APIView):
         if serializer.is_valid():
             username = serializer.validated_data['username']
             password = serializer.validated_data['password']
-            user = authenticate(request, username=username, password=password)
 
+            user = authenticate(request, username=username, password=password)
             if user is not None:
                 if not user.is_email_verified:
                     return Response({"status": "error", "message": "Email is not verified."}, status=status.HTTP_403_FORBIDDEN)
@@ -67,9 +67,13 @@ class LoginView(APIView):
                     rabbit_client.close()
 
                 return response
-            return Response({"status": "error", "message": "Invalid credentials."}, status=status.HTTP_401_UNAUTHORIZED)
-        
-        return Response({"status": "error", "message": "Required username and password"}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response({"status": "error", "message": "Invalid credentials."}, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            errors = serializer.errors
+            field_name, field_errors = next(iter(errors.items()))
+            error_message = field_errors[0] if isinstance(field_errors, list) else field_errors
+            return Response({"status": "error", "message": error_message}, status=status.HTTP_401_UNAUTHORIZED)
 
     def verify_otp(self, request):
         temp_token = request.data.get('temp_token')

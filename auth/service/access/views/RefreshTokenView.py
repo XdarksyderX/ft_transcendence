@@ -9,7 +9,7 @@ from core.utils.event_domain import wrap_event_data
 class RefreshTokenView(APIView):
     permission_classes = [AllowAny]
 
-    def get(self, request):
+    def post(self, request):
         refresh_token = request.COOKIES.get('refresh_token')
         if not refresh_token:
             return Response({"status": "error", "message": "Refresh token is required."}, status=status.HTTP_400_BAD_REQUEST)

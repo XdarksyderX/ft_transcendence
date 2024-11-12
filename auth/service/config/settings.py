@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 JWT_SECRET = os.getenv('JWT_SECRET')
-
+APPEND_SLASH = True
 FRONTEND_URL = os.getenv('FRONTEND_URL')
 
 # SECURITY WARNING: don't run with debug turned on in production!

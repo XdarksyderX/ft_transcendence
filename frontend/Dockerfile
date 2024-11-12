@@ -6,7 +6,7 @@
 #    By: migarci2 <migarci2@student.42malaga.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/05 16:11:12 by migarci2          #+#    #+#              #
-#    Updated: 2024/11/05 16:20:23 by migarci2         ###   ########.fr        #
+#    Updated: 2024/11/12 19:16:52 by migarci2         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,6 +20,8 @@ COPY service/ /var/www/service
 
 COPY lighttpd.conf /etc/lighttpd/lighttpd.conf
 
+COPY entrypoint.sh /entrypoint.sh
+
 EXPOSE 80
 
-CMD ["lighttpd", "-D", "-f", "/etc/lighttpd/lighttpd.conf"]
+CMD ["/bin/sh", "/entrypoint.sh"]
