@@ -81,7 +81,38 @@ function giveBishopHighlightIds(id) {
     };
 }
 
-function giveBishopCaptureIds(id) {
+function giveBishopCaptureIds(id, color) {
+    if (!id)
+        return [];
+    let highlightSquareIds = giveBishopHighlightIds(id);
+    let tmp = [];
+    const { bottomLeft, bottomRight, topLeft, topRight } = highlightSquareIds;
+    let returnArr = [];
+  
+    tmp.push(bottomLeft);
+    tmp.push(bottomRight);
+    tmp.push(topLeft);
+    tmp.push(topRight);
+
+    for (let i = 0; i < tmp.length; i++) {
+        const arr = tmp[i];
+    
+        for (let j = 0; j < arr.length; j++) {
+          const element = arr[j];
+          let pieceRes = checkPieceExist(element);
+          if (pieceRes && pieceRes.piece && pieceRes.piece.piece_name.toLowerCase().includes(color)) {
+            break;
+          }
+          if (checkOpponetPieceByElementNoDom(element, color)) {
+            returnArr.push(element);
+            break;
+          }
+        }
+    }
+    return returnArr;
+}
+
+/* function giveBishopCaptureIds(id) {
     let res = giveBishopHighlightIds(id);
     res = Object.values(res).flat();
     res = res.filter(element => {
@@ -89,7 +120,7 @@ function giveBishopCaptureIds(id) {
             return true;
     })
     return res;
-}
+} */
 
 function straightMove(id, alphaStep, numStep) {
     let alpha = id[0];
@@ -117,16 +148,46 @@ function giveRookHighlightIds(id) {
     };
 }
 
-function giveRookCaptureIds(id) {
+function giveRookCaptureIds(id, color) {
+    if (!id)
+        return [];
+    let highlightSquareIds = giveRookHighlightIds(id);
+    let tmp = [];
+    const { top, bottom, left, right } = highlightSquareIds;
+    let returnArr = [];
+  
+    tmp.push(top);
+    tmp.push(bottom);
+    tmp.push(left);
+    tmp.push(right);
+
+    for (let i = 0; i < tmp.length; i++) {
+        const arr = tmp[i];
+    
+        for (let j = 0; j < arr.length; j++) {
+          const element = arr[j];
+          let pieceRes = checkPieceExist(element);
+          if (pieceRes && pieceRes.piece && pieceRes.piece.piece_name.toLowerCase().includes(color)) {
+            break;
+          }
+          if (checkOpponetPieceByElementNoDom(element, color)) {
+            returnArr.push(element);
+            break;
+          }
+        }
+    }
+    return returnArr;
+}
+
+/* function giveRookCaptureIds(id) {
     let res = giveRookHighlightIds(id);
-    console.log(res);
     res = Object.values(res).flat();
     res = res.filter(element => {
         if (checkOpponetPieceByElementNoDom(element, "black"))
             return true;
     })
     return res;
-}
+} */
 
 function knightMoves(id, alphaStep, numStep, alphaStep2, numStep2)
 {
@@ -160,13 +221,13 @@ function giveKnightHighlightIds(id) {
     ];
 }
 
-function giveKnightCaptureIds(id) {
+function giveKnightCaptureIds(id, color) {
     if (!id)
-        return;
+        return [];
     let resArr =  giveKnightHighlightIds(id);
 
     resArr = resArr.filter(element => {
-        if (checkOpponetPieceByElementNoDom(element, "black")) {
+        if (checkOpponetPieceByElementNoDom(element, color)) {
             return true;
         }
     });
@@ -184,6 +245,16 @@ function giveQueenHighlightIds(id) {
         "bottomLeft": giveBishopHighlightIds(id).bottomLeft,
         "bottomRight": giveBishopHighlightIds(id).bottomRight
     }
+}
+
+
+function giveQueenCaptureIds(id, color) {
+    if (!id)
+        return [];
+    let returnArr = [];
+    returnArr.push(giveBishopCaptureIds(id, color));
+    returnArr.push(giveRookCaptureIds(id, color));
+    return returnArr.flat();
 }
 
 function giveKingHighlightIds(id) {
@@ -209,15 +280,17 @@ function giveKingHighlightIds(id) {
     }
     return res;
 }
-function giveKingCaptureIds(id) {
+function giveKingCaptureIds(id, color) {
+    if (!id)
+        return [];
     let res = giveKingHighlightIds(id);
     res = Object.values(res).flat();
     res = res.filter(element => {
-        if (checkOpponetPieceByElementNoDom(element, "black"))
+        if (checkOpponetPieceByElementNoDom(element, color))
             return true;
     })
     return res;
 }
 
 export { checkOpponetPieceByElement, checkSquareCaptureId, giveBishopHighlightIds, checkPieceExist, giveRookHighlightIds, giveKnightHighlightIds, giveQueenHighlightIds, giveKingHighlightIds,
-    giveKnightCaptureIds, giveKingCaptureIds, giveBishopCaptureIds, giveRookCaptureIds };
+    giveKnightCaptureIds, giveKingCaptureIds, giveBishopCaptureIds, giveRookCaptureIds, giveQueenCaptureIds };

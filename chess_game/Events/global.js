@@ -2,7 +2,7 @@ import { ROOT_DIV } from "../Helper/constants.js";
 import { globalState, keySquareMapper } from "../index.js"; //import globalState object, a 2D array representing the state of the chessboard
 import { clearHighlight, globalStateRender, selfHighlight, globalPiece } from "../Render/main.js";
 import { checkOpponetPieceByElement, checkSquareCaptureId, giveBishopHighlightIds, checkPieceExist, giveRookHighlightIds, giveKnightHighlightIds, giveQueenHighlightIds, giveKingHighlightIds } from "../Helper/commonHelper.js";
-import { giveKnightCaptureIds, giveKingCaptureIds, giveBishopCaptureIds, giveRookCaptureIds } from "../Helper/commonHelper.js";
+import { giveKnightCaptureIds, giveKingCaptureIds, giveBishopCaptureIds, giveRookCaptureIds, giveQueenCaptureIds } from "../Helper/commonHelper.js";
 
 //highlighted or not => state
 let highlight_state = false;
@@ -13,6 +13,7 @@ let selfHighlightState = null;
 //in move state or not
 let moveState = null;
 let inTurn = "white";
+let whoInCheck = null;
 
 function changeTurn() {
   inTurn = inTurn === "white" ? "black" : "white";
@@ -37,7 +38,7 @@ function captureInTurn(square) {
 }
 
 function checkForCheck() {
-  if (inTurn === "white") {
+  if (inTurn === "black") {
     const whiteKingCurrentPos = globalPiece.white_king.current_pos;
     const knight_1 = globalPiece.black_knight_1.current_pos;
     const knight_2 = globalPiece.black_knight_2.current_pos;
@@ -48,19 +49,48 @@ function checkForCheck() {
     const rook_2 = globalPiece.black_rook_2.current_pos;
     const queen = globalPiece.black_queen.current_pos;
 
-    const finalListCheck = [];
-    finalListCheck.push(giveKnightCaptureIds(knight_1));
-    finalListCheck.push(giveKnightCaptureIds(knight_2));
-    finalListCheck.push(giveKingCaptureIds(king));
-    finalListCheck.push(giveBishopCaptureIds(bishop_1));
-    finalListCheck.push(giveBishopCaptureIds(bishop_2));
-    finalListCheck.push(giveRookCaptureIds(rook_1));
-    finalListCheck.push(giveRookCaptureIds(rook_2));
-    console.log(finalListCheck);
+    let finalListCheck = [];
+    finalListCheck.push(giveKnightCaptureIds(knight_1, inTurn));
+    finalListCheck.push(giveKnightCaptureIds(knight_2, inTurn));
+    finalListCheck.push(giveKingCaptureIds(king, inTurn));
+    finalListCheck.push(giveBishopCaptureIds(bishop_1, inTurn));
+    finalListCheck.push(giveBishopCaptureIds(bishop_2, inTurn));
+    finalListCheck.push(giveRookCaptureIds(rook_1, inTurn));
+    finalListCheck.push(giveRookCaptureIds(rook_2, inTurn));
+    finalListCheck.push(giveQueenCaptureIds(queen, inTurn));
+
+    finalListCheck = finalListCheck.flat();
+    const checkOrNot = finalListCheck.find((element) => element === whiteKingCurrentPos);
+    if (checkOrNot) {
+      whoInCheck = "white";
+    }
   }
   else {
     const blackKingCurrentPos = globalPiece.black_king.current_pos;
-    console.log(blackKingCurrentPos);
+    const knight_1 = globalPiece.white_knight_1.current_pos;
+    const knight_2 = globalPiece.white_knight_2.current_pos;
+    const king = globalPiece.white_king.current_pos;
+    const bishop_1 = globalPiece.white_bishop_1.current_pos;
+    const bishop_2 = globalPiece.white_bishop_2.current_pos;
+    const rook_1 = globalPiece.white_rook_1.current_pos;
+    const rook_2 = globalPiece.white_rook_2.current_pos;
+    const queen = globalPiece.white_queen.current_pos;
+
+    let finalListCheck = [];
+    finalListCheck.push(giveKnightCaptureIds(knight_1, inTurn));
+    finalListCheck.push(giveKnightCaptureIds(knight_2, inTurn));
+    finalListCheck.push(giveKingCaptureIds(king, inTurn));
+    finalListCheck.push(giveBishopCaptureIds(bishop_1, inTurn));
+    finalListCheck.push(giveBishopCaptureIds(bishop_2, inTurn));
+    finalListCheck.push(giveRookCaptureIds(rook_1, inTurn));
+    finalListCheck.push(giveRookCaptureIds(rook_2, inTurn));
+    finalListCheck.push(giveQueenCaptureIds(queen, inTurn));
+
+    finalListCheck = finalListCheck.flat();
+    const checkOrNot = finalListCheck.find((element) => element === blackKingCurrentPos);
+    if (checkOrNot) {
+      whoInCheck = "black";
+    }
   }
 }
 
@@ -70,7 +100,7 @@ function checkForCheck() {
  * @param {*} id the new position id where the piece should be moved.
  */
 function moveElement(piece, id) {
-  changeTurn();
+  //changeTurn();
   const flatData =  globalState.flat();
   //iterate throught each element to update the positions od the pieces.
   flatData.forEach((el) => {
@@ -96,6 +126,7 @@ function moveElement(piece, id) {
 
   piece.current_pos = id;
   checkForCheck();
+  changeTurn();
   //globalStateRender();
 }
 
@@ -116,7 +147,19 @@ function movePieceFromXToY(from, to) {
 function whitePawnClick(square)
 {
   const piece = square.piece;
-  captureInTurn(square);
+  
+  if (piece == selfHighlightState) {
+    clearPreviousSelfHighlight(selfHighlightState);
+    clearHighlightLocal();
+    return;
+  }
+  
+  if (square.captureHightlight) {
+    moveElement(selfHighlightState, piece.current_pos);
+    clearPreviousSelfHighlight(selfHighlightState);
+    clearHighlightLocal();
+    return;
+  }
 
   //clear all highlights
   clearPreviousSelfHighlight(selfHighlightState);
@@ -167,7 +210,18 @@ function whitePawnClick(square)
 function whiteBishopClick(square)
 {
   const piece = square.piece;
-  captureInTurn(square);
+  if (piece == selfHighlightState) {
+    clearPreviousSelfHighlight(selfHighlightState);
+    clearHighlightLocal();
+    return;
+  }
+  
+  if (square.captureHightlight) {
+    moveElement(selfHighlightState, piece.current_pos);
+    clearPreviousSelfHighlight(selfHighlightState);
+    clearHighlightLocal();
+    return;
+  }
 
   //clear all highlights
   clearPreviousSelfHighlight(selfHighlightState);
@@ -230,7 +284,18 @@ function whiteBishopClick(square)
 function whiteRookClick(square)
 {
   const piece = square.piece;
-  captureInTurn(square);
+  if (piece == selfHighlightState) {
+    clearPreviousSelfHighlight(selfHighlightState);
+    clearHighlightLocal();
+    return;
+  }
+  
+  if (square.captureHightlight) {
+    moveElement(selfHighlightState, piece.current_pos);
+    clearPreviousSelfHighlight(selfHighlightState);
+    clearHighlightLocal();
+    return;
+  }
 
   //clear all highlights
   clearPreviousSelfHighlight(selfHighlightState);
@@ -292,7 +357,18 @@ function whiteRookClick(square)
 function whiteKnightClick(square)
 {
   const piece = square.piece;
-  captureInTurn(square);
+  if (piece == selfHighlightState) {
+    clearPreviousSelfHighlight(selfHighlightState);
+    clearHighlightLocal();
+    return;
+  }
+  
+  if (square.captureHightlight) {
+    moveElement(selfHighlightState, piece.current_pos);
+    clearPreviousSelfHighlight(selfHighlightState);
+    clearHighlightLocal();
+    return;
+  }
 
   //clear all highlights
   clearPreviousSelfHighlight(selfHighlightState);
@@ -337,7 +413,18 @@ function whiteKnightClick(square)
 function whiteQueenClick(square)
 {
   const piece = square.piece;
-  captureInTurn(square);
+  if (piece == selfHighlightState) {
+    clearPreviousSelfHighlight(selfHighlightState);
+    clearHighlightLocal();
+    return;
+  }
+  
+  if (square.captureHightlight) {
+    moveElement(selfHighlightState, piece.current_pos);
+    clearPreviousSelfHighlight(selfHighlightState);
+    clearHighlightLocal();
+    return;
+  }
 
   //clear all highlights
   clearPreviousSelfHighlight(selfHighlightState);
@@ -408,7 +495,18 @@ function whiteQueenClick(square)
 function whiteKingClick(square)
 {
   const piece = square.piece;
-  captureInTurn(square);
+  if (piece == selfHighlightState) {
+    clearPreviousSelfHighlight(selfHighlightState);
+    clearHighlightLocal();
+    return;
+  }
+  
+  if (square.captureHightlight) {
+    moveElement(selfHighlightState, piece.current_pos);
+    clearPreviousSelfHighlight(selfHighlightState);
+    clearHighlightLocal();
+    return;
+  }
 
   //clear all highlights
   clearPreviousSelfHighlight(selfHighlightState);
@@ -478,7 +576,18 @@ function whiteKingClick(square)
 function blackKingClick(square)
 {
   const piece = square.piece;
-  captureInTurn(square);
+  if (piece == selfHighlightState) {
+    clearPreviousSelfHighlight(selfHighlightState);
+    clearHighlightLocal();
+    return;
+  }
+  
+  if (square.captureHightlight) {
+    moveElement(selfHighlightState, piece.current_pos);
+    clearPreviousSelfHighlight(selfHighlightState);
+    clearHighlightLocal();
+    return;
+  }
 
   //clear all highlights
   clearPreviousSelfHighlight(selfHighlightState);
@@ -549,7 +658,18 @@ function blackKingClick(square)
 function blackQueenClick(square)
 {
   const piece = square.piece;
-  captureInTurn(square);
+  if (piece == selfHighlightState) {
+    clearPreviousSelfHighlight(selfHighlightState);
+    clearHighlightLocal();
+    return;
+  }
+  
+  if (square.captureHightlight) {
+    moveElement(selfHighlightState, piece.current_pos);
+    clearPreviousSelfHighlight(selfHighlightState);
+    clearHighlightLocal();
+    return;
+  }
 
   //clear all highlights
   clearPreviousSelfHighlight(selfHighlightState);
@@ -619,7 +739,18 @@ function blackQueenClick(square)
 function blackKnightClick(square)
 {
   const piece = square.piece;
-  captureInTurn(square);
+  if (piece == selfHighlightState) {
+    clearPreviousSelfHighlight(selfHighlightState);
+    clearHighlightLocal();
+    return;
+  }
+  
+  if (square.captureHightlight) {
+    moveElement(selfHighlightState, piece.current_pos);
+    clearPreviousSelfHighlight(selfHighlightState);
+    clearHighlightLocal();
+    return;
+  }
 
   //clear all highlights
   clearPreviousSelfHighlight(selfHighlightState);
@@ -664,7 +795,18 @@ function blackKnightClick(square)
 function blackBishopClick(square)
 {
   const piece = square.piece;
-  captureInTurn(square);
+  if (piece == selfHighlightState) {
+    clearPreviousSelfHighlight(selfHighlightState);
+    clearHighlightLocal();
+    return;
+  }
+  
+  if (square.captureHightlight) {
+    moveElement(selfHighlightState, piece.current_pos);
+    clearPreviousSelfHighlight(selfHighlightState);
+    clearHighlightLocal();
+    return;
+  }
 
   //clear all highlights
   clearPreviousSelfHighlight(selfHighlightState);
@@ -725,7 +867,18 @@ function blackBishopClick(square)
 function blackRookClick(square)
 {
   const piece = square.piece;
-  captureInTurn(square);
+  if (piece == selfHighlightState) {
+    clearPreviousSelfHighlight(selfHighlightState);
+    clearHighlightLocal();
+    return;
+  }
+  
+  if (square.captureHightlight) {
+    moveElement(selfHighlightState, piece.current_pos);
+    clearPreviousSelfHighlight(selfHighlightState);
+    clearHighlightLocal();
+    return;
+  }
 
   //clear all highlights
   clearPreviousSelfHighlight(selfHighlightState);
@@ -786,7 +939,18 @@ function blackRookClick(square)
 function blackPawnClick(square)
 {
   const piece = square.piece;
-  captureInTurn(square);
+  if (piece == selfHighlightState) {
+    clearPreviousSelfHighlight(selfHighlightState);
+    clearHighlightLocal();
+    return;
+  }
+  
+  if (square.captureHightlight) {
+    moveElement(selfHighlightState, piece.current_pos);
+    clearPreviousSelfHighlight(selfHighlightState);
+    clearHighlightLocal();
+    return;
+  }
 
   //clears all the higlights
   clearPreviousSelfHighlight(selfHighlightState);
