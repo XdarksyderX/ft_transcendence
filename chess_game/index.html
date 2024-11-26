@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,11 +8,16 @@
   <title>Chess Game</title>
 </head>
 <!-- Cuerpo del documento donde se coloca el contenido visible -->
-<body>
+
+<body class="d-flex">
   <!-- Contenedor principal donde se renderizará el tablero de ajedrez y otros elementos del juego -->
   <div id="root"></div>
+  <div id="move_logger">
+    <ol></ol>
+  </div>
   <!-- Enlaza el archivo JavaScript principal y lo define como un módulo ES6 -->
   <script type="module" src="index.js">
   </script>
 </body>
+
 </html>

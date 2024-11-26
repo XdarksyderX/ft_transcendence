@@ -17,9 +17,11 @@ function globalStateRender() {
         highlightSpan.classList.add("highlight");
         document.getElementById(element.id).appendChild(highlightSpan);
       }
-      else if (element.highlight === null) {
+      //else if (element.highlight === null) {
+      else {
         const el = document.getElementById(element.id);
-        const highlights = Array.from(el.getElementsByTagName("span"));
+        const highlights = Array.from(el.getElementsByClassName("highlight"));
+        //const highlights = Array.from(el.getElementsByTagName("span"));
         highlights.forEach(element => {
           el.removeChild(element);
         });
@@ -124,6 +126,11 @@ function initGameRender(data)
       squareDiv.id = square.id;
       squareDiv.classList.add(square.color, "square"); // that elemente is assigned to two CSS clasess: one for the square's color and one generic class("square").
       
+      const labelId = document.createElement("span");
+      labelId.textContent = square.id;
+      labelId.classList.add("labelId", `${square.color}-label-id`);
+      squareDiv.append(labelId);
+
       if (square.id[1] == 7) {  //render blackpawn row
         square.piece = piece.blackPawn(square.id);
         globalPiece.black_pawn = square.piece;

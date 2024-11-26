@@ -18,4 +18,11 @@ globalState.flat().forEach((square) => {
 initGameRender(globalState);
 GlobalEvent();
 
+/*add a custom method to String prototipe that replace a part of an
+string in a specific position. Ex: str = "hello" -> str = str.replaceAt(1, "a") = "hallo" */
+
+String.prototype.replaceAt = function (index, replacement) {
+    return (this.substring(0, index) + replacement + this.substring(index + replacement.length));
+};
+
 export { globalState, keySquareMapper };

@@ -3,6 +3,7 @@ import { globalState, keySquareMapper } from "../index.js"; //import globalState
 import { clearHighlight, globalStateRender, selfHighlight, globalPiece } from "../Render/main.js";
 import { checkOpponetPieceByElement, checkSquareCaptureId, giveBishopHighlightIds, checkPieceExist, giveRookHighlightIds, giveKnightHighlightIds, giveQueenHighlightIds, giveKingHighlightIds } from "../Helper/commonHelper.js";
 import { giveKnightCaptureIds, giveKingCaptureIds, giveBishopCaptureIds, giveRookCaptureIds, giveQueenCaptureIds } from "../Helper/commonHelper.js";
+import logMoves from "../Helper/logging.js";
 
 //highlighted or not => state
 let highlight_state = false;
@@ -100,7 +101,7 @@ function checkForCheck() {
  * @param {*} id the new position id where the piece should be moved.
  */
 function moveElement(piece, id) {
-  //changeTurn();
+  logMoves({from: piece.current_pos, to: id, piece:piece.piece_name}, inTurn);
   const flatData =  globalState.flat();
   //iterate throught each element to update the positions od the pieces.
   flatData.forEach((el) => {
@@ -121,10 +122,10 @@ function moveElement(piece, id) {
   previousPiece.classList.remove("highlightYellow");
   const currentPiece = document.getElementById(id);
   
-  currentPiece.innerHTML = previousPiece.innerHTML;
-  previousPiece.innerHTML = "";
-
+  currentPiece.innerHTML += previousPiece.querySelector('img').outerHTML;
+  previousPiece.querySelector('img')?.remove();
   piece.current_pos = id;
+  
   checkForCheck();
   changeTurn();
   //globalStateRender();
