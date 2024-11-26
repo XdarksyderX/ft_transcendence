@@ -12,7 +12,7 @@ class User(models.Model):
     Returns:
         User value.
     """
-    user = models.CharField(max_length = 20, unique = True, verbose_name = 'Username', blank = False)
+    user = models.CharField(max_length = 20, unique = True, verbose_name = 'Username', blank = False) # TODO QUITAR USER Y RECIBIRLO POR COOKIE, CMABIAR APIS PARA USAR ID 
     avatar = models.CharField(verbose_name = 'Avatar URL', default = 'URL_DEFAULT_AVATAR')
 
     def __str__(self) -> str:

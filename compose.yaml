@@ -21,30 +21,40 @@ services:
     - 15672:15672
     env_file: .env
 
-  api-gateway:
-    build:
-      context: api-gateway
-      dockerfile: Dockerfile
-    ports:
-    - 5443:443
-    - 5081:80
+  # api-gateway:
+  #   build:
+  #     context: api-gateway
+  #     dockerfile: Dockerfile
+  #   ports:
+  #   - 5443:443
+  #   - 5081:80
 
-  auth:
+  # auth:
+  #   build:
+  #     context: auth
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - 5000:5000
+  #   env_file:
+  #     - .env
+  #     - auth/service/.env
+
+  # frontend:
+  #   build:
+  #     context: frontend
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - 5080:80
+  
+  social:
     build:
-      context: auth
+      context: social
       dockerfile: Dockerfile
     ports:
       - 5000:5000
     env_file:
       - .env
-      - auth/service/.env
 
-  frontend:
-    build:
-      context: frontend
-      dockerfile: Dockerfile
-    ports:
-      - 5080:80
 
 networks:
   ft_transcendence-network:

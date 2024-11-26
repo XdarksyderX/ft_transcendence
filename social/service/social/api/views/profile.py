@@ -18,9 +18,9 @@ class ProfileView(APIView):
     Return:
         The response is all work correctly, or a Error Messages if fail.
     """
-    def get(self, request, user_id):
+    def get(self, request, user):
         try:
-            user = User.objects.get(id=user_id)
+            user = User.objects.get(user=user)
             serializer = ProfileSerializer(user)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except User.DoesNotExist:

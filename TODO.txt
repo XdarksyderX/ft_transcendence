@@ -1,0 +1,43 @@
+
+PROFILE MISMA API
+api que devuelva avatar
+api que devuelva el status
+
+AMIGOS
+api que devuelva lista de amigos
+api que devuelva lista de amigos pendientes
+api que devuelva lista de amigos bloqueados
+
+API CON FUNCIONES
+
+bloquear a usuario
+desbloquear usuario
+aceptar invitacion
+denegar invitacion
+mandar invitacion
+
+
+
+
+
+
+
+
+
+
+
+VER COMO MANDO NOTIFICACION AL MOMENTO AL USUARIO CUANDO RECIBE ALGUNA SOLICITUD DE AMISTAD
+
+celery y rabbitmq VER OTRO DIA
+
+como crear user en mis tablas automaticamente
+    obtener id de la principal
+
+HACER SUBIDA AVATAR Y ALMACENAMIENTO
+METER EN LA API AUTENTICACION CON TOKEN
+    al usar el token, en este va ya el id del usuario, no es necesario mandar los dos en el url
+
+
+ver como cambiar id usuario (obteniendolo desde rabbitmq)
+
+implementar chat redis y demas

@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'chat',
-    'social,'
+    'social',
 ]
 
 MIDDLEWARE = [
@@ -99,6 +99,8 @@ DATABASES = {
         'PORT': os.getenv('AUTHDB_PORT', '5432'),
     }
 }
+
+JWT_SECRET = os.getenv("JWT_SECRET")
 
 
 # Password validation
