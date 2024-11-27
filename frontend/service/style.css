@@ -167,11 +167,10 @@ body::before {
     }
 }
 
-/* Define the border color for input fields when focused */
-input:focus, select:focus, button:focus {
-    border-color: var(--light) !important; /* Use your desired color variable */
-    box-shadow: 0 0 5px var(--light) !important; /* Optional: Add a shadow effect */
-    outline: none !important; /* Remove the default outline */
+input:focus, select:focus, .ctm-btn:focus, .ctm-btn-dark:focus {
+    border-color: var(--light) !important; 
+    box-shadow: 0 0 5px var(--light) !important;
+    outline: none !important
 }
 
 input[type="checkbox"]:checked {

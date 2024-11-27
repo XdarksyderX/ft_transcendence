@@ -70,7 +70,7 @@
         </div>
     </main>
 
-    <main id="customize-section" class="container mt-5 blinking-neon-frame" style="display: none;">
+    <div id="customize-section" class="container mt-5 blinking-neon-frame" style="display: none;">
         <div id="customize-photo" class="ctm-card position-relative">
             <h2 class="text-center ctm-text-title">Customize profile photo</h2>
             <div class="d-flex justify-content-center">
@@ -107,7 +107,7 @@
                     </div>
                     <div class="d-flex m-2">
                         <div class="ctm-text-light">or upload your own image</div>
-                        <button id="upload-image" class="ctm-btn ms-2">Upload</button>
+                        <button id="upload-image" class="btn ctm-btn ms-2">Upload</button>
                         <input type="file" id="file-input" accept="image/*" style="display: none;">
                     </div>
                     <div class="mt-2">
@@ -117,7 +117,7 @@
                 </div>
             </div>
         </div>
-    </main>
+    </div>
 
 
     <script>
@@ -267,8 +267,9 @@
 
         elements.avatarColorPicker.addEventListener('change', (event) => {
             const selectedColor = event.target.value;
-            const activeCanvas = document.querySelector('.carousel-item.active canvas');
-            changeAvatarColor(activeCanvas, selectedColor);
+            document.querySelectorAll('.carousel-item canvas').forEach(canvas => {
+                changeAvatarColor(canvas, selectedColor);
+            });
         });
 
         elements.backgroundColorButton.addEventListener('click', () => {
