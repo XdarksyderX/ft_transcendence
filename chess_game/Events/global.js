@@ -4,6 +4,7 @@ import { clearHighlight, globalStateRender, selfHighlight, globalPiece } from ".
 import { checkOpponetPieceByElement, checkSquareCaptureId, giveBishopHighlightIds, checkPieceExist, giveRookHighlightIds, giveKnightHighlightIds, giveQueenHighlightIds, giveKingHighlightIds } from "../Helper/commonHelper.js";
 import { giveKnightCaptureIds, giveKingCaptureIds, giveBishopCaptureIds, giveRookCaptureIds, giveQueenCaptureIds } from "../Helper/commonHelper.js";
 import logMoves from "../Helper/logging.js";
+import pawnPromotion from "../Helper/modalCreator.js";
 
 //highlighted or not => state
 let highlight_state = false;
@@ -64,6 +65,7 @@ function checkForCheck() {
     const checkOrNot = finalListCheck.find((element) => element === whiteKingCurrentPos);
     if (checkOrNot) {
       whoInCheck = "white";
+      alert("In check!");
     }
   }
   else {
@@ -91,8 +93,42 @@ function checkForCheck() {
     const checkOrNot = finalListCheck.find((element) => element === blackKingCurrentPos);
     if (checkOrNot) {
       whoInCheck = "black";
+      alert("In check!");
     }
   }
+}
+
+function checkForPawnPromotion(piece, id) {
+  if (inTurn === "white") {
+    if (piece?.piece_name?.toLowerCase()?.includes("pawn") && id?.includes("8")) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+  else {
+    if (piece?.piece_name?.toLowerCase()?.includes("pawn") && id?.includes("1")) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+}
+
+function callbackPiece(piece, id) {
+  const realPiece = piece(id);
+  const currentSquare = keySquareMapper[id];
+  piece.current_pos = id;
+  currentSquare.piece = realPiece;
+  const image = document.createElement('img');
+  image.src = realPiece.img;
+  image.classList.add("piece");
+  const currentElement = document.getElementById(id);
+  
+  currentElement.innerHTML = '';
+  currentElement.append(image);
 }
 
 /**
@@ -101,6 +137,11 @@ function checkForCheck() {
  * @param {*} id the new position id where the piece should be moved.
  */
 function moveElement(piece, id) {
+  if (!piece)
+    return;
+
+  const pawnPromotionBool = checkForPawnPromotion(piece, id);
+  
   logMoves({from: piece.current_pos, to: id, piece:piece.piece_name}, inTurn);
   const flatData =  globalState.flat();
   //iterate throught each element to update the positions od the pieces.
@@ -119,13 +160,20 @@ function moveElement(piece, id) {
   //Update the HTML elements to reflect the new positions of the piece
   const previousPiece = document.getElementById(piece.current_pos);
   piece.current_pos = null;
-  previousPiece.classList.remove("highlightYellow");
+  previousPiece?.classList?.remove("highlightYellow");
   const currentPiece = document.getElementById(id);
   
-  currentPiece.innerHTML += previousPiece.querySelector('img').outerHTML;
-  previousPiece.querySelector('img')?.remove();
+/*   currentPiece.innerHTML += previousPiece.querySelector('img').outerHTML;
+  previousPiece.querySelector('img')?.remove(); */
+
+  currentPiece.innerHTML = previousPiece?.innerHTML;
+  if (previousPiece)
+    previousPiece.innerHTML = "";
+
   piece.current_pos = id;
-  
+
+  if (pawnPromotionBool)
+    pawnPromotion(inTurn, callbackPiece, id);
   checkForCheck();
   changeTurn();
   //globalStateRender();
