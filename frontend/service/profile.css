@@ -30,26 +30,11 @@ canvas.profile-picture {
     background-color: transparent;
 }
 
-.carousel-control-prev {
-    position: fixed;
-    top: 42%;
-    left: 15%;
-    transform: translateY(-50%);
-    z-index: 5;
+.carousel-control-prev, .carousel-control-next {
+    position: flex;  
     background-color: rgba(0, 0, 0, 0.5);
     height: 40px;
     width: 40px;
-    border-radius: 50%;
-}
-
-.carousel-control-next {
-    position: fixed;
-    top: 42%;
-    right: 15%;
-    transform: translateY(-50%);
-    z-index: 5;
-    background-color: rgba(0, 0, 0, 0.5);
-    height: 40px;
-    width: 40px;
+    margin-top: 235px;
     border-radius: 50%;
 }
