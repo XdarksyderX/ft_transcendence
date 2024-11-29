@@ -1,5 +1,5 @@
 async function loadChat() {
-    const chatContainer = document.getElementById('chat-inport');
+    const chatContainer = document.getElementById('chat-container');
 
     try {
         const response = await fetch('./chat.html');
