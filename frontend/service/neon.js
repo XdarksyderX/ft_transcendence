@@ -125,22 +125,30 @@ function animateCardHover() {
     });
 }
 
-
-document.addEventListener("DOMContentLoaded", () => {
+function initializeNeonFrames() {
     const neonText = document.getElementById("neon-text");
     const neonFrames = document.querySelectorAll(".blinking-neon-frame");
-    const notification = document.getElementById("notification-indicator");
-
+    
     if (neonText) {
         animateNeon(neonText, 10, 100);
     }
     if (neonFrames) {
         neonFrames.forEach(neonFrame => {
             animateNeonFrame(neonFrame, 10, 35, 2, 1000);
-        })
+        });
     }
+    animateCardHover();
+}
+
+function initializeNeonChat() {
+    const notification = document.getElementById("notification-indicator");
+    
     if (notification) {
         animateNeonFrame(notification, 10, 35, 2, 1000);
     }
-    animateCardHover();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    initializeNeonFrames();
 });
+

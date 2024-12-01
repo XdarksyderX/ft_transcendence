@@ -191,3 +191,4 @@ function initializeChatEvents() {
     updateNotificationIndicator();
 }
 
+/* initializeChatEvents(); */
