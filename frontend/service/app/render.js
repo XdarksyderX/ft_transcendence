@@ -2,7 +2,7 @@ async function loadChat() {
     const chatContainer = document.getElementById('chat-container');
 
     try {
-        const response = await fetch('./chat.html');
+        const response = await fetch('../components/chat/chat.html');
         if (!response.ok) throw new Error('Error al cargar el chat');
 
         const chatHTML = await response.text();

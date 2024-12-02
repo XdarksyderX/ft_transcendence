@@ -163,3 +163,10 @@
 #chat-body {
 	height: 350px;
 }
+
+.progress {
+    background-color: var(--dark);
+}
+.progress-bar {
+    background: linear-gradient(to left, var(--lorange), var(--title), #920505cc);
+}
