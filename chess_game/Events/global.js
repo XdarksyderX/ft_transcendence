@@ -4,7 +4,7 @@ import { clearHighlight, globalStateRender, selfHighlight, globalPiece } from ".
 import { checkOpponetPieceByElement, checkSquareCaptureId, giveBishopHighlightIds, checkPieceExist, giveRookHighlightIds, giveKnightHighlightIds, giveQueenHighlightIds, giveKingHighlightIds } from "../Helper/commonHelper.js";
 import { giveKnightCaptureIds, giveKingCaptureIds, giveBishopCaptureIds, giveRookCaptureIds, giveQueenCaptureIds } from "../Helper/commonHelper.js";
 import logMoves from "../Helper/logging.js";
-import pawnPromotion from "../Helper/modalCreator.js";
+import { pawnPromotion, winGame } from "../Helper/modalCreator.js";
 
 //highlighted or not => state
 let highlight_state = false;
@@ -16,6 +16,7 @@ let selfHighlightState = null;
 let moveState = null;
 let inTurn = "white";
 let whoInCheck = null;
+let winBool = false;
 
 function changeTurn() {
   inTurn = inTurn === "white" ? "black" : "white";
@@ -65,7 +66,9 @@ function checkForCheck() {
     const checkOrNot = finalListCheck.find((element) => element === whiteKingCurrentPos);
     if (checkOrNot) {
       whoInCheck = "white";
-      alert("In check!");
+      setTimeout(() => {
+            alert("You are in check!");
+        }, 300); // Ajusta el tiempo de retraso según la duración de tu animación
     }
   }
   else {
@@ -78,7 +81,7 @@ function checkForCheck() {
     const rook_1 = globalPiece.white_rook_1.current_pos;
     const rook_2 = globalPiece.white_rook_2.current_pos;
     const queen = globalPiece.white_queen.current_pos;
-
+    
     let finalListCheck = [];
     finalListCheck.push(giveKnightCaptureIds(knight_1, inTurn));
     finalListCheck.push(giveKnightCaptureIds(knight_2, inTurn));
@@ -88,12 +91,14 @@ function checkForCheck() {
     finalListCheck.push(giveRookCaptureIds(rook_1, inTurn));
     finalListCheck.push(giveRookCaptureIds(rook_2, inTurn));
     finalListCheck.push(giveQueenCaptureIds(queen, inTurn));
-
+    
     finalListCheck = finalListCheck.flat();
     const checkOrNot = finalListCheck.find((element) => element === blackKingCurrentPos);
     if (checkOrNot) {
       whoInCheck = "black";
-      alert("In check!");
+      setTimeout(() => {
+          alert("You are in check!");
+      }, 300); // Ajusta el tiempo de retraso según la duración de tu animación
     }
   }
 }
@@ -115,6 +120,16 @@ function checkForPawnPromotion(piece, id) {
       return false;
     }
   }
+}
+
+function checkWin(piece) {
+  if (inTurn === "white" && piece.piece_name.includes("BLACK_KING")) {
+    return "White";
+  }
+  else if (inTurn === "black" && piece.piece_name.includes("WHITE_KING")) {
+    return "Black";
+  }
+  return false;
 }
 
 function callbackPiece(piece, id) {
@@ -168,6 +183,7 @@ function moveElement(piece, id, castle) {
     if (el.id == id) {
       if (el.piece) {
         el.piece.current_pos = null;
+        winBool = checkWin(el.piece);
       }
       el.piece = piece; //find the element with the new position and asign the piece to it
     }
@@ -187,13 +203,20 @@ function moveElement(piece, id, castle) {
     previousPiece.innerHTML = "";
 
   piece.current_pos = id;
-
+  
   if (pawnPromotionBool)
     pawnPromotion(inTurn, callbackPiece, id);
   checkForCheck();
+
+  if (winBool) {
+    setTimeout(() => {
+        winGame(winBool);
+        //alert(`${winBool} Wins!`);
+    }, 50); // Ajusta el tiempo de retraso según la duración de tu animación
+  }
+
   if (!castle)
     changeTurn();
-  //globalStateRender();
 }
 
 //local function that will clear hightlight with state
@@ -491,7 +514,7 @@ function whiteQueenClick(square)
     clearHighlightLocal();
     return;
   }
-
+  
   //clear all highlights
   clearPreviousSelfHighlight(selfHighlightState);
   clearHighlightLocal();
@@ -537,12 +560,12 @@ function whiteQueenClick(square)
     const element = keySquareMapper[highlight];
     element.highlight = true;
   });
-
+  
   //capture logic for bishop
   let captureIds = [];
   for (let i = 0; i < tmp.length; i++) {
     const arr = tmp[i];
-
+    
     for (let j = 0; j < arr.length; j++) {
       const element = arr[j];
       let pieceRes = checkPieceExist(element);
@@ -550,6 +573,7 @@ function whiteQueenClick(square)
         break;
       }
       if (checkOpponetPieceByElement(element, "white")) {
+
         break;
       }
     }
@@ -1138,6 +1162,7 @@ function GlobalEvent() {
       
       if ((square.piece.piece_name.includes("WHITE") && inTurn === "black" || (square.piece.piece_name.includes("BLACK") && inTurn === "white"))) {
         captureInTurn(square);
+        
         return;
       }
       

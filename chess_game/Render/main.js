@@ -196,8 +196,6 @@ function initGameRender(data)
     rowEl.classList.add("squareRow"); //after all squares in the row have been processed, the rowEl is assigned a CSS class("squareRow") to style the row.
     ROOT_DIV.appendChild(rowEl); //the rowEl is the appended to the ROOT_DIV, adding the row to the web page
   });
-  
-  //console.log(globalPiece);
   pieceRender(data);
 }
 

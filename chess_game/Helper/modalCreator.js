@@ -1,4 +1,3 @@
-
 import * as pieces from "../Data/pieces.js";
 
 class ModalCreator {
@@ -97,4 +96,38 @@ function pawnPromotion(color, callback, id) {
   };
 }
 
-export default pawnPromotion;
+function winGame(winBool) {
+  if(!winBool)
+    return;
+  const msg = document.createElement("p");
+  msg.textContent = `${winBool} Wins!`;
+
+  const retryButton = document.createElement("button");
+  retryButton.textContent = "Retry";
+  retryButton.onclick = () => {
+    alert("oh shit here I go again");
+    location.reload(); //esto simplemente recarga la pagina, no es definitivo -> aqui guardariamos la victorio y/o derrota en el historial
+    modal.hide();
+  }
+  
+  const homeButton = document.createElement("button");
+  homeButton.textContent = "Home";
+  homeButton.onclick = () => {
+    alert("jaja no ka pasao");
+    location.reload(); //esto simplemente recarga la pagina, no es definitivo -> aqui guardariamos la victorio y/o derrota en el historial
+    modal.hide();
+  }
+  
+  const buttonContainer = document.createElement("div");
+  buttonContainer.appendChild(retryButton);
+  buttonContainer.appendChild(homeButton);
+  
+  const finalContainer = document.createElement("div");
+  finalContainer.appendChild(msg);
+  finalContainer.appendChild(buttonContainer);
+  finalContainer.classList.add("modal");
+  const modal = new ModalCreator(finalContainer);
+  modal.show();
+}
+
+export { pawnPromotion, winGame };
