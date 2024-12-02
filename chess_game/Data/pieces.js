@@ -8,7 +8,7 @@ function blackRook(current_pos) {
 }
 
 function blackKnight(current_pos) {
-  return { current_pos, img: "Assets/pieces/black/knight.png", piece_name: "BLACK_KNIGHT", };
+  return { current_pos, img: "Assets/pieces/black/knight.png", piece_name: "BLACK_KNIGHT", move: false };
 }
 
 function blackBishop(current_pos) {
@@ -16,7 +16,7 @@ function blackBishop(current_pos) {
 }
 
 function blackKing(current_pos) {
-  return { current_pos, img: "Assets/pieces/black/king.png", piece_name: "BLACK_KING", };
+  return { current_pos, img: "Assets/pieces/black/king.png", piece_name: "BLACK_KING", move: false };
 }
 
 function blackQueen(current_pos) {
@@ -29,7 +29,7 @@ function whitePawn(current_pos) {
 }
 
 function whiteRook(current_pos) {
-  return { current_pos, img: "Assets/pieces/white/rook.png", piece_name: "WHITE_ROOK", };
+  return { current_pos, img: "Assets/pieces/white/rook.png", piece_name: "WHITE_ROOK", move: false };
 }
 
 function whiteKnight(current_pos) {
@@ -41,7 +41,7 @@ function whiteBishop(current_pos) {
 }
 
 function whiteKing(current_pos) {
-  return { current_pos, img: "Assets/pieces/white/king.png", piece_name: "WHITE_KING", };
+  return { current_pos, img: "Assets/pieces/white/king.png", piece_name: "WHITE_KING", move: false };
 }
 
 function whiteQueen(current_pos) {

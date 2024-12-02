@@ -136,11 +136,27 @@ function callbackPiece(piece, id) {
  * @param {*} piece an object representing a game piece.
  * @param {*} id the new position id where the piece should be moved.
  */
-function moveElement(piece, id) {
+function moveElement(piece, id, castle) {
   if (!piece)
     return;
 
   const pawnPromotionBool = checkForPawnPromotion(piece, id);
+
+  if (piece.piece_name.includes("KING") || piece.piece_name.includes("ROOK")) {
+    piece.move = true;
+    if (piece.piece_name.includes("KING") && piece.piece_name.includes("WHITE")) {
+      if (id === 'c1' || id === 'g1') {
+        let rook = keySquareMapper[id === 'c1' ? 'a1' : 'h1'];
+        moveElement(rook.piece, id === 'c1' ? 'd1' : 'f1', true);
+      }
+    }
+    if (piece.piece_name.includes("KING") && piece.piece_name.includes("BLACK")) {
+      if (id === 'c8' || id === 'g8') {
+        let rook = keySquareMapper[id === 'c8' ? 'a8' : 'h8'];
+        moveElement(rook.piece, id === 'c8' ? 'd8' : 'f8', true);
+      }
+    }
+  }
   
   logMoves({from: piece.current_pos, to: id, piece:piece.piece_name}, inTurn);
   const flatData =  globalState.flat();
@@ -175,7 +191,8 @@ function moveElement(piece, id) {
   if (pawnPromotionBool)
     pawnPromotion(inTurn, callbackPiece, id);
   checkForCheck();
-  changeTurn();
+  if (!castle)
+    changeTurn();
   //globalStateRender();
 }
 
@@ -577,6 +594,30 @@ function whiteKingClick(square)
   const { top, bottom, left, right, bottomLeft, bottomRight, topLeft, topRight } = highlightSquareIds;
 
   let res = [];
+
+  if (!piece.move) {
+    const rook1 = globalPiece.white_rook_1;
+    const rook2 = globalPiece.white_rook_2;
+
+    if (!rook1.move) {
+      const b1 = keySquareMapper['b1'];
+      const c1 = keySquareMapper['c1'];
+      const d1 = keySquareMapper['d1'];
+      
+      if (!b1.piece && !c1.piece && !d1.piece) {
+        res.push("c1");
+      }
+    }
+    if (!rook2.move) {
+      const f1 = keySquareMapper['f1'];
+      const g1 = keySquareMapper['g1'];
+      
+      if (!f1.piece && !g1.piece) {
+        res.push("g1");
+      }
+    }
+  }
+
   res.push(checkSquareCaptureId(top));
   res.push(checkSquareCaptureId(bottom));
   res.push(checkSquareCaptureId(left));
@@ -658,6 +699,31 @@ function blackKingClick(square)
   const { top, bottom, left, right, bottomLeft, bottomRight, topLeft, topRight } = highlightSquareIds;
 
   let res = [];
+
+  if (!piece.move) {
+    const rook1 = globalPiece.black_rook_1;
+    const rook2 = globalPiece.black_rook_2;
+
+    if (!rook1.move) {
+      const b8 = keySquareMapper['b8'];
+      const c8 = keySquareMapper['c8'];
+      const d8 = keySquareMapper['d8'];
+      
+      if (!b8.piece && !c8.piece && !d8.piece) {
+        res.push("c8");
+      }
+    }
+    if (!rook2.move) {
+      const f8 = keySquareMapper['f8'];
+      const g8 = keySquareMapper['g8'];
+      
+      if (!f8.piece && !g8.piece) {
+        res.push("g8");
+      }
+    }
+  }
+  
+
   res.push(checkSquareCaptureId(top));
   res.push(checkSquareCaptureId(bottom));
   res.push(checkSquareCaptureId(left));
