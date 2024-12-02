@@ -39,7 +39,7 @@
 
 #chat-window, #recent-chats, #new-chat {
 	background-color: var(--medium);
-	height: 350px;
+	height: 351px;
 	display: flex;
 	flex-direction: column;
 }
@@ -158,4 +158,15 @@
 	color: var(--dark);
 	align-self: flex-end;
 	border-bottom-right-radius: 0;
+}
+
+#chat-body {
+	height: 350px;
+}
+
+.progress {
+    background-color: var(--dark);
+}
+.progress-bar {
+    background: linear-gradient(to left, var(--lorange), var(--title), #920505cc);
 }

@@ -6,7 +6,9 @@
     <title>home2</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles/styles.css">
+    <link rel="stylesheet" href="components/chat/styles.css">
     <script>
         /*         if (!localStorage.getItem('authToken')) { // If the user is not logged in
                   window.location.href = '/login.html'; // Redirect to the login page
@@ -82,7 +84,7 @@
             <button id="sidebarToggle" class="toggle-btn me-2">
                 <i class="bi bi-list"></i>
             </button>
-            <span class="navbar-brand" id="pong">PONG</span>
+            <span class="navbar-brand">PONG</span>
             <div class="d-flex ms-auto align-items-center">
                 <div id="welcomeButton" class="username">welcome </div>
             </div>
@@ -96,10 +98,10 @@
                 <li class="nav-item"><a href="#" class="nav-link ctm-link">My Profile</a></li>
                 <li class="nav-item"><a href="#" class="nav-link ctm-link">Friends</a></li>
                 <li class="nav-item"><a href="#" class="nav-link ctm-link">Game Stats</a></li>
-                <li class="nav-item"><a href="#" class="nav-link ctm-link">Whenever</a></li>
+                <!-- <li class="nav-item"><a href="#" class="nav-link ctm-link">Whenever</a></li>
                 <li class="nav-item"><a href="#" class="nav-link ctm-link">Wherever</a></li>
                 <li class="nav-item"><a href="#" class="nav-link ctm-link">Were meant</a></li>
-                <li class="nav-item"><a href="#" class="nav-link ctm-link">to be together</a></li>
+                <li class="nav-item"><a href="#" class="nav-link ctm-link">to be together</a></li> -->
             </ul>
         </div>
         <div class="mt-auto p-3">
@@ -148,7 +150,7 @@
                             <div class="ctm-card card-hover h-100">
                                 <div class="card-body text-center">
                                     <h3 class="ctm-text-title mb-3">Play Chess</h3>
-                                    <img src="https://media.tenor.com/2gyJVMt_L6wAAAAM/pong-video-game.gif" alt="Pong Game" class="img-fluid rounded mb-3">
+                                    <img src="https://images.chesscomfiles.com/uploads/v1/images_users/tiny_mce/PedroPinhata/phpNtZwIg.png" alt="Pong Game" class="img-fluid rounded mb-3 h-75">
                                     <p class="ctm-text-light">Click to start a game of Chess!</p>
                                 </div>
                             </div>
@@ -178,50 +180,49 @@
                 </div>
             </div>
         </div>
-
-    <script src="neon.js"></script>
-    <script src="auth.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
-    <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const loggedInUser = 'erivero-';
-        const sidebar = document.getElementById('sidebar');
-        const sidebarToggle = document.getElementById('sidebarToggle');
-        const content = document.querySelector('.content');
-        const userNames = document.querySelectorAll('.username');
-        const pongBtn = document.getElementById('pong-btn');
-        const playPong = document.getElementById('play-pong');
-        const pongOptions = document.getElementById('pong-options');
-        const playFriend = document.getElementById('play-friend');
-        const friendList = document.getElementById('friend-list');
-        const friendsContainer = document.getElementById('friends-container');
-        const startGameWithFriendButton = document.getElementById('start-game-with-friend');
-        // const backToOptionsButton = document.getElementById('back-to-options');
-
-        let selectedFriend = null;
-
-        // render's the username in the sidebar and the navbar
-        userNames.forEach(userName => {
-            userName.textContent += `${loggedInUser}`;
-        });
-
-        //this will activate when you press the toggle btn
-        function toggleSidebar(event) {
-            event.stopPropagation(); // Prevent event from bubbling up
-            sidebar.classList.toggle('show'); // Toggle the 'show' class on the sidebar so if it is shown it will hide and vice versa
-        }
-        //adds previous function to the toggle btn
-        sidebarToggle.addEventListener('click', toggleSidebar);
-        
-        // Toggle sidebar or pong-options when clicking outside
-        function handleOutsideClick(event) {
-            const isSmallScreen = window.innerWidth < 992;
+        <div id="chat-container" class="card shadow"></div>></div>
+        <!--     <script src="auth.js"></script> -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const loggedInUser = 'erivero-';
+                const sidebar = document.getElementById('sidebar');
+                const sidebarToggle = document.getElementById('sidebarToggle');
+                const content = document.querySelector('.content');
+                const userNames = document.querySelectorAll('.username');
+                const pongBtn = document.getElementById('pong-btn');
+                const playPong = document.getElementById('play-pong');
+                const pongOptions = document.getElementById('pong-options');
+                const playFriend = document.getElementById('play-friend');
+                const friendList = document.getElementById('friend-list');
+                const friendsContainer = document.getElementById('friends-container');
+                const startGameWithFriendButton = document.getElementById('start-game-with-friend');
+                // const backToOptionsButton = document.getElementById('back-to-options');
+                
+                let selectedFriend = null;
+                
+                // render's the username in the sidebar and the navbar
+                userNames.forEach(userName => {
+                    userName.textContent += `${loggedInUser}`;
+                });
+                
+                //this will activate when you press the toggle btn
+                function toggleSidebar(event) {
+                    event.stopPropagation(); // Prevent event from bubbling up
+                    sidebar.classList.toggle('show'); // Toggle the 'show' class on the sidebar so if it is shown it will hide and vice versa
+                }
+                //adds previous function to the toggle btn
+                sidebarToggle.addEventListener('click', toggleSidebar);
+                
+                // Toggle sidebar or pong-options when clicking outside
+                function handleOutsideClick(event) {
+                    const isSmallScreen = window.innerWidth < 992;
             const clickedOutsideSidebar = !sidebar.contains(event.target) && event.target !== sidebarToggle;
             
             if (isSmallScreen && sidebar.classList.contains('show') && clickedOutsideSidebar) {
                 sidebar.classList.remove('show');
             }
-
+            
             if (!pongBtn.contains(event.target)) {
                 // console.log('click outside');
                 playPong.style.display = 'block';
@@ -232,7 +233,7 @@
         }
         // listen clicks on all the document to aplpy the previous function
         document.addEventListener('click', handleOutsideClick);
-
+        
         function togglePongOptions(event) {
             event.stopPropagation();
             if (friendList.style.display === 'none') { // this allows to click on a friend without messing with toggling
@@ -244,7 +245,7 @@
             }
         }
         pongBtn.addEventListener('click', togglePongOptions);
-
+        
         // handle window resize to show/hide sidebar
         function handleResize() {
             if (window.innerWidth >= 992) {
@@ -272,7 +273,7 @@
             card.setAttribute('data-friend-id', friend.id); // this is to identify the friend when it is selected
             let color = (friend.status === 'online') ? 'accent' : 'light';
             card.innerHTML = `
-                <p class="mb-0">${friend.name}</p>
+            <p class="mb-0">${friend.name}</p>
             `;
             card.style.color = `var(--${color})`;
             card.style.border = `1px solid var(--${color})`;
@@ -320,7 +321,7 @@
                 const modalText = document.getElementById('modal-text');
                 modalText.innerHTML = `Waiting for ${selectedFriend.name} to accept the game...`;
                 modal.show();
-        
+                
                 const progressBar = document.getElementById('progress-bar');
                 let progress = 100;
                 const timer = document.getElementById('timer');
@@ -340,7 +341,7 @@
                         timer.style.color = 'var(--dark)'; // Reset to default color
                     }
                 }, 300); // 300ms interval for 30 seconds total
-        
+                
                 // Reset interval and progress bar when the modal is closed
                 document.getElementById('wait-game').addEventListener('hidden.bs.modal', () => {
                     clearInterval(interval);
@@ -351,20 +352,23 @@
                 });
             }
         });
-
+        
         const logoutButton = document.getElementById('logout-btn');
-
+        
         logoutButton.addEventListener('click', () => {
             logout();
         });
-
+        
         // backToOptionsButton.addEventListener('click', () => {
-        //     friendList.style.display = 'none';
-        //     pongOptions.style.display = 'flex';
-        //     selectedFriend = null;
-        //     startGameWithFriendButton.disabled = true;
-        // });
-    });
-    </script>
+            //     friendList.style.display = 'none';
+            //     pongOptions.style.display = 'flex';
+            //     selectedFriend = null;
+            //     startGameWithFriendButton.disabled = true;
+            // });
+        });
+        </script>
+    <script src="app/render.js"></script>
+    <script src="components/chat/app.js" defer></script>
+    <script src="app/neon.js" defer></script>
 </body>
 </html>

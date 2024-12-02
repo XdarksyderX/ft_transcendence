@@ -27,7 +27,9 @@ function redirectToLogin() {
     }
     window.location.href = '/login.html';
 }
-
+// aparentemente window.location.href volvería a cargar la página y dejaría de ser SPA
+// por lo que se debería usar history.pushState() para cambiar la URL sin recargar la página
+// pendiente arreglar 
 function redirectToHome() {
     const currentPath = window.location.pathname;
     if (currentPath !== '/home.html') {
