@@ -104,6 +104,7 @@ function winGame(winBool) {
 
   const retryButton = document.createElement("button");
   retryButton.textContent = "Retry";
+  retryButton.classList.add("retry-button");
   retryButton.onclick = () => {
     alert("oh shit here I go again");
     location.reload(); //esto simplemente recarga la pagina, no es definitivo -> aqui guardariamos la victorio y/o derrota en el historial
@@ -112,6 +113,7 @@ function winGame(winBool) {
   
   const homeButton = document.createElement("button");
   homeButton.textContent = "Home";
+  homeButton.classList.add("home-button");
   homeButton.onclick = () => {
     alert("jaja no ka pasao");
     location.reload(); //esto simplemente recarga la pagina, no es definitivo -> aqui guardariamos la victorio y/o derrota en el historial
