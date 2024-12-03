@@ -63,13 +63,13 @@ body {
 
 .modal{
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   flex-direction: column;
   position: absolute;
-  top: 0;
+  top: 155px;
   bottom: 0;
-  right: 0;
+  right: 100px;
   left: 0;
 }
 
@@ -94,6 +94,21 @@ body {
 .modal img:hover{
   border: 5px solid yellow;
   cursor: pointer;
+}
+
+.retry-button, .home-button {
+  font-size: 20px; /* Aumenta el tamaño del texto */
+  padding: 10px 20px; /* Aumenta el tamaño del botón */
+  margin: 10px; /* Añade espacio entre los botones */
+  border-radius: 5px; /* Añade bordes redondeados */
+  background-color: #007BFF;
+  color: white;
+  border: none; /* Sin borde */
+  cursor: pointer; /* Cambia el cursor al pasar por encima */
+}
+
+.retry-button:hover, .home-button:hover {
+  background-color: #0056b3; /* Color de fondo al pasar el cursor */
 }
 
 .labelId{
@@ -129,3 +144,23 @@ body {
 .leftSide{
   margin-right: 40%;
 }
+
+/*#root{
+  display: flex; 
+  flex-direction: column;
+  width: fit-content;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  position: absolute;
+  top: 15%;
+  bottom: 50%;
+  right: 37%;
+  left: 15%;
+}*/

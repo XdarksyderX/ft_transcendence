@@ -204,8 +204,6 @@ function moveElement(piece, id, castle) {
 
   piece.current_pos = id;
   
-  if (pawnPromotionBool)
-    pawnPromotion(inTurn, callbackPiece, id);
   checkForCheck();
 
   if (winBool) {
@@ -213,7 +211,12 @@ function moveElement(piece, id, castle) {
         winGame(winBool);
         //alert(`${winBool} Wins!`);
     }, 50); // Ajusta el tiempo de retraso según la duración de tu animación
+    return;
   }
+
+  if (pawnPromotionBool)
+    pawnPromotion(inTurn, callbackPiece, id);
+  
 
   if (!castle)
     changeTurn();
@@ -1162,7 +1165,6 @@ function GlobalEvent() {
       
       if ((square.piece.piece_name.includes("WHITE") && inTurn === "black" || (square.piece.piece_name.includes("BLACK") && inTurn === "white"))) {
         captureInTurn(square);
-        
         return;
       }
       

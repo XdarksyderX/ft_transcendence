@@ -15,6 +15,12 @@ desde el HTML para manipular el DOM (Document Object Model) y responder a evento
 <Styles/index.css>: Archivo CSS donde defines los estilos visuales de la pagina. Es referenciado desde 
 el archivo HTML para aplicar los estilos allí definidos.
 
+preguntar a Copilot
+la cosa es que ese elemento html tecnicamente no se sale del tablero porque que esta asociado a una casilla de tablero. Te muestro un ejemplo de como se ve el html de una casilla en la que el caballo negro puede capturar a el caballo blanco de la casilla g1:
+<div id="g1" class="black square captureColor">
+	<img src="Assets/pieces/white/knight.png" class="piece">
+	<span class="highlight"></span>
+</div>
 
 /* original function to give highlight ids for rook. The movement is diagonal
 I'm going to keep this for a while to be sure */
