@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="styles/styles.css">
+    <link rel="stylesheet" href="styles/home.css">
     <link rel="stylesheet" href="components/chat/styles.css">
     <script>
         /*         if (!localStorage.getItem('authToken')) { // If the user is not logged in
@@ -91,25 +92,7 @@
         </div>
     </nav>
     <!-- sidebar -->
-    <div id="sidebar" class="sidebar d-flex flex-column">
-        <div class="p-3">
-            <h3 class="username ctm-text-title"></h3>
-            <ul class="nav flex-column">
-                <li class="nav-item"><a href="#" class="nav-link ctm-link">My Profile</a></li>
-                <li class="nav-item"><a href="#" class="nav-link ctm-link">Friends</a></li>
-                <li class="nav-item"><a href="#" class="nav-link ctm-link">Game Stats</a></li>
-                <!-- <li class="nav-item"><a href="#" class="nav-link ctm-link">Whenever</a></li>
-                <li class="nav-item"><a href="#" class="nav-link ctm-link">Wherever</a></li>
-                <li class="nav-item"><a href="#" class="nav-link ctm-link">Were meant</a></li>
-                <li class="nav-item"><a href="#" class="nav-link ctm-link">to be together</a></li> -->
-            </ul>
-        </div>
-        <div class="mt-auto p-3">
-            <ul class="nav mb-5 flex-column">
-                <li id="logout-btn" class="nav-item text-center"><a href="#" class=" btn ctm-btn-dark p-3">log out</a></li>
-            </ul>
-        </div>
-    </div>
+    <div id="sidebar-container"></div>
     <!-- main content -->
     <div class="content">
         <main class="container-fluid mt-3">
@@ -181,194 +164,147 @@
             </div>
         </div>
         <div id="chat-container" class="card shadow"></div>></div>
-        <!--     <script src="auth.js"></script> -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
         <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                const loggedInUser = 'erivero-';
-                const sidebar = document.getElementById('sidebar');
-                const sidebarToggle = document.getElementById('sidebarToggle');
-                const content = document.querySelector('.content');
-                const userNames = document.querySelectorAll('.username');
-                const pongBtn = document.getElementById('pong-btn');
-                const playPong = document.getElementById('play-pong');
-                const pongOptions = document.getElementById('pong-options');
-                const playFriend = document.getElementById('play-friend');
-                const friendList = document.getElementById('friend-list');
-                const friendsContainer = document.getElementById('friends-container');
-                const startGameWithFriendButton = document.getElementById('start-game-with-friend');
-                // const backToOptionsButton = document.getElementById('back-to-options');
-                
-                let selectedFriend = null;
-                
-                // render's the username in the sidebar and the navbar
-                userNames.forEach(userName => {
-                    userName.textContent += `${loggedInUser}`;
-                });
-                
-                //this will activate when you press the toggle btn
-                function toggleSidebar(event) {
-                    event.stopPropagation(); // Prevent event from bubbling up
-                    sidebar.classList.toggle('show'); // Toggle the 'show' class on the sidebar so if it is shown it will hide and vice versa
+        document.addEventListener('DOMContentLoaded', () => {
+            const pongBtn = document.getElementById('pong-btn');
+            const playPong = document.getElementById('play-pong');
+            const pongOptions = document.getElementById('pong-options');
+            const playFriend = document.getElementById('play-friend');
+            const friendList = document.getElementById('friend-list');
+            const friendsContainer = document.getElementById('friends-container');
+            const startGameWithFriendButton = document.getElementById('start-game-with-friend');
+            
+            let selectedFriend = null;
+            
+    
+            // Toggle pong options
+            function togglePongOptions(event) {
+                event.stopPropagation();
+                if (friendList.style.display === 'none') {
+                    playPong.style.display = playPong.style.display === 'none' ? 'block' : 'none';
+                    pongOptions.style.display = pongOptions.style.display === 'none' ? 'flex' : 'none';
                 }
-                //adds previous function to the toggle btn
-                sidebarToggle.addEventListener('click', toggleSidebar);
-                
-                // Toggle sidebar or pong-options when clicking outside
-                function handleOutsideClick(event) {
-                    const isSmallScreen = window.innerWidth < 992;
-            const clickedOutsideSidebar = !sidebar.contains(event.target) && event.target !== sidebarToggle;
-            
-            if (isSmallScreen && sidebar.classList.contains('show') && clickedOutsideSidebar) {
-                sidebar.classList.remove('show');
+                if (window.innerWidth < 992) {
+                    sidebar.classList.remove('show');
+                }
             }
-            
-            if (!pongBtn.contains(event.target)) {
-                // console.log('click outside');
-                playPong.style.display = 'block';
+            pongBtn.addEventListener('click', togglePongOptions);
+    
+            // Provisionally hardcoded friends list
+            const friends = [
+                { id: 1, name: 'Alice', status: 'online' },
+                { id: 2, name: 'Bob', status: 'offline' },
+                { id: 3, name: 'Charlie', status: 'online' },
+                { id: 4, name: 'David', status: 'away' }
+            ];
+    
+            // Create each friend card
+            function createFriendCard(friend) {
+                const card = document.createElement('div');
+                card.className = 'friend-card';
+                card.setAttribute('data-friend-id', friend.id);
+                let color = (friend.status === 'online') ? 'accent' : 'light';
+                card.innerHTML = `<p class="mb-0">${friend.name}</p>`;
+                card.style.color = `var(--${color})`;
+                card.style.border = `1px solid var(--${color})`;
+                card.addEventListener('click', () => selectFriend(friend));
+                return card;
+            }
+    
+            // Select a friend
+            function selectFriend(friend) {
+                if (friend.status !== 'online') {
+                    alert('This friend is not available to play right now.');
+                    return;
+                }
+                if (selectedFriend === friend) {
+                    unselectFriend();
+                } else {
+                    selectedFriend = friend;
+                    document.querySelectorAll('.friend-card').forEach(card => card.classList.remove('selected'));
+                    document.querySelector(`.friend-card[data-friend-id="${selectedFriend.id}"]`).classList.add('selected');
+                    startGameWithFriendButton.disabled = false;
+                }
+            }
+    
+            // Unselect a friend
+            function unselectFriend() {
+                selectedFriend = null;
+                document.querySelectorAll('.friend-card').forEach(card => card.classList.remove('selected'));
+                startGameWithFriendButton.disabled = true;
+            }
+    
+            // Render the friend list
+            function renderFriendList() {
+                friendsContainer.innerHTML = '';
+                friends.forEach(friend => friendsContainer.appendChild(createFriendCard(friend)));
+            }
+    
+            // Handle play with a friend button click
+            playFriend.addEventListener('click', (event) => {
+                event.stopPropagation();
+                playPong.style.display = 'none';
                 pongOptions.style.display = 'none';
-                friendList.style.display = 'none';
-                unselectFriend();
+                friendList.style.display = 'flex';
+                renderFriendList();
+            });
+            // Goes back when you click outside the pong card
+            function backToChooseGame() {
+                if (playPong.style.display !== 'block' && !pongBtn.contains(event.target)) {
+                    playPong.style.display = 'block';
+                    pongOptions.style.display = 'none';
+                    friendList.style.display = 'none';
+                    unselectFriend();
+                }
             }
-        }
-        // listen clicks on all the document to aplpy the previous function
-        document.addEventListener('click', handleOutsideClick);
-        
-        function togglePongOptions(event) {
-            event.stopPropagation();
-            if (friendList.style.display === 'none') { // this allows to click on a friend without messing with toggling
-                playPong.style.display = playPong.style.display === 'none' ? 'block' : 'none'; //toggles the playPong visibility
-                pongOptions.style.display = pongOptions.style.display === 'none' ? 'flex' : 'none'; // toggles the pongOptions visibility
-            }
-            if (window.innerWidth < 992) { // this is what makes the sidebar hide when you press the pong button
-                sidebar.classList.remove('show');
-            }
-        }
-        pongBtn.addEventListener('click', togglePongOptions);
-        
-        // handle window resize to show/hide sidebar
-        function handleResize() {
-            if (window.innerWidth >= 992) {
-                sidebar.classList.add('show');
-                content.style.marginLeft = '250px';
-            } else {
-                sidebar.classList.remove('show');
-                content.style.marginLeft = '0';
-            }
-        }
-        window.addEventListener('resize', handleResize);
-        // Trigger initial resize event to set correct state
-        handleResize();
-        // provisionally hardcoded
-        const friends = [
-            { id: 1, name: 'Alice', status: 'online' },
-            { id: 2, name: 'Bob', status: 'offline' },
-            { id: 3, name: 'Charlie', status: 'online' },
-            { id: 4, name: 'David', status: 'away' }
-        ];
-        //it creates each friend card
-        function createFriendCard(friend) {
-            const card = document.createElement('div');
-            card.className = 'friend-card';
-            card.setAttribute('data-friend-id', friend.id); // this is to identify the friend when it is selected
-            let color = (friend.status === 'online') ? 'accent' : 'light';
-            card.innerHTML = `
-            <p class="mb-0">${friend.name}</p>
-            `;
-            card.style.color = `var(--${color})`;
-            card.style.border = `1px solid var(--${color})`;
-            card.addEventListener('click', () => selectFriend(friend)); // gives the card the ability to be selected
-            return card;
-        }
-        // gives each friendCard its functionality
-        function selectFriend(friend) {
-            if (friend.status !== 'online') { //maybe in the future i just wont show the offline friends
-                alert('This friend is not available to play right now.');
-                return;
-            }
-            if (selectedFriend === friend) { // if friend were already selected, unselect it
-                unselectFriend();
-            } else {
-                selectedFriend = friend; // selectedFriend is global 
-                document.querySelectorAll('.friend-card').forEach(card => card.classList.remove('selected')); // unselect all friends
-                document.querySelector(`.friend-card[data-friend-id="${selectedFriend.id}"]`).classList.add('selected'); // select the clicked one
-                startGameWithFriendButton.disabled = false; // enable the button to start the game
-            }
-        }
-        // will be called if the selected friend is clicked again or if you click outside the pong card
-        function unselectFriend() {
-            selectedFriend = null;
-            document.querySelectorAll('.friend-card').forEach(card => card.classList.remove('selected'));
-            startGameWithFriendButton.disabled = true;
-        }
-        // creates and appends each friend card to the friend container
-        function renderFriendList() {
-            friendsContainer.innerHTML = '';
-            friends.forEach(friend => friendsContainer.appendChild(createFriendCard(friend)));
-        }
-        // this will be called when the play with a friend button is clicked
-        playFriend.addEventListener('click', (event) => {
-            event.stopPropagation();
-            playPong.style.display = 'none';
-            pongOptions.style.display = 'none';
-            friendList.style.display = 'flex';
-            renderFriendList();
-        });
-        
-        startGameWithFriendButton.addEventListener('click', () => {
-            if (selectedFriend) {
-                const modal = new bootstrap.Modal(document.getElementById('wait-game'));
-                const modalText = document.getElementById('modal-text');
-                modalText.innerHTML = `Waiting for ${selectedFriend.name} to accept the game...`;
-                modal.show();
-                
-                const progressBar = document.getElementById('progress-bar');
-                let progress = 100;
-                const timer = document.getElementById('timer');
-                const interval = setInterval(() => {
-                    let time = Math.floor(progress / 100 * 30);
-                    progress -= 1;
-                    progressBar.style.width = `${progress}%`;
-                    progressBar.setAttribute('aria-valuenow', progress);
-                    timer.textContent = `${time}s`;
-                    if (progress <= 0) {
+
+            document.addEventListener('click', backToChooseGame);
+    
+            // Handle start game with friend button click
+            startGameWithFriendButton.addEventListener('click', () => {
+                if (selectedFriend) {
+                    const modal = new bootstrap.Modal(document.getElementById('wait-game'));
+                    const modalText = document.getElementById('modal-text');
+                    modalText.innerHTML = `Waiting for ${selectedFriend.name} to accept the game...`;
+                    modal.show();
+    
+                    const progressBar = document.getElementById('progress-bar');
+                    let progress = 100;
+                    const timer = document.getElementById('timer');
+                    const interval = setInterval(() => {
+                        let time = Math.floor(progress / 100 * 30);
+                        progress -= 1;
+                        progressBar.style.width = `${progress}%`;
+                        progressBar.setAttribute('aria-valuenow', progress);
+                        timer.textContent = `${time}s`;
+                        if (progress <= 0) {
+                            clearInterval(interval);
+                            modal.hide();
+                        }
+                        if (progress < 50) {
+                            timer.style.color = 'var(--light)';
+                        } else {
+                            timer.style.color = 'var(--dark)';
+                        }
+                    }, 300);
+    
+                    document.getElementById('wait-game').addEventListener('hidden.bs.modal', () => {
                         clearInterval(interval);
-                        modal.hide();
-                    }
-                    if (progress < 50) {
-                        timer.style.color = 'var(--light)'; // Change to your desired color
-                    } else {
-                        timer.style.color = 'var(--dark)'; // Reset to default color
-                    }
-                }, 300); // 300ms interval for 30 seconds total
-                
-                // Reset interval and progress bar when the modal is closed
-                document.getElementById('wait-game').addEventListener('hidden.bs.modal', () => {
-                    clearInterval(interval);
-                    progressBar.style.width = '100%';
-                    progressBar.setAttribute('aria-valuenow', 100);
-                    timer.textContent = '30s';
-                    timer.style.color = 'var(--dark)'; // Reset to default color
-                });
-            }
+                        progressBar.style.width = '100%';
+                        progressBar.setAttribute('aria-valuenow', 100);
+                        timer.textContent = '30s';
+                        timer.style.color = 'var(--dark)';
+                    });
+                }
+            });
         });
-        
-        const logoutButton = document.getElementById('logout-btn');
-        
-        logoutButton.addEventListener('click', () => {
-            logout();
-        });
-        
-        // backToOptionsButton.addEventListener('click', () => {
-            //     friendList.style.display = 'none';
-            //     pongOptions.style.display = 'flex';
-            //     selectedFriend = null;
-            //     startGameWithFriendButton.disabled = true;
-            // });
-        });
-        </script>
+    </script>
+   <!--  <script src="app/auth.js"></script> -->
     <script src="app/render.js"></script>
     <script src="components/chat/app.js" defer></script>
+    <script src="components/sidebar/app.js" defer></script>
     <script src="app/neon.js" defer></script>
+
 </body>
 </html>
