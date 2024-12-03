@@ -146,6 +146,13 @@ function callbackPiece(piece, id) {
   currentElement.append(image);
 }
 
+function adjustKnightHighlighting(id) {
+  const element = keySquareMapper[id];
+  if (element.highlight == true && element.captureHightlight == true) {
+    element.highlight = false;
+  }
+}
+
 /**
  * move a piece by the highlight posibilities.
  * @param {*} piece an object representing a game piece.
@@ -475,8 +482,6 @@ function whiteKnightClick(square)
 
   let highlightSquareIds = giveKnightHighlightIds(curr_pos);
   
-  //fix the bug of the 'moved' highlights of pieces of their own color 25
-  //maybe i can do better in giveKnightHighlightIds()
   for (let i = 0; i < highlightSquareIds.length; i++) {
     if (checkPieceExist(highlightSquareIds[i])) {
       let str = keySquareMapper[highlightSquareIds[i]].piece.piece_name;
@@ -493,7 +498,10 @@ function whiteKnightClick(square)
   });
 
   highlightSquareIds.forEach(element => {
-    checkOpponetPieceByElement(element, "white");
+    //checkOpponetPieceByElement(element, "white");
+    let bool = checkOpponetPieceByElement(element, "white");
+    if (bool)
+      adjustKnightHighlighting(element);
   });
   globalStateRender();
 }
@@ -906,9 +914,6 @@ function blackKnightClick(square)
   const curr_pos = piece.current_pos;
   let highlightSquareIds = giveKnightHighlightIds(curr_pos);
   
-  //try to fix the bug of the 'moved' highlights of pieces of their own color 25
-  //doesn't fully fix the bug because when the black knight goes to row3, shows the highlight outside the board
-  //maybe i can do better in giveKnightHighlightIds()
   for (let i = 0; i < highlightSquareIds.length; i++) {
     if (checkPieceExist(highlightSquareIds[i])) {
       let str = keySquareMapper[highlightSquareIds[i]].piece.piece_name;
@@ -925,7 +930,9 @@ function blackKnightClick(square)
   });
 
   highlightSquareIds.forEach(element => {
-    checkOpponetPieceByElement(element, "black");
+    let bool = checkOpponetPieceByElement(element, "black");
+    if (bool)
+      adjustKnightHighlighting(element);
   });
   globalStateRender();
 }
