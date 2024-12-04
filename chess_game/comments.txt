@@ -291,3 +291,24 @@ I'm going to keep this for a while to be sure */
     }
     return [...top(), ...bottom(), ...left(), ...right()]
 } */
+
+original highlightSquareIds calculations for pawns
+
+//on intial postion, pwns moves different
+  if (curr_pos[1] == "7") { // "2" -> for whitePawn
+    highlightSquareIds = [
+      `${curr_pos[0]}${Number(curr_pos[1]) - 1}`, // + 1 -> for whitePawn
+      `${curr_pos[0]}${Number(curr_pos[1]) - 2}`, ]; // + 2 -> for whitePawn
+  }
+  else {
+    highlightSquareIds = [`${curr_pos[0]}${Number(curr_pos[1]) - 1}`,]; // + 1 -> for whitePawn
+  }
+
+  highlightSquareIds = checkSquareCaptureId(highlightSquareIds);
+
+original capture logic calculations for pawns
+  /* //capture id logic
+  const col1 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) - 1)}${Number(curr_pos[1]) + 1}`; //this last add operation is -1 for black pawns
+  const col2 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) + 1)}${Number(curr_pos[1]) + 1}`;//this last add operation is -1 for black pawns
+
+  let captureIds = [col1, col2];*/

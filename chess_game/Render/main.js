@@ -119,6 +119,9 @@ const globalPieceMap = {
 
 function initGameRender(data)
 {
+  globalPiece.black_pawns = [];
+  globalPiece.white_pawns = [];
+
   data.forEach(element => {
     const rowEl = document.createElement("div"); //for each row, a new div element (rowEl) is created to represent the row
     element.forEach((square) => { //iterate for each swquare in a row
@@ -133,11 +136,11 @@ function initGameRender(data)
 
       if (square.id[1] == 7) {  //render blackpawn row
         square.piece = piece.blackPawn(square.id);
-        globalPiece.black_pawn = square.piece;
+        globalPiece.black_pawns.push(square.piece);
       }
       else if (square.id[1] == 2) { //render whitepawn row
         square.piece = piece.whitePawn(square.id);
-        globalPiece.white_pawn = square.piece;
+        globalPiece.white_pawns.push(square.piece);
       }
       else if (piecePositions[square.id]) {
         square.piece = piecePositions[square.id](square.id); // render specific piece like if square.id == "d8") -> square.piece = piece.blackKing(square.id)

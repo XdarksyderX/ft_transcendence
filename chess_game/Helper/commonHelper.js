@@ -1,4 +1,3 @@
-import { globalState } from "../index.js";
 import { keySquareMapper } from "../index.js";
 
 //function to check if opponnet piece exist
@@ -112,16 +111,6 @@ function giveBishopCaptureIds(id, color) {
     return returnArr;
 }
 
-/* function giveBishopCaptureIds(id) {
-    let res = giveBishopHighlightIds(id);
-    res = Object.values(res).flat();
-    res = res.filter(element => {
-        if (checkOpponetPieceByElementNoDom(element, "black"))
-            return true;
-    })
-    return res;
-} */
-
 function straightMove(id, alphaStep, numStep) {
     let alpha = id[0];
     let num = Number(id[1]);
@@ -178,16 +167,6 @@ function giveRookCaptureIds(id, color) {
     }
     return returnArr;
 }
-
-/* function giveRookCaptureIds(id) {
-    let res = giveRookHighlightIds(id);
-    res = Object.values(res).flat();
-    res = res.filter(element => {
-        if (checkOpponetPieceByElementNoDom(element, "black"))
-            return true;
-    })
-    return res;
-} */
 
 function knightMoves(id, alphaStep, numStep, alphaStep2, numStep2)
 {
@@ -292,5 +271,31 @@ function giveKingCaptureIds(id, color) {
     return res;
 }
 
+function pawnMovesOptions(curr_pos, row, num) {
+    let highlightSquareIds = null;
+    //on intial postion, pawns moves different
+    if (curr_pos[1] == row) {
+    highlightSquareIds = [
+      `${curr_pos[0]}${Number(curr_pos[1]) + num}`,
+      `${curr_pos[0]}${Number(curr_pos[1]) + (num * 2)}`, ]; /*num * 2 */
+    }
+    else {
+      highlightSquareIds = [`${curr_pos[0]}${Number(curr_pos[1]) + num}`,];
+    }
+    highlightSquareIds = checkSquareCaptureId(highlightSquareIds);
+
+    return highlightSquareIds;
+}
+
+function pawnCaptureOptions(curr_pos, num) {
+  const col1 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) - 1)}${Number(curr_pos[1]) + num}`;
+  const col2 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) + 1)}${Number(curr_pos[1]) + num}`;
+
+  let captureIds = [col1, col2];
+
+  return captureIds;
+}
+
 export { checkOpponetPieceByElement, checkSquareCaptureId, giveBishopHighlightIds, checkPieceExist, giveRookHighlightIds, giveKnightHighlightIds, giveQueenHighlightIds, giveKingHighlightIds,
-    giveKnightCaptureIds, giveKingCaptureIds, giveBishopCaptureIds, giveRookCaptureIds, giveQueenCaptureIds };
+    giveKnightCaptureIds, giveKingCaptureIds, giveBishopCaptureIds, giveRookCaptureIds, giveQueenCaptureIds,
+    pawnMovesOptions, pawnCaptureOptions };

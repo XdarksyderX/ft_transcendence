@@ -3,6 +3,7 @@ import { globalState, keySquareMapper } from "../index.js"; //import globalState
 import { clearHighlight, globalStateRender, selfHighlight, globalPiece } from "../Render/main.js";
 import { checkOpponetPieceByElement, checkSquareCaptureId, giveBishopHighlightIds, checkPieceExist, giveRookHighlightIds, giveKnightHighlightIds, giveQueenHighlightIds, giveKingHighlightIds } from "../Helper/commonHelper.js";
 import { giveKnightCaptureIds, giveKingCaptureIds, giveBishopCaptureIds, giveRookCaptureIds, giveQueenCaptureIds } from "../Helper/commonHelper.js";
+import { pawnMovesOptions, pawnCaptureOptions } from "../Helper/commonHelper.js";
 import logMoves from "../Helper/logging.js";
 import { pawnPromotion, winGame } from "../Helper/modalCreator.js";
 
@@ -63,7 +64,7 @@ function checkForCheck() {
     finalListCheck.push(giveQueenCaptureIds(queen, inTurn));
 
     finalListCheck = finalListCheck.flat();
-    console.log(inTurn, finalListCheck);
+    //console.log(inTurn, finalListCheck);
     const checkOrNot = finalListCheck.find((element) => element === whiteKingCurrentPos);
     if (checkOrNot) {
       whoInCheck = "white";
@@ -94,7 +95,7 @@ function checkForCheck() {
     finalListCheck.push(giveQueenCaptureIds(queen, inTurn));
     
     finalListCheck = finalListCheck.flat();
-    console.log(inTurn, finalListCheck);
+    //console.log(inTurn, finalListCheck);
     const checkOrNot = finalListCheck.find((element) => element === blackKingCurrentPos);
     if (checkOrNot) {
       whoInCheck = "black";
@@ -276,29 +277,14 @@ function whitePawnClick(square)
   
   const curr_pos = piece.current_pos;
 
-  let highlightSquareIds = null;
-  //on intial postion, pawns moves different
-  if (curr_pos[1] == "2") {
-  highlightSquareIds = [
-    `${curr_pos[0]}${Number(curr_pos[1]) + 1}`,
-    `${curr_pos[0]}${Number(curr_pos[1]) + 2}`, ];
-  }
-  else {
-    highlightSquareIds = [`${curr_pos[0]}${Number(curr_pos[1]) + 1}`,];
-  }
-  highlightSquareIds = checkSquareCaptureId(highlightSquareIds);
+  let highlightSquareIds = pawnMovesOptions(curr_pos, "2", 1);
 
   highlightSquareIds.forEach(highlight => {
     const element = keySquareMapper[highlight];
     element.highlight = true;
   });
 
-  //capture id logic
-  const col1 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) - 1)}${Number(curr_pos[1]) + 1}`;
-  const col2 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) + 1)}${Number(curr_pos[1]) + 1}`;
-
-  let captureIds = [col1, col2];
-  //captureIds = checkSquareCaptureId(captureIds);
+  let captureIds = pawnCaptureOptions(curr_pos, 1);
 
   captureIds.forEach(element => {
     checkOpponetPieceByElement(element, "white");
@@ -594,6 +580,8 @@ function whiteQueenClick(square)
   globalStateRender();
 }
 
+//funcion devuelve los posibles movimientos de los alfiles en la posicion actual
+//hay que refactorizar
 function test2(id) {
   let finalListCheck = giveBishopHighlightIds(id);
   const { bottomLeft, bottomRight, topLeft, topRight } = finalListCheck;
@@ -606,13 +594,20 @@ function test2(id) {
   return finalListCheck;
 }
 
+
+//funcion de prueba para limitar los movimientos del rey y que no se pueda mover
+//a una posicion de jaque mate aka automorision
 function test(kingInitialMoves){
   console.log(`en test kingInitialMoves: ${kingInitialMoves}`)
   
   let res = [];
   res = res.concat(test2(globalPiece.black_bishop_1.current_pos));
   res = res.concat(test2(globalPiece.black_bishop_2.current_pos));
-  
+  for (let pawn of globalPiece.black_pawns) {
+    let auxCapture = pawnCaptureOptions(pawn.current_pos, -1);
+    res = res.concat(auxCapture);
+  }
+  console.log(`res: ${res}`)
   for (let i = kingInitialMoves.length - 1; i >= 0; i--) {
     if (res.find(e => e === kingInitialMoves[i])) {
       console.log(`element: ${kingInitialMoves[i]}`);
@@ -704,7 +699,7 @@ function whiteKingClick(square)
   
   //highlightSquareIds = checkSquareCaptureId(highlightSquareIds);
   highlightSquareIds = res.flat();
-  //test(highlightSquareIds)
+  test(highlightSquareIds)
   
   highlightSquareIds.forEach(highlight => {
     const element = keySquareMapper[highlight];
@@ -1148,30 +1143,14 @@ function blackPawnClick(square)
 
   const curr_pos = piece.current_pos;
 
-  let highlightSquareIds = null;
-
-  //on intial postion, pwns moves different
-  if (curr_pos[1] == "7") {
-    highlightSquareIds = [
-      `${curr_pos[0]}${Number(curr_pos[1]) - 1}`,
-      `${curr_pos[0]}${Number(curr_pos[1]) - 2}`, ];
-  }
-  else {
-    highlightSquareIds = [`${curr_pos[0]}${Number(curr_pos[1]) - 1}`,];
-  }
-
-  highlightSquareIds = checkSquareCaptureId(highlightSquareIds);
+  let highlightSquareIds = pawnMovesOptions(curr_pos, "7", -1);
 
   highlightSquareIds.forEach(highlight => {
     const element = keySquareMapper[highlight];
     element.highlight = true;
   });
 
-  //capture id logic
-  const col1 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) - 1)}${Number(curr_pos[1]) - 1}`;
-  const col2 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) + 1)}${Number(curr_pos[1]) - 1}`;
-
-  let captureIds = [col1, col2];
+  let captureIds = pawnCaptureOptions(curr_pos, -1);
 
   captureIds.forEach(element => {
     checkOpponetPieceByElement(element, "black");
@@ -1185,7 +1164,6 @@ function clearPreviousSelfHighlight(piece)
 {
   if (piece) {
     document.getElementById(piece.current_pos).classList.remove("highlightYellow");
-    //selfHighlight = false;
     selfHighlightState = null;
   } 
 }
