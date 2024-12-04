@@ -63,12 +63,13 @@ function checkForCheck() {
     finalListCheck.push(giveQueenCaptureIds(queen, inTurn));
 
     finalListCheck = finalListCheck.flat();
+    console.log(inTurn, finalListCheck);
     const checkOrNot = finalListCheck.find((element) => element === whiteKingCurrentPos);
     if (checkOrNot) {
       whoInCheck = "white";
       setTimeout(() => {
-            alert("You are in check!");
-        }, 300); // Ajusta el tiempo de retraso según la duración de tu animación
+        alert("You are in check!");
+      }, 300); // Ajusta el tiempo de retraso según la duración de tu animación
     }
   }
   else {
@@ -93,11 +94,12 @@ function checkForCheck() {
     finalListCheck.push(giveQueenCaptureIds(queen, inTurn));
     
     finalListCheck = finalListCheck.flat();
+    console.log(inTurn, finalListCheck);
     const checkOrNot = finalListCheck.find((element) => element === blackKingCurrentPos);
     if (checkOrNot) {
       whoInCheck = "black";
       setTimeout(() => {
-          alert("You are in check!");
+        alert("You are in check!");
       }, 300); // Ajusta el tiempo de retraso según la duración de tu animación
     }
   }
@@ -592,6 +594,34 @@ function whiteQueenClick(square)
   globalStateRender();
 }
 
+function test2(id) {
+  let finalListCheck = giveBishopHighlightIds(id);
+  const { bottomLeft, bottomRight, topLeft, topRight } = finalListCheck;
+  let aux = [];
+  aux.push(checkSquareCaptureId(bottomLeft));
+  aux.push(checkSquareCaptureId(bottomRight));
+  aux.push(checkSquareCaptureId(topLeft));
+  aux.push(checkSquareCaptureId(topRight));
+  finalListCheck = aux.flat();
+  return finalListCheck;
+}
+
+function test(kingInitialMoves){
+  console.log(`en test kingInitialMoves: ${kingInitialMoves}`)
+  
+  let res = [];
+  res = res.concat(test2(globalPiece.black_bishop_1.current_pos));
+  res = res.concat(test2(globalPiece.black_bishop_2.current_pos));
+  
+  for (let i = kingInitialMoves.length - 1; i >= 0; i--) {
+    if (res.find(e => e === kingInitialMoves[i])) {
+      console.log(`element: ${kingInitialMoves[i]}`);
+      kingInitialMoves.splice(i, 1);
+    }
+  }
+  console.log(`resultado final: ${kingInitialMoves}`)
+}
+
 //white king event
 function whiteKingClick(square)
 {
@@ -671,8 +701,10 @@ function whiteKingClick(square)
   tmp.push(topLeft);
   tmp.push(topRight);
 
+  
   //highlightSquareIds = checkSquareCaptureId(highlightSquareIds);
   highlightSquareIds = res.flat();
+  //test(highlightSquareIds)
   
   highlightSquareIds.forEach(highlight => {
     const element = keySquareMapper[highlight];
@@ -697,6 +729,7 @@ function whiteKingClick(square)
   }
   globalStateRender();
 }
+
 //black king event
 function blackKingClick(square)
 {
@@ -744,7 +777,7 @@ function blackKingClick(square)
       const c8 = keySquareMapper['c8'];
       const d8 = keySquareMapper['d8'];
       
-      if (!b8.piece && !c8.piece && !d8.piece) {
+      if (!b8.piece && !c8.piece && !d8.piece) { //anadir condicion de jaque
         res.push("c8");
       }
     }
@@ -757,7 +790,6 @@ function blackKingClick(square)
       }
     }
   }
-  
 
   res.push(checkSquareCaptureId(top));
   res.push(checkSquareCaptureId(bottom));
@@ -777,6 +809,8 @@ function blackKingClick(square)
   tmp.push(topLeft);
   tmp.push(topRight);
 
+  //test(res);
+
   //highlightSquareIds = checkSquareCaptureId(highlightSquareIds);
   highlightSquareIds = res.flat();
   
@@ -785,8 +819,7 @@ function blackKingClick(square)
     element.highlight = true;
   });
 
-  //capture logic for bishop
-  let captureIds = [];
+  //capture logic for king
   for (let i = 0; i < tmp.length; i++) {
     const arr = tmp[i];
 
@@ -1139,7 +1172,6 @@ function blackPawnClick(square)
   const col2 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) + 1)}${Number(curr_pos[1]) - 1}`;
 
   let captureIds = [col1, col2];
-  //captureIds = checkSquareCaptureId(captureIds);
 
   captureIds.forEach(element => {
     checkOpponetPieceByElement(element, "black");
