@@ -226,4 +226,11 @@ function clearHighlight()
   });
 }
 
-export { initGameRender, renderHighlight, clearHighlight, selfHighlight, globalStateRender, globalPiece };
+function circleHighlightRender(highlightSquareIds, keySquareMapper) {
+  highlightSquareIds.forEach(highlight => {
+    const element = keySquareMapper[highlight];
+    element.highlight = true;
+  });
+}
+
+export { initGameRender, renderHighlight, clearHighlight, selfHighlight, globalStateRender, globalPiece, circleHighlightRender };

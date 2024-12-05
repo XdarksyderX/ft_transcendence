@@ -277,7 +277,7 @@ function pawnMovesOptions(curr_pos, row, num) {
     if (curr_pos[1] == row) {
     highlightSquareIds = [
       `${curr_pos[0]}${Number(curr_pos[1]) + num}`,
-      `${curr_pos[0]}${Number(curr_pos[1]) + (num * 2)}`, ]; /*num * 2 */
+      `${curr_pos[0]}${Number(curr_pos[1]) + (num * 2)}`, ];
     }
     else {
       highlightSquareIds = [`${curr_pos[0]}${Number(curr_pos[1]) + num}`,];
@@ -288,11 +288,14 @@ function pawnMovesOptions(curr_pos, row, num) {
 }
 
 function pawnCaptureOptions(curr_pos, num) {
-  const col1 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) - 1)}${Number(curr_pos[1]) + num}`;
+	if (!curr_pos)
+		return null;
+
+	const validColumns = new Set(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']);
+	const col1 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) - 1)}${Number(curr_pos[1]) + num}`;
   const col2 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) + 1)}${Number(curr_pos[1]) + num}`;
 
-  let captureIds = [col1, col2];
-
+  let captureIds = [col1, col2].filter(pos => validColumns.has(pos[0]));
   return captureIds;
 }
 

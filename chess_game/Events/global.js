@@ -1,6 +1,6 @@
 import { ROOT_DIV } from "../Helper/constants.js";
 import { globalState, keySquareMapper } from "../index.js"; //import globalState object, a 2D array representing the state of the chessboard
-import { clearHighlight, globalStateRender, selfHighlight, globalPiece } from "../Render/main.js";
+import { clearHighlight, globalStateRender, selfHighlight, globalPiece, circleHighlightRender } from "../Render/main.js";
 import { checkOpponetPieceByElement, checkSquareCaptureId, giveBishopHighlightIds, checkPieceExist, giveRookHighlightIds, giveKnightHighlightIds, giveQueenHighlightIds, giveKingHighlightIds } from "../Helper/commonHelper.js";
 import { giveKnightCaptureIds, giveKingCaptureIds, giveBishopCaptureIds, giveRookCaptureIds, giveQueenCaptureIds } from "../Helper/commonHelper.js";
 import { pawnMovesOptions, pawnCaptureOptions } from "../Helper/commonHelper.js";
@@ -41,9 +41,14 @@ function captureInTurn(square) {
   return;
 }
 
+//creo que esta funcion hay que replantearla
 function checkForCheck() {
   if (inTurn === "black") {
     const whiteKingCurrentPos = globalPiece.white_king.current_pos;
+    const pawns = [];
+    globalPiece.black_pawns.forEach(piece => {
+      pawns.push(piece.current_pos);
+    });
     const knight_1 = globalPiece.black_knight_1.current_pos;
     const knight_2 = globalPiece.black_knight_2.current_pos;
     const king = globalPiece.black_king.current_pos;
@@ -52,8 +57,11 @@ function checkForCheck() {
     const rook_1 = globalPiece.black_rook_1.current_pos;
     const rook_2 = globalPiece.black_rook_2.current_pos;
     const queen = globalPiece.black_queen.current_pos;
-
+    
     let finalListCheck = [];
+    pawns.forEach(piece => {
+      finalListCheck.push(pawnCaptureOptions(piece, -1));
+    });
     finalListCheck.push(giveKnightCaptureIds(knight_1, inTurn));
     finalListCheck.push(giveKnightCaptureIds(knight_2, inTurn));
     finalListCheck.push(giveKingCaptureIds(king, inTurn));
@@ -62,8 +70,9 @@ function checkForCheck() {
     finalListCheck.push(giveRookCaptureIds(rook_1, inTurn));
     finalListCheck.push(giveRookCaptureIds(rook_2, inTurn));
     finalListCheck.push(giveQueenCaptureIds(queen, inTurn));
-
+    
     finalListCheck = finalListCheck.flat();
+    console.log(`en check for check: finalListCheck: ${finalListCheck}`);
     //console.log(inTurn, finalListCheck);
     const checkOrNot = finalListCheck.find((element) => element === whiteKingCurrentPos);
     if (checkOrNot) {
@@ -75,6 +84,10 @@ function checkForCheck() {
   }
   else {
     const blackKingCurrentPos = globalPiece.black_king.current_pos;
+    const pawns = [];
+    globalPiece.white_pawns.forEach(piece => {
+      pawns.push(piece.current_pos);
+    });
     const knight_1 = globalPiece.white_knight_1.current_pos;
     const knight_2 = globalPiece.white_knight_2.current_pos;
     const king = globalPiece.white_king.current_pos;
@@ -85,6 +98,9 @@ function checkForCheck() {
     const queen = globalPiece.white_queen.current_pos;
     
     let finalListCheck = [];
+    pawns.forEach(piece => {
+      finalListCheck.push(pawnCaptureOptions(piece, 1));
+    });
     finalListCheck.push(giveKnightCaptureIds(knight_1, inTurn));
     finalListCheck.push(giveKnightCaptureIds(knight_2, inTurn));
     finalListCheck.push(giveKingCaptureIds(king, inTurn));
@@ -278,12 +294,7 @@ function whitePawnClick(square)
   const curr_pos = piece.current_pos;
 
   let highlightSquareIds = pawnMovesOptions(curr_pos, "2", 1);
-
-  highlightSquareIds.forEach(highlight => {
-    const element = keySquareMapper[highlight];
-    element.highlight = true;
-  });
-
+  circleHighlightRender(highlightSquareIds, keySquareMapper);
   let captureIds = pawnCaptureOptions(curr_pos, 1);
 
   captureIds.forEach(element => {
@@ -340,16 +351,10 @@ function whiteBishopClick(square)
   tmp.push(topLeft);
   tmp.push(topRight);
 
-  //highlightSquareIds = checkSquareCaptureId(highlightSquareIds);
   highlightSquareIds = res.flat();
-  
-  highlightSquareIds.forEach(highlight => {
-    const element = keySquareMapper[highlight];
-    element.highlight = true;
-  });
+  circleHighlightRender(highlightSquareIds, keySquareMapper);
 
   //capture logic for bishop
-  let captureIds = [];
   for (let i = 0; i < tmp.length; i++) {
     const arr = tmp[i];
 
@@ -414,15 +419,9 @@ function whiteRookClick(square)
   tmp.push(left);
   tmp.push(right);
 
-  //highlightSquareIds = checkSquareCaptureId(highlightSquareIds);
   highlightSquareIds = res.flat();
-  
-  highlightSquareIds.forEach(highlight => {
-    const element = keySquareMapper[highlight];
-    element.highlight = true;
-  });
+  circleHighlightRender(highlightSquareIds, keySquareMapper);
 
-  let captureIds = [];
   for (let i = 0; i < tmp.length; i++) {
     const arr = tmp[i];
 
@@ -483,13 +482,9 @@ function whiteKnightClick(square)
     }
   }
 
-  highlightSquareIds.forEach(highlight => {
-    const element = keySquareMapper[highlight];
-    element.highlight = true;
-  });
+  circleHighlightRender(highlightSquareIds, keySquareMapper);
 
   highlightSquareIds.forEach(element => {
-    //checkOpponetPieceByElement(element, "white");
     let bool = checkOpponetPieceByElement(element, "white");
     if (bool)
       adjustKnightHighlighting(element);
@@ -552,13 +547,8 @@ function whiteQueenClick(square)
   tmp.push(topLeft);
   tmp.push(topRight);
 
-  //highlightSquareIds = checkSquareCaptureId(highlightSquareIds);
   highlightSquareIds = res.flat();
-  
-  highlightSquareIds.forEach(highlight => {
-    const element = keySquareMapper[highlight];
-    element.highlight = true;
-  });
+  circleHighlightRender(highlightSquareIds, keySquareMapper);
   
   //capture logic for bishop
   let captureIds = [];
@@ -597,24 +587,29 @@ function test2(id) {
 
 //funcion de prueba para limitar los movimientos del rey y que no se pueda mover
 //a una posicion de jaque mate aka automorision
-function test(kingInitialMoves){
-  console.log(`en test kingInitialMoves: ${kingInitialMoves}`)
+function limitKingMoves(kingInitialMoves) {
+  console.log(`en limitKingMoves kingInitialMoves: ${kingInitialMoves}`);
   
-  let res = [];
-  res = res.concat(test2(globalPiece.black_bishop_1.current_pos));
-  res = res.concat(test2(globalPiece.black_bishop_2.current_pos));
+  let res = new Set();
+  
+  res = new Set([...res, ...test2(globalPiece.black_bishop_1.current_pos)]);
+  res = new Set([...res, ...test2(globalPiece.black_bishop_2.current_pos)]);
+  
   for (let pawn of globalPiece.black_pawns) {
     let auxCapture = pawnCaptureOptions(pawn.current_pos, -1);
-    res = res.concat(auxCapture);
+    res = new Set([...res, ...auxCapture]);
   }
-  console.log(`res: ${res}`)
+  
+  console.log(`res: ${Array.from(res)}`);
+  
   for (let i = kingInitialMoves.length - 1; i >= 0; i--) {
-    if (res.find(e => e === kingInitialMoves[i])) {
+    if (res.has(kingInitialMoves[i])) {
       console.log(`element: ${kingInitialMoves[i]}`);
       kingInitialMoves.splice(i, 1);
     }
   }
-  console.log(`resultado final: ${kingInitialMoves}`)
+  
+  console.log(`resultado final: ${kingInitialMoves}`);
 }
 
 //white king event
@@ -696,18 +691,12 @@ function whiteKingClick(square)
   tmp.push(topLeft);
   tmp.push(topRight);
 
-  
-  //highlightSquareIds = checkSquareCaptureId(highlightSquareIds);
   highlightSquareIds = res.flat();
-  test(highlightSquareIds)
+  limitKingMoves(highlightSquareIds)
   
-  highlightSquareIds.forEach(highlight => {
-    const element = keySquareMapper[highlight];
-    element.highlight = true;
-  });
+  circleHighlightRender(highlightSquareIds, keySquareMapper);
 
   //capture logic for bishop
-  let captureIds = [];
   for (let i = 0; i < tmp.length; i++) {
     const arr = tmp[i];
 
@@ -804,15 +793,11 @@ function blackKingClick(square)
   tmp.push(topLeft);
   tmp.push(topRight);
 
-  //test(res);
-
-  //highlightSquareIds = checkSquareCaptureId(highlightSquareIds);
-  highlightSquareIds = res.flat();
   
-  highlightSquareIds.forEach(highlight => {
-    const element = keySquareMapper[highlight];
-    element.highlight = true;
-  });
+  highlightSquareIds = res.flat();
+  //limitKingMoves(res);
+  
+  circleHighlightRender(highlightSquareIds, keySquareMapper);
 
   //capture logic for king
   for (let i = 0; i < tmp.length; i++) {
@@ -887,13 +872,8 @@ function blackQueenClick(square)
   tmp.push(topLeft);
   tmp.push(topRight);
 
-  //highlightSquareIds = checkSquareCaptureId(highlightSquareIds);
   highlightSquareIds = res.flat();
-  
-  highlightSquareIds.forEach(highlight => {
-    const element = keySquareMapper[highlight];
-    element.highlight = true;
-  });
+  circleHighlightRender(highlightSquareIds, keySquareMapper);
 
   //capture logic for bishop
   for (let i = 0; i < tmp.length; i++) {
@@ -955,10 +935,7 @@ function blackKnightClick(square)
     }
   }
 
-  highlightSquareIds.forEach(highlight => {
-    const element = keySquareMapper[highlight];
-    element.highlight = true;
-  });
+  circleHighlightRender(highlightSquareIds, keySquareMapper);
 
   highlightSquareIds.forEach(element => {
     let bool = checkOpponetPieceByElement(element, "black");
@@ -1015,13 +992,8 @@ function blackBishopClick(square)
   tmp.push(topLeft);
   tmp.push(topRight);
 
-  //highlightSquareIds = checkSquareCaptureId(highlightSquareIds);
   highlightSquareIds = res.flat();
-
-  highlightSquareIds.forEach(highlight => {
-    const element = keySquareMapper[highlight];
-    element.highlight = true;
-  });
+  circleHighlightRender(highlightSquareIds, keySquareMapper);
 
   for (let i = 0; i < tmp.length; i++) {
     const arr = tmp[i];
@@ -1087,13 +1059,8 @@ function blackRookClick(square)
   tmp.push(left);
   tmp.push(right);
 
-  //highlightSquareIds = checkSquareCaptureId(highlightSquareIds);
   highlightSquareIds = res.flat();
-
-  highlightSquareIds.forEach(highlight => {
-    const element = keySquareMapper[highlight];
-    element.highlight = true;
-  });
+  circleHighlightRender(highlightSquareIds, keySquareMapper);
 
   for (let i = 0; i < tmp.length; i++) {
     const arr = tmp[i];
@@ -1144,12 +1111,7 @@ function blackPawnClick(square)
   const curr_pos = piece.current_pos;
 
   let highlightSquareIds = pawnMovesOptions(curr_pos, "7", -1);
-
-  highlightSquareIds.forEach(highlight => {
-    const element = keySquareMapper[highlight];
-    element.highlight = true;
-  });
-
+  circleHighlightRender(highlightSquareIds, keySquareMapper);
   let captureIds = pawnCaptureOptions(curr_pos, -1);
 
   captureIds.forEach(element => {

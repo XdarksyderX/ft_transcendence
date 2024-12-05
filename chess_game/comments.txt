@@ -312,3 +312,23 @@ original capture logic calculations for pawns
   const col2 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) + 1)}${Number(curr_pos[1]) + 1}`;//this last add operation is -1 for black pawns
 
   let captureIds = [col1, col2];*/
+
+  /* function test(kingInitialMoves){
+  console.log(`en test kingInitialMoves: ${kingInitialMoves}`)
+  
+  let res = [];
+  res = res.concat(test2(globalPiece.black_bishop_1.current_pos));
+  res = res.concat(test2(globalPiece.black_bishop_2.current_pos));
+  for (let pawn of globalPiece.black_pawns) {
+    let auxCapture = pawnCaptureOptions(pawn.current_pos, -1);
+    res = res.concat(auxCapture);
+  }
+  console.log(`res: ${res}`)
+  for (let i = kingInitialMoves.length - 1; i >= 0; i--) {
+    if (res.find(e => e === kingInitialMoves[i])) {
+      console.log(`element: ${kingInitialMoves[i]}`);
+      kingInitialMoves.splice(i, 1);
+    }
+  }
+  console.log(`resultado final: ${kingInitialMoves}`)
+} */
