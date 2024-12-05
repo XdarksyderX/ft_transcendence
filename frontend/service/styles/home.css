@@ -4,3 +4,34 @@
     display: block;
     height: 100%;
 }
+
+.friend-btn {
+    background-color: var(--darkish);
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.friend-btn:hover {
+    background-color: var(--dark);
+}
+
+.friend-btn.selected {
+    background-color: var(--title);
+    color: var(--dark) !important;
+}
+
+#friends-container {
+    overflow-y: auto;
+}
+/* .card-body {
+    height: 317px;
+} */
+
+img {
+    /* display: none; */
+    /* max- */height: 300px !important;
+    width: auto;
+}

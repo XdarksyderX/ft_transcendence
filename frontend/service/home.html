@@ -10,72 +10,15 @@
     <link rel="stylesheet" href="styles/styles.css">
     <link rel="stylesheet" href="styles/home.css">
     <link rel="stylesheet" href="components/chat/styles.css">
+    <link rel="stylesheet" href="components/sidebar/styles.css">
     <script>
         /*         if (!localStorage.getItem('authToken')) { // If the user is not logged in
                   window.location.href = '/login.html'; // Redirect to the login page
                 } */
     </script> 
     <style>
-        .sidebar {
-            height: calc(100vh - 56px);
-            width: 250px;
-            position: fixed;
-            top: 56px; 
-            left: -250px;
-            z-index: 1000;
-            transition: 0.3s;
-            background: linear-gradient(225deg, var(--dark), var(--darkish),  #920505cc, var(--title));
-            box-shadow: 0 0 10px -5px #00F56A, 10px 0 10px -5px #00F56A, 10px 0 15px -5px #00F56A, 10px 0 30px -5px #00F56Acc;
-        }
-        .sidebar.show {
-            left: 0;
-        }
-        .content {
-            transition: margin-left 0.3s;
-        }
-        .toggle-btn {
-            background-color: transparent;
-            border: none;
-            color: var(--light);
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-        @media (min-width: 992px) {
-            .sidebar {
-                left: 0;
-            }
-            .content {
-                margin-left: 250px;
-            }
-            #sidebarToggle {
-                display: none;
-            }
-        }
-        .sidebar-item {
-            color: var(--light);
-            text-decoration: none;
-        }
-        .friend-card {
-            background-color: var(--darkish);
-            border-radius: 5px;
-            padding: 10px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .friend-card:hover {
-            background-color: var(--dark);
-        }
-        .friend-card.selected {
-            background-color: var(--title);
-            color: var(--dark) !important;
-        }
-        #friends-container {
-            overflow-y: auto;
-        }
-        .card-body {
-            height: 317px;
-        }
+
+
     </style>     
 </head>
 <body>
@@ -94,7 +37,7 @@
     <!-- sidebar -->
     <div id="sidebar-container"></div>
     <!-- main content -->
-    <div class="content">
+    <div class="main-content">
         <main class="container-fluid mt-3">
             <div id="chose-game" style="display: block;">
                 <div class="row">
@@ -109,7 +52,7 @@
                                 <div class="card-body text-center d-flex flex-column">
                                     <div id="play-pong">
                                         <h3 class="ctm-text-title mb-3">Play Pong</h3>
-                                        <img src="https://media.tenor.com/2gyJVMt_L6wAAAAM/pong-video-game.gif" alt="Pong Game" class="img-fluid rounded mb-3">
+                                        <img src="https://media.tenor.com/2gyJVMt_L6wAAAAM/pong-video-game.gif" alt="Play Pong" class="img-fluid rounded mb-3">
                                         <p class="ctm-text-light">Click to start a game of Pong!</p>
                                     </div>
                                     <div id="pong-options" class="h-100 flex-column" style="display: none !important;">
@@ -120,7 +63,7 @@
                                     </div>
                                     <div id="friend-list" class="h-100 flex-column" style="display: none;">
                                         <h4 class="ctm-text-light mb-3">Select a friend to play with:</h4>
-                                        <div id="friends-container" class="mb-3 scroll-card"></div>
+                                        <div id="friends-container" class="mb-3"></div>
                                         <button id="start-game-with-friend" class="btn ctm-btn mb-3" disabled>Start Game with Friend</button>
                                         <!-- <button id="back-to-options" class="btn ctm-btn mb-3">Back to Options</button> -->
                                     </div>
@@ -133,7 +76,7 @@
                             <div class="ctm-card card-hover h-100">
                                 <div class="card-body text-center">
                                     <h3 class="ctm-text-title mb-3">Play Chess</h3>
-                                    <img src="https://images.chesscomfiles.com/uploads/v1/images_users/tiny_mce/PedroPinhata/phpNtZwIg.png" alt="Pong Game" class="img-fluid rounded mb-3 h-75">
+                                    <img src="https://images.chesscomfiles.com/uploads/v1/images_users/tiny_mce/PedroPinhata/phpNtZwIg.png" alt="Play Chess" class="img-fluid rounded mb-3">
                                     <p class="ctm-text-light">Click to start a game of Chess!</p>
                                 </div>
                             </div>
@@ -165,143 +108,9 @@
         </div>
         <div id="chat-container" class="card shadow"></div>></div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
-        <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const pongBtn = document.getElementById('pong-btn');
-            const playPong = document.getElementById('play-pong');
-            const pongOptions = document.getElementById('pong-options');
-            const playFriend = document.getElementById('play-friend');
-            const friendList = document.getElementById('friend-list');
-            const friendsContainer = document.getElementById('friends-container');
-            const startGameWithFriendButton = document.getElementById('start-game-with-friend');
-            
-            let selectedFriend = null;
-            
-    
-            // Toggle pong options
-            function togglePongOptions(event) {
-                event.stopPropagation();
-                if (friendList.style.display === 'none') {
-                    playPong.style.display = playPong.style.display === 'none' ? 'block' : 'none';
-                    pongOptions.style.display = pongOptions.style.display === 'none' ? 'flex' : 'none';
-                }
-                if (window.innerWidth < 992) {
-                    sidebar.classList.remove('show');
-                }
-            }
-            pongBtn.addEventListener('click', togglePongOptions);
-    
-            // Provisionally hardcoded friends list
-            const friends = [
-                { id: 1, name: 'Alice', status: 'online' },
-                { id: 2, name: 'Bob', status: 'offline' },
-                { id: 3, name: 'Charlie', status: 'online' },
-                { id: 4, name: 'David', status: 'away' }
-            ];
-    
-            // Create each friend card
-            function createFriendCard(friend) {
-                const card = document.createElement('div');
-                card.className = 'friend-card';
-                card.setAttribute('data-friend-id', friend.id);
-                let color = (friend.status === 'online') ? 'accent' : 'light';
-                card.innerHTML = `<p class="mb-0">${friend.name}</p>`;
-                card.style.color = `var(--${color})`;
-                card.style.border = `1px solid var(--${color})`;
-                card.addEventListener('click', () => selectFriend(friend));
-                return card;
-            }
-    
-            // Select a friend
-            function selectFriend(friend) {
-                if (friend.status !== 'online') {
-                    alert('This friend is not available to play right now.');
-                    return;
-                }
-                if (selectedFriend === friend) {
-                    unselectFriend();
-                } else {
-                    selectedFriend = friend;
-                    document.querySelectorAll('.friend-card').forEach(card => card.classList.remove('selected'));
-                    document.querySelector(`.friend-card[data-friend-id="${selectedFriend.id}"]`).classList.add('selected');
-                    startGameWithFriendButton.disabled = false;
-                }
-            }
-    
-            // Unselect a friend
-            function unselectFriend() {
-                selectedFriend = null;
-                document.querySelectorAll('.friend-card').forEach(card => card.classList.remove('selected'));
-                startGameWithFriendButton.disabled = true;
-            }
-    
-            // Render the friend list
-            function renderFriendList() {
-                friendsContainer.innerHTML = '';
-                friends.forEach(friend => friendsContainer.appendChild(createFriendCard(friend)));
-            }
-    
-            // Handle play with a friend button click
-            playFriend.addEventListener('click', (event) => {
-                event.stopPropagation();
-                playPong.style.display = 'none';
-                pongOptions.style.display = 'none';
-                friendList.style.display = 'flex';
-                renderFriendList();
-            });
-            // Goes back when you click outside the pong card
-            function backToChooseGame() {
-                if (playPong.style.display !== 'block' && !pongBtn.contains(event.target)) {
-                    playPong.style.display = 'block';
-                    pongOptions.style.display = 'none';
-                    friendList.style.display = 'none';
-                    unselectFriend();
-                }
-            }
-
-            document.addEventListener('click', backToChooseGame);
-    
-            // Handle start game with friend button click
-            startGameWithFriendButton.addEventListener('click', () => {
-                if (selectedFriend) {
-                    const modal = new bootstrap.Modal(document.getElementById('wait-game'));
-                    const modalText = document.getElementById('modal-text');
-                    modalText.innerHTML = `Waiting for ${selectedFriend.name} to accept the game...`;
-                    modal.show();
-    
-                    const progressBar = document.getElementById('progress-bar');
-                    let progress = 100;
-                    const timer = document.getElementById('timer');
-                    const interval = setInterval(() => {
-                        let time = Math.floor(progress / 100 * 30);
-                        progress -= 1;
-                        progressBar.style.width = `${progress}%`;
-                        progressBar.setAttribute('aria-valuenow', progress);
-                        timer.textContent = `${time}s`;
-                        if (progress <= 0) {
-                            clearInterval(interval);
-                            modal.hide();
-                        }
-                        if (progress < 50) {
-                            timer.style.color = 'var(--light)';
-                        } else {
-                            timer.style.color = 'var(--dark)';
-                        }
-                    }, 300);
-    
-                    document.getElementById('wait-game').addEventListener('hidden.bs.modal', () => {
-                        clearInterval(interval);
-                        progressBar.style.width = '100%';
-                        progressBar.setAttribute('aria-valuenow', 100);
-                        timer.textContent = '30s';
-                        timer.style.color = 'var(--dark)';
-                    });
-                }
-            });
-        });
-    </script>
    <!--  <script src="app/auth.js"></script> -->
-    <script src="app/render.js"></script>
+   <script src="app/render.js"></script>
+   <script src="app/home.js"></script>
     <script src="components/chat/app.js" defer></script>
     <script src="components/sidebar/app.js" defer></script>
     <script src="app/neon.js" defer></script>

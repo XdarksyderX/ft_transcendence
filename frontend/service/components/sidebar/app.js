@@ -1,7 +1,7 @@
 function initializeSidebarEvents() {
     const sidebar = document.getElementById('sidebar');
     const sidebarToggle = document.getElementById('sidebarToggle');
-    const content = document.querySelector('.content');
+    const mainContent = document.querySelector('.main-content');
 	const logoutBtn = document.getElementById('logout-btn');
 	const userNames = document.querySelectorAll('.username');
 
@@ -37,10 +37,10 @@ function initializeSidebarEvents() {
     function handleResize() {
         if (window.innerWidth >= 992) {
             sidebar.classList.add('show');
-            content.style.marginLeft = '250px';
+            mainContent.style.marginLeft = '250px';
         } else {
             sidebar.classList.remove('show');
-            content.style.marginLeft = '0';
+            mainContent.style.marginLeft = '0';
         }
     }
 

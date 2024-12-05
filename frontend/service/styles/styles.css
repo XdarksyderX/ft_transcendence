@@ -98,11 +98,11 @@ body::before {
     padding: 0;
 }
 /* scroll bar */
-.scroll-card::-webkit-scrollbar{
+*::-webkit-scrollbar{
 	width: 8px;
 	background: var(--dark);
 }
-.scroll-card::-webkit-scrollbar-thumb {
+*::-webkit-scrollbar-thumb {
 	background-color: var(--lorange);
 	border-radius: 10px;
 	border: 2px solid var(--dark);
