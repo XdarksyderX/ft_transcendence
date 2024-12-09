@@ -21,8 +21,9 @@
 
 .profile-picture {
     border-radius: 50%;
-    height: 500px;
-    width: 500px;
+/*     height: 500px;
+    width: 500px; */
+    height: 100%;
     object-fit: cover;
 }
 

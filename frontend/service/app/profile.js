@@ -6,17 +6,17 @@ const user = {
 	profilePicture: 'https://avatars.githubusercontent.com/u/131959167?v=4'
 };
 
-const elements = {
+/* const elements = {
 	username: document.getElementById('username'),
 	registration: document.getElementById('registration'),
 	totalFriends: document.getElementById('total-friends'),
 	totalMatches: document.getElementById('total-matches'),
 	editProfile: document.getElementById('edit-profile'),
 	saveChanges: document.getElementById('save-changes'),
-	profileCard: document.getElementById('profile-card'),
+	profileCard: document.getElementById('profile-section'),
 	profilePicture: document.getElementById('profile-picture'),
 	fileInput: document.getElementById('file-input'),
-	changePicture: document.getElementById('change-picture'),
+	changePictureBtn: document.getElementById('change-picture-btn'),
 	profileSection: document.getElementById('profile-section'),
 	customizeSection: document.getElementById('customize-section'),
 	uploadImage: document.getElementById('upload-image'),
@@ -27,6 +27,26 @@ const elements = {
 	backgroundColorButton: document.getElementById('change-background-color'),
 	backgroundColorPicker: document.getElementById('background-color-picker'),
 	uploadedImage: document.getElementById('uploadedImage')
+}; */
+
+const elements = {
+    username: document.getElementById('username'),
+    registration: document.getElementById('registration'),
+    totalFriends: document.getElementById('total-friends'),
+    totalMatches: document.getElementById('total-matches'),
+    editProfile: document.getElementById('edit-profile'),
+    saveChanges: document.getElementById('save-changes'),
+    profilePicture: document.getElementById('profile-picture'),
+    changePictureBtn: document.getElementById('change-picture-btn'),
+    profileSection: document.getElementById('profile-section'),
+    customizeSection: document.getElementById('customize-section'),
+    uploadImage: document.getElementById('upload-image'),
+    fileInput: document.getElementById('file-input'),
+    saveCustomPhoto: document.getElementById('save-custom-photo'),
+    avatarColorButton: document.getElementById('change-avatar-color'),
+    avatarColorPicker: document.getElementById('avatar-color-picker'),
+    backgroundColorButton: document.getElementById('change-background-color'),
+    backgroundColorPicker: document.getElementById('background-color-picker'),
 };
 
 const avatarImages = [
@@ -44,20 +64,20 @@ function renderUserData() {
 }
 
 function toggleEditMode(isEditing) {
-	elements.editProfile.style.display = isEditing ? 'none' : 'block';
-	elements.saveChanges.style.display = isEditing ? 'block' : 'none';
-	elements.changePicture.style.display = isEditing ? 'block' : 'none';
-	
-	if (isEditing) {
-		elements.username.innerHTML = `
-			<div class="d-flex justify-content-center">New username:</div>
-			<input type="text" class="ctm-text-dark text-center" value="${user.username}">
-		`;
-		renderCancelBtn(elements.profileCard, () => toggleEditMode(false));
-	} else {
-		renderUserData();
-		removeCancelBtn(elements.profileCard);
-	}
+    elements.editProfile.style.display = isEditing ? 'none' : 'inline-block';
+    elements.saveChanges.style.display = isEditing ? 'inline-block' : 'none';
+    elements.changePictureBtn.style.display = isEditing ? 'inline-block' : 'none';
+    
+    if (isEditing) {
+        elements.username.innerHTML = `
+            <div class="d-flex justify-content-center">New username:</div>
+            <input type="text" class="form-control ctm-text-dark text-center" value="${user.username}">
+        `;
+        renderCancelBtn(document.querySelector('.ctm-card'), () => toggleEditMode(false));
+    } else {
+        renderUserData();
+        removeCancelBtn(document.querySelector('.ctm-card'));
+    }
 }
 
 function renderCancelBtn(container, onClick) {
@@ -77,44 +97,43 @@ function removeCancelBtn(container) {
 }
 
 function showCustomizeSection() {
-	elements.profileSection.style.display = 'none';
-	elements.customizeSection.style.display = 'block';
+    elements.profileSection.style.display = 'none';
+    console.log("profile style: ", elements.profileSection.style.display);
+    elements.customizeSection.style.display = 'flex';
 
-	const customizePhoto = document.getElementById('customize-photo');
-
-	renderCancelBtn(customizePhoto, () => {
-		elements.profileSection.style.display = 'block';
-		elements.customizeSection.style.display = 'none';
-		// removeCancelBtn(customizePhoto);
-	});
+    renderCancelBtn(document.querySelector('.ctm-card'), () => {
+        elements.profileSection.style.display = 'flex';
+        elements.customizeSection.style.display = 'none';
+        // removeCancelBtn(document.querySelector('.ctm-card'));
+    });
 }
 
-if (elements.changePicture) {
-	elements.changePicture.addEventListener('click', showCustomizeSection);
+if (elements.changePictureBtn) {
+    elements.changePictureBtn.addEventListener('click', showCustomizeSection);
 }
 
 if (elements.saveCustomPhoto) {
-	elements.saveCustomPhoto.addEventListener('click', () => {
-		const selectedCanvas = document.querySelector('.carousel-item.active canvas, .carousel-item.active img');
-		if (selectedCanvas.tagName === 'CANVAS') {
-			user.profilePicture = selectedCanvas.toDataURL();
-		} else {
-			user.profilePicture = selectedCanvas.src;
-		}
-		elements.profilePicture.src = user.profilePicture;
-		elements.profileSection.style.display = 'block';
-		elements.customizeSection.style.display = 'none';
-		removeCancelBtn(elements.customizeSection);
-	});
+    elements.saveCustomPhoto.addEventListener('click', () => {
+        const selectedCanvas = document.querySelector('.carousel-item.active canvas, .carousel-item.active img');
+        if (selectedCanvas.tagName === 'CANVAS') {
+            user.profilePicture = selectedCanvas.toDataURL();
+        } else {
+            user.profilePicture = selectedCanvas.src;
+        }
+        elements.profilePicture.src = user.profilePicture;
+        elements.profileSection.style.display = 'flex';
+        elements.customizeSection.style.display = 'none';
+        removeCancelBtn(document.querySelector('.ctm-card'));
+    });
 }
 
-if (elements.cancelCustomPhoto) {
+/* if (elements.cancelCustomPhoto) {
 	elements.cancelCustomPhoto.addEventListener('click', () => {
 		elements.profileSection.style.display = 'block';
 		elements.customizeSection.style.display = 'none';
 		removeCancelBtn(elements.customizeSection);
 	});
-}
+} */
 
 if (elements.avatarColorButton) {
 	elements.avatarColorButton.addEventListener('click', () => {

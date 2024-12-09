@@ -150,6 +150,21 @@ input:focus, select:focus, .ctm-btn:focus, .ctm-btn-dark:focus {
     outline: none !important
 }
 
+.vertical-wrap {
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 1rem;
+    padding-top: calc(100vh / 9); 
+}
+
+@media (max-height: 700px) {
+    .vertical-wrap {
+        padding-top: calc(100vh / 15);
+        background-color: #00F56A;
+    }
+}
 /* input[type="checkbox"]:checked {
     background-color: var(--accent) !important;
     border-color: var(--light) !important;
