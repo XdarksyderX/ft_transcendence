@@ -1,4 +1,5 @@
 import { keySquareMapper } from "../index.js";
+import { circleHighlightRender } from "../Render/main.js";
 
 //function to check if opponnet piece exist
 function checkOpponetPieceByElement(id, color) {
@@ -59,9 +60,11 @@ function checkSquareCaptureId(array) {
 position of the piece, and then the number. We do a loop until the position reaches the limits of
 the cheeseboard. */
 function diagonalMove(id, charLimit, numLimit, alphaStep, numStep) {
+    let moves = [];
+    if (!id)
+        return moves;
     let alpha = id[0];
     let num = Number(id[1]);
-    let moves = [];
     
     while (alpha != charLimit && num != numLimit) {
         alpha = String.fromCharCode(alpha.charCodeAt(0) + alphaStep); //we 'move' the letter part of the position; if the value is positive we go one letter up in the alphabeth, and if the value is negative we go down
@@ -112,15 +115,16 @@ function giveBishopCaptureIds(id, color) {
 }
 
 function straightMove(id, alphaStep, numStep) {
+    let moves = [];
+    if (!id)
+        return moves;
     let alpha = id[0];
     let num = Number(id[1]);
-    let moves = [];
     
     while (true) {
         alpha = String.fromCharCode(alpha.charCodeAt(0) + alphaStep); // Move the letter part
         num += numStep; // Move the number part
-        // Verify if the coordinates are within the limits of the chessboard
-        if (alpha < 'a' || alpha > 'h' || num < 1 || num > 8) {
+        if (alpha < 'a' || alpha > 'h' || num < 1 || num > 8) { // Verify if the coordinates are within the limits of the chessboard
             break;
         }
         moves.push(`${alpha}${num}`);
@@ -299,6 +303,43 @@ function pawnCaptureOptions(curr_pos, num) {
   return captureIds;
 }
 
+//funcion devuelve los posibles movimientos de los alfiles en la posicion actual
+//hay que refactorizar
+function getCaptureMoves(piece, highlightIdsFunc, color, renderBool = false) {
+    const curr_pos = piece.current_pos;
+    let highlightSquareIds = highlightIdsFunc(curr_pos);
+    let tmp = [];
+    let res = [];
+  
+    for (const direction in highlightSquareIds) {
+      if (highlightSquareIds.hasOwnProperty(direction)) {
+        const squares = highlightSquareIds[direction];
+        res.push(checkSquareCaptureId(squares));
+        tmp.push(squares);
+      }
+    }
+  
+    highlightSquareIds = res.flat();
+    if (renderBool) {
+        circleHighlightRender(highlightSquareIds, keySquareMapper);
+    
+        for (let i = 0; i < tmp.length; i++) {
+        const arr = tmp[i];
+        for (let j = 0; j < arr.length; j++) {
+            const element = arr[j];
+            let pieceRes = checkPieceExist(element);
+            if (pieceRes && pieceRes.piece && pieceRes.piece.piece_name.toLowerCase().includes(color)) {
+            break;
+            }
+            if (checkOpponetPieceByElement(element, color)) {
+            break;
+            }
+        }
+        }
+    }
+    return highlightSquareIds;
+}
+
 export { checkOpponetPieceByElement, checkSquareCaptureId, giveBishopHighlightIds, checkPieceExist, giveRookHighlightIds, giveKnightHighlightIds, giveQueenHighlightIds, giveKingHighlightIds,
     giveKnightCaptureIds, giveKingCaptureIds, giveBishopCaptureIds, giveRookCaptureIds, giveQueenCaptureIds,
-    pawnMovesOptions, pawnCaptureOptions };
+    pawnMovesOptions, pawnCaptureOptions, getCaptureMoves };

@@ -3,7 +3,7 @@ import { globalState, keySquareMapper } from "../index.js"; //import globalState
 import { clearHighlight, globalStateRender, selfHighlight, globalPiece, circleHighlightRender } from "../Render/main.js";
 import { checkOpponetPieceByElement, checkSquareCaptureId, giveBishopHighlightIds, checkPieceExist, giveRookHighlightIds, giveKnightHighlightIds, giveQueenHighlightIds, giveKingHighlightIds } from "../Helper/commonHelper.js";
 import { giveKnightCaptureIds, giveKingCaptureIds, giveBishopCaptureIds, giveRookCaptureIds, giveQueenCaptureIds } from "../Helper/commonHelper.js";
-import { pawnMovesOptions, pawnCaptureOptions } from "../Helper/commonHelper.js";
+import { pawnMovesOptions, pawnCaptureOptions, getCaptureMoves } from "../Helper/commonHelper.js";
 import logMoves from "../Helper/logging.js";
 import { pawnPromotion, winGame } from "../Helper/modalCreator.js";
 
@@ -72,8 +72,7 @@ function checkForCheck() {
     finalListCheck.push(giveQueenCaptureIds(queen, inTurn));
     
     finalListCheck = finalListCheck.flat();
-    console.log(`en check for check: finalListCheck: ${finalListCheck}`);
-    //console.log(inTurn, finalListCheck);
+    //console.log(`en check for check: finalListCheck: ${finalListCheck}`);
     const checkOrNot = finalListCheck.find((element) => element === whiteKingCurrentPos);
     if (checkOrNot) {
       whoInCheck = "white";
@@ -111,7 +110,7 @@ function checkForCheck() {
     finalListCheck.push(giveQueenCaptureIds(queen, inTurn));
     
     finalListCheck = finalListCheck.flat();
-    //console.log(inTurn, finalListCheck);
+    //console.log(`en check for check: finalListCheck: ${finalListCheck}`);
     const checkOrNot = finalListCheck.find((element) => element === blackKingCurrentPos);
     if (checkOrNot) {
       whoInCheck = "black";
@@ -332,43 +331,8 @@ function whiteBishopClick(square)
   
   //add piece as move state
   moveState = piece;
-  
-  const curr_pos = piece.current_pos;
-
-  let highlightSquareIds = giveBishopHighlightIds(curr_pos);
-  let tmp = []; //for capture
-  
-  const { bottomLeft, bottomRight, topLeft, topRight } = highlightSquareIds;
-
-  let res = [];
-  res.push(checkSquareCaptureId(bottomLeft));
-  res.push(checkSquareCaptureId(bottomRight));
-  res.push(checkSquareCaptureId(topLeft));
-  res.push(checkSquareCaptureId(topRight));
-
-  tmp.push(bottomLeft);
-  tmp.push(bottomRight);
-  tmp.push(topLeft);
-  tmp.push(topRight);
-
-  highlightSquareIds = res.flat();
-  circleHighlightRender(highlightSquareIds, keySquareMapper);
-
-  //capture logic for bishop
-  for (let i = 0; i < tmp.length; i++) {
-    const arr = tmp[i];
-
-    for (let j = 0; j < arr.length; j++) {
-      const element = arr[j];
-      let pieceRes = checkPieceExist(element);
-      if (pieceRes && pieceRes.piece && pieceRes.piece.piece_name.toLowerCase().includes("white")) {
-        break;
-      }
-      if (checkOpponetPieceByElement(element, "white")) {
-        break;
-      }
-    }
-  }
+ 
+  getCaptureMoves(piece, giveBishopHighlightIds, "white", true);
   globalStateRender();
 }
 
@@ -401,41 +365,7 @@ function whiteRookClick(square)
   //add piece as move state
   moveState = piece;
   
-  const curr_pos = piece.current_pos;
-
-  let highlightSquareIds = giveRookHighlightIds(curr_pos);
-  let tmp = [];
-  
-  const { top, bottom, left, right } = highlightSquareIds;
-
-  let res = [];
-  res.push(checkSquareCaptureId(top));
-  res.push(checkSquareCaptureId(bottom));
-  res.push(checkSquareCaptureId(left));
-  res.push(checkSquareCaptureId(right));
-
-  tmp.push(top);
-  tmp.push(bottom);
-  tmp.push(left);
-  tmp.push(right);
-
-  highlightSquareIds = res.flat();
-  circleHighlightRender(highlightSquareIds, keySquareMapper);
-
-  for (let i = 0; i < tmp.length; i++) {
-    const arr = tmp[i];
-
-    for (let j = 0; j < arr.length; j++) {
-      const element = arr[j];
-      let pieceRes = checkPieceExist(element);
-      if (pieceRes && pieceRes.piece && pieceRes.piece.piece_name.toLowerCase().includes("white")) {
-        break;
-      }
-      if (checkOpponetPieceByElement(element, "white")) {
-        break;
-      }
-    }
-  } 
+  getCaptureMoves(piece, giveRookHighlightIds, "white", true);
   globalStateRender();
 }
 
@@ -520,70 +450,10 @@ function whiteQueenClick(square)
   
   //add piece as move state
   moveState = piece;
-  
-  const curr_pos = piece.current_pos;
 
-  let highlightSquareIds = giveQueenHighlightIds(curr_pos);
-  let tmp = []; //for capture
-  
-  const { top, bottom, left, right, bottomLeft, bottomRight, topLeft, topRight } = highlightSquareIds;
-
-  let res = [];
-  res.push(checkSquareCaptureId(top));
-  res.push(checkSquareCaptureId(bottom));
-  res.push(checkSquareCaptureId(left));
-  res.push(checkSquareCaptureId(right));
-  res.push(checkSquareCaptureId(bottomLeft));
-  res.push(checkSquareCaptureId(bottomRight));
-  res.push(checkSquareCaptureId(topLeft));
-  res.push(checkSquareCaptureId(topRight));
-
-  tmp.push(top);
-  tmp.push(bottom);
-  tmp.push(left);
-  tmp.push(right);
-  tmp.push(bottomLeft);
-  tmp.push(bottomRight);
-  tmp.push(topLeft);
-  tmp.push(topRight);
-
-  highlightSquareIds = res.flat();
-  circleHighlightRender(highlightSquareIds, keySquareMapper);
-  
-  //capture logic for bishop
-  let captureIds = [];
-  for (let i = 0; i < tmp.length; i++) {
-    const arr = tmp[i];
-    
-    for (let j = 0; j < arr.length; j++) {
-      const element = arr[j];
-      let pieceRes = checkPieceExist(element);
-      if (pieceRes && pieceRes.piece && pieceRes.piece.piece_name.toLowerCase().includes("white")) {
-        break;
-      }
-      if (checkOpponetPieceByElement(element, "white")) {
-
-        break;
-      }
-    }
-  }
+  getCaptureMoves(piece, giveQueenHighlightIds, "white", true);
   globalStateRender();
 }
-
-//funcion devuelve los posibles movimientos de los alfiles en la posicion actual
-//hay que refactorizar
-function test2(id) {
-  let finalListCheck = giveBishopHighlightIds(id);
-  const { bottomLeft, bottomRight, topLeft, topRight } = finalListCheck;
-  let aux = [];
-  aux.push(checkSquareCaptureId(bottomLeft));
-  aux.push(checkSquareCaptureId(bottomRight));
-  aux.push(checkSquareCaptureId(topLeft));
-  aux.push(checkSquareCaptureId(topRight));
-  finalListCheck = aux.flat();
-  return finalListCheck;
-}
-
 
 //funcion de prueba para limitar los movimientos del rey y que no se pueda mover
 //a una posicion de jaque mate aka automorision
@@ -591,15 +461,16 @@ function limitKingMoves(kingInitialMoves) {
   console.log(`en limitKingMoves kingInitialMoves: ${kingInitialMoves}`);
   
   let res = new Set();
-  
-  res = new Set([...res, ...test2(globalPiece.black_bishop_1.current_pos)]);
-  res = new Set([...res, ...test2(globalPiece.black_bishop_2.current_pos)]);
+  res = new Set([...res, ...getCaptureMoves(globalPiece.black_bishop_1, giveBishopHighlightIds, "black")]);
+  res = new Set([...res, ...getCaptureMoves(globalPiece.black_bishop_2, giveBishopHighlightIds, "black")]);
+  res = new Set([...res, ...getCaptureMoves(globalPiece.black_rook_1, giveRookHighlightIds, "black")]);
+  res = new Set([...res, ...getCaptureMoves(globalPiece.black_rook_2, giveRookHighlightIds, "black")]);
+  res = new Set([...res, ...getCaptureMoves(globalPiece.black_queen, giveQueenHighlightIds, "black")]);
   
   for (let pawn of globalPiece.black_pawns) {
     let auxCapture = pawnCaptureOptions(pawn.current_pos, -1);
     res = new Set([...res, ...auxCapture]);
   }
-  
   console.log(`res: ${Array.from(res)}`);
   
   for (let i = kingInitialMoves.length - 1; i >= 0; i--) {
@@ -608,7 +479,6 @@ function limitKingMoves(kingInitialMoves) {
       kingInitialMoves.splice(i, 1);
     }
   }
-  
   console.log(`resultado final: ${kingInitialMoves}`);
 }
 
@@ -845,51 +715,8 @@ function blackQueenClick(square)
   
   //add piece as move state
   moveState = piece;
-  
-  const curr_pos = piece.current_pos;
 
-  let highlightSquareIds = giveQueenHighlightIds(curr_pos);
-  let tmp = []; //for capture
-  
-  const { top, bottom, left, right, bottomLeft, bottomRight, topLeft, topRight } = highlightSquareIds;
-
-  let res = [];
-  res.push(checkSquareCaptureId(top));
-  res.push(checkSquareCaptureId(bottom));
-  res.push(checkSquareCaptureId(left));
-  res.push(checkSquareCaptureId(right));
-  res.push(checkSquareCaptureId(bottomLeft));
-  res.push(checkSquareCaptureId(bottomRight));
-  res.push(checkSquareCaptureId(topLeft));
-  res.push(checkSquareCaptureId(topRight));
-
-  tmp.push(top);
-  tmp.push(bottom);
-  tmp.push(left);
-  tmp.push(right);
-  tmp.push(bottomLeft);
-  tmp.push(bottomRight);
-  tmp.push(topLeft);
-  tmp.push(topRight);
-
-  highlightSquareIds = res.flat();
-  circleHighlightRender(highlightSquareIds, keySquareMapper);
-
-  //capture logic for bishop
-  for (let i = 0; i < tmp.length; i++) {
-    const arr = tmp[i];
-
-    for (let j = 0; j < arr.length; j++) {
-      const element = arr[j];
-      let pieceRes = checkPieceExist(element);
-      if (pieceRes && pieceRes.piece && pieceRes.piece.piece_name.toLowerCase().includes("black")) {
-        break;
-      }
-      if (checkOpponetPieceByElement(element, "black")) {
-        break;
-      }
-    }
-  }
+  getCaptureMoves(piece, giveQueenHighlightIds, "black", true);
   globalStateRender();
 }
 
@@ -974,41 +801,7 @@ function blackBishopClick(square)
   //add piece as move state
   moveState = piece;
   
-  const curr_pos = piece.current_pos;
-
-  let highlightSquareIds = giveBishopHighlightIds(curr_pos);
-  let tmp = [];
-  
-  const { bottomLeft, bottomRight, topLeft, topRight } = highlightSquareIds;
-
-  let res = [];
-  res.push(checkSquareCaptureId(bottomLeft));
-  res.push(checkSquareCaptureId(bottomRight));
-  res.push(checkSquareCaptureId(topLeft));
-  res.push(checkSquareCaptureId(topRight));
-
-  tmp.push(bottomLeft);
-  tmp.push(bottomRight);
-  tmp.push(topLeft);
-  tmp.push(topRight);
-
-  highlightSquareIds = res.flat();
-  circleHighlightRender(highlightSquareIds, keySquareMapper);
-
-  for (let i = 0; i < tmp.length; i++) {
-    const arr = tmp[i];
-
-    for (let j = 0; j < arr.length; j++) {
-      const element = arr[j];
-      let pieceRes = checkPieceExist(element);
-      if (pieceRes && pieceRes.piece && pieceRes.piece.piece_name.toLowerCase().includes("black")) {
-        break;
-      }
-      if (checkOpponetPieceByElement(element, "black")) {
-        break;
-      }
-    }
-  } 
+  getCaptureMoves(piece, giveBishopHighlightIds, "black", true);
   globalStateRender();
 }
 
@@ -1040,42 +833,8 @@ function blackRookClick(square)
   
   //add piece as move state
   moveState = piece;
-  
-  const curr_pos = piece.current_pos;
-
-  let highlightSquareIds = giveRookHighlightIds(curr_pos);
-  let tmp = [];
-  
-  const { top, bottom, left, right } = highlightSquareIds;
-
-  let res = [];
-  res.push(checkSquareCaptureId(top));
-  res.push(checkSquareCaptureId(bottom));
-  res.push(checkSquareCaptureId(left));
-  res.push(checkSquareCaptureId(right));
-
-  tmp.push(top);
-  tmp.push(bottom);
-  tmp.push(left);
-  tmp.push(right);
-
-  highlightSquareIds = res.flat();
-  circleHighlightRender(highlightSquareIds, keySquareMapper);
-
-  for (let i = 0; i < tmp.length; i++) {
-    const arr = tmp[i];
-
-    for (let j = 0; j < arr.length; j++) {
-      const element = arr[j];
-      let pieceRes = checkPieceExist(element);
-      if (pieceRes && pieceRes.piece && pieceRes.piece.piece_name.toLowerCase().includes("black")) {
-        break;
-      }
-      if (checkOpponetPieceByElement(element, "black")) {
-        break;
-      }
-    }
-  } 
+ 
+  getCaptureMoves(piece, giveRookHighlightIds, "black", true);
   globalStateRender();
 }
 
