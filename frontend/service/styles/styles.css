@@ -5,7 +5,7 @@
 	--darkish: #462A56;
 	--medium: #5C3973;
 	--accent: #00F56A;
-	--light: #84CCA3;
+	--light: rgb(132, 204, 163);
 	--title: #F59C00;
 	--lorange: #f1c478;
 }
@@ -80,6 +80,14 @@ body::before {
         background-color: var(--darkish);
     }
 }
+
+.ctm-btn-secondary {
+    color: var(--dark);
+    background-color: var(--lorange);
+    &:hover {
+        background-color: var(--title);
+    }
+}
 /* ctm navbar */
 .ctm-navbar {
     height: 50px;
@@ -111,7 +119,7 @@ body::before {
 .ctm-card {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    /* align-items: center; */
     justify-content: center;
     margin: 0 auto;
     padding: 20px;
@@ -159,10 +167,10 @@ input:focus, select:focus, .ctm-btn:focus, .ctm-btn-dark:focus {
     padding-top: calc(100vh / 9); 
 }
 
-@media (max-height: 700px) {
+@media (max-height: 900px) {
     .vertical-wrap {
         padding-top: calc(100vh / 15);
-        background-color: #00F56A;
+        /* background-color: #00F56A; */
     }
 }
 /* input[type="checkbox"]:checked {
