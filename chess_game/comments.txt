@@ -332,3 +332,74 @@ original capture logic calculations for pawns
   }
   console.log(`resultado final: ${kingInitialMoves}`)
 } */
+
+movimiento original del rey (blanco), en el que el enroque funciona (salvo que no se comprueba los jaques)
+/*   const curr_pos = piece.current_pos;
+
+  let highlightSquareIds = giveKingHighlightIds(curr_pos);
+  let tmp = []; //for capture
+  
+  const { top, bottom, left, right, bottomLeft, bottomRight, topLeft, topRight } = highlightSquareIds;
+
+  let res = [];
+
+  if (!piece.move) {
+    const rook1 = globalPiece.white_rook_1;
+    const rook2 = globalPiece.white_rook_2;
+
+    if (!rook1.move) {
+      const b1 = keySquareMapper['b1'];
+      const c1 = keySquareMapper['c1'];
+      const d1 = keySquareMapper['d1'];
+      
+      if (!b1.piece && !c1.piece && !d1.piece) {
+        res.push("c1");
+      }
+    }
+    if (!rook2.move) {
+      const f1 = keySquareMapper['f1'];
+      const g1 = keySquareMapper['g1'];
+      
+      if (!f1.piece && !g1.piece) {
+        res.push("g1");
+      }
+    }
+  }
+
+  res.push(checkSquareCaptureId(top));
+  res.push(checkSquareCaptureId(bottom));
+  res.push(checkSquareCaptureId(left));
+  res.push(checkSquareCaptureId(right));
+  res.push(checkSquareCaptureId(bottomLeft));
+  res.push(checkSquareCaptureId(bottomRight));
+  res.push(checkSquareCaptureId(topLeft));
+  res.push(checkSquareCaptureId(topRight));
+
+  tmp.push(top);
+  tmp.push(bottom);
+  tmp.push(left);
+  tmp.push(right);
+  tmp.push(bottomLeft);
+  tmp.push(bottomRight);
+  tmp.push(topLeft);
+  tmp.push(topRight);
+
+  highlightSquareIds = res.flat();
+  limitKingMoves(highlightSquareIds)
+  
+  circleHighlightRender(highlightSquareIds, keySquareMapper);
+
+  for (let i = 0; i < tmp.length; i++) {
+    const arr = tmp[i];
+
+    for (let j = 0; j < arr.length; j++) {
+      const element = arr[j];
+      let pieceRes = checkPieceExist(element);
+      if (pieceRes && pieceRes.piece && pieceRes.piece.piece_name.toLowerCase().includes("white")) {
+        break;
+      }
+      if (checkOpponetPieceByElement(element, "white")) {
+        break;
+      }
+    }
+  } */

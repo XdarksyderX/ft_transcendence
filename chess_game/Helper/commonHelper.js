@@ -1,6 +1,7 @@
 import { keySquareMapper } from "../index.js";
 import { circleHighlightRender } from "../Render/main.js";
-import { limitKingMoves } from "../Events/global.js";
+import { limitKingMoves } from "../Events/global.js"; //borrar
+import { globalPiece } from "../Render/main.js";
 
 //function to check if opponnet piece exist
 function checkOpponetPieceByElement(id, color) {
@@ -231,7 +232,6 @@ function giveQueenHighlightIds(id) {
     }
 }
 
-
 function giveQueenCaptureIds(id, color) {
     if (!id)
         return [];
@@ -277,6 +277,31 @@ function giveKingCaptureIds(id, color) {
     return res;
 }
 
+function castlingCheck(piece, color, res) {
+    if (piece.piece_name.includes("KING") && !piece.move) {
+        const rook1 = globalPiece[`${color}_rook_1`];
+        const rook2 = globalPiece[`${color}_rook_2`];
+
+        if (!rook1.move) {
+            const b = keySquareMapper[`${color === "white" ? 'b1' : 'b8'}`];
+            const c = keySquareMapper[`${color === "white" ? 'c1' : 'c8'}`];
+            const d = keySquareMapper[`${color === "white" ? 'd1' : 'd8'}`];
+            
+            if (!b.piece && !c.piece && !d.piece) {
+                res.push(`${color === "white" ? 'c1' : 'c8'}`);
+            }
+        }
+        if (!rook2.move) {
+            const f = keySquareMapper[`${color === "white" ? 'f1' : 'f8'}`];
+            const g = keySquareMapper[`${color === "white" ? 'g1' : 'g8'}`];
+            
+            if (!f.piece && !g.piece) {
+                res.push(`${color === "white" ? 'g1' : 'g8'}`);
+            }
+        }
+    }
+}
+
 function pawnMovesOptions(curr_pos, row, num) {
     let highlightSquareIds = null;
     //on intial postion, pawns moves different
@@ -319,8 +344,8 @@ function getCaptureMoves(piece, highlightIdsFunc, color, renderBool = false, pre
         tmp.push(squares);
       }
     }
+    castlingCheck(piece, color, res);
     highlightSquareIds = res.flat();
-    
     if (preRenderCallback)
         preRenderCallback(highlightSquareIds);
     if (renderBool) {
@@ -332,10 +357,10 @@ function getCaptureMoves(piece, highlightIdsFunc, color, renderBool = false, pre
                 const element = arr[j];
                 let pieceRes = checkPieceExist(element);
                 if (pieceRes && pieceRes.piece && pieceRes.piece.piece_name.toLowerCase().includes(color)) {
-                break;
+                    break;
                 }
                 if (checkOpponetPieceByElement(element, color)) {
-                break;
+                    break;
                 }
             }
         }

@@ -164,17 +164,7 @@ function callbackPiece(piece, id) {
   currentElement.append(image);
 }
 
-/**
- * move a piece by the highlight posibilities.
- * @param {*} piece an object representing a game piece.
- * @param {*} id the new position id where the piece should be moved.
- */
-function moveElement(piece, id, castle) {
-  if (!piece)
-    return;
-
-  const pawnPromotionBool = checkForPawnPromotion(piece, id);
-
+function moveTwoCastlingPieces(piece, id) {
   if (piece.piece_name.includes("KING") || piece.piece_name.includes("ROOK")) {
     piece.move = true;
     if (piece.piece_name.includes("KING") && piece.piece_name.includes("WHITE")) {
@@ -190,7 +180,20 @@ function moveElement(piece, id, castle) {
       }
     }
   }
+}
+
+/**
+ * move a piece by the highlight posibilities.
+ * @param {*} piece an object representing a game piece.
+ * @param {*} id the new position id where the piece should be moved.
+ */
+function moveElement(piece, id, castle) {
+  if (!piece)
+    return;
+
+  const pawnPromotionBool = checkForPawnPromotion(piece, id);
   
+  moveTwoCastlingPieces(piece, id);
   logMoves({from: piece.current_pos, to: id, piece:piece.piece_name}, inTurn);
   const flatData =  globalState.flat();
   //iterate throught each element to update the positions od the pieces.
@@ -430,9 +433,9 @@ function whiteQueenClick(square)
 //funcion de prueba para limitar los movimientos del rey y que no se pueda mover
 //a una posicion de jaque mate aka automorision
 function limitKingMoves(kingInitialMoves, color) {
-  console.log(`en limitKingMoves kingInitialMoves: ${kingInitialMoves}`);
+  console.log(`en limitKingMoves kingInitialMoves: ${kingInitialMoves}`); //borrar
   
-  let res = new Set();
+  let res = new Set(); //en este set se van a meter todos los movimientos de posible captura de las piezas contrarias
   const enemyColor = color === "white" ? "black" : "white";
   const pawnDirection = enemyColor === "white" ? 1 : -1; 
   res = new Set([...res, ...getCaptureMoves(globalPiece[`${enemyColor}_bishop_1`], giveBishopHighlightIds, enemyColor)]);
@@ -442,20 +445,22 @@ function limitKingMoves(kingInitialMoves, color) {
   res = new Set([...res, ...getCaptureMoves(globalPiece[`${enemyColor}_queen`], giveQueenHighlightIds, enemyColor)]);
   res = new Set([...res, ...knightMovesOptions(globalPiece[`${enemyColor}_knight_1`], giveKnightHighlightIds, enemyColor)]);
   res = new Set([...res, ...knightMovesOptions(globalPiece[`${enemyColor}_knight_2`], giveKnightHighlightIds, enemyColor)]);
+  res = new Set([...res, ...getCaptureMoves(globalPiece[`${enemyColor}_king`], giveKingHighlightIds, enemyColor)]);
   
   for (let pawn of globalPiece[`${enemyColor}_pawns`]) {
     let auxCapture = pawnCaptureOptions(pawn.current_pos, pawnDirection);
-    res = new Set([...res, ...auxCapture]);
+    if (auxCapture)
+      res = new Set([...res, ...auxCapture]);
   }
-  console.log(`res: ${Array.from(res)}`);
-  
+  console.log(`res: ${Array.from(res)}`); //borrar
+   //elimino las posiciones a las que se puede mover el rey que coincidan con cualquiera que hay en res, para evitar el jaque mate
   for (let i = kingInitialMoves.length - 1; i >= 0; i--) {
     if (res.has(kingInitialMoves[i])) {
       console.log(`element: ${kingInitialMoves[i]}`);
       kingInitialMoves.splice(i, 1);
     }
   }
-  console.log(`resultado final: ${kingInitialMoves}`);
+  console.log(`resultado final: ${kingInitialMoves}`); //borrar
 }
 
 //white king event
@@ -487,75 +492,6 @@ function whiteKingClick(square)
   //add piece as move state
   moveState = piece;
   
-/*   const curr_pos = piece.current_pos;
-
-  let highlightSquareIds = giveKingHighlightIds(curr_pos);
-  let tmp = []; //for capture
-  
-  const { top, bottom, left, right, bottomLeft, bottomRight, topLeft, topRight } = highlightSquareIds;
-
-  let res = [];
-
-  if (!piece.move) {
-    const rook1 = globalPiece.white_rook_1;
-    const rook2 = globalPiece.white_rook_2;
-
-    if (!rook1.move) {
-      const b1 = keySquareMapper['b1'];
-      const c1 = keySquareMapper['c1'];
-      const d1 = keySquareMapper['d1'];
-      
-      if (!b1.piece && !c1.piece && !d1.piece) {
-        res.push("c1");
-      }
-    }
-    if (!rook2.move) {
-      const f1 = keySquareMapper['f1'];
-      const g1 = keySquareMapper['g1'];
-      
-      if (!f1.piece && !g1.piece) {
-        res.push("g1");
-      }
-    }
-  }
-
-  res.push(checkSquareCaptureId(top));
-  res.push(checkSquareCaptureId(bottom));
-  res.push(checkSquareCaptureId(left));
-  res.push(checkSquareCaptureId(right));
-  res.push(checkSquareCaptureId(bottomLeft));
-  res.push(checkSquareCaptureId(bottomRight));
-  res.push(checkSquareCaptureId(topLeft));
-  res.push(checkSquareCaptureId(topRight));
-
-  tmp.push(top);
-  tmp.push(bottom);
-  tmp.push(left);
-  tmp.push(right);
-  tmp.push(bottomLeft);
-  tmp.push(bottomRight);
-  tmp.push(topLeft);
-  tmp.push(topRight);
-
-  highlightSquareIds = res.flat();
-  limitKingMoves(highlightSquareIds)
-  
-  circleHighlightRender(highlightSquareIds, keySquareMapper);
-
-  for (let i = 0; i < tmp.length; i++) {
-    const arr = tmp[i];
-
-    for (let j = 0; j < arr.length; j++) {
-      const element = arr[j];
-      let pieceRes = checkPieceExist(element);
-      if (pieceRes && pieceRes.piece && pieceRes.piece.piece_name.toLowerCase().includes("white")) {
-        break;
-      }
-      if (checkOpponetPieceByElement(element, "white")) {
-        break;
-      }
-    }
-  } */
   let highlightSquareIds = getCaptureMoves(piece, giveKingHighlightIds, "white", true, (moves) => limitKingMoves(moves, "white"));
   circleHighlightRender(highlightSquareIds, keySquareMapper);
   globalStateRender();
@@ -590,76 +526,6 @@ function blackKingClick(square)
   //add piece as move state
   moveState = piece;
   
-/*   const curr_pos = piece.current_pos;
-
-  let highlightSquareIds = giveKingHighlightIds(curr_pos);
-  let tmp = []; //for capture
-  
-  const { top, bottom, left, right, bottomLeft, bottomRight, topLeft, topRight } = highlightSquareIds;
-
-  let res = [];
-
-  if (!piece.move) {
-    const rook1 = globalPiece.black_rook_1;
-    const rook2 = globalPiece.black_rook_2;
-
-    if (!rook1.move) {
-      const b8 = keySquareMapper['b8'];
-      const c8 = keySquareMapper['c8'];
-      const d8 = keySquareMapper['d8'];
-      
-      if (!b8.piece && !c8.piece && !d8.piece) { //anadir condicion de jaque
-        res.push("c8");
-      }
-    }
-    if (!rook2.move) {
-      const f8 = keySquareMapper['f8'];
-      const g8 = keySquareMapper['g8'];
-      
-      if (!f8.piece && !g8.piece) {
-        res.push("g8");
-      }
-    }
-  }
-
-  res.push(checkSquareCaptureId(top));
-  res.push(checkSquareCaptureId(bottom));
-  res.push(checkSquareCaptureId(left));
-  res.push(checkSquareCaptureId(right));
-  res.push(checkSquareCaptureId(bottomLeft));
-  res.push(checkSquareCaptureId(bottomRight));
-  res.push(checkSquareCaptureId(topLeft));
-  res.push(checkSquareCaptureId(topRight));
-
-  tmp.push(top);
-  tmp.push(bottom);
-  tmp.push(left);
-  tmp.push(right);
-  tmp.push(bottomLeft);
-  tmp.push(bottomRight);
-  tmp.push(topLeft);
-  tmp.push(topRight);
-
-  
-  highlightSquareIds = res.flat();
-  //limitKingMoves(res);
-  
-  circleHighlightRender(highlightSquareIds, keySquareMapper);
-
-  for (let i = 0; i < tmp.length; i++) {
-    const arr = tmp[i];
-
-    for (let j = 0; j < arr.length; j++) {
-      const element = arr[j];
-      let pieceRes = checkPieceExist(element);
-      if (pieceRes && pieceRes.piece && pieceRes.piece.piece_name.toLowerCase().includes("black")) {
-        break;
-      }
-      if (checkOpponetPieceByElement(element, "black")) {
-        break;
-      }
-    }
-  } */
   let highlightSquareIds = getCaptureMoves(piece, giveKingHighlightIds, "black", true, (moves) => limitKingMoves(moves, "black"));
   circleHighlightRender(highlightSquareIds, keySquareMapper);
   globalStateRender();
