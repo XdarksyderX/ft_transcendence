@@ -6,8 +6,6 @@ pagina web. Es el punto de entrada de la aplicacion web. Incluye referencias a l
 <index.js>: Archivo de JavaScript principal donde se maneja la lógica del juego. Es referenciado 
 desde el HTML para manipular el DOM (Document Object Model) y responder a eventos del usuario.
 
-
-
 <Data/data.js>: Archivo donde se almacenan los datos relacionados con el juego.
 
 <Render/main.js>: Archivo donde manejamos la renderizacion de elementos.
@@ -403,3 +401,164 @@ movimiento original del rey (blanco), en el que el enroque funciona (salvo que n
       }
     }
   } */
+
+como se me quedaron las funciones de cada pieza stand alone antes de ir a full con la refactorizacion
+/*//pawn event
+function pawnClick(square, color, row, direction)
+{
+  const piece = square.piece;
+  if (selfHighlightSquare(piece))
+    return;
+  
+  if (captureHightlightSquare(square, piece))
+    return;
+
+  //clear all highlights
+  clearPreviousSelfHighlight(selfHighlightState);
+  clearHighlightLocal();
+  
+  //highlighting logic
+  selfHighlight(piece);
+  highlight_state = true;
+  selfHighlightState = piece;
+
+  moveState = piece;
+  
+  const curr_pos = piece.current_pos;
+
+  let highlightSquareIds = pawnMovesOptions(curr_pos, row, direction);
+  circleHighlightRender(highlightSquareIds, keySquareMapper);
+  let captureIds = pawnCaptureOptions(curr_pos, direction);
+
+  captureIds.forEach(element => {
+    checkOpponetPieceByElement(element, color);
+  });
+    
+  globalStateRender();
+}
+
+//bishop event
+function bishopClick(square, color)
+{
+  const piece = square.piece;
+  if (selfHighlightSquare(piece))
+    return;
+
+  if (captureHightlightSquare(square, piece))
+    return;
+
+  //clear all highlights
+  clearPreviousSelfHighlight(selfHighlightState);
+  clearHighlightLocal();
+  
+  //highlighting logic
+  selfHighlight(piece);
+  highlight_state = true;
+  selfHighlightState = piece;
+  
+  moveState = piece;
+ 
+  getCaptureMoves(piece, giveBishopHighlightIds, color, true);
+  globalStateRender();
+}
+
+//rook event
+function rookClick(square, color)
+{
+  const piece = square.piece;
+  if (selfHighlightSquare(piece))
+    return;
+  
+  if (captureHightlightSquare(square, piece))
+    return;
+
+  //clear all highlights
+  clearPreviousSelfHighlight(selfHighlightState);
+  clearHighlightLocal();
+  
+  //highlighting logic
+  selfHighlight(piece);
+  highlight_state = true;
+  selfHighlightState = piece;
+
+  moveState = piece;
+  
+  getCaptureMoves(piece, giveRookHighlightIds, color, true);
+  globalStateRender();
+}
+
+//knight event
+function knightClick(square, color)
+{
+  const piece = square.piece;
+  if (selfHighlightSquare(piece))
+    return;
+  
+  if (captureHightlightSquare(square, piece))
+    return;
+
+  //clear all highlights
+  clearPreviousSelfHighlight(selfHighlightState);
+  clearHighlightLocal();
+  
+  //highlighting logic
+  selfHighlight(piece);
+  highlight_state = true;
+  selfHighlightState = piece;
+  
+  moveState = piece;
+  
+  knightMovesOptions(piece, giveKnightHighlightIds, color, true);
+  globalStateRender();
+}
+
+//queen event
+function queenClick(square, color)
+{
+  const piece = square.piece;
+  if (selfHighlightSquare(piece))
+    return;
+  
+  if (captureHightlightSquare(square, piece))
+    return;
+  
+  //clear all highlights
+  clearPreviousSelfHighlight(selfHighlightState);
+  clearHighlightLocal();
+  
+  //highlighting logic
+  selfHighlight(piece);
+  highlight_state = true;
+  selfHighlightState = piece;
+  
+  moveState = piece;
+
+  getCaptureMoves(piece, giveQueenHighlightIds, color, true);
+  globalStateRender();
+}
+
+//king event
+function kingClick(square, color)
+{
+  const piece = square.piece;
+  if (selfHighlightSquare(piece))
+    return;
+  
+  if (captureHightlightSquare(square, piece))
+    return;
+
+  //clear all highlights
+  clearPreviousSelfHighlight(selfHighlightState);
+  clearHighlightLocal();
+  
+  //highlighting logic
+  selfHighlight(piece);
+  highlight_state = true;
+  selfHighlightState = piece;
+  
+  moveState = piece;
+  
+  let highlightSquareIds = getCaptureMoves(piece, giveKingHighlightIds, color, true, (moves) => limitKingMoves(moves, color));
+  circleHighlightRender(highlightSquareIds, keySquareMapper);
+  globalStateRender();
+}*/

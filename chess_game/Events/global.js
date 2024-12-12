@@ -1,9 +1,9 @@
 import { ROOT_DIV } from "../Helper/constants.js";
 import { globalState, keySquareMapper } from "../index.js"; //import globalState object, a 2D array representing the state of the chessboard
 import { clearHighlight, globalStateRender, selfHighlight, globalPiece, circleHighlightRender } from "../Render/main.js";
-import { checkOpponetPieceByElement, checkSquareCaptureId, giveBishopHighlightIds, checkPieceExist, giveRookHighlightIds, giveKnightHighlightIds, giveQueenHighlightIds, giveKingHighlightIds } from "../Helper/commonHelper.js";
+import { checkOpponetPieceByElement, giveBishopHighlightIds, giveRookHighlightIds, giveKnightHighlightIds, giveQueenHighlightIds, giveKingHighlightIds } from "../Helper/commonHelper.js";
 import { giveKnightCaptureIds, giveKingCaptureIds, giveBishopCaptureIds, giveRookCaptureIds, giveQueenCaptureIds } from "../Helper/commonHelper.js";
-import { pawnMovesOptions, pawnCaptureOptions, getCaptureMoves, knightMovesOptions } from "../Helper/commonHelper.js";
+import { pawnMovesOptions, pawnCaptureOptions, getCaptureMoves, knightMovesOptions, limitKingMoves } from "../Helper/commonHelper.js";
 import logMoves from "../Helper/logging.js";
 import { pawnPromotion, winGame } from "../Helper/modalCreator.js";
 
@@ -123,30 +123,24 @@ function checkForCheck() {
 
 function checkForPawnPromotion(piece, id) {
   if (inTurn === "white") {
-    if (piece?.piece_name?.toLowerCase()?.includes("pawn") && id?.includes("8")) {
+    if (piece?.piece_name?.toLowerCase()?.includes("pawn") && id?.includes("8"))
       return true;
-    }
-    else {
+    else
       return false;
-    }
   }
   else {
-    if (piece?.piece_name?.toLowerCase()?.includes("pawn") && id?.includes("1")) {
+    if (piece?.piece_name?.toLowerCase()?.includes("pawn") && id?.includes("1"))
       return true;
-    }
-    else {
+    else
       return false;
-    }
   }
 }
 
 function checkWin(piece) {
-  if (inTurn === "white" && piece.piece_name.includes("BLACK_KING")) {
+  if (inTurn === "white" && piece.piece_name.includes("BLACK_KING"))
     return "White";
-  }
-  else if (inTurn === "black" && piece.piece_name.includes("WHITE_KING")) {
+  else if (inTurn === "black" && piece.piece_name.includes("WHITE_KING"))
     return "Black";
-  }
   return false;
 }
 
@@ -248,460 +242,62 @@ function clearHighlightLocal() {
   highlight_state = false;
 }
 
-//move piece to x-square to y-square
-function movePieceFromXToY(from, to) {
-  to.piece = from.piece;
-  from.piece = null;
-  globalStateRender();
-}
-
-//white pawn event
-function whitePawnClick(square)
-{
-  const piece = square.piece;
-  
+function selfHighlightSquare(piece) {
   if (piece == selfHighlightState) {
     clearPreviousSelfHighlight(selfHighlightState);
     clearHighlightLocal();
-    return;
+    return true;
   }
-  
+  return false;
+}
+
+function captureHightlightSquare(square, piece) {
   if (square.captureHightlight) {
     moveElement(selfHighlightState, piece.current_pos);
     clearPreviousSelfHighlight(selfHighlightState);
     clearHighlightLocal();
-    return;
+    return true;
   }
-
-  //clear all highlights
-  clearPreviousSelfHighlight(selfHighlightState);
-  clearHighlightLocal();
-  
-  //highlighting logic
-  selfHighlight(piece);
-  highlight_state = true;
-  selfHighlightState = piece;
-  
-  //add piece as move state
-  moveState = piece;
-  
-  const curr_pos = piece.current_pos;
-
-  let highlightSquareIds = pawnMovesOptions(curr_pos, "2", 1);
-  circleHighlightRender(highlightSquareIds, keySquareMapper);
-  let captureIds = pawnCaptureOptions(curr_pos, 1);
-
-  captureIds.forEach(element => {
-    checkOpponetPieceByElement(element, "white");
-  });
-    
-  globalStateRender();
+  return false;
 }
 
-//white bishop event
-function whiteBishopClick(square)
-{
+function handlePieceClick(square, color, pieceType, row, direction) {
   const piece = square.piece;
-  if (piece == selfHighlightState) {
-    clearPreviousSelfHighlight(selfHighlightState);
-    clearHighlightLocal();
-    return;
-  }
-  
-  if (square.captureHightlight) {
-    moveElement(selfHighlightState, piece.current_pos);
-    clearPreviousSelfHighlight(selfHighlightState);
-    clearHighlightLocal();
-    return;
-  }
+  if (selfHighlightSquare(piece)) return;
+  if (captureHightlightSquare(square, piece)) return;
 
-  //clear all highlights
-  clearPreviousSelfHighlight(selfHighlightState);
-  clearHighlightLocal();
-  
-  //highlighting logic
-  selfHighlight(piece);
-  highlight_state = true;
-  selfHighlightState = piece;
-  
-  //add piece as move state
-  moveState = piece;
- 
-  getCaptureMoves(piece, giveBishopHighlightIds, "white", true);
-  globalStateRender();
-}
-
-//white rook event
-function whiteRookClick(square)
-{
-  const piece = square.piece;
-  if (piece == selfHighlightState) {
-    clearPreviousSelfHighlight(selfHighlightState);
-    clearHighlightLocal();
-    return;
-  }
-  
-  if (square.captureHightlight) {
-    moveElement(selfHighlightState, piece.current_pos);
-    clearPreviousSelfHighlight(selfHighlightState);
-    clearHighlightLocal();
-    return;
-  }
-
-  //clear all highlights
-  clearPreviousSelfHighlight(selfHighlightState);
-  clearHighlightLocal();
-  
-  //highlighting logic
-  selfHighlight(piece);
-  highlight_state = true;
-  selfHighlightState = piece;
-  
-  //add piece as move state
-  moveState = piece;
-  
-  getCaptureMoves(piece, giveRookHighlightIds, "white", true);
-  globalStateRender();
-}
-
-//white knight event
-function whiteKnightClick(square)
-{
-  const piece = square.piece;
-  if (piece == selfHighlightState) {
-    clearPreviousSelfHighlight(selfHighlightState);
-    clearHighlightLocal();
-    return;
-  }
-  
-  if (square.captureHightlight) {
-    moveElement(selfHighlightState, piece.current_pos);
-    clearPreviousSelfHighlight(selfHighlightState);
-    clearHighlightLocal();
-    return;
-  }
-
-  //clear all highlights
-  clearPreviousSelfHighlight(selfHighlightState);
-  clearHighlightLocal();
-  
-  //highlighting logic
-  selfHighlight(piece);
-  highlight_state = true;
-  selfHighlightState = piece;
-  
-  //add piece as move state
-  moveState = piece;
-  
-  knightMovesOptions(piece, giveKnightHighlightIds, "white", true);
-  globalStateRender();
-}
-
-//white queen event
-function whiteQueenClick(square)
-{
-  const piece = square.piece;
-  if (piece == selfHighlightState) {
-    clearPreviousSelfHighlight(selfHighlightState);
-    clearHighlightLocal();
-    return;
-  }
-  
-  if (square.captureHightlight) {
-    moveElement(selfHighlightState, piece.current_pos);
-    clearPreviousSelfHighlight(selfHighlightState);
-    clearHighlightLocal();
-    return;
-  }
-  
-  //clear all highlights
-  clearPreviousSelfHighlight(selfHighlightState);
-  clearHighlightLocal();
-  
-  //highlighting logic
-  selfHighlight(piece);
-  highlight_state = true;
-  selfHighlightState = piece;
-  
-  //add piece as move state
-  moveState = piece;
-
-  getCaptureMoves(piece, giveQueenHighlightIds, "white", true);
-  globalStateRender();
-}
-
-//funcion de prueba para limitar los movimientos del rey y que no se pueda mover
-//a una posicion de jaque mate aka automorision
-function limitKingMoves(kingInitialMoves, color) {
-  console.log(`en limitKingMoves kingInitialMoves: ${kingInitialMoves}`); //borrar
-  
-  let res = new Set(); //en este set se van a meter todos los movimientos de posible captura de las piezas contrarias
-  const enemyColor = color === "white" ? "black" : "white";
-  const pawnDirection = enemyColor === "white" ? 1 : -1; 
-  res = new Set([...res, ...getCaptureMoves(globalPiece[`${enemyColor}_bishop_1`], giveBishopHighlightIds, enemyColor)]);
-  res = new Set([...res, ...getCaptureMoves(globalPiece[`${enemyColor}_bishop_2`], giveBishopHighlightIds, enemyColor)]);
-  res = new Set([...res, ...getCaptureMoves(globalPiece[`${enemyColor}_rook_1`], giveRookHighlightIds, enemyColor)]);
-  res = new Set([...res, ...getCaptureMoves(globalPiece[`${enemyColor}_rook_2`], giveRookHighlightIds, enemyColor)]);
-  res = new Set([...res, ...getCaptureMoves(globalPiece[`${enemyColor}_queen`], giveQueenHighlightIds, enemyColor)]);
-  res = new Set([...res, ...knightMovesOptions(globalPiece[`${enemyColor}_knight_1`], giveKnightHighlightIds, enemyColor)]);
-  res = new Set([...res, ...knightMovesOptions(globalPiece[`${enemyColor}_knight_2`], giveKnightHighlightIds, enemyColor)]);
-  res = new Set([...res, ...getCaptureMoves(globalPiece[`${enemyColor}_king`], giveKingHighlightIds, enemyColor)]);
-  
-  for (let pawn of globalPiece[`${enemyColor}_pawns`]) {
-    let auxCapture = pawnCaptureOptions(pawn.current_pos, pawnDirection);
-    if (auxCapture)
-      res = new Set([...res, ...auxCapture]);
-  }
-  console.log(`res: ${Array.from(res)}`); //borrar
-   //elimino las posiciones a las que se puede mover el rey que coincidan con cualquiera que hay en res, para evitar el jaque mate
-  for (let i = kingInitialMoves.length - 1; i >= 0; i--) {
-    if (res.has(kingInitialMoves[i])) {
-      console.log(`element: ${kingInitialMoves[i]}`);
-      kingInitialMoves.splice(i, 1);
-    }
-  }
-  console.log(`resultado final: ${kingInitialMoves}`); //borrar
-}
-
-//white king event
-function whiteKingClick(square)
-{
-  const piece = square.piece;
-  if (piece == selfHighlightState) {
-    clearPreviousSelfHighlight(selfHighlightState);
-    clearHighlightLocal();
-    return;
-  }
-  
-  if (square.captureHightlight) {
-    moveElement(selfHighlightState, piece.current_pos);
-    clearPreviousSelfHighlight(selfHighlightState);
-    clearHighlightLocal();
-    return;
-  }
-
-  //clear all highlights
-  clearPreviousSelfHighlight(selfHighlightState);
-  clearHighlightLocal();
-  
-  //highlighting logic
-  selfHighlight(piece);
-  highlight_state = true;
-  selfHighlightState = piece;
-  
-  //add piece as move state
-  moveState = piece;
-  
-  let highlightSquareIds = getCaptureMoves(piece, giveKingHighlightIds, "white", true, (moves) => limitKingMoves(moves, "white"));
-  circleHighlightRender(highlightSquareIds, keySquareMapper);
-  globalStateRender();
-}
-
-//black king event
-function blackKingClick(square)
-{
-  const piece = square.piece;
-  if (piece == selfHighlightState) {
-    clearPreviousSelfHighlight(selfHighlightState);
-    clearHighlightLocal();
-    return;
-  }
-  
-  if (square.captureHightlight) {
-    moveElement(selfHighlightState, piece.current_pos);
-    clearPreviousSelfHighlight(selfHighlightState);
-    clearHighlightLocal();
-    return;
-  }
-
-  //clear all highlights
-  clearPreviousSelfHighlight(selfHighlightState);
-  clearHighlightLocal();
-  
-  //highlighting logic
-  selfHighlight(piece);
-  highlight_state = true;
-  selfHighlightState = piece;
-  
-  //add piece as move state
-  moveState = piece;
-  
-  let highlightSquareIds = getCaptureMoves(piece, giveKingHighlightIds, "black", true, (moves) => limitKingMoves(moves, "black"));
-  circleHighlightRender(highlightSquareIds, keySquareMapper);
-  globalStateRender();
-}
-
-//black queen event
-function blackQueenClick(square)
-{
-  const piece = square.piece;
-  if (piece == selfHighlightState) {
-    clearPreviousSelfHighlight(selfHighlightState);
-    clearHighlightLocal();
-    return;
-  }
-  
-  if (square.captureHightlight) {
-    moveElement(selfHighlightState, piece.current_pos);
-    clearPreviousSelfHighlight(selfHighlightState);
-    clearHighlightLocal();
-    return;
-  }
-
-  //clear all highlights
-  clearPreviousSelfHighlight(selfHighlightState);
-  clearHighlightLocal();
-  
-  //highlighting logic
-  selfHighlight(piece);
-  highlight_state = true;
-  selfHighlightState = piece;
-  
-  //add piece as move state
-  moveState = piece;
-
-  getCaptureMoves(piece, giveQueenHighlightIds, "black", true);
-  globalStateRender();
-}
-
-//black knight event
-function blackKnightClick(square)
-{
-  const piece = square.piece;
-  if (piece == selfHighlightState) {
-    clearPreviousSelfHighlight(selfHighlightState);
-    clearHighlightLocal();
-    return;
-  }
-  
-  if (square.captureHightlight) {
-    moveElement(selfHighlightState, piece.current_pos);
-    clearPreviousSelfHighlight(selfHighlightState);
-    clearHighlightLocal();
-    return;
-  }
-
-  //clear all highlights
-  clearPreviousSelfHighlight(selfHighlightState);
-  clearHighlightLocal();
-  
-  //highlighting logic
-  selfHighlight(piece);
-  highlight_state = true;
-  selfHighlightState = piece;
-  
-  //add piece as move state
-  moveState = piece;
-  
-  knightMovesOptions(piece, giveKnightHighlightIds, "black", true);
-  globalStateRender();
-}
-
-//black bishop event
-function blackBishopClick(square)
-{
-  const piece = square.piece;
-  if (piece == selfHighlightState) {
-    clearPreviousSelfHighlight(selfHighlightState);
-    clearHighlightLocal();
-    return;
-  }
-  
-  if (square.captureHightlight) {
-    moveElement(selfHighlightState, piece.current_pos);
-    clearPreviousSelfHighlight(selfHighlightState);
-    clearHighlightLocal();
-    return;
-  }
-
-  //clear all highlights
-  clearPreviousSelfHighlight(selfHighlightState);
-  clearHighlightLocal();
-  
-  //highlighting logic
-  selfHighlight(piece);
-  highlight_state = true;
-  selfHighlightState = piece;
-  
-  //add piece as move state
-  moveState = piece;
-  
-  getCaptureMoves(piece, giveBishopHighlightIds, "black", true);
-  globalStateRender();
-}
-
-//black rook event
-function blackRookClick(square)
-{
-  const piece = square.piece;
-  if (piece == selfHighlightState) {
-    clearPreviousSelfHighlight(selfHighlightState);
-    clearHighlightLocal();
-    return;
-  }
-  
-  if (square.captureHightlight) {
-    moveElement(selfHighlightState, piece.current_pos);
-    clearPreviousSelfHighlight(selfHighlightState);
-    clearHighlightLocal();
-    return;
-  }
-
-  //clear all highlights
-  clearPreviousSelfHighlight(selfHighlightState);
-  clearHighlightLocal();
-  
-  //highlighting logic
-  selfHighlight(piece);
-  highlight_state = true;
-  selfHighlightState = piece;
-  
-  //add piece as move state
-  moveState = piece;
- 
-  getCaptureMoves(piece, giveRookHighlightIds, "black", true);
-  globalStateRender();
-}
-
-//black pawn funciton
-function blackPawnClick(square)
-{
-  const piece = square.piece;
-  if (piece == selfHighlightState) {
-    clearPreviousSelfHighlight(selfHighlightState);
-    clearHighlightLocal();
-    return;
-  }
-  
-  if (square.captureHightlight) {
-    moveElement(selfHighlightState, piece.current_pos);
-    clearPreviousSelfHighlight(selfHighlightState);
-    clearHighlightLocal();
-    return;
-  }
-
-  //clears all the higlights
   clearPreviousSelfHighlight(selfHighlightState);
   clearHighlightLocal();
 
-  //highlighting logic
   selfHighlight(piece);
   highlight_state = true;
   selfHighlightState = piece;
-
-  //add piece as move state
   moveState = piece;
 
-  const curr_pos = piece.current_pos;
-
-  let highlightSquareIds = pawnMovesOptions(curr_pos, "7", -1);
-  circleHighlightRender(highlightSquareIds, keySquareMapper);
-  let captureIds = pawnCaptureOptions(curr_pos, -1);
-
-  captureIds.forEach(element => {
-    checkOpponetPieceByElement(element, "black");
-  });
-    
+  switch (pieceType) {
+    case 'pawn':
+      const highlightSquareIds = pawnMovesOptions(piece.current_pos, row, direction);
+      circleHighlightRender(highlightSquareIds, keySquareMapper);
+      const captureIds = pawnCaptureOptions(piece.current_pos, direction);
+      captureIds.forEach(element => checkOpponetPieceByElement(element, color));
+      break;
+    case 'bishop':
+      getCaptureMoves(piece, giveBishopHighlightIds, color, true);
+      break;
+    case 'rook':
+      getCaptureMoves(piece, giveRookHighlightIds, color, true);
+      break;
+    case 'knight':
+      knightMovesOptions(piece, giveKnightHighlightIds, color, true);
+      break;
+    case 'queen':
+      getCaptureMoves(piece, giveQueenHighlightIds, color, true);
+      break;
+    case 'king':
+      const kingHighlightSquareIds = getCaptureMoves(piece, giveKingHighlightIds, color, true, (moves) => limitKingMoves(moves, color));
+      circleHighlightRender(kingHighlightSquareIds, keySquareMapper);
+      break;
+  }
   globalStateRender();
 }
 
@@ -730,43 +326,34 @@ function GlobalEvent() {
         captureInTurn(square);
         return;
       }
-      
-      if (square.piece.piece_name == "WHITE_PAWN" && inTurn == "white") {
-        whitePawnClick(square);
-      }
-      else if (square.piece.piece_name == "BLACK_PAWN" && inTurn == "black") {
-        blackPawnClick(square);
-      }
-      else if (square.piece.piece_name == "WHITE_BISHOP" && inTurn == "white") {
-        whiteBishopClick(square);
-      }
-      else if (square.piece.piece_name == "BLACK_BISHOP" && inTurn == "black") {
-        blackBishopClick(square);
-      }
-      else if (square.piece.piece_name == "WHITE_ROOK" && inTurn == "white") {
-        whiteRookClick(square);
-      }
-      else if (square.piece.piece_name == "BLACK_ROOK" && inTurn == "black") {
-        blackRookClick(square);
-      }
-      else if (square.piece.piece_name == "WHITE_KNIGHT" && inTurn == "white") {
-        whiteKnightClick(square);
-      }
-      else if (square.piece.piece_name == "BLACK_KNIGHT" && inTurn == "black") {
-        blackKnightClick(square);
-      }
-      else if (square.piece.piece_name == "WHITE_QUEEN" && inTurn == "white") {
-        whiteQueenClick(square);
-      }
-      else if (square.piece.piece_name == "BLACK_QUEEN" && inTurn == "black") {
-        blackQueenClick(square);
-      }
-      else if (square.piece.piece_name == "WHITE_KING" && inTurn == "white") {
-        whiteKingClick(square);
-      }
-      else if (square.piece.piece_name == "BLACK_KING" && inTurn == "black") {
-        blackKingClick(square);
-      }
+
+      const pieceName = square.piece.piece_name;
+      const pieceType = pieceName.split('_')[1].toLowerCase(); // Obtener el tipo de pieza
+
+      if (square.piece.piece_name == "WHITE_PAWN" && inTurn == "white")
+        handlePieceClick(square, inTurn, pieceType, "2", 1);
+      else if (square.piece.piece_name == "BLACK_PAWN" && inTurn == "black")
+        handlePieceClick(square, inTurn, pieceType, "7", -1);
+      else if (square.piece.piece_name == "WHITE_BISHOP" && inTurn == "white")
+        handlePieceClick(square, inTurn, pieceType);
+      else if (square.piece.piece_name == "BLACK_BISHOP" && inTurn == "black")
+        handlePieceClick(square, inTurn, pieceType);
+      else if (square.piece.piece_name == "WHITE_ROOK" && inTurn == "white")
+        handlePieceClick(square, inTurn, pieceType);
+      else if (square.piece.piece_name == "BLACK_ROOK" && inTurn == "black")
+        handlePieceClick(square, inTurn, pieceType);
+      else if (square.piece.piece_name == "WHITE_KNIGHT" && inTurn == "white")
+        handlePieceClick(square, inTurn, pieceType);
+      else if (square.piece.piece_name == "BLACK_KNIGHT" && inTurn == "black")
+        handlePieceClick(square, inTurn, pieceType);
+      else if (square.piece.piece_name == "WHITE_QUEEN" && inTurn == "white")
+        handlePieceClick(square, inTurn, pieceType);
+      else if (square.piece.piece_name == "BLACK_QUEEN" && inTurn == "black")
+        handlePieceClick(square, inTurn, pieceType);
+      else if (square.piece.piece_name == "WHITE_KING" && inTurn == "white")
+        handlePieceClick(square, inTurn, pieceType);
+      else if (square.piece.piece_name == "BLACK_KING" && inTurn == "black")
+        handlePieceClick(square, inTurn, pieceType);
     }
     else //this is to know if the click is in a square with the round highlight, which is the posible move of a piece. Ensure that only valid moves are processed.
     {
@@ -795,4 +382,4 @@ function GlobalEvent() {
   });
 }
 
-export { GlobalEvent, movePieceFromXToY, limitKingMoves };
+export { GlobalEvent };

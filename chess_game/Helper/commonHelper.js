@@ -1,6 +1,5 @@
 import { keySquareMapper } from "../index.js";
 import { circleHighlightRender } from "../Render/main.js";
-import { limitKingMoves } from "../Events/global.js"; //borrar
 import { globalPiece } from "../Render/main.js";
 
 //function to check if opponnet piece exist
@@ -277,6 +276,42 @@ function giveKingCaptureIds(id, color) {
     return res;
 }
 
+function pawnMovesOptions(curr_pos, row, num) {
+    let highlightSquareIds = null;
+    //on intial postion, pawns moves different
+    if (curr_pos[1] == row) {
+        highlightSquareIds = [
+            `${curr_pos[0]}${Number(curr_pos[1]) + num}`,
+            `${curr_pos[0]}${Number(curr_pos[1]) + (num * 2)}`, ];
+    }
+    else {
+        highlightSquareIds = [`${curr_pos[0]}${Number(curr_pos[1]) + num}`,];
+    }
+    highlightSquareIds = checkSquareCaptureId(highlightSquareIds);
+    
+    return highlightSquareIds;
+}
+
+function pawnCaptureOptions(curr_pos, num) {
+    if (!curr_pos)
+		return null;
+    
+    const validColumns = new Set(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']);
+    const col1 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) - 1)}${Number(curr_pos[1]) + num}`;
+    const col2 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) + 1)}${Number(curr_pos[1]) + num}`;
+    
+    let captureIds = [col1, col2].filter(pos => validColumns.has(pos[0]));
+    return captureIds;
+}
+
+/* this function check if the path of the castling is safe from a chekmate */
+function isPathSafeForCastling(kingPath, color) {
+    const opponentMoves = getOpponentMoves(color);
+    return kingPath.every(square => !opponentMoves.has(square));
+}  
+
+/*this function check whether all castling conditions are true, and the push that possible move
+ * to array tha contains all the moves that a king can make.*/
 function castlingCheck(piece, color, res) {
     if (piece.piece_name.includes("KING") && !piece.move) {
         const rook1 = globalPiece[`${color}_rook_1`];
@@ -286,52 +321,35 @@ function castlingCheck(piece, color, res) {
             const b = keySquareMapper[`${color === "white" ? 'b1' : 'b8'}`];
             const c = keySquareMapper[`${color === "white" ? 'c1' : 'c8'}`];
             const d = keySquareMapper[`${color === "white" ? 'd1' : 'd8'}`];
+            const kingPath = [`${color === "white" ? 'e1' : 'e8'}`, `${color === "white" ? 'd1' : 'd8'}`, `${color === "white" ? 'c1' : 'c8'}`];
             
-            if (!b.piece && !c.piece && !d.piece) {
+            if (!b.piece && !c.piece && !d.piece && isPathSafeForCastling(kingPath, color)) {
                 res.push(`${color === "white" ? 'c1' : 'c8'}`);
             }
         }
         if (!rook2.move) {
             const f = keySquareMapper[`${color === "white" ? 'f1' : 'f8'}`];
             const g = keySquareMapper[`${color === "white" ? 'g1' : 'g8'}`];
+            const kingPath = [`${color === "white" ? 'e1' : 'e8'}`, `${color === "white" ? 'f1' : 'f8'}`, `${color === "white" ? 'g1' : 'g8'}`];
             
-            if (!f.piece && !g.piece) {
+            if (!f.piece && !g.piece && isPathSafeForCastling(kingPath, color)) {
                 res.push(`${color === "white" ? 'g1' : 'g8'}`);
             }
         }
     }
 }
 
-function pawnMovesOptions(curr_pos, row, num) {
-    let highlightSquareIds = null;
-    //on intial postion, pawns moves different
-    if (curr_pos[1] == row) {
-    highlightSquareIds = [
-      `${curr_pos[0]}${Number(curr_pos[1]) + num}`,
-      `${curr_pos[0]}${Number(curr_pos[1]) + (num * 2)}`, ];
-    }
-    else {
-      highlightSquareIds = [`${curr_pos[0]}${Number(curr_pos[1]) + num}`,];
-    }
-    highlightSquareIds = checkSquareCaptureId(highlightSquareIds);
-
-    return highlightSquareIds;
-}
-
-function pawnCaptureOptions(curr_pos, num) {
-	if (!curr_pos)
-		return null;
-
-    const validColumns = new Set(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']);
-    const col1 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) - 1)}${Number(curr_pos[1]) + num}`;
-    const col2 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) + 1)}${Number(curr_pos[1]) + num}`;
-
-    let captureIds = [col1, col2].filter(pos => validColumns.has(pos[0]));
-    return captureIds;
-}
-
-//funcion devuelve los posibles movimientos de los alfiles en la posicion actual
-//hay que refactorizar
+/**
+ * this is a general funtion to take bishop, rook, queen, and king possible moves, render the
+ * highlight circles to show the posibilities to the player and return its value. Its a refactored
+ * function that does some different things.
+ * @param {*} piece all the propierties of the piece clicked
+ * @param {*} highlightIdsFunc this is the real funtion that calculates the moves
+ * @param {*} color the color of the piece clicked
+ * @param {*} renderBool this bool is used is you want to render the highlight cicles (when you click a piece) or if you just need to return the possible moves of a piece
+ * @param {*} preRenderCallback this callback funcion is just for the king, that call limitKingMoves to avoid an auto checkmate
+ * @returns 
+ */
 function getCaptureMoves(piece, highlightIdsFunc, color, renderBool = false, preRenderCallback = null) {
     const curr_pos = piece.current_pos;
     let highlightSquareIds = highlightIdsFunc(curr_pos);
@@ -368,12 +386,49 @@ function getCaptureMoves(piece, highlightIdsFunc, color, renderBool = false, pre
     return highlightSquareIds;
 }
 
+function getOpponentMoves(color) {
+    let res = new Set(); // en este set se van a meter todos los movimientos de posible captura de las piezas contrarias
+    const enemyColor = color === "white" ? "black" : "white";
+    const pawnDirection = enemyColor === "white" ? 1 : -1;
+
+    res = new Set([...res, ...getCaptureMoves(globalPiece[`${enemyColor}_bishop_1`], giveBishopHighlightIds, enemyColor)]);
+    res = new Set([...res, ...getCaptureMoves(globalPiece[`${enemyColor}_bishop_2`], giveBishopHighlightIds, enemyColor)]);
+    res = new Set([...res, ...getCaptureMoves(globalPiece[`${enemyColor}_rook_1`], giveRookHighlightIds, enemyColor)]);
+    res = new Set([...res, ...getCaptureMoves(globalPiece[`${enemyColor}_rook_2`], giveRookHighlightIds, enemyColor)]);
+    res = new Set([...res, ...getCaptureMoves(globalPiece[`${enemyColor}_queen`], giveQueenHighlightIds, enemyColor)]);
+    res = new Set([...res, ...knightMovesOptions(globalPiece[`${enemyColor}_knight_1`], giveKnightHighlightIds, enemyColor)]);
+    res = new Set([...res, ...knightMovesOptions(globalPiece[`${enemyColor}_knight_2`], giveKnightHighlightIds, enemyColor)]);
+    res = new Set([...res, ...getCaptureMoves(globalPiece[`${enemyColor}_king`], giveKingHighlightIds, enemyColor)]);
+
+    for (let pawn of globalPiece[`${enemyColor}_pawns`]) {
+        let auxCapture = pawnCaptureOptions(pawn.current_pos, pawnDirection);
+        if (auxCapture) {
+            res = new Set([...res, ...auxCapture]);
+        }
+    }
+    return res;
+}
+  
+/*function that recieve the initia king moves and then check if one of those possible options
+can be a direct checkmate, the it remove that option to avoid the checkmate*/
+function limitKingMoves(kingInitialMoves, color) {
+    let res = getOpponentMoves(color);
+
+    //elimino las posiciones a las que se puede mover el rey que coincidan con cualquiera que hay en res, para evitar el jaque mate
+    for (let i = kingInitialMoves.length - 1; i >= 0; i--) {
+        if (res.has(kingInitialMoves[i])) {
+        kingInitialMoves.splice(i, 1);
+        }
+    }
+}
+  
+
 function adjustKnightHighlighting(id) {
     const element = keySquareMapper[id];
     if (element.highlight == true && element.captureHightlight == true) {
-      element.highlight = false;
+        element.highlight = false;
     }
-  }
+}
 
 function knightMovesOptions(piece, highlightIdsFunc, color, renderBool = false) {
     const curr_pos = piece.current_pos;
@@ -403,4 +458,4 @@ function knightMovesOptions(piece, highlightIdsFunc, color, renderBool = false) 
 
 export { checkOpponetPieceByElement, checkSquareCaptureId, giveBishopHighlightIds, checkPieceExist, giveRookHighlightIds, giveKnightHighlightIds, giveQueenHighlightIds, giveKingHighlightIds,
     giveKnightCaptureIds, giveKingCaptureIds, giveBishopCaptureIds, giveRookCaptureIds, giveQueenCaptureIds,
-    pawnMovesOptions, pawnCaptureOptions, getCaptureMoves, knightMovesOptions };
+    pawnMovesOptions, pawnCaptureOptions, getCaptureMoves, knightMovesOptions, limitKingMoves };
