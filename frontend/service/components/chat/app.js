@@ -1,4 +1,4 @@
-function initializeChatEvents() {
+export function initializeChatEvents() {
     /* each big container */
     const chatContainer = document.getElementById('chat-container');
     const chatHeader = document.getElementById('chat-header');

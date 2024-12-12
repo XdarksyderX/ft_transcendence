@@ -14,7 +14,7 @@
     font-family: 'ROG LyonsType Regular';
     font-style: normal;
     font-weight: normal;
-    src: local('ROG LyonsType Regular'), url('../resources/fonts/ROGLyonsTypeRegular3.woff') format('woff');
+    src: local('ROG LyonsType Regular'), url('./resources/fonts/ROGLyonsTypeRegular3.woff') format('woff');
 }
 body {
     font-family: 'VT323', monospace;
@@ -32,7 +32,7 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url("../resources/background.png");
+    background-image: url("./resources/background.png");
     background-size: cover;
     background-position: center;
     opacity: 0.4;
@@ -88,6 +88,21 @@ body::before {
         background-color: var(--title);
     }
 }
+.cancel-btn {
+    color: var(--title);
+    border-radius: 15%;
+    /* background-color: aquamarine; You can adjust the background color as needed */
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3), -2px -3px 5px rgba(132, 204, 163, 0.4);
+    border: none; /* Optional: remove border if not needed */
+    padding: 7px 12px; /* Optional: adjust padding for better appearance */
+    transition: box-shadow 0.3s ease; /* Optional: smooth transition for hover effect */
+}
+
+.cancel-btn:hover {
+    color: var(--title);
+    box-shadow: 4px 4px 7px rgba(0, 0, 0, 0.5), -4px -4px 7px rgba(157, 227, 187, 0.6);
+}
+
 /* ctm navbar */
 .ctm-navbar {
     height: 50px;

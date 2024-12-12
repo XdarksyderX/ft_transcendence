@@ -1,7 +1,7 @@
-function initializeSidebarEvents() {
+export function initializeSidebarEvents() {
     const sidebar = document.getElementById('sidebar');
-    const sidebarToggle = document.getElementById('sidebarToggle');
-    const mainContent = document.querySelector('.main-content');
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const mainContent = document.querySelector('main');
 	const logoutBtn = document.getElementById('logout-btn');
 	const userNames = document.querySelectorAll('.username');
 
@@ -49,6 +49,7 @@ function initializeSidebarEvents() {
 
     // Trigger initial resize event to set correct state
     handleResize();
+
 
 	//logoutBtn.addEventListener('click', logout());
 	//I'll have to uncoment it when oauth implemented
