@@ -1,5 +1,6 @@
 import { keySquareMapper } from "../index.js";
 import { circleHighlightRender } from "../Render/main.js";
+import { limitKingMoves } from "../Events/global.js";
 
 //function to check if opponnet piece exist
 function checkOpponetPieceByElement(id, color) {
@@ -174,11 +175,11 @@ function giveRookCaptureIds(id, color) {
 
 function knightMoves(id, alphaStep, numStep, alphaStep2, numStep2)
 {
-/*     if (!id)
-        return; */
+    let moves = [];
+    if (!id)
+        return moves;
     let alpha = id[0];
     let num = Number(id[1]);
-    let moves = [];
 
     //first direction of L movement
     let newAlpha1 = String.fromCharCode(alpha.charCodeAt(0) + alphaStep);
@@ -263,6 +264,7 @@ function giveKingHighlightIds(id) {
     }
     return res;
 }
+
 function giveKingCaptureIds(id, color) {
     if (!id)
         return [];
@@ -295,21 +297,20 @@ function pawnCaptureOptions(curr_pos, num) {
 	if (!curr_pos)
 		return null;
 
-	const validColumns = new Set(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']);
-	const col1 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) - 1)}${Number(curr_pos[1]) + num}`;
-  const col2 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) + 1)}${Number(curr_pos[1]) + num}`;
+    const validColumns = new Set(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']);
+    const col1 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) - 1)}${Number(curr_pos[1]) + num}`;
+    const col2 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) + 1)}${Number(curr_pos[1]) + num}`;
 
-  let captureIds = [col1, col2].filter(pos => validColumns.has(pos[0]));
-  return captureIds;
+    let captureIds = [col1, col2].filter(pos => validColumns.has(pos[0]));
+    return captureIds;
 }
 
 //funcion devuelve los posibles movimientos de los alfiles en la posicion actual
 //hay que refactorizar
-function getCaptureMoves(piece, highlightIdsFunc, color, renderBool = false) {
+function getCaptureMoves(piece, highlightIdsFunc, color, renderBool = false, preRenderCallback = null) {
     const curr_pos = piece.current_pos;
     let highlightSquareIds = highlightIdsFunc(curr_pos);
-    let tmp = [];
-    let res = [];
+    let tmp = [], res = [];
   
     for (const direction in highlightSquareIds) {
       if (highlightSquareIds.hasOwnProperty(direction)) {
@@ -318,28 +319,63 @@ function getCaptureMoves(piece, highlightIdsFunc, color, renderBool = false) {
         tmp.push(squares);
       }
     }
-  
     highlightSquareIds = res.flat();
+    
+    if (preRenderCallback)
+        preRenderCallback(highlightSquareIds);
     if (renderBool) {
         circleHighlightRender(highlightSquareIds, keySquareMapper);
     
         for (let i = 0; i < tmp.length; i++) {
-        const arr = tmp[i];
-        for (let j = 0; j < arr.length; j++) {
-            const element = arr[j];
-            let pieceRes = checkPieceExist(element);
-            if (pieceRes && pieceRes.piece && pieceRes.piece.piece_name.toLowerCase().includes(color)) {
-            break;
-            }
-            if (checkOpponetPieceByElement(element, color)) {
-            break;
+            const arr = tmp[i];
+            for (let j = 0; j < arr.length; j++) {
+                const element = arr[j];
+                let pieceRes = checkPieceExist(element);
+                if (pieceRes && pieceRes.piece && pieceRes.piece.piece_name.toLowerCase().includes(color)) {
+                break;
+                }
+                if (checkOpponetPieceByElement(element, color)) {
+                break;
+                }
             }
         }
+    }
+    return highlightSquareIds;
+}
+
+function adjustKnightHighlighting(id) {
+    const element = keySquareMapper[id];
+    if (element.highlight == true && element.captureHightlight == true) {
+      element.highlight = false;
+    }
+  }
+
+function knightMovesOptions(piece, highlightIdsFunc, color, renderBool = false) {
+    const curr_pos = piece.current_pos;
+    let highlightSquareIds = highlightIdsFunc(curr_pos);
+    
+    for (let i = 0; i < highlightSquareIds.length; i++) {
+        if (checkPieceExist(highlightSquareIds[i])) {
+            let str = keySquareMapper[highlightSquareIds[i]].piece.piece_name;
+            if (highlightSquareIds[i], str.includes(color.toUpperCase())) {
+                highlightSquareIds.splice(i, 1);
+                i--;
+            }
         }
+    }
+    
+    if (renderBool) {
+        circleHighlightRender(highlightSquareIds, keySquareMapper);
+        
+        highlightSquareIds.forEach(element => {
+            let bool = checkOpponetPieceByElement(element, color);
+            if (bool)
+                adjustKnightHighlighting(element);
+        });
     }
     return highlightSquareIds;
 }
 
 export { checkOpponetPieceByElement, checkSquareCaptureId, giveBishopHighlightIds, checkPieceExist, giveRookHighlightIds, giveKnightHighlightIds, giveQueenHighlightIds, giveKingHighlightIds,
     giveKnightCaptureIds, giveKingCaptureIds, giveBishopCaptureIds, giveRookCaptureIds, giveQueenCaptureIds,
-    pawnMovesOptions, pawnCaptureOptions, getCaptureMoves };
+    pawnMovesOptions, pawnCaptureOptions, getCaptureMoves, knightMovesOptions };

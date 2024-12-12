@@ -3,7 +3,7 @@ import { globalState, keySquareMapper } from "../index.js"; //import globalState
 import { clearHighlight, globalStateRender, selfHighlight, globalPiece, circleHighlightRender } from "../Render/main.js";
 import { checkOpponetPieceByElement, checkSquareCaptureId, giveBishopHighlightIds, checkPieceExist, giveRookHighlightIds, giveKnightHighlightIds, giveQueenHighlightIds, giveKingHighlightIds } from "../Helper/commonHelper.js";
 import { giveKnightCaptureIds, giveKingCaptureIds, giveBishopCaptureIds, giveRookCaptureIds, giveQueenCaptureIds } from "../Helper/commonHelper.js";
-import { pawnMovesOptions, pawnCaptureOptions, getCaptureMoves } from "../Helper/commonHelper.js";
+import { pawnMovesOptions, pawnCaptureOptions, getCaptureMoves, knightMovesOptions } from "../Helper/commonHelper.js";
 import logMoves from "../Helper/logging.js";
 import { pawnPromotion, winGame } from "../Helper/modalCreator.js";
 
@@ -164,13 +164,6 @@ function callbackPiece(piece, id) {
   currentElement.append(image);
 }
 
-function adjustKnightHighlighting(id) {
-  const element = keySquareMapper[id];
-  if (element.highlight == true && element.captureHightlight == true) {
-    element.highlight = false;
-  }
-}
-
 /**
  * move a piece by the highlight posibilities.
  * @param {*} piece an object representing a game piece.
@@ -242,7 +235,6 @@ function moveElement(piece, id, castle) {
   if (pawnPromotionBool)
     pawnPromotion(inTurn, callbackPiece, id);
   
-
   if (!castle)
     changeTurn();
 }
@@ -398,27 +390,7 @@ function whiteKnightClick(square)
   //add piece as move state
   moveState = piece;
   
-  const curr_pos = piece.current_pos;
-
-  let highlightSquareIds = giveKnightHighlightIds(curr_pos);
-  
-  for (let i = 0; i < highlightSquareIds.length; i++) {
-    if (checkPieceExist(highlightSquareIds[i])) {
-      let str = keySquareMapper[highlightSquareIds[i]].piece.piece_name;
-      if (highlightSquareIds[i], str.includes("WHITE")) {
-        highlightSquareIds.splice(i, 1);
-        i--;
-      }
-    }
-  }
-
-  circleHighlightRender(highlightSquareIds, keySquareMapper);
-
-  highlightSquareIds.forEach(element => {
-    let bool = checkOpponetPieceByElement(element, "white");
-    if (bool)
-      adjustKnightHighlighting(element);
-  });
+  knightMovesOptions(piece, giveKnightHighlightIds, "white", true);
   globalStateRender();
 }
 
@@ -457,18 +429,22 @@ function whiteQueenClick(square)
 
 //funcion de prueba para limitar los movimientos del rey y que no se pueda mover
 //a una posicion de jaque mate aka automorision
-function limitKingMoves(kingInitialMoves) {
+function limitKingMoves(kingInitialMoves, color) {
   console.log(`en limitKingMoves kingInitialMoves: ${kingInitialMoves}`);
   
   let res = new Set();
-  res = new Set([...res, ...getCaptureMoves(globalPiece.black_bishop_1, giveBishopHighlightIds, "black")]);
-  res = new Set([...res, ...getCaptureMoves(globalPiece.black_bishop_2, giveBishopHighlightIds, "black")]);
-  res = new Set([...res, ...getCaptureMoves(globalPiece.black_rook_1, giveRookHighlightIds, "black")]);
-  res = new Set([...res, ...getCaptureMoves(globalPiece.black_rook_2, giveRookHighlightIds, "black")]);
-  res = new Set([...res, ...getCaptureMoves(globalPiece.black_queen, giveQueenHighlightIds, "black")]);
+  const enemyColor = color === "white" ? "black" : "white";
+  const pawnDirection = enemyColor === "white" ? 1 : -1; 
+  res = new Set([...res, ...getCaptureMoves(globalPiece[`${enemyColor}_bishop_1`], giveBishopHighlightIds, enemyColor)]);
+  res = new Set([...res, ...getCaptureMoves(globalPiece[`${enemyColor}_bishop_2`], giveBishopHighlightIds, enemyColor)]);
+  res = new Set([...res, ...getCaptureMoves(globalPiece[`${enemyColor}_rook_1`], giveRookHighlightIds, enemyColor)]);
+  res = new Set([...res, ...getCaptureMoves(globalPiece[`${enemyColor}_rook_2`], giveRookHighlightIds, enemyColor)]);
+  res = new Set([...res, ...getCaptureMoves(globalPiece[`${enemyColor}_queen`], giveQueenHighlightIds, enemyColor)]);
+  res = new Set([...res, ...knightMovesOptions(globalPiece[`${enemyColor}_knight_1`], giveKnightHighlightIds, enemyColor)]);
+  res = new Set([...res, ...knightMovesOptions(globalPiece[`${enemyColor}_knight_2`], giveKnightHighlightIds, enemyColor)]);
   
-  for (let pawn of globalPiece.black_pawns) {
-    let auxCapture = pawnCaptureOptions(pawn.current_pos, -1);
+  for (let pawn of globalPiece[`${enemyColor}_pawns`]) {
+    let auxCapture = pawnCaptureOptions(pawn.current_pos, pawnDirection);
     res = new Set([...res, ...auxCapture]);
   }
   console.log(`res: ${Array.from(res)}`);
@@ -511,7 +487,7 @@ function whiteKingClick(square)
   //add piece as move state
   moveState = piece;
   
-  const curr_pos = piece.current_pos;
+/*   const curr_pos = piece.current_pos;
 
   let highlightSquareIds = giveKingHighlightIds(curr_pos);
   let tmp = []; //for capture
@@ -566,7 +542,6 @@ function whiteKingClick(square)
   
   circleHighlightRender(highlightSquareIds, keySquareMapper);
 
-  //capture logic for bishop
   for (let i = 0; i < tmp.length; i++) {
     const arr = tmp[i];
 
@@ -580,7 +555,9 @@ function whiteKingClick(square)
         break;
       }
     }
-  }
+  } */
+  let highlightSquareIds = getCaptureMoves(piece, giveKingHighlightIds, "white", true, (moves) => limitKingMoves(moves, "white"));
+  circleHighlightRender(highlightSquareIds, keySquareMapper);
   globalStateRender();
 }
 
@@ -613,7 +590,7 @@ function blackKingClick(square)
   //add piece as move state
   moveState = piece;
   
-  const curr_pos = piece.current_pos;
+/*   const curr_pos = piece.current_pos;
 
   let highlightSquareIds = giveKingHighlightIds(curr_pos);
   let tmp = []; //for capture
@@ -669,7 +646,6 @@ function blackKingClick(square)
   
   circleHighlightRender(highlightSquareIds, keySquareMapper);
 
-  //capture logic for king
   for (let i = 0; i < tmp.length; i++) {
     const arr = tmp[i];
 
@@ -683,7 +659,9 @@ function blackKingClick(square)
         break;
       }
     }
-  }
+  } */
+  let highlightSquareIds = getCaptureMoves(piece, giveKingHighlightIds, "black", true, (moves) => limitKingMoves(moves, "black"));
+  circleHighlightRender(highlightSquareIds, keySquareMapper);
   globalStateRender();
 }
 
@@ -749,26 +727,7 @@ function blackKnightClick(square)
   //add piece as move state
   moveState = piece;
   
-  const curr_pos = piece.current_pos;
-  let highlightSquareIds = giveKnightHighlightIds(curr_pos);
-  
-  for (let i = 0; i < highlightSquareIds.length; i++) {
-    if (checkPieceExist(highlightSquareIds[i])) {
-      let str = keySquareMapper[highlightSquareIds[i]].piece.piece_name;
-      if (highlightSquareIds[i], str.includes("BLACK")) {
-        highlightSquareIds.splice(i, 1);
-        i--;
-      }
-    }
-  }
-
-  circleHighlightRender(highlightSquareIds, keySquareMapper);
-
-  highlightSquareIds.forEach(element => {
-    let bool = checkOpponetPieceByElement(element, "black");
-    if (bool)
-      adjustKnightHighlighting(element);
-  });
+  knightMovesOptions(piece, giveKnightHighlightIds, "black", true);
   globalStateRender();
 }
 
@@ -970,4 +929,4 @@ function GlobalEvent() {
   });
 }
 
-export { GlobalEvent, movePieceFromXToY };
+export { GlobalEvent, movePieceFromXToY, limitKingMoves };
