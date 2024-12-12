@@ -17,8 +17,8 @@ services:
     image: rabbitmq:4.0.1-management
     restart: always
     ports:
-    - 5672
-    - 15672:15672
+      - 5672
+      - 15672:15672
     env_file: .env
 
   api-gateway:
@@ -26,15 +26,15 @@ services:
       context: api-gateway
       dockerfile: Dockerfile
     ports:
-    - 5443:443
-    - 5081:80
+      - 5443:443
+      - 5081:80
 
   auth:
     build:
       context: auth
       dockerfile: Dockerfile
     ports:
-      - 5000:5000
+      - 5050:5000
     env_file:
       - .env
       - auth/service/.env
@@ -45,6 +45,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - 5080:80
+    volumes:
+      - ./frontend/service:/var/www/service
 
 networks:
   ft_transcendence-network:
