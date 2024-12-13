@@ -3,6 +3,7 @@ import { initializeNeonFrames, initializeNeonChat } from './neon.js';
 import { initializeLoginEvents } from '../components/login/login.js';
 import { initializeSignupEvents } from '../components/signup/signup.js';
 import { initializeStartGameEvents } from '../components/start-game/app.js';
+import { initializeProfileEvents } from '../components/profile/app.js';
 
 const routes = [
     { url: "/non-existing", file: "./components/error/404.html" },
@@ -11,6 +12,7 @@ const routes = [
     { url: "/signup", file: "./components/signup/signup.html" },
     { url: "/chat", file: "./components/chat/chat.html" }, //I guess i'll render chat once im logged in another .js
     { url: "/start-game", file: "./components/start-game/start-game.html" },
+    { url: "/profile", file: "./components/profile/profile.html" },
 ];
 
 async function router() {
@@ -41,6 +43,9 @@ async function router() {
             initializeStartGameEvents(); // i guess
             initializeNeonFrames();
             break;
+        case "/profile":
+            initializeNeonFrames();
+            initializeProfileEvents();
     }
 }
 
