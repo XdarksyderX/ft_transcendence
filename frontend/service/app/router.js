@@ -5,6 +5,7 @@ import { initializeSignupEvents } from '../components/signup/signup.js';
 import { initializeStartGameEvents } from '../components/start-game/app.js';
 
 const routes = [
+    { url: "/non-existing", file: "./components/error/404.html" },
     { url: "/", file: "./components/index.html" },
     { url: "/login", file: "./components/login/login.html" },
     { url: "/signup", file: "./components/signup/signup.html" },
@@ -19,7 +20,7 @@ async function router() {
     const html = await fetch(match.file).then(res => res.text());
     document.getElementById('app').innerHTML = html;
 
-    // Inicializa eventos específicos según la vista
+    //initializes the proper events depending on the view
     switch (path) {
         case "/":
             initializeNeonFrames();
