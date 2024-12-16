@@ -4,6 +4,7 @@ import { initializeLoginEvents } from '../components/login/login.js';
 import { initializeSignupEvents } from '../components/signup/signup.js';
 import { initializeStartGameEvents } from '../components/start-game/app.js';
 import { initializeProfileEvents } from '../components/profile/app.js';
+import { initialize404 } from '../components/error/app.js';
 
 const routes = [
     { url: "/non-existing", file: "./components/error/404.html" },
@@ -22,32 +23,29 @@ async function router() {
     const html = await fetch(match.file).then(res => res.text());
     document.getElementById('app').innerHTML = html;
 
-    
     //initializes the proper events depending on the view
     switch (path) {
         case "/":
             initializeNeonFrames();
             break;
-            case "/login":
-                initializeLoginEvents();
-                initializeNeonFrames();
-                break;
-                case "/signup":
-                    initializeSignupEvents();
-                    initializeNeonFrames();
-                    break;
-                    /*         case "/chat":
-                    initializeChatEvents();
-                    initializeNeonChat();
-                    break; */
-                    case "/start-game":
-                        initializeStartGameEvents(); // i guess
-                        initializeNeonFrames();
-                        break;
-                        case "/profile":
-                            initializeNeonFrames();
-                            initializeProfileEvents();
-                        }
+        case "/login":
+            initializeLoginEvents();
+            initializeNeonFrames();
+            break;
+        case "/signup":
+            initializeSignupEvents();
+            initializeNeonFrames();
+
+        case "/start-game":
+            initializeStartGameEvents(); // i guess
+            initializeNeonFrames();
+            break;
+        case "/profile":
+            initializeNeonFrames();
+            initializeProfileEvents();
+        case "/404":
+            initialize404();
+        }
 }
 
 function navigateTo(url) {
