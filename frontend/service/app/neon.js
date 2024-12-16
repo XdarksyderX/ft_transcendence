@@ -148,7 +148,5 @@ function initializeNeonChat() {
     }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    initializeNeonFrames();
-});
+export {initializeNeonFrames, initializeNeonChat}
 

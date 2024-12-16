@@ -1,7 +1,9 @@
-function initializeSidebarEvents() {
+import { navigateTo } from "../../app/router.js";
+
+export function initializeSidebarEvents() {
     const sidebar = document.getElementById('sidebar');
-    const sidebarToggle = document.getElementById('sidebarToggle');
-    const content = document.querySelector('.content');
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const mainContent = document.querySelector('main');
 	const logoutBtn = document.getElementById('logout-btn');
 	const userNames = document.querySelectorAll('.username');
 
@@ -37,10 +39,10 @@ function initializeSidebarEvents() {
     function handleResize() {
         if (window.innerWidth >= 992) {
             sidebar.classList.add('show');
-            content.style.marginLeft = '250px';
+            mainContent.style.marginLeft = '250px';
         } else {
             sidebar.classList.remove('show');
-            content.style.marginLeft = '0';
+            mainContent.style.marginLeft = '0';
         }
     }
 
@@ -49,6 +51,7 @@ function initializeSidebarEvents() {
 
     // Trigger initial resize event to set correct state
     handleResize();
+
 
 	//logoutBtn.addEventListener('click', logout());
 	//I'll have to uncoment it when oauth implemented
