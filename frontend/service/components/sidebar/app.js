@@ -1,3 +1,5 @@
+import { navigateTo } from "../../app/router.js";
+
 export function initializeSidebarEvents() {
     const sidebar = document.getElementById('sidebar');
     const sidebarToggle = document.getElementById('sidebar-toggle');

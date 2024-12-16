@@ -30,7 +30,6 @@ function hardcodedLogin() { //sorry
     loadChat();
     loadSidebar();
     navigateTo('/start-game');
-
 }
 
 function login(userCredentials) {

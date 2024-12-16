@@ -124,7 +124,7 @@ export function initializeProfileEvents() {
         newCarouselItem.className = 'carousel-item';
         newCarouselItem.id = 'uploaded-image-item';
         const uploadedImg = document.createElement('img');
-        uploadedImg.classList.add('d-block','ctm-img', 'w-100');
+        uploadedImg.classList.add('d-block','ctm-img', 'h-100');
         uploadedImg.id = 'uploaded-img';
         newCarouselItem.appendChild(uploadedImg);
         carouselInner.appendChild(newCarouselItem);

@@ -22,38 +22,41 @@ async function router() {
     const html = await fetch(match.file).then(res => res.text());
     document.getElementById('app').innerHTML = html;
 
+    
     //initializes the proper events depending on the view
     switch (path) {
         case "/":
             initializeNeonFrames();
             break;
-        case "/login":
-            initializeLoginEvents();
-            initializeNeonFrames();
-            break;
-        case "/signup":
-            initializeSignupEvents();
-            initializeNeonFrames();
-            break;
-/*         case "/chat":
-            initializeChatEvents();
-            initializeNeonChat();
-            break; */
-        case "/start-game":
-            initializeStartGameEvents(); // i guess
-            initializeNeonFrames();
-            break;
-        case "/profile":
-            initializeNeonFrames();
-            initializeProfileEvents();
-    }
+            case "/login":
+                initializeLoginEvents();
+                initializeNeonFrames();
+                break;
+                case "/signup":
+                    initializeSignupEvents();
+                    initializeNeonFrames();
+                    break;
+                    /*         case "/chat":
+                    initializeChatEvents();
+                    initializeNeonChat();
+                    break; */
+                    case "/start-game":
+                        initializeStartGameEvents(); // i guess
+                        initializeNeonFrames();
+                        break;
+                        case "/profile":
+                            initializeNeonFrames();
+                            initializeProfileEvents();
+                        }
 }
 
 function navigateTo(url) {
+    console.log("Sidebar content before routing:", document.getElementById("sidebar-container").innerHTML);
     if (url !== window.location.pathname) {
         history.pushState(null, null, url);
         router();
     }
+    console.log("Sidebar content after routing:", document.getElementById("sidebar-container").innerHTML);
 }
 
 // Handle browser back/forward buttons
@@ -70,4 +73,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
+// ensures preventing default link behaviour so it doesn't reload
+document.body.addEventListener('click', (event) => {
+    const target = event.target;
+
+    if (target.tagName === 'A' /* && target.classList.contains('ctm-link') */) {
+        event.preventDefault();
+        const url = target.getAttribute('href');
+        navigateTo(url);
+    }
+});
+
 export { navigateTo };
+
