@@ -30,15 +30,32 @@
                 <i id="sidebar-toggle" class="bi bi-list"></i>
             </button>
             <span class="navbar-brand" id="pong">PONG</span>
-            <div id="oath-btns" class="d-flex ms-auto align-items-center">
+            <div id="navbar-content" class="d-flex ms-auto align-items-center">
                 <a href="/login" class="nav-link ctm-link" data-link>Log in</a>
                 <span class="divider mx-2 ctm-text-light">|</span>
                 <a href="/signup" class="nav-link ctm-link" data-link>Sign up</a>
             </div>
         </div>
     </nav>
-
-    <!-- sidebar -->
+    <!--  -->
+        <div class="modal fade" id="exit-game-modal" tabindex="-1" aria-labelledby="waitGameLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title ctm-text-title" id="waitGameLabel">Are you sure?</h5>
+                        <button type="button" class="close-modal" data-bs-dismiss="modal" aria-label="Close">x</button>
+                    </div>
+                    <div class="modal-body">
+                        <p id="modal-text">If you exit now the game will end and you'll lose</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn ctm-btn" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn ctm-btn" data-bs-dismiss="modal" onclick="navigateTo('/start-game')">Exit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- sidebar -->
     <div id="sidebar-container" style="display: none;"></div>
     <!-- main content -->
     <main id="app" class="vertical-wrap">

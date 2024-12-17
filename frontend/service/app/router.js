@@ -7,7 +7,7 @@ import { initializeProfileEvents } from '../components/profile/app.js';
 import { initialize404 } from '../components/error/app.js';
 
 const routes = [
-    { url: "/non-existing", file: "./components/error/404.html" },
+    { url: "/404", file: "./components/error/404.html" },
     { url: "/", file: "./components/index.html" },
     { url: "/login", file: "./components/login/login.html" },
     { url: "/signup", file: "./components/signup/signup.html" },
@@ -35,7 +35,7 @@ async function router() {
         case "/signup":
             initializeSignupEvents();
             initializeNeonFrames();
-
+            break;
         case "/start-game":
             initializeStartGameEvents(); // i guess
             initializeNeonFrames();
@@ -43,18 +43,34 @@ async function router() {
         case "/profile":
             initializeNeonFrames();
             initializeProfileEvents();
-        case "/404":
+            break;
+        /* case "/404": */
+        default:
+            console.log("a");
             initialize404();
         }
 }
 
 function navigateTo(url) {
-    console.log("Sidebar content before routing:", document.getElementById("sidebar-container").innerHTML);
-    if (url !== window.location.pathname) {
+     if (url !== window.location.pathname) {
+            //  if (window.location.pathname === '/profile') {
+            //         const modal = new bootstrap.Modal(document.getElementById('exit-game-modal'));
+            //         modal.show();
+            //         return ;
+            // }  
         history.pushState(null, null, url);
         router();
+        updateNavbar(window.location.pathname);
     }
-    console.log("Sidebar content after routing:", document.getElementById("sidebar-container").innerHTML);
+}
+
+function updateNavbar(url) {
+    if (url !== "/start-game" && url !== "/login" && url !== "/signup") {
+        console.log('url: ', url);
+        console.log('pathname: ', window.location.pathname);
+        const navbarContent = document.getElementById('navbar-content');
+        navbarContent.innerHTML = `<a href="/start-game" class="nav-link ctm-link" data-link>Home</a>`
+    }
 }
 
 // Handle browser back/forward buttons
