@@ -562,3 +562,67 @@ function kingClick(square, color)
   circleHighlightRender(highlightSquareIds, keySquareMapper);
   globalStateRender();
 }*/
+
+//GobalEvent original
+if (event.target.localName === "img") // '===' compares both the value and the type without converting either value as '==' do (eg: 5 == '5')
+    {
+      const clickId = event.target.parentNode.id; //get the id of the parent element of the child, means the square, intead of the piece
+      const square = keySquareMapper[clickId]; //Search in the flattened array for an square with the id that matched the clickId. The find method return the forst matching element
+      
+      if ((square.piece.piece_name.includes("WHITE") && inTurn === "black" || (square.piece.piece_name.includes("BLACK") && inTurn === "white"))) {
+        captureInTurn(square);
+        return;
+      }
+
+      const pieceName = square.piece.piece_name;
+      const pieceType = pieceName.split('_')[1].toLowerCase(); // Obtener el tipo de pieza
+
+      if (square.piece.piece_name == "WHITE_PAWN" && inTurn == "white")
+        handlePieceClick(square, inTurn, pieceType, "2", 1);
+      else if (square.piece.piece_name == "BLACK_PAWN" && inTurn == "black")
+        handlePieceClick(square, inTurn, pieceType, "7", -1);
+      else if (square.piece.piece_name == "WHITE_BISHOP" && inTurn == "white")
+        handlePieceClick(square, inTurn, pieceType);
+      else if (square.piece.piece_name == "BLACK_BISHOP" && inTurn == "black")
+        handlePieceClick(square, inTurn, pieceType);
+      else if (square.piece.piece_name == "WHITE_ROOK" && inTurn == "white")
+        handlePieceClick(square, inTurn, pieceType);
+      else if (square.piece.piece_name == "BLACK_ROOK" && inTurn == "black")
+        handlePieceClick(square, inTurn, pieceType);
+      else if (square.piece.piece_name == "WHITE_KNIGHT" && inTurn == "white")
+        handlePieceClick(square, inTurn, pieceType);
+      else if (square.piece.piece_name == "BLACK_KNIGHT" && inTurn == "black")
+        handlePieceClick(square, inTurn, pieceType);
+      else if (square.piece.piece_name == "WHITE_QUEEN" && inTurn == "white")
+        handlePieceClick(square, inTurn, pieceType);
+      else if (square.piece.piece_name == "BLACK_QUEEN" && inTurn == "black")
+        handlePieceClick(square, inTurn, pieceType);
+      else if (square.piece.piece_name == "WHITE_KING" && inTurn == "white")
+        handlePieceClick(square, inTurn, pieceType);
+      else if (square.piece.piece_name == "BLACK_KING" && inTurn == "black")
+        handlePieceClick(square, inTurn, pieceType);
+    }
+    else //this is to know if the click is in a square with the round highlight, which is the posible move of a piece. Ensure that only valid moves are processed.
+    {
+      const childElementsOfclickedEl = Array.from(event.target.childNodes); //Converts the child nodes (possible moves) of the clickd element into a array to manipulate it better
+      if (childElementsOfclickedEl.length == 1 || event.target.localName == "span") {
+        if (event.target.localName == "span") //if the person precisely click on the round hightlight
+        {
+          clearPreviousSelfHighlight(selfHighlightState);
+          const id =  event.target.parentNode.id; //gets the id of the parent node of the clickd 'span'
+          moveElement(moveState, id); //call the function to move the piece to the new position
+          moveState = null; //reset the oceState to null indicating the move is done.
+        }
+        else //if the clicked element is not a span but still has exactly one child node, means the square minus the round highlight, to ensure the proper movement either way
+        {
+          clearPreviousSelfHighlight(selfHighlightState);
+          const id =  event.target.id; //gets the id of the clicked element
+          moveElement(moveState, id);
+          moveState = null;
+        }
+      }
+      else { //if the click its an impossible move clear the highlighted elements
+        clearHighlightLocal();
+        clearPreviousSelfHighlight(selfHighlightState);
+      }
+    }

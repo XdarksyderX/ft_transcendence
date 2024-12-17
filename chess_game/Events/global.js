@@ -144,16 +144,41 @@ function checkWin(piece) {
   return false;
 }
 
+/**
+ * This function is called during the pawn promotion process to replace
+ * the original pawn with the selected promoted piece.
+ *
+ * The `piece` parameter is not a simple object but a function (like `whiteQueen`
+ * or `blackRook` from pieces.js) that returns an object containing the promoted
+ * piece's details, such as its position, image source, and name.
+ *
+ * Call the `piece` function with the pawn's ID (`id`) to get the new piece details.
+ * 
+ * Locate the current square on the board using `keySquareMapper` and update: the
+ * square's piece with the new piece object (`realPiece`) and the piece's position
+ * to reflect its current square (`id`).
+ * 
+ * Create a new `<img>` element, setting the image source (`src`) to the new piece's
+ * image path and adding the "piece" class to style it appropriately.
+ * 
+ * Clear the current square's content (removing the old pawn image).
+ * 
+ * Append the new `<img>` element to the square's HTML.
+ * @param {function} piece - A function returning the promoted piece's details.
+ * @param {string} id - The ID of the square where the pawn is located.
+ */
 function callbackPiece(piece, id) {
   const realPiece = piece(id);
   const currentSquare = keySquareMapper[id];
+  
   piece.current_pos = id;
   currentSquare.piece = realPiece;
+  
   const image = document.createElement('img');
   image.src = realPiece.img;
   image.classList.add("piece");
-  const currentElement = document.getElementById(id);
   
+  const currentElement = document.getElementById(id); 
   currentElement.innerHTML = '';
   currentElement.append(image);
 }
@@ -177,18 +202,11 @@ function moveTwoCastlingPieces(piece, id) {
 }
 
 /**
- * move a piece by the highlight posibilities.
- * @param {*} piece an object representing a game piece.
- * @param {*} id the new position id where the piece should be moved.
+ * Update the global state with the new piece position.
+ * @param {*} piece An object representing a game piece.
+ * @param {*} id The new position id where the piece should be moved.
  */
-function moveElement(piece, id, castle) {
-  if (!piece)
-    return;
-
-  const pawnPromotionBool = checkForPawnPromotion(piece, id);
-  
-  moveTwoCastlingPieces(piece, id);
-  logMoves({from: piece.current_pos, to: id, piece:piece.piece_name}, inTurn);
+function updateGlobalState(piece, id) {
   const flatData =  globalState.flat();
   //iterate throught each element to update the positions od the pieces.
   flatData.forEach((el) => {
@@ -203,14 +221,22 @@ function moveElement(piece, id, castle) {
       el.piece = piece; //find the element with the new position and asign the piece to it
     }
   });
-  clearHighlight();
+}
+
+/**
+ * Update the HTML elements to reflect the new positions of the piece.
+ * @param {*} piece An object representing a game piece.
+ * @param {*} id The new position id where the piece should be moved.
+ */
+function updatePiecePosition(piece, id) {
   //Update the HTML elements to reflect the new positions of the piece
   const previousPiece = document.getElementById(piece.current_pos);
+  const currentPiece = document.getElementById(id);
+
   piece.current_pos = null;
   previousPiece?.classList?.remove("highlightYellow");
-  const currentPiece = document.getElementById(id);
-  
-/*   currentPiece.innerHTML += previousPiece.querySelector('img').outerHTML;
+
+  /*   currentPiece.innerHTML += previousPiece.querySelector('img').outerHTML;
   previousPiece.querySelector('img')?.remove(); */
 
   currentPiece.innerHTML = previousPiece?.innerHTML;
@@ -218,13 +244,31 @@ function moveElement(piece, id, castle) {
     previousPiece.innerHTML = "";
 
   piece.current_pos = id;
+}
+
+/**
+ * move a piece by the highlight posibilities.
+ * @param {*} piece an object representing a game piece.
+ * @param {*} id the new position id where the piece should be moved.
+ * @param {boolean} castle Indicates if the move is a castling move.
+ */
+function moveElement(piece, id, castle) {
+  if (!piece)
+    return;
+
+  const pawnPromotionBool = checkForPawnPromotion(piece, id);
+  moveTwoCastlingPieces(piece, id);
+  logMoves({from: piece.current_pos, to: id, piece:piece.piece_name}, inTurn);
+
+  updateGlobalState(piece, id);
+  clearHighlight();
+  updatePiecePosition(piece, id);
   
   checkForCheck();
 
   if (winBool) {
     setTimeout(() => {
         winGame(winBool);
-        //alert(`${winBool} Wins!`);
     }, 50); // Ajusta el tiempo de retraso según la duración de tu animación
     return;
   }
@@ -317,69 +361,45 @@ function clearPreviousSelfHighlight(piece)
  */
 function GlobalEvent() {
   ROOT_DIV.addEventListener("click", function(event) {
-    if (event.target.localName === "img") // '===' compares both the value and the type without converting either value as '==' do (eg: 5 == '5')
+    const target = event.target;
+    const isPieceClick = target.localName === "img";
+    const isHighlightClick = target.localName === "span" || target.childNodes.length === 1;
+    if (isPieceClick) // '===' compares both the value and the type without converting either value as '==' do (eg: 5 == '5')
     {
       const clickId = event.target.parentNode.id; //get the id of the parent element of the child, means the square, intead of the piece
       const square = keySquareMapper[clickId]; //Search in the flattened array for an square with the id that matched the clickId. The find method return the forst matching element
       
-      if ((square.piece.piece_name.includes("WHITE") && inTurn === "black" || (square.piece.piece_name.includes("BLACK") && inTurn === "white"))) {
+      if (isOpponentPiece(square)) {
         captureInTurn(square);
         return;
       }
 
       const pieceName = square.piece.piece_name;
-      const pieceType = pieceName.split('_')[1].toLowerCase(); // Obtener el tipo de pieza
-
-      if (square.piece.piece_name == "WHITE_PAWN" && inTurn == "white")
-        handlePieceClick(square, inTurn, pieceType, "2", 1);
-      else if (square.piece.piece_name == "BLACK_PAWN" && inTurn == "black")
-        handlePieceClick(square, inTurn, pieceType, "7", -1);
-      else if (square.piece.piece_name == "WHITE_BISHOP" && inTurn == "white")
-        handlePieceClick(square, inTurn, pieceType);
-      else if (square.piece.piece_name == "BLACK_BISHOP" && inTurn == "black")
-        handlePieceClick(square, inTurn, pieceType);
-      else if (square.piece.piece_name == "WHITE_ROOK" && inTurn == "white")
-        handlePieceClick(square, inTurn, pieceType);
-      else if (square.piece.piece_name == "BLACK_ROOK" && inTurn == "black")
-        handlePieceClick(square, inTurn, pieceType);
-      else if (square.piece.piece_name == "WHITE_KNIGHT" && inTurn == "white")
-        handlePieceClick(square, inTurn, pieceType);
-      else if (square.piece.piece_name == "BLACK_KNIGHT" && inTurn == "black")
-        handlePieceClick(square, inTurn, pieceType);
-      else if (square.piece.piece_name == "WHITE_QUEEN" && inTurn == "white")
-        handlePieceClick(square, inTurn, pieceType);
-      else if (square.piece.piece_name == "BLACK_QUEEN" && inTurn == "black")
-        handlePieceClick(square, inTurn, pieceType);
-      else if (square.piece.piece_name == "WHITE_KING" && inTurn == "white")
-        handlePieceClick(square, inTurn, pieceType);
-      else if (square.piece.piece_name == "BLACK_KING" && inTurn == "black")
-        handlePieceClick(square, inTurn, pieceType);
+      const pieceType = pieceName.split('_')[1].toLowerCase(); // Obtener el tipo de pieza pawn, bishop, etc..
+      const row = pieceName.includes("PAWN") ? (inTurn === "white" ? "2" : "7") : null; //this var is only to check the row, so the we know if the pawn can do the initial special move of two squares or not. if a pawn is not clicked, its null because it doesn't matter.
+      const direction = pieceName.includes("PAWN") ? (inTurn === "white" ? 1 : -1) : null; //this var is only to stablish the direction of the pawn in the table in order of it's color
+      handlePieceClick(square, inTurn, pieceType, row, direction); //this is the general funciotn in charge of the movement
     }
-    else //this is to know if the click is in a square with the round highlight, which is the posible move of a piece. Ensure that only valid moves are processed.
-    {
-      const childElementsOfclickedEl = Array.from(event.target.childNodes); //Converts the child nodes (possible moves) of the clickd element into a array to manipulate it better
-      if (childElementsOfclickedEl.length == 1 || event.target.localName == "span") {
-        if (event.target.localName == "span") //if the person precisely click on the round hightlight
-        {
-          clearPreviousSelfHighlight(selfHighlightState);
-          const id =  event.target.parentNode.id; //gets the id of the parent node of the clickd 'span'
-          moveElement(moveState, id); //call the function to move the piece to the new position
-          moveState = null; //reset the oceState to null indicating the move is done.
-        }
-        else //if the clicked element is not a span but still has exactly one child node, means the square minus the round highlight, to ensure the proper movement either way
-        {
-          clearPreviousSelfHighlight(selfHighlightState);
-          const id =  event.target.id; //gets the id of the clicked element
-          moveElement(moveState, id);
-          moveState = null;
-        }
-      }
-      else { //if the click its an impossible move clear the highlighted elements
-        clearHighlightLocal();
-        clearPreviousSelfHighlight(selfHighlightState);
-      }
+    else if (isHighlightClick) {//this is to know if the click is in a square with the round highlight, which is the posible move of a piece. Ensure that only valid moves are processed.
+      handleHighlightClickEvent(target);
+    }
+    else { //if the click its an impossible move clear the highlighted elements
+      clearHighlightLocal();
+      clearPreviousSelfHighlight(selfHighlightState);
     }
   });
+}
+
+function handleHighlightClickEvent(target) {
+  clearPreviousSelfHighlight(selfHighlightState);
+  const id = target.localName === "span" ? target.parentNode.id : target.id;  //if the person precisely click on the round hightlight  //gets the id of the parent node of the clickd 'span'  //if the clicked element is not a span but still has exactly one child node, means the square minus the round highlight, to ensure the proper movement either way
+  moveElement(moveState, id);
+  moveState = null;
+}
+
+function isOpponentPiece(square) {
+  return (square.piece.piece_name.includes("WHITE") && inTurn === "black") ||
+         (square.piece.piece_name.includes("BLACK") && inTurn === "white");
 }
 
 export { GlobalEvent };

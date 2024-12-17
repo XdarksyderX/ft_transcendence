@@ -5,10 +5,9 @@ import { globalState } from "../index.js";
 const globalPiece = new Object();
 
 /**
- * funciton globlaStateRendere is usefull to render pieces from globalStateData,
+ * funciton globlaStateRender is usefull to render pieces from globalStateData,
  * when updating globalState
  */
-
 function globalStateRender() {
   globalState.forEach(row => {
     row.forEach(element => {
@@ -32,8 +31,7 @@ function globalStateRender() {
 }
 
 //simple function that highlight in the square you click if there is a piece on it
-function selfHighlight(piece)
-{
+function selfHighlight(piece){
   document.getElementById(piece.current_pos).classList.add("highlightYellow");
 }
 
@@ -98,24 +96,11 @@ const piecePositions = {
   "e1": piece.whiteKing
 };
 
-const globalPieceMap = {
-  "a8": "black_rook",
-  "h8": "black_rook",
-  "b8": "black_knight",
-  "g8": "black_knight",
-  "c8": "black_bishop",
-  "f8": "black_bishop",
-  "d8": "black_queen",
-  "e8": "black_king",
-  "a1": "white_rook",
-  "h1": "white_rook",
-  "b1": "white_knight",
-  "g1": "white_knight",
-  "c1": "white_bishop",
-  "f1": "white_bishop",
-  "d1": "white_queen",
-  "e1": "white_king"
-};
+//this is supposed to be the numbers and letter in the squaretable -> just after this line: squareDiv.classList.add(square.color, "square");
+/*       const labelId = document.createElement("span");
+      labelId.textContent = square.id;
+      labelId.classList.add("labelId", `${square.color}-label-id`);
+      squareDiv.append(labelId); */
 
 function initGameRender(data)
 {
@@ -128,72 +113,19 @@ function initGameRender(data)
       const squareDiv = document.createElement("div"); // a new div element (squareDiv) is created to represent the square.
       squareDiv.id = square.id;
       squareDiv.classList.add(square.color, "square"); // that elemente is assigned to two CSS clasess: one for the square's color and one generic class("square").
-      
-/*       const labelId = document.createElement("span");
-      labelId.textContent = square.id;
-      labelId.classList.add("labelId", `${square.color}-label-id`);
-      squareDiv.append(labelId); */
 
-      if (square.id[1] == 7) {  //render blackpawn row
+      if (square.id[1] == 7) {
         square.piece = piece.blackPawn(square.id);
         globalPiece.black_pawns.push(square.piece);
       }
-      else if (square.id[1] == 2) { //render whitepawn row
+      else if (square.id[1] == 2) {
         square.piece = piece.whitePawn(square.id);
         globalPiece.white_pawns.push(square.piece);
       }
       else if (piecePositions[square.id]) {
         square.piece = piecePositions[square.id](square.id); // render specific piece like if square.id == "d8") -> square.piece = piece.blackKing(square.id)
-        if (square.id == "e8")
-          globalPiece.black_king = square.piece;
-        else if (square.id == "e1")
-          globalPiece.white_king = square.piece;
-        else if (square.id == "d8")
-          globalPiece.black_queen = square.piece;
-        else if (square.id == "d1")
-          globalPiece.white_queen = square.piece;
-        else if (square.id == "a8" || square.id == "h8") {
-          if (globalPiece.black_rook_1)
-            globalPiece.black_rook_2 = square.piece;
-          else
-            globalPiece.black_rook_1 = square.piece;
-        }
-        else if (square.id == "a1" || square.id == "h1") {
-          if (globalPiece.white_rook_1)
-            globalPiece.white_rook_2 = square.piece;
-          else
-            globalPiece.white_rook_1 = square.piece;
-        }
-        else if (square.id == "b8" || square.id == "g8") {
-          if (globalPiece.black_knight_1)
-            globalPiece.black_knight_2 = square.piece;
-          else
-            globalPiece.black_knight_1 = square.piece;
-        }
-        else if (square.id == "b1" || square.id == "g1") {
-          if (globalPiece.white_knight_1)
-            globalPiece.white_knight_2 = square.piece;
-          else
-            globalPiece.white_knight_1 = square.piece;
-        }
-        else if (square.id == "c8" || square.id == "f8") {
-          if (globalPiece.black_bishop_1)
-            globalPiece.black_bishop_2 = square.piece;
-          else
-            globalPiece.black_bishop_1 = square.piece;
-        }
-        else if (square.id == "c1" || square.id == "f1") {
-          if (globalPiece.white_bishop_1)
-            globalPiece.white_bishop_2 = square.piece;
-          else
-            globalPiece.white_bishop_1 = square.piece;
-        }
-/*         const globalPieceKey = globalPieceMap[square.id]; //alternativa
-        if (globalPieceKey) {
-          globalPiece[globalPieceKey] = square.piece;
-        } */
+        assignSpecificPiece(square);
       }
-      
       rowEl.appendChild(squareDiv); //squareDiv element is appended to the rowEl
     });
     rowEl.classList.add("squareRow"); //after all squares in the row have been processed, the rowEl is assigned a CSS class("squareRow") to style the row.
@@ -202,17 +134,34 @@ function initGameRender(data)
   pieceRender(data);
 }
 
+function assignSpecificPiece(square) {
+  const color = square.id[1] == 8 || square.id[1] == 7 ? "black" : "white";
+  const fullName = piecePositions[square.id].name;
+  const pieceType = fullName.replace(color, '').toLowerCase();
+  
+  if (pieceType === 'rook' || pieceType === 'knight' || pieceType === 'bishop')
+    assignRepeatedPiece(square, color, pieceType);
+  else
+    globalPiece[`${color}_${pieceType}`] = square.piece;
+}
+
+function assignRepeatedPiece(square, color, pieceType) {
+  if (globalPiece[`${color}_${pieceType}_1`])
+    globalPiece[`${color}_${pieceType}_2`] = square.piece;
+  else
+    globalPiece[`${color}_${pieceType}_1`] = square.piece;
+}
+
+
 // render highlight circle
-function renderHighlight(squareId)
-{
+function renderHighlight(squareId) {
   const highlightSpan = document.createElement("span");
   highlightSpan.classList.add("highlight");
   document.getElementById(squareId).appendChild(highlightSpan);
 }
 
 // clear all hightlight from the board
-function clearHighlight()
-{
+function clearHighlight() {
   const flatData =  globalState.flat();
   flatData.forEach((el) => {
     if (el.captureHightlight) {

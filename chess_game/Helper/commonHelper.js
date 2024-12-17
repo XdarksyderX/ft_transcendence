@@ -84,6 +84,7 @@ function giveBishopHighlightIds(id) {
     };
 }
 
+//???
 function giveBishopCaptureIds(id, color) {
     if (!id)
         return [];
@@ -142,6 +143,7 @@ function giveRookHighlightIds(id) {
     };
 }
 
+//??
 function giveRookCaptureIds(id, color) {
     if (!id)
         return [];
@@ -205,6 +207,7 @@ function giveKnightHighlightIds(id) {
     ];
 }
 
+//??
 function giveKnightCaptureIds(id, color) {
     if (!id)
         return [];
@@ -231,6 +234,7 @@ function giveQueenHighlightIds(id) {
     }
 }
 
+//??
 function giveQueenCaptureIds(id, color) {
     if (!id)
         return [];
@@ -264,6 +268,7 @@ function giveKingHighlightIds(id) {
     return res;
 }
 
+//??
 function giveKingCaptureIds(id, color) {
     if (!id)
         return [];
@@ -288,7 +293,6 @@ function pawnMovesOptions(curr_pos, row, num) {
         highlightSquareIds = [`${curr_pos[0]}${Number(curr_pos[1]) + num}`,];
     }
     highlightSquareIds = checkSquareCaptureId(highlightSquareIds);
-    
     return highlightSquareIds;
 }
 
@@ -368,26 +372,24 @@ function getCaptureMoves(piece, highlightIdsFunc, color, renderBool = false, pre
         preRenderCallback(highlightSquareIds);
     if (renderBool) {
         circleHighlightRender(highlightSquareIds, keySquareMapper);
-    
         for (let i = 0; i < tmp.length; i++) {
             const arr = tmp[i];
             for (let j = 0; j < arr.length; j++) {
                 const element = arr[j];
                 let pieceRes = checkPieceExist(element);
-                if (pieceRes && pieceRes.piece && pieceRes.piece.piece_name.toLowerCase().includes(color)) {
+                if (pieceRes && pieceRes.piece && pieceRes.piece.piece_name.toLowerCase().includes(color))
                     break;
-                }
-                if (checkOpponetPieceByElement(element, color)) {
+                if (checkOpponetPieceByElement(element, color))
                     break;
-                }
             }
         }
     }
     return highlightSquareIds;
 }
 
+// this funciton return all the possible moves of the opponent pices
 function getOpponentMoves(color) {
-    let res = new Set(); // en este set se van a meter todos los movimientos de posible captura de las piezas contrarias
+    let res = new Set();
     const enemyColor = color === "white" ? "black" : "white";
     const pawnDirection = enemyColor === "white" ? 1 : -1;
 
@@ -414,15 +416,14 @@ can be a direct checkmate, the it remove that option to avoid the checkmate*/
 function limitKingMoves(kingInitialMoves, color) {
     let res = getOpponentMoves(color);
 
-    //elimino las posiciones a las que se puede mover el rey que coincidan con cualquiera que hay en res, para evitar el jaque mate
     for (let i = kingInitialMoves.length - 1; i >= 0; i--) {
         if (res.has(kingInitialMoves[i])) {
         kingInitialMoves.splice(i, 1);
         }
     }
 }
-  
 
+//this funtion is to fix some bug for the knight circle highlight moves
 function adjustKnightHighlighting(id) {
     const element = keySquareMapper[id];
     if (element.highlight == true && element.captureHightlight == true) {

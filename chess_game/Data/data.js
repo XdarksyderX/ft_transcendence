@@ -19,22 +19,18 @@ function SquareRow(rowId) {
 
   if (rowId % 2 == 0) {
     col.forEach((element, i) => {
-      if (i % 2 == 0) {
+      if (i % 2 == 0)
         squareRow.push(Square("white", element + rowId, null));
-      }
-      else {
+      else
         squareRow.push(Square("black", element + rowId, null));
-      }
     });
   }
   else {
     col.forEach((element, i) => {
-      if (i % 2 == 0) {
+      if (i % 2 == 0)
         squareRow.push(Square("black", element + rowId, null));
-      }
-      else {
+      else
         squareRow.push(Square("white", element + rowId, null));
-      }
     });
   }
   return squareRow;

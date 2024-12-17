@@ -1,12 +1,20 @@
 import * as pieces from "../Data/pieces.js";
 
+/**
+ * This class  is a design pattern aimed at creating
+ * and managing modals like a pop-up windows or dialogs on a web page.
+ * Upon creation its visibility state its set to false and body saves
+ * the HTML content of the modal that will be manipulated.
+ * 
+ * Both methods change the visibility, add/remove the modal's content
+ * to the end of the document, which cause the modal to be or not displayed
+ * on the page, and finally add/remove a CSS class to the root element of the page.
+ */
 class ModalCreator {
   constructor(body) {
-
     if (!body){
       throw new Error("Please pass the body");
     }
-
     this.open = false;
     this.body = body;
   }
@@ -24,28 +32,47 @@ class ModalCreator {
   }
 }
 
+/**
+ * This function handles the promotion of a pawn when it reaches the opposite
+ * end of the board. The function displays a modal with the available promotion
+ * options.
+ * It uses **callback functions** to delegate the responsibility of handling the
+ * selected piece.
+ * 
+ * A callback function is passed as an argument to another function and executed within it.
+ * This is useful here because `pawnPromotion` doesn't decide what to do with the selected
+ * promoted piece — that decision is delegated to the callback function.
+ * 
+ * Create a mapping (`piecesMap`) of piece names to their respective piece functions
+ * based on color.
+ * Dynamically create an image for each promotion option and attach a callback function
+ * to handle the selection.
+ * @param {string} color 
+ * @param {function} callback - callbackPiece from global.js
+ * @param {string} id - The ID of the square where the pawn promotion is happening.
+ */
 function pawnPromotion(color, callback, id) {
-  const rook = document.createElement("img");
-  rook.onclick = rookCallback;
-  rook.src = `/chess_game/Assets/pieces/${color}/rook.png`;
-  
-  const knight = document.createElement("img");
-  knight.onclick = knightCallback;
-  knight.src = `/chess_game/Assets/pieces/${color}/knight.png`;
-  
-  const bishop = document.createElement("img");
-  bishop.onclick = bishopCallback;
-  bishop.src = `/chess_game/Assets/pieces/${color}/bishop.png`;
-  
-  const queen = document.createElement("img");
-  queen.onclick = queenCallback;
-  queen.src = `/chess_game/Assets/pieces/${color}/queen.png`;
+  const piecesMap = {
+    rook: pieces[color === "white" ? "whiteRook" : "blackRook"],
+    knight: pieces[color === "white" ? "whiteKnight" : "blackKnight"],
+    bishop: pieces[color === "white" ? "whiteBishop" : "blackBishop"],
+    queen: pieces[color === "white" ? "whiteQueen" : "blackQueen"],
+  };
+
+  const createPieceImage = (pieceName) => {
+    const img = document.createElement("img");
+    img.src = `/chess_game/Assets/pieces/${color}/${pieceName}.png`;
+    img.onclick = () => {
+      callback(piecesMap[pieceName], id);
+      modal.hide();
+    };
+    return img;
+  };
 
   const imageContainer = document.createElement("div");
-  imageContainer.appendChild(rook);
-  imageContainer.appendChild(knight);
-  imageContainer.appendChild(bishop);
-  imageContainer.appendChild(queen);
+  ["rook", "knight", "bishop", "queen"].forEach((pieceName) => {
+    imageContainer.appendChild(createPieceImage(pieceName));
+  });
 
   const msg = document.createElement("p");
   msg.textContent = "Your Pawn has been promoted";
@@ -57,43 +84,6 @@ function pawnPromotion(color, callback, id) {
   
   const modal = new ModalCreator(finalContainer);
   modal.show();
-
-  function rookCallback() {
-    if (color == "white") {
-      callback(pieces.whiteRook, id);
-    }
-    else {
-      callback(pieces.blackRook, id);
-    }
-    modal.hide();
-  };
-  function knightCallback() {
-    if (color == "white") {
-      callback(pieces.whiteKnight, id);
-    }
-    else {
-      callback(pieces.blackKnight, id);
-    }
-    modal.hide();
-  };
-  function bishopCallback() {
-    if (color == "white") {
-      callback(pieces.whiteBishop, id);
-    }
-    else {
-      callback(pieces.blackBishop, id);
-    }
-    modal.hide();
-  };
-  function queenCallback() {
-    if (color == "white") {
-      callback(pieces.whiteQueen, id);
-    }
-    else {
-      callback(pieces.blackQueen, id);
-    }
-    modal.hide();
-  };
 }
 
 function winGame(winBool) {
