@@ -46,7 +46,6 @@ async function router() {
             break;
         /* case "/404": */
         default:
-            console.log("a");
             initialize404();
         }
 }
@@ -99,4 +98,3 @@ document.body.addEventListener('click', (event) => {
 });
 
 export { navigateTo };
-
