@@ -1,0 +1,194 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&display=swap');
+
+:root {
+	--dark: #2D1240;
+	--darkish: #462A56;
+	--medium: #5C3973;
+	--accent: #00F56A;
+	--light: rgb(132, 204, 163);
+	--title: #F59C00;
+	--lorange: #f1c478;
+}
+
+@font-face {
+    font-family: 'ROG LyonsType Regular';
+    font-style: normal;
+    font-weight: normal;
+    src: local('ROG LyonsType Regular'), url('./resources/fonts/ROGLyonsTypeRegular3.woff') format('woff');
+}
+body {
+    font-family: 'VT323', monospace;
+    background-color: var(--dark);
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 1px;
+    margin: 0;
+    padding: 0;
+}
+/* this is a pseudo-element to overlay the bg image with reduced opacity */
+body::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("./resources/background.png");
+    background-size: cover;
+    background-position: center;
+    opacity: 0.4;
+    z-index: -1; /* Ensures the pseudo-element is behind other content */
+}
+
+/* font weights */
+.fw-regular { font-weight: 400; }
+.fw-medium { font-weight: 500; }
+.fw-semibold { font-weight: 600; }
+.fw-bold { font-weight: 700; }
+/* ctm text colours */
+.ctm-text-light { color: var(--light); }
+.ctm-text-accent { color: var(--accent); }
+.ctm-text-dark { color: var(--medium) }
+.ctm-text-title {
+    color: var(--title);
+    font-family: 'ROG LyonsType Regular';
+}
+/* ctm links */
+.ctm-link { color: var(--light); }
+.ctm-link:visited { color: var(--light); }
+.ctm-link:hover {
+    color: var(--accent);
+    text-decoration: underline;
+}
+.ctm-link:focus {
+    color: var(--accent);
+    outline: none;
+}
+/* ctm btns */
+.ctm-btn {
+    color: var(--dark);
+    background-color: var(--light);
+}
+.ctm-btn:hover {
+    color: var(--dark);
+    background-color: var(--accent);
+}
+.ctm-btn-dark {
+    color: var(--title);
+    background-color: var(--dark);
+    &:hover {
+        color: var(--title);
+        background-color: var(--darkish);
+    }
+}
+
+.ctm-btn-secondary {
+    color: var(--dark);
+    background-color: var(--lorange);
+    &:hover {
+        background-color: var(--title);
+    }
+}
+.cancel-btn {
+    color: var(--title);
+    border-radius: 15%;
+    /* background-color: aquamarine; You can adjust the background color as needed */
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3), -2px -3px 5px rgba(132, 204, 163, 0.4);
+    border: none; /* Optional: remove border if not needed */
+    padding: 7px 12px; /* Optional: adjust padding for better appearance */
+    transition: box-shadow 0.3s ease; /* Optional: smooth transition for hover effect */
+}
+
+.cancel-btn:hover {
+    color: var(--title);
+    box-shadow: 4px 4px 7px rgba(0, 0, 0, 0.5), -4px -4px 7px rgba(157, 227, 187, 0.6);
+}
+
+/* ctm navbar */
+.ctm-navbar {
+    height: 50px;
+    color: var(--light);
+    background-color: var(--medium);
+    background: linear-gradient(to bottom, var(--medium), var(--dark)); /* Example gradient */
+    box-shadow: 0 0 10px #00F56A, 0 0 10px #00F56A, 0 0 15px #00F56A, 0 0 30px #00F56Acc;
+}
+.navbar-brand {
+    cursor: default;
+    font-family: 'ROG LyonsType Regular';
+    /*  font-family: 'Press Start 2P', sans-serif;*/
+    font-style: bolder;
+    color: var(--title) !important;
+    margin: 0;
+    padding: 0;
+}
+/* scroll bar */
+*::-webkit-scrollbar{
+	width: 8px;
+	background: var(--dark);
+}
+*::-webkit-scrollbar-thumb {
+	background-color: var(--lorange);
+	border-radius: 10px;
+	border: 2px solid var(--dark);
+}
+/* ctm card */
+.ctm-card {
+    display: flex;
+    flex-direction: column;
+    /* align-items: center; */
+    justify-content: center;
+    margin: 0 auto;
+    padding: 20px;
+    border-radius: 10px;
+    background: linear-gradient(to bottom, var(--medium), var(--dark));
+}
+.neon-frame {
+    border: 2px solid transparent;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px #00F56A, 0 0 20px #00F56A, 0 0 30px #00F56A, 0 0 40px #00F56Acc;
+}
+.blinking-neon-frame {
+    padding: 10px;
+    border-radius: 10px;
+}
+/* modals */
+.modal-header, .modal-footer {
+    border: none;
+}
+
+.close-modal {
+   color: var(--title);
+   background: none;
+   border-radius: 5px;
+}
+.modal-content {
+    color: var(--light);
+    background: linear-gradient(to top, var(--medium), var(--dark));
+}
+
+
+input:focus, select:focus, .ctm-btn:focus, .ctm-btn-dark:focus {
+    border-color: var(--light) !important; 
+    box-shadow: 0 0 5px var(--light) !important;
+    outline: none !important
+}
+
+.vertical-wrap {
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 1rem;
+    padding-top: calc(100vh / 9); 
+}
+
+@media (max-height: 900px) {
+    .vertical-wrap {
+        padding-top: calc(100vh / 15);
+        /* background-color: #00F56A; */
+    }
+}
+/* input[type="checkbox"]:checked {
+    background-color: var(--accent) !important;
+    border-color: var(--light) !important;
+} */

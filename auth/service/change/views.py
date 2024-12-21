@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from .serializers import ChangeUsernameSerializer, ChangeEmailSerializer, ResetPasswordRequestSerializer, ResetPasswordSerializer
 from django.core.mail import send_mail
 from django.conf import settings
-from core.models import EmailVerification
+from core.models import EmailVerification, User
 from django.utils import timezone
 from core.utils.rabbitmq_client import RabbitMQClient
 from core.utils.event_domain import wrap_event_data
@@ -16,6 +16,12 @@ class ChangeUsernameView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        if request.user.oauth_registered:
+            return Response({
+                "status": "error",
+                "message": "Username cannot be changed for users registered with OAuth."
+            }, status=status.HTTP_403_FORBIDDEN)
+
         serializer = ChangeUsernameSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
@@ -38,12 +44,26 @@ class ChangeUsernameView(APIView):
                 "status": "success",
                 "message": "Username changed successfully."
             }, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # Handle invalid serializer response with specific field error
+        errors = serializer.errors
+        field_name, field_errors = next(iter(errors.items()))
+        error_message = field_errors[0] if isinstance(field_errors, list) else field_errors
+        return Response({
+            "status": "error",
+            "message": error_message
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 class ChangeEmailView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        if request.user.oauth_registered:
+            return Response({
+                "status": "error",
+                "message": "Email cannot be changed for users registered with OAuth."
+            }, status=status.HTTP_403_FORBIDDEN)
+
         serializer = ChangeEmailSerializer(data=request.data)
         if serializer.is_valid():
             user = request.user
@@ -83,12 +103,25 @@ class ChangeEmailView(APIView):
                 "status": "success",
                 "message": "Email changed successfully. Please verify your new email."
             }, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        errors = serializer.errors
+        field_name, field_errors = next(iter(errors.items()))
+        error_message = field_errors[0] if isinstance(field_errors, list) else field_errors
+        return Response({
+            "status": "error",
+            "message": error_message
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 class ResetPasswordRequestView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        if request.user.oauth_registered:
+            return Response({
+                "status": "error",
+                "message": "Password cannot be reset for users registered with OAuth."
+            }, status=status.HTTP_403_FORBIDDEN)
+
         serializer = ResetPasswordRequestSerializer(data=request.data)
         if serializer.is_valid():
             rabbit_client = RabbitMQClient()
@@ -109,12 +142,26 @@ class ResetPasswordRequestView(APIView):
                 "status": "success",
                 "message": "Password reset email sent."
             }, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # Handle invalid serializer response with specific field error
+        errors = serializer.errors
+        field_name, field_errors = next(iter(errors.items()))
+        error_message = field_errors[0] if isinstance(field_errors, list) else field_errors
+        return Response({
+            "status": "error",
+            "message": error_message
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 class ResetPasswordView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        if request.user.oauth_registered:
+            return Response({
+                "status": "error",
+                "message": "Password cannot be reset for users registered with OAuth."
+            }, status=status.HTTP_403_FORBIDDEN)
+
         serializer = ResetPasswordSerializer(data=request.data)
         if serializer.is_valid():
             rabbit_client = RabbitMQClient()
@@ -134,4 +181,11 @@ class ResetPasswordView(APIView):
                 "status": "success",
                 "message": "Password reset successfully."
             }, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+        errors = serializer.errors
+        field_name, field_errors = next(iter(errors.items()))
+        error_message = field_errors[0] if isinstance(field_errors, list) else field_errors
+        return Response({
+            "status": "error",
+            "message": error_message
+        }, status=status.HTTP_400_BAD_REQUEST)
