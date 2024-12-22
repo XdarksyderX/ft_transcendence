@@ -44,7 +44,15 @@ class ChangeUsernameView(APIView):
                 "status": "success",
                 "message": "Username changed successfully."
             }, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # Handle invalid serializer response with specific field error
+        errors = serializer.errors
+        field_name, field_errors = next(iter(errors.items()))
+        error_message = field_errors[0] if isinstance(field_errors, list) else field_errors
+        return Response({
+            "status": "error",
+            "message": error_message
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 class ChangeEmailView(APIView):
     permission_classes = [IsAuthenticated]
@@ -95,7 +103,14 @@ class ChangeEmailView(APIView):
                 "status": "success",
                 "message": "Email changed successfully. Please verify your new email."
             }, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        errors = serializer.errors
+        field_name, field_errors = next(iter(errors.items()))
+        error_message = field_errors[0] if isinstance(field_errors, list) else field_errors
+        return Response({
+            "status": "error",
+            "message": error_message
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 class ResetPasswordRequestView(APIView):
     permission_classes = [IsAuthenticated]
@@ -127,7 +142,15 @@ class ResetPasswordRequestView(APIView):
                 "status": "success",
                 "message": "Password reset email sent."
             }, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # Handle invalid serializer response with specific field error
+        errors = serializer.errors
+        field_name, field_errors = next(iter(errors.items()))
+        error_message = field_errors[0] if isinstance(field_errors, list) else field_errors
+        return Response({
+            "status": "error",
+            "message": error_message
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 class ResetPasswordView(APIView):
     permission_classes = [IsAuthenticated]
@@ -158,4 +181,11 @@ class ResetPasswordView(APIView):
                 "status": "success",
                 "message": "Password reset successfully."
             }, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+        errors = serializer.errors
+        field_name, field_errors = next(iter(errors.items()))
+        error_message = field_errors[0] if isinstance(field_errors, list) else field_errors
+        return Response({
+            "status": "error",
+            "message": error_message
+        }, status=status.HTTP_400_BAD_REQUEST)

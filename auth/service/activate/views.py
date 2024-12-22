@@ -34,9 +34,14 @@ class VerifyEmailView(APIView):
                 "status": "success",
                 "message": "Email verified successfully."
             }, status=status.HTTP_200_OK)
+        
+        # Handle invalid serializer response with specific field error
+        errors = serializer.errors
+        field_name, field_errors = next(iter(errors.items()))
+        error_message = field_errors[0] if isinstance(field_errors, list) else field_errors
         return Response({
             "status": "error",
-            "message": "Invalid token"
+            "message": error_message
         }, status=status.HTTP_400_BAD_REQUEST)
 
 class Activate2FAView(APIView):
@@ -109,7 +114,11 @@ class Activate2FAView(APIView):
 
             return Response(response_data, status=status.HTTP_200_OK)
 
+        # Handle invalid serializer response with specific field error
+        errors = serializer.errors
+        field_name, field_errors = next(iter(errors.items()))
+        error_message = field_errors[0] if isinstance(field_errors, list) else field_errors
         return Response({
             "status": "error",
-            "message": "Required enable property"
+            "message": error_message
         }, status=status.HTTP_400_BAD_REQUEST)

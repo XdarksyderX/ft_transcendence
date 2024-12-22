@@ -125,20 +125,28 @@ function animateCardHover() {
     });
 }
 
-
-document.addEventListener("DOMContentLoaded", () => {
+function initializeNeonFrames() {
     const neonText = document.getElementById("neon-text");
-    const neonFrame = document.querySelector(".blinking-neon-frame");
-    const notification = document.getElementById("notification-indicator");
-
+    const neonFrames = document.querySelectorAll(".blinking-neon-frame");
+    
     if (neonText) {
         animateNeon(neonText, 10, 100);
     }
-    if (neonFrame) {
-        animateNeonFrame(neonFrame, 10, 35, 2, 1000);
+    if (neonFrames) {
+        neonFrames.forEach(neonFrame => {
+            animateNeonFrame(neonFrame, 10, 35, 2, 1000);
+        });
     }
+    animateCardHover();
+}
+
+function initializeNeonChat() {
+    const notification = document.getElementById("notification-indicator");
+    
     if (notification) {
         animateNeonFrame(notification, 10, 35, 2, 1000);
     }
-    animateCardHover();
-});
+}
+
+export {initializeNeonFrames, initializeNeonChat}
+

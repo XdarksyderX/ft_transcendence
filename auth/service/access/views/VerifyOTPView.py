@@ -47,6 +47,4 @@ class VerifyOTPView(APIView):
                 rabbit_client.close()
 
             return response
-        print(serializer.errors)
-        print(serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
