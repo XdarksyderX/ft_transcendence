@@ -52,6 +52,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'middlewares.jwt_auth.JWTAuthenticationMiddleware', # TODO middleware: comprobar si el path está bien
 ]
 
 ROOT_URLCONF = 'config.urls'

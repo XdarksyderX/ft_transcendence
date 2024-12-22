@@ -16,6 +16,7 @@ class Messages(models.Model):
     sender_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages', verbose_name='Sender ID')
     receiver_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_messages', verbose_name='Receiver ID')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Created Date')
+    # TODO Poner una bool que sea si el mensaje ha sido leido y esto se tendra qu eimplementar a lo que devuelve la API
 
     def __str__(self) -> str:
         return f'From {self.sender_id} to {self.receiver_id}: {self.content[:30]}'

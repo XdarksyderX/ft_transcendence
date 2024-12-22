@@ -16,9 +16,10 @@ COPY service /service
 
 RUN pip install --no-cache-dir -r /service/requirements.txt
 
-RUN apt-get update && apt-get install -y postgresql postgresql-contrib
+RUN apt-get update && apt-get install -y postgresql postgresql-contrib redis-server
 
 EXPOSE 5000
+EXPOSE 6379
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh

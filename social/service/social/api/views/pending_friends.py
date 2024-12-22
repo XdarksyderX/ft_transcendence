@@ -15,11 +15,15 @@ class AcceptFriendRequestView(APIView):
         Returns:
             Status messages, if is added to the friend list, or errors
     """
-    def post(self, request, user_id, friend_id):
+    def post(self, request, friend_id):
+        if not request.user:
+            return Response({'error': 'User not authenticated'}, status=status.HTTP_401_UNAUTHORIZED)
+            # TODO middleare: ver como redireccion al usuario para que se loguee
+
         try:
             # Verify the users
-            user = User.objects.get(id=user_id)
-            friend_user = User.objects.get(id=friend_id)
+            user = request.user # TODO modificado por eso lo otro da error
+            friend_user = User.objects.get(id=friend_id) # TODO  no se si esto sería id o user_id
 
             user_friend_data, _ = Friends.objects.get_or_create(user=user)
             friend_friend_data, _ = Friends.objects.get_or_create(user=friend_user)

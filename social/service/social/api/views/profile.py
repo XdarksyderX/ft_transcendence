@@ -18,9 +18,13 @@ class ProfileView(APIView):
     Return:
         The response is all work correctly, or a Error Messages if fail.
     """
-    def get(self, request, user):
+    def get(self, request):
+        if not request.user:
+            return Response({'error': 'User not authenticated'}, status=status.HTTP_401_UNAUTHORIZED)
+            # TODO middleare: ver como redireccion al usuario para que se loguee
+
         try:
-            user = User.objects.get(user=user)
+            user = request.user
             serializer = ProfileSerializer(user)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except User.DoesNotExist:
