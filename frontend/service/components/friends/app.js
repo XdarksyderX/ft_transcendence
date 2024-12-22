@@ -43,10 +43,29 @@ export function initializeFriendsEvents() {
         `;
         friendBtn.style.color = `var(--light)`;
         friendBtn.style.border = `1px solid var(--light)`;
-        // friendBtn.addEventListener('click', () => toggleFriendSelection(friend));
+        friendBtn.addEventListener('click', () => renderFriendData(friend, color));
         return friendBtn;
     }
     renderFriendList();
+
+
+    function renderFriendData(friend, color) {
+        const container = document.getElementById('friend-data');
+
+        container.innerHTML = `
+            <h2 id="friend-name" class="text-center ctm-text-title">${friend.name}</h2>
+            <img src="${friend.picture}" alt="${friend.name}" class="friend-picture-expanded mb-3">
+            <p>
+              <span class="friend-status" style="color: ${color};">status: ${friend.status}</span>
+              <span class="status-circle" style="background-color: ${color};"></span>
+            </p>
+            <p>friends since: 4/8/24</p>
+            <p>
+                <div class="btn ctm-btn">delete</div>
+                <div class="btn ctm-btn-secondary">block</div>
+            </p>
+        `
+    }
 
 let inactivityTimeout;
 

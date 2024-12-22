@@ -85,7 +85,7 @@ function initializeNeonFrames() {
     }
     if (neonFrames) {
         neonFrames.forEach(neonFrame => {
-            animateNeon(neonFrame, { maxShadow: 10, interval: 35, blinkTimes: 2, isTextShadow: false, stopOnComplete: false });
+            animateNeon(neonFrame, { maxShadow: 10, interval: 50, blinkTimes: 2, isTextShadow: false, stopOnComplete: false });
         });
     }
     if (cards) {

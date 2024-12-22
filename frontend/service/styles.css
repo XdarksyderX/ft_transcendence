@@ -23,6 +23,7 @@ body {
     letter-spacing: 1px;
     margin: 0;
     padding: 0;
+    overflow-y: hidden;
 }
 /* this is a pseudo-element to overlay the bg image with reduced opacity */
 body::before {
@@ -110,6 +111,7 @@ body::before {
     background-color: var(--medium);
     background: linear-gradient(to bottom, var(--medium), var(--dark)); /* Example gradient */
     box-shadow: 0 0 10px #00F56A, 0 0 10px #00F56A, 0 0 15px #00F56A, 0 0 30px #00F56Acc;
+ /*    position: fixed; */
 }
 .navbar-brand {
     cursor: default;
@@ -173,13 +175,15 @@ input:focus, select:focus, .ctm-btn:focus, .ctm-btn-dark:focus {
     outline: none !important
 }
 
-.vertical-wrap {
+#app {
     flex: 1;
     display: flex;
     align-items: flex-start;
     justify-content: center;
     padding: 1rem;
     padding-top: calc(100vh / 9); 
+    overflow-y: auto;
+    height: calc(100vh - 50px); /* navbar is 50px */
 }
 
 @media (max-height: 900px) {
