@@ -187,21 +187,31 @@ function callbackPiece(piece, id) {
 }
 
 function moveTwoCastlingPieces(piece, id) {
+  let castlingType = "";
   if (piece.piece_name.includes("KING") || piece.piece_name.includes("ROOK")) {
     piece.move = true;
     if (piece.piece_name.includes("KING") && piece.piece_name.includes("WHITE")) {
       if (id === 'c1' || id === 'g1') {
+        if (id === 'g1' || id === 'g8')
+          castlingType = "0-0";
+        else
+          castlingType = "0-0-0";
         let rook = keySquareMapper[id === 'c1' ? 'a1' : 'h1'];
         moveElement(rook.piece, id === 'c1' ? 'd1' : 'f1', true);
       }
     }
     if (piece.piece_name.includes("KING") && piece.piece_name.includes("BLACK")) {
       if (id === 'c8' || id === 'g8') {
+        if (id === 'c8' || id === 'c1')
+          castlingType = "0-0-0";
+        else
+          castlingType = "0-0";
         let rook = keySquareMapper[id === 'c8' ? 'a8' : 'h8'];
         moveElement(rook.piece, id === 'c8' ? 'd8' : 'f8', true);
       }
     }
   }
+  return castlingType;
 }
 
 /**
@@ -260,8 +270,9 @@ function moveElement(piece, id, castle) {
     return;
 
   const pawnPromotionBool = checkForPawnPromotion(piece, id);
-  moveTwoCastlingPieces(piece, id);
-  logMoves({from: piece.current_pos, to: id, piece:piece.piece_name}, inTurn, piece);
+  let castlingType = moveTwoCastlingPieces(piece, id);
+  console.log(`castlingType: ${castlingType}`);
+  logMoves({from: piece.current_pos, to: id, piece:piece.piece_name}, inTurn, piece, castlingType);
 
   updateGlobalState(piece, id);
   clearHighlight();
