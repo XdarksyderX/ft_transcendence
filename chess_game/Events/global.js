@@ -18,6 +18,7 @@ let moveState = null;
 let inTurn = "white";
 let whoInCheck = null;
 let winBool = false;
+let captureNotation = false;
 
 function changeTurn() {
   inTurn = inTurn === "white" ? "black" : "white";
@@ -33,9 +34,11 @@ function captureInTurn(square) {
   }
   
   if (square.captureHightlight) {
+    captureNotation = true;
     moveElement(selfHighlightState, piece.current_pos);
     clearPreviousSelfHighlight(selfHighlightState);
     clearHighlightLocal();
+    captureNotation = false;
     return;
   }
   return;
@@ -258,7 +261,7 @@ function moveElement(piece, id, castle) {
 
   const pawnPromotionBool = checkForPawnPromotion(piece, id);
   moveTwoCastlingPieces(piece, id);
-  logMoves({from: piece.current_pos, to: id, piece:piece.piece_name}, inTurn);
+  logMoves({from: piece.current_pos, to: id, piece:piece.piece_name}, inTurn, piece);
 
   updateGlobalState(piece, id);
   clearHighlight();
@@ -402,4 +405,4 @@ function isOpponentPiece(square) {
          (square.piece.piece_name.includes("BLACK") && inTurn === "white");
 }
 
-export { GlobalEvent };
+export { GlobalEvent, captureNotation };
