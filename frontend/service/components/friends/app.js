@@ -51,7 +51,7 @@ export function initializeFriendsEvents() {
 
     function renderFriendData(friend, color) {
         const container = document.getElementById('friend-data');
-
+    
         container.innerHTML = `
             <h2 id="friend-name" class="text-center ctm-text-title">${friend.name}</h2>
             <img src="${friend.picture}" alt="${friend.name}" class="friend-picture-expanded mb-3">
@@ -61,10 +61,10 @@ export function initializeFriendsEvents() {
             </p>
             <p>friends since: 4/8/24</p>
             <p>
-                <div class="btn ctm-btn">delete</div>
-                <div class="btn ctm-btn-secondary">block</div>
+                <div class="btn ctm-btn-secondary" data-bs-toggle="modal" data-bs-target="#deleteModal">delete</div>
+                <div class="btn ctm-btn-danger" data-bs-toggle="modal" data-bs-target="#blockModal">block</div>
             </p>
-        `
+        `;
     }
 
 let inactivityTimeout;

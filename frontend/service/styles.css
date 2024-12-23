@@ -8,6 +8,8 @@
 	--light: rgb(132, 204, 163);
 	--title: #F59C00;
 	--lorange: #f1c478;
+    --transition: #a90808;
+    --danger: #c10505;
 }
 
 @font-face {
@@ -81,12 +83,19 @@ body::before {
         background-color: var(--darkish);
     }
 }
-
 .ctm-btn-secondary {
     color: var(--dark);
     background-color: var(--lorange);
     &:hover {
         background-color: var(--title);
+    }
+}
+.ctm-btn-danger {
+    color: var(--lorange);
+    background-color: var(--transition);
+    &:hover {
+        color: var(--lorange);
+        background-color: var(--danger);
     }
 }
 .cancel-btn {
@@ -98,6 +107,7 @@ body::before {
     padding: 7px 12px; /* Optional: adjust padding for better appearance */
     transition: box-shadow 0.3s ease; /* Optional: smooth transition for hover effect */
 }
+
 
 .cancel-btn:hover {
     color: var(--title);
