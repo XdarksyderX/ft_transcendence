@@ -156,3 +156,12 @@ class AccessTokenSerializer(serializers.Serializer):
             return {"status": "success", "message": "Access token is valid.", "user_id": token['user_id']}
         except Exception as e:
             raise serializers.ValidationError("Invalid or expired access token.")
+
+class DeleteAccountSerializer(serializers.Serializer):
+    password = serializers.CharField(write_only=True)
+
+    def validate_password(self, value):
+        user = self.context['request'].user
+        if not user.check_password(value):
+            raise serializers.ValidationError("Incorrect password.")
+        return value
