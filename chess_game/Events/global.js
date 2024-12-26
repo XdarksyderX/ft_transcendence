@@ -4,7 +4,7 @@ import { clearHighlight, globalStateRender, selfHighlight, globalPiece, circleHi
 import { checkOpponetPieceByElement, giveBishopHighlightIds, giveRookHighlightIds, giveKnightHighlightIds, giveQueenHighlightIds, giveKingHighlightIds } from "../Helper/commonHelper.js";
 import { giveKnightCaptureIds, giveKingCaptureIds, giveBishopCaptureIds, giveRookCaptureIds, giveQueenCaptureIds } from "../Helper/commonHelper.js";
 import { pawnMovesOptions, pawnCaptureOptions, getCaptureMoves, knightMovesOptions, limitKingMoves } from "../Helper/commonHelper.js";
-import logMoves from "../Helper/logging.js";
+import {logMoves, appendPromotion} from "../Helper/logging.js"
 import { pawnPromotion, winGame } from "../Helper/modalCreator.js";
 
 //highlighted or not => state
@@ -176,6 +176,7 @@ function callbackPiece(piece, id) {
   
   piece.current_pos = id;
   currentSquare.piece = realPiece;
+  appendPromotion(inTurn, realPiece.piece_name);
   
   const image = document.createElement('img');
   image.src = realPiece.img;
@@ -271,24 +272,24 @@ function moveElement(piece, id, castle) {
 
   const pawnPromotionBool = checkForPawnPromotion(piece, id);
   let castlingType = moveTwoCastlingPieces(piece, id);
-  //console.log(`castlingType: ${castlingType}`);
-  logMoves({from: piece.current_pos, to: id, piece:piece.piece_name}, inTurn, piece, castlingType);
-
+  
   updateGlobalState(piece, id);
   clearHighlight();
   updatePiecePosition(piece, id);
   
   checkForCheck();
-
+  
   if (winBool) {
     setTimeout(() => {
-        winGame(winBool);
+      winGame(winBool);
     }, 50); // Ajusta el tiempo de retraso según la duración de tu animación
     return;
   }
-
-  if (pawnPromotionBool)
+  
+  if (pawnPromotionBool) {
     pawnPromotion(inTurn, callbackPiece, id);
+  }
+  logMoves({from: piece.current_pos, to: id, piece:piece.piece_name}, inTurn, piece, castlingType);
   
   if (!castle)
     changeTurn();
@@ -416,4 +417,4 @@ function isOpponentPiece(square) {
          (square.piece.piece_name.includes("BLACK") && inTurn === "white");
 }
 
-export { GlobalEvent, captureNotation };
+export { GlobalEvent, captureNotation};

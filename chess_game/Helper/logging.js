@@ -16,8 +16,15 @@ function logMoves(logMoves, inTurn, piece, castlingType) {
     let moveNotation = `${pieceLetter}${isCapture}${logMoves.to}`;
     const leftCol = document.getElementById("leftCol");
     const rightCol = document.getElementById("rightCol");
-    if (castlingType)
+    const targetCol = inTurn === "white" ? leftCol : rightCol;
+    if (castlingType) {
         moveNotation = castlingType;
+        if (targetCol.children.length > 1) {
+            targetCol.removeChild(targetCol.children[targetCol.children.length - 1]);
+            if (targetCol === leftCol)
+                num--;
+        }
+    }
     if (inTurn == "white") {
         const row = document.createElement("div");
         row.classList.add('row');
@@ -33,4 +40,19 @@ function logMoves(logMoves, inTurn, piece, castlingType) {
     }
 }
 
-export default logMoves;
+function appendPromotion(inTurn, pieceName) {
+    const letter = getLetterAfterUnderscore(pieceName);
+    const col = inTurn === "black" ? "left" : "right";
+    const targetCol = document.getElementById(`${col}Col`);
+    if (targetCol && targetCol.lastChild)
+        targetCol.lastChild.innerHTML += `=${letter}`;
+}
+
+function getLetterAfterUnderscore(str) {
+    const parts = str.split('_');
+    if (parts.length > 1)
+      return parts[1].charAt(0);
+    return '';
+}
+
+export { logMoves, appendPromotion }

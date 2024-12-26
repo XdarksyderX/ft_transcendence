@@ -96,12 +96,6 @@ const piecePositions = {
   "e1": piece.whiteKing
 };
 
-//this is supposed to be the numbers and letter in the squaretable -> just after this line: squareDiv.classList.add(square.color, "square");
-/*       const labelId = document.createElement("span");
-      labelId.textContent = square.id;
-      labelId.classList.add("labelId", `${square.color}-label-id`);
-      squareDiv.append(labelId); */
-
 function initGameRender(data)
 {
   globalPiece.black_pawns = [];
