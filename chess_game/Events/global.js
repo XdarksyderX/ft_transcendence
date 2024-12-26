@@ -335,7 +335,8 @@ function handlePieceClick(square, color, pieceType, row, direction) {
 
   switch (pieceType) {
     case 'pawn':
-      const highlightSquareIds = pawnMovesOptions(piece.current_pos, row, direction);
+      console.log(square.piece);
+      const highlightSquareIds = pawnMovesOptions(piece.current_pos, row, direction, color);
       circleHighlightRender(highlightSquareIds, keySquareMapper);
       const captureIds = pawnCaptureOptions(piece.current_pos, direction);
       captureIds.forEach(element => checkOpponetPieceByElement(element, color));
@@ -408,8 +409,21 @@ function GlobalEvent() {
 function handleHighlightClickEvent(target) {
   clearPreviousSelfHighlight(selfHighlightState);
   const id = target.localName === "span" ? target.parentNode.id : target.id;  //if the person precisely click on the round hightlight  //gets the id of the parent node of the clickd 'span'  //if the clicked element is not a span but still has exactly one child node, means the square minus the round highlight, to ensure the proper movement either way
+  if (moveState.piece_name.includes("PAWN"))
+    checkDoubleMove(moveState, id);
   moveElement(moveState, id);
   moveState = null;
+}
+
+function checkDoubleMove(piece, newPosition) {
+  const oldPosition = piece.current_pos;
+
+  // Check if the pawn moved two squares
+  if (Math.abs(newPosition[1] - oldPosition[1]) === 2) {
+      piece.move = true;
+    } else {
+      piece.move = false;
+  }
 }
 
 function isOpponentPiece(square) {

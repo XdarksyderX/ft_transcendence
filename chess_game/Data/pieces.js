@@ -1,6 +1,6 @@
 //black pieces
 function blackPawn(current_pos) {
-  return { current_pos, img: "Assets/pieces/black/pawn.png", piece_name: "BLACK_PAWN", };
+  return { current_pos, img: "Assets/pieces/black/pawn.png", piece_name: "BLACK_PAWN", move: false};
 }
 
 function blackRook(current_pos) {

@@ -281,16 +281,49 @@ function giveKingCaptureIds(id, color) {
     return res;
 }
 
-function pawnMovesOptions(curr_pos, row, num) {
+function checkEnPassant(curr_pos, color) {
+    const row = color === "white" ? 5 : 4; // Row where en passant is possible
+    if (curr_pos[1] != row) return false;
+    const leftPos = `${String.fromCharCode(curr_pos[0].charCodeAt(0) - 1)}${curr_pos[1]}`;
+    const rightPos = `${String.fromCharCode(curr_pos[0].charCodeAt(0) + 1)}${curr_pos[1]}`;
+    const opponentColor = color === "white" ? "black" : "white";
+
+    return (checkPieceExist(leftPos) && keySquareMapper[leftPos].piece.piece_name.toLowerCase().includes(opponentColor)) && keySquareMapper[leftPos].piece.move ||
+           (checkPieceExist(rightPos) && keySquareMapper[rightPos].piece.piece_name.toLowerCase().includes(opponentColor) && keySquareMapper[rightPos].piece.move);
+}
+
+function returnMoveEnPassant(curr_pos, color) {
+    const row = color === "white" ? 5 : 4; // Row where en passant is possible
+    if (curr_pos[1] != row) return false;
+    const leftPos = `${String.fromCharCode(curr_pos[0].charCodeAt(0) - 1)}${curr_pos[1]}`;
+    const rightPos = `${String.fromCharCode(curr_pos[0].charCodeAt(0) + 1)}${curr_pos[1]}`;
+    const opponentColor = color === "white" ? "black" : "white";
+    if (checkPieceExist(leftPos) && keySquareMapper[leftPos].piece.piece_name.toLowerCase().includes(opponentColor) && keySquareMapper[leftPos].piece.move) {
+        return `${leftPos[0]}${Number(leftPos[1]) + 1}`;
+    }
+    else if (checkPieceExist(rightPos) && keySquareMapper[rightPos].piece.piece_name.toLowerCase().includes(opponentColor) && keySquareMapper[rightPos].piece.move) {
+        return `${rightPos[0]}${Number(rightPos[1]) + 1}`;
+    }
+}
+
+function pawnMovesOptions(curr_pos, row, num, color) {
     let highlightSquareIds = null;
     //on intial postion, pawns moves different
     if (curr_pos[1] == row) {
         highlightSquareIds = [
             `${curr_pos[0]}${Number(curr_pos[1]) + num}`,
             `${curr_pos[0]}${Number(curr_pos[1]) + (num * 2)}`, ];
-    }
-    else {
-        highlightSquareIds = [`${curr_pos[0]}${Number(curr_pos[1]) + num}`,];
+        }
+        else {
+            //console.log(checkEnPassant(curr_pos, color))
+            highlightSquareIds = [`${curr_pos[0]}${Number(curr_pos[1]) + num}`,];
+            if (checkEnPassant(curr_pos, color)) {
+                console.log("TRUE");
+                const enPassant = returnMoveEnPassant(curr_pos, color);
+                console.log(enPassant);
+                highlightSquareIds.push(enPassant);
+            }
+            console.log(highlightSquareIds);
     }
     highlightSquareIds = checkSquareCaptureId(highlightSquareIds);
     return highlightSquareIds;
