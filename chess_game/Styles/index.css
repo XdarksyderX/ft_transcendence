@@ -135,10 +135,35 @@ body {
 
 #move_logger{
   width: 20vw;
-  height: 680px; /*80px (square) x 8 nº*/
+  height: 720px; /*80px (square) x 8 nº*/
   color: white;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #262522;
+}
+
+.tile-x {
+  text-align: center;
+  height: 32px;
+  width: 80px;
+  padding-left: 20px;
+  margin-top: 7px;
+}
+
+.tile-y {
+  text-align: center;
+  height: 80px;
+  width: 40px;
+  padding-top: 24px;
+}
+
+#chess-container {
+  background-color: #262522;
+  color: white;
+}
+
+.empty-tile {
+  width: 40px;
+  height: 40px;
 }
 
 /*#root{
