@@ -3,7 +3,12 @@ export function initializeStartGameEvents() {
         pongBtn: document.getElementById('pong-btn'),
         playPong: document.getElementById('play-pong'),
         pongOptions: document.getElementById('pong-options'),
+        quickPlay: document.getElementById('quick-play'),
+        tournament: document.getElementById('tournament'),
+        quickPlayOptions: document.getElementById('quick-play-options'),
         playFriend: document.getElementById('play-friend'),
+        playAnyFriend: document.getElementById('play-any-friend'),
+        playMachine: document.getElementById('play-machine'),
         friendList: document.getElementById('friend-list'),
         friendsContainer: document.getElementById('friends-container'),
         startGameWithFriendButton: document.getElementById('start-game-with-friend'),
@@ -12,6 +17,18 @@ export function initializeStartGameEvents() {
         progressBar: document.getElementById('progress-bar'),
         timer: document.getElementById('timer')
     };
+    let currentView = null;
+
+    function toggleView(to) {
+        if (currentView) currentView.style.display = 'none';
+        if (to === elements.playPong) {
+            to.style.display = 'block';
+        } else {
+            to.style.display = 'flex';
+        }
+        currentView = to;
+    }
+
     let selectedFriend = null;
     let isModalShown = false;
     // Provisionally hardcoded friends list
@@ -25,32 +42,51 @@ export function initializeStartGameEvents() {
     // toggle between play-pong and play options when you click on the card
     function togglePongOptions(event) { 
         event.stopPropagation();
-        if (elements.friendList.style.display === 'none') {
-            elements.playPong.style.display = elements.playPong.style.display === 'none' ? 'block' : 'none';
-            elements.pongOptions.style.display = elements.pongOptions.style.display === 'none' ? 'flex' : 'none';
+        if (currentView !== elements.friendList && currentView !== elements.quickPlayOptions) {
+            toggleView(elements.pongOptions);
         }
     }
     elements.pongBtn.addEventListener('click', togglePongOptions);
 
     // go back to choose game mode when you click outside the card
     function backToChooseGame(event) { 
-        if (!isModalShown && elements.playPong.style.display !== 'block' && !elements.pongBtn.contains(event.target)) {
-            elements.playPong.style.display = 'block';
-            elements.pongOptions.style.display = 'none';
-            elements.friendList.style.display = 'none';
-            unselectFriend(true);
+        if (!isModalShown && currentView !== elements.playPong && !elements.pongBtn.contains(event.target)) {
+            toggleView(elements.playPong);
         }
     }
     document.addEventListener('click', backToChooseGame);
 
+    // show quick play options
+    function showQuickPlayOptions() {
+        toggleView(elements.quickPlayOptions);
+    }
+    elements.quickPlay.addEventListener('click', showQuickPlayOptions);
+
     // show the play with a friend option
     function playWithFriend() {
-        elements.playPong.style.display = 'none';
-        elements.pongOptions.style.display = 'none';
-        elements.friendList.style.display = 'flex';
+        toggleView(elements.friendList);
         renderFriendList();
     }
     elements.playFriend.addEventListener('click', playWithFriend);
+
+    // placeholder functions for new options
+    function playWithAnyFriend() {
+        console.log("Play with any friend option selected");
+        // Implement the logic for playing with any friend here
+    }
+    elements.playAnyFriend.addEventListener('click', playWithAnyFriend);
+
+    function playAgainstMachine() {
+        console.log("Play against the machine option selected");
+        // Implement the logic for playing against the machine here
+    }
+    elements.playMachine.addEventListener('click', playAgainstMachine);
+
+    function startTournament() {
+        console.log("Tournament option selected");
+        // Implement the logic for starting a tournament here
+    }
+    elements.tournament.addEventListener('click', startTournament);
 
     //create a btn for each friend and append it to the container
     function renderFriendList() {
@@ -119,7 +155,7 @@ export function initializeStartGameEvents() {
             let time = Math.floor(progress / 100 * 30);
             progress -= 1;
             elements.progressBar.style.width = `${progress}%`;
-            elements.progressBar.setAttribute('aria-valuenow', progress); // defines the current value of the progressBar so is accesible, for example for screen readers
+            elements.progressBar.setAttribute('aria-valuenow', progress);
             elements.timer.textContent = `${time}`;
             if (progress <= 0) {
                 clearInterval(interval);
@@ -143,4 +179,7 @@ export function initializeStartGameEvents() {
     }
 
     elements.startGameWithFriendButton.addEventListener('click', launchWaitModal);
+    currentView = elements.playPong;
 }
+
+
