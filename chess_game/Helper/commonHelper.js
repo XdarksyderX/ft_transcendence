@@ -354,7 +354,7 @@ function castlingCheck(piece, color, res) {
  * @param {*} preRenderCallback this callback funcion is just for the king, that call limitKingMoves to avoid an auto checkmate
  * @returns 
  */
-function getCaptureMoves(piece, highlightIdsFunc, color, renderBool = false, preRenderCallback = null) {
+function getCaptureMoves(piece, highlightIdsFunc, color, renderBool = false, preRenderCallback = null, skipCastlingCheck = false) {
     const curr_pos = piece.current_pos;
     let highlightSquareIds = highlightIdsFunc(curr_pos);
     let tmp = [], res = [];
@@ -366,7 +366,8 @@ function getCaptureMoves(piece, highlightIdsFunc, color, renderBool = false, pre
         tmp.push(squares);
       }
     }
-    castlingCheck(piece, color, res);
+    if (skipCastlingCheck)
+        castlingCheck(piece, color, res);
     highlightSquareIds = res.flat();
     if (preRenderCallback)
         preRenderCallback(highlightSquareIds);

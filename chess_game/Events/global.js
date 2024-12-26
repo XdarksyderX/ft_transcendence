@@ -271,7 +271,7 @@ function moveElement(piece, id, castle) {
 
   const pawnPromotionBool = checkForPawnPromotion(piece, id);
   let castlingType = moveTwoCastlingPieces(piece, id);
-  console.log(`castlingType: ${castlingType}`);
+  //console.log(`castlingType: ${castlingType}`);
   logMoves({from: piece.current_pos, to: id, piece:piece.piece_name}, inTurn, piece, castlingType);
 
   updateGlobalState(piece, id);
@@ -352,7 +352,7 @@ function handlePieceClick(square, color, pieceType, row, direction) {
       getCaptureMoves(piece, giveQueenHighlightIds, color, true);
       break;
     case 'king':
-      const kingHighlightSquareIds = getCaptureMoves(piece, giveKingHighlightIds, color, true, (moves) => limitKingMoves(moves, color));
+      const kingHighlightSquareIds = getCaptureMoves(piece, giveKingHighlightIds, color, true, (moves) => limitKingMoves(moves, color), true);
       circleHighlightRender(kingHighlightSquareIds, keySquareMapper);
       break;
   }
