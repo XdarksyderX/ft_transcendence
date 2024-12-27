@@ -1,3 +1,5 @@
+import { navigateTo } from '../../app/router.js';
+
 document.addEventListener('DOMContentLoaded', () => {
     const registerForm = document.getElementById('register');
     registerForm.addEventListener('click', function(event) {
@@ -32,7 +34,7 @@ function register(userCredentials) {
     .then(data => {
         if (data.status === 'success') {
             alert('Registration successful! Please check your email for verification.');
-            window.location.href = '/login.html'; // Redirect to the login page
+            navigateTo('/login'); // Redirect to the login page
         } else {
             alert(data.message || 'Registration error. Please try again.');
         }

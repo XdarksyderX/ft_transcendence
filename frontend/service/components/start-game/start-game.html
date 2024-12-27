@@ -10,22 +10,28 @@
 				<div id="pong-btn" class="card-link">
 					<div class="ctm-card card-hover h-100">
 						<div class="card-body text-center d-flex flex-column">
+							<h3 class="ctm-text-title mb-3">Play Pong</h3>
 							<div id="play-pong">
-								<h3 class="ctm-text-title mb-3">Play Pong</h3>
 								<img src="https://media.tenor.com/2gyJVMt_L6wAAAAM/pong-video-game.gif" alt="Play Pong" class="img-fluid rounded mb-3">
 								<p class="ctm-text-light">Click to start a game of Pong!</p>
 							</div>
 							<div id="pong-options" class="h-100 flex-column" style="display: none !important;">
-								<h3 class="ctm-text-title mb-3">Play Pong</h3>
-								<div id="play-friend" class="btn ctm-btn mb-3 flex-grow-1 d-flex align-items-center justify-content-center">play with a friend</div>
-								<div class="btn ctm-btn mb-3 flex-grow-1 d-flex align-items-center justify-content-center">play against the machine</div>
-								<div class="btn ctm-btn mb-3 flex-grow-1 d-flex align-items-center justify-content-center">play in a tournament</div>    
+								<div id="quick-play" class="btn ctm-btn mb-3 flex-grow-1 d-flex align-items-center justify-content-center">Quick Play</div>
+								<div id="tournament" class="btn ctm-btn mb-3 flex-grow-1 d-flex align-items-center justify-content-center">Tournament</div>
+							</div>
+							<div id="quick-play-options" class="h-100 flex-column" style="display: none !important;">
+								<div id="play-friend" class="btn ctm-btn mb-3 flex-grow-1 d-flex align-items-center justify-content-center">Play with a friend</div>
+								<div id="play-any-friend" class="btn ctm-btn mb-3 flex-grow-1 d-flex align-items-center justify-content-center">Play with any friend</div>
+								<div id="play-machine" class="btn ctm-btn mb-3 flex-grow-1 d-flex align-items-center justify-content-center">Play against the machine</div>
 							</div>
 							<div id="friend-list" class="h-100 flex-column" style="display: none;">
-								<h4 class="ctm-text-light mb-3">Select a friend to play with:</h4>
+								<h5 class="ctm-text-light mb-3">Select a friend to play with:</h5>
 								<div id="friends-container" class="mb-3"></div>
 								<button id="start-game-with-friend" class="btn ctm-btn mb-3" disabled>Start Game with Friend</button>
-								<!-- <button id="back-to-options" class="btn ctm-btn mb-3">Back to Options</button> -->
+							</div>
+							<div id="tournament-options" class="h-100 flex-column" style="display: none;">
+								<div id="ongoing-tournaments" class="btn ctm-btn mb-3 flex-grow-1 d-flex align-items-center justify-content-center">Ongoing Tournaments</div>
+								<div id="new-tournament" class="btn ctm-btn mb-3 flex-grow-1 d-flex align-items-center justify-content-center">New Tournament</div>
 							</div>
 						</div>
 					</div>
@@ -66,3 +72,4 @@
 		</div>
 	</div>
 </div>
+

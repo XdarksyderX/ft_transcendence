@@ -9,20 +9,24 @@
 }
 
 #chat-container {
-	position: fixed;
-	bottom: 0;
-	right: 20px;
-	width: 300px;
-	transition: height 0.3s ease-in-out;
-	border-color: var(--light);
-	box-shadow: 0 0 10px 0 var(--light) !important;
+    position: fixed;
+    bottom: 0;
+    right: 20px;
+    width: 300px;
+    transition: height 0.3s ease-in-out;
+    border-color: var(--light);
+	box-shadow: 0 0 15px -5px var(--light) !important;
+	border-radius: 10px;
 }
+
 
 #chat-header {
 	background: linear-gradient(to left, var(--medium), var(--dark));
 	color: var(--title);
 	font-family: 'ROG LyonsType Regular';
 	cursor: pointer;
+	border-top-left-radius: 10px;
+	border-top-right-radius: 10px;
 }
 
 #new-chat-btn {
@@ -81,7 +85,6 @@
 
 #chat-form {
 	background-color: var(--dark);
-	border-top: none !important;
 	padding: 10px;
 }
 

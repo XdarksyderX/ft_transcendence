@@ -26,9 +26,15 @@ export function initializeLoginEvents() {
     }
 }
 
+function updateNavbar(username) {
+    const navbarContent = document.getElementById('navbar-content');
+    navbarContent.innerHTML = `<div>Welcome ${username}</div>`
+}
+
 function hardcodedLogin() { //sorry
     loadChat();
     loadSidebar();
+    updateNavbar('erivero-');
     navigateTo('/start-game');
 }
 

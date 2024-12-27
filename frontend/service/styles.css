@@ -8,6 +8,8 @@
 	--light: rgb(132, 204, 163);
 	--title: #F59C00;
 	--lorange: #f1c478;
+    --transition: #a90808;
+    --danger: #c10505;
 }
 
 @font-face {
@@ -23,6 +25,7 @@ body {
     letter-spacing: 1px;
     margin: 0;
     padding: 0;
+    overflow-y: hidden;
 }
 /* this is a pseudo-element to overlay the bg image with reduced opacity */
 body::before {
@@ -80,12 +83,19 @@ body::before {
         background-color: var(--darkish);
     }
 }
-
 .ctm-btn-secondary {
     color: var(--dark);
     background-color: var(--lorange);
     &:hover {
         background-color: var(--title);
+    }
+}
+.ctm-btn-danger {
+    color: var(--lorange);
+    background-color: var(--transition);
+    &:hover {
+        color: var(--lorange);
+        background-color: var(--danger);
     }
 }
 .cancel-btn {
@@ -97,6 +107,7 @@ body::before {
     padding: 7px 12px; /* Optional: adjust padding for better appearance */
     transition: box-shadow 0.3s ease; /* Optional: smooth transition for hover effect */
 }
+
 
 .cancel-btn:hover {
     color: var(--title);
@@ -110,6 +121,7 @@ body::before {
     background-color: var(--medium);
     background: linear-gradient(to bottom, var(--medium), var(--dark)); /* Example gradient */
     box-shadow: 0 0 10px #00F56A, 0 0 10px #00F56A, 0 0 15px #00F56A, 0 0 30px #00F56Acc;
+ /*    position: fixed; */
 }
 .navbar-brand {
     cursor: default;
@@ -173,13 +185,15 @@ input:focus, select:focus, .ctm-btn:focus, .ctm-btn-dark:focus {
     outline: none !important
 }
 
-.vertical-wrap {
+#app {
     flex: 1;
     display: flex;
     align-items: flex-start;
     justify-content: center;
     padding: 1rem;
     padding-top: calc(100vh / 9); 
+    overflow-y: auto;
+    height: calc(100vh - 50px); /* navbar is 50px */
 }
 
 @media (max-height: 900px) {

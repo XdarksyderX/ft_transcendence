@@ -35,3 +35,8 @@ img {
     /* max- */height: 250px !important;
     width: auto;
 }
+
+#pong-options,
+#quick-play-options {
+    display: none;
+}
