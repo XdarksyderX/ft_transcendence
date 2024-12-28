@@ -18,6 +18,19 @@ globalState.flat().forEach((square) => {
 initGameRender(globalState);
 GlobalEvent();
 
+document.addEventListener('DOMContentLoaded', () => {
+    const button1 = document.getElementById('button1');
+    const button2 = document.getElementById('button2');
+  
+    button1.addEventListener('click', () => {
+      console.log('Settings Button clicked');
+    });
+  
+    button2.addEventListener('click', () => {
+      console.log('Resign Button clicked');
+    });
+  });
+
 /*add a custom method to String prototipe that replace a part of an
 string in a specific position. Ex: str = "hello" -> str = str.replaceAt(1, "a") = "hallo" */
 

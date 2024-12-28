@@ -135,7 +135,7 @@ body {
 
 #move_logger{
   width: 20vw;
-  height: 720px; /*80px (square) x 8 nº*/
+  height: 640px; /*80px (square) x 8 nº*/
   color: white;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #262522;
@@ -164,6 +164,34 @@ body {
 .empty-tile {
   width: 40px;
   height: 40px;
+}
+
+/*nuevos estilos para los botones que hay en la parte de abajo de move_logger*/
+#button-container {
+  position: fixed;
+  bottom: 22px;
+  width: 20vw;
+  height: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  background-color: #6b6041;
+  gap: 30px;
+}
+
+#button1, #button2 {
+  background-color: #0056b3;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button-image {
+  width: 30px;
+  height: 30px;
 }
 
 /*#root{
