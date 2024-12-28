@@ -1,7 +1,7 @@
 import { ROOT_DIV } from "../Helper/constants.js";
 import { globalState, keySquareMapper } from "../index.js"; //import globalState object, a 2D array representing the state of the chessboard
 import { clearHighlight, globalStateRender, selfHighlight, globalPiece, circleHighlightRender } from "../Render/main.js";
-import { checkOpponetPieceByElement, giveBishopHighlightIds, giveRookHighlightIds, giveKnightHighlightIds, giveQueenHighlightIds, giveKingHighlightIds } from "../Helper/commonHelper.js";
+import { checkOpponetPieceByElement, giveBishopHighlightIds, giveRookHighlightIds, giveKnightHighlightIds, giveQueenHighlightIds, giveKingHighlightIds, checkPieceExist } from "../Helper/commonHelper.js";
 import { giveKnightCaptureIds, giveKingCaptureIds, giveBishopCaptureIds, giveRookCaptureIds, giveQueenCaptureIds } from "../Helper/commonHelper.js";
 import { pawnMovesOptions, pawnCaptureOptions, getCaptureMoves, knightMovesOptions, limitKingMoves } from "../Helper/commonHelper.js";
 import {logMoves, appendPromotion} from "../Helper/logging.js"
@@ -22,6 +22,11 @@ let captureNotation = false;
 
 function changeTurn() {
   inTurn = inTurn === "white" ? "black" : "white";
+
+  const pawns = inTurn === "white" ? globalPiece.white_pawns : globalPiece.black_pawns;
+  pawns.forEach(pawn => {
+      pawn.move = false;
+  });
 }
 
 function captureInTurn(square) {
@@ -222,7 +227,7 @@ function moveTwoCastlingPieces(piece, id) {
  */
 function updateGlobalState(piece, id) {
   const flatData =  globalState.flat();
-  //iterate throught each element to update the positions od the pieces.
+  //iterate throught each element to update the positions id the pieces.
   flatData.forEach((el) => {
     if (el.id == piece.current_pos) {
       delete el.piece; //when the element with the current position is find, delete the piece property from it
@@ -243,21 +248,46 @@ function updateGlobalState(piece, id) {
  * @param {*} id The new position id where the piece should be moved.
  */
 function updatePiecePosition(piece, id) {
-  //Update the HTML elements to reflect the new positions of the piece
   const previousPiece = document.getElementById(piece.current_pos);
   const currentPiece = document.getElementById(id);
 
   piece.current_pos = null;
   previousPiece?.classList?.remove("highlightYellow");
 
-  /*   currentPiece.innerHTML += previousPiece.querySelector('img').outerHTML;
-  previousPiece.querySelector('img')?.remove(); */
-
   currentPiece.innerHTML = previousPiece?.innerHTML;
   if (previousPiece)
     previousPiece.innerHTML = "";
 
   piece.current_pos = id;
+}
+
+function makeEnPassant(piece, id) {
+  if (!piece.piece_name.includes("PAWN"))
+    return;
+  //console.log(`makeEnPassant: piece: ${piece.current_pos}; id: ${id}`);
+  const num = inTurn === "white" ? 1 : -1;
+  const aux = `${String.fromCharCode(piece.current_pos[0].charCodeAt(0) - 1)}${Number(piece.current_pos[1]) + num}`
+  const aux2 = `${String.fromCharCode(piece.current_pos[0].charCodeAt(0) + 1)}${Number(piece.current_pos[1]) + num}`
+  //console.log(`makeEnPassant: num: ${num}; aux: ${aux}; aux2: ${aux2}`);
+  if (id === aux || id === aux2) {
+    const opPiece = `${id[0]}${Number(id[1]) - num}`
+    if (checkPieceExist(opPiece)) {
+      //console.log(`HEMOS HECHO EN PASSANT, opPiece: ${opPiece}`);
+      const opSquare = keySquareMapper[opPiece];
+      const currentPiece = document.getElementById(opPiece);
+      //console.log(`makeEnPassant: opPiece: ${opPiece}; opSquare: ${JSON.stringify(opSquare)}; currentPiece: ${currentPiece}`);
+
+      const flatData =  globalState.flat();
+      flatData.forEach(el => {
+        if (el.id === opPiece)
+          el.piece.current_pos = null;
+      });
+
+      currentPiece.innerHTML = "";
+      delete opSquare.piece;
+      console.log(globalPiece.black_pawns, globalPiece.white_pawns);
+    }
+  }
 }
 
 /**
@@ -272,7 +302,7 @@ function moveElement(piece, id, castle) {
 
   const pawnPromotionBool = checkForPawnPromotion(piece, id);
   let castlingType = moveTwoCastlingPieces(piece, id);
-  
+  makeEnPassant(piece, id);
   updateGlobalState(piece, id);
   clearHighlight();
   updatePiecePosition(piece, id);
@@ -335,7 +365,6 @@ function handlePieceClick(square, color, pieceType, row, direction) {
 
   switch (pieceType) {
     case 'pawn':
-      console.log(square.piece);
       const highlightSquareIds = pawnMovesOptions(piece.current_pos, row, direction, color);
       circleHighlightRender(highlightSquareIds, keySquareMapper);
       const captureIds = pawnCaptureOptions(piece.current_pos, direction);

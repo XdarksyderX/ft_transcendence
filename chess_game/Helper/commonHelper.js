@@ -281,29 +281,28 @@ function giveKingCaptureIds(id, color) {
     return res;
 }
 
-function checkEnPassant(curr_pos, color) {
+
+function checkEnPassant(curr_pos, color, num) {
     const row = color === "white" ? 5 : 4; // Row where en passant is possible
     if (curr_pos[1] != row) return false;
+
     const leftPos = `${String.fromCharCode(curr_pos[0].charCodeAt(0) - 1)}${curr_pos[1]}`;
     const rightPos = `${String.fromCharCode(curr_pos[0].charCodeAt(0) + 1)}${curr_pos[1]}`;
     const opponentColor = color === "white" ? "black" : "white";
 
-    return (checkPieceExist(leftPos) && keySquareMapper[leftPos].piece.piece_name.toLowerCase().includes(opponentColor)) && keySquareMapper[leftPos].piece.move ||
-           (checkPieceExist(rightPos) && keySquareMapper[rightPos].piece.piece_name.toLowerCase().includes(opponentColor) && keySquareMapper[rightPos].piece.move);
-}
+    // Helper function to check if a position is valid for en passant
+    function isValidEnPassant(pos) {
+        return pos[0] >= 'a' && pos[0] <= 'h' &&
+               checkPieceExist(pos) &&
+               keySquareMapper[pos].piece.piece_name.toLowerCase().includes(opponentColor) &&
+               keySquareMapper[pos].piece.move;
+    }
 
-function returnMoveEnPassant(curr_pos, color) {
-    const row = color === "white" ? 5 : 4; // Row where en passant is possible
-    if (curr_pos[1] != row) return false;
-    const leftPos = `${String.fromCharCode(curr_pos[0].charCodeAt(0) - 1)}${curr_pos[1]}`;
-    const rightPos = `${String.fromCharCode(curr_pos[0].charCodeAt(0) + 1)}${curr_pos[1]}`;
-    const opponentColor = color === "white" ? "black" : "white";
-    if (checkPieceExist(leftPos) && keySquareMapper[leftPos].piece.piece_name.toLowerCase().includes(opponentColor) && keySquareMapper[leftPos].piece.move) {
-        return `${leftPos[0]}${Number(leftPos[1]) + 1}`;
-    }
-    else if (checkPieceExist(rightPos) && keySquareMapper[rightPos].piece.piece_name.toLowerCase().includes(opponentColor) && keySquareMapper[rightPos].piece.move) {
-        return `${rightPos[0]}${Number(rightPos[1]) + 1}`;
-    }
+    if (isValidEnPassant(leftPos))
+        return `${leftPos[0]}${Number(leftPos[1]) + num}`;
+    if (isValidEnPassant(rightPos))
+        return `${rightPos[0]}${Number(rightPos[1]) + num}`;
+    return false;
 }
 
 function pawnMovesOptions(curr_pos, row, num, color) {
@@ -314,16 +313,15 @@ function pawnMovesOptions(curr_pos, row, num, color) {
             `${curr_pos[0]}${Number(curr_pos[1]) + num}`,
             `${curr_pos[0]}${Number(curr_pos[1]) + (num * 2)}`, ];
         }
-        else {
-            //console.log(checkEnPassant(curr_pos, color))
-            highlightSquareIds = [`${curr_pos[0]}${Number(curr_pos[1]) + num}`,];
-            if (checkEnPassant(curr_pos, color)) {
-                console.log("TRUE");
-                const enPassant = returnMoveEnPassant(curr_pos, color);
-                console.log(enPassant);
-                highlightSquareIds.push(enPassant);
-            }
-            console.log(highlightSquareIds);
+    else {
+        highlightSquareIds = [`${curr_pos[0]}${Number(curr_pos[1]) + num}`,];
+        let enPassant = "";
+        if (enPassant = checkEnPassant(curr_pos, color, num)) {
+            //console.log("TRUE", num);
+            //console.log(enPassant);
+            highlightSquareIds.push(enPassant);
+        }
+        //console.log(highlightSquareIds);
     }
     highlightSquareIds = checkSquareCaptureId(highlightSquareIds);
     return highlightSquareIds;
