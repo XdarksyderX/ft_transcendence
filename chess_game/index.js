@@ -6,6 +6,7 @@
 import { initGame } from "./Data/data.js";
 import { initGameRender } from "./Render/main.js";
 import { GlobalEvent } from "./Events/global.js";
+import { resingOption } from "./Helper/modalCreator.js";
 
 //will be usefull until game ends
 const globalState = initGame();
@@ -28,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
     button2.addEventListener('click', () => {
       console.log('Resign Button clicked');
+      resingOption();
     });
   });
 

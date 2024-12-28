@@ -122,4 +122,36 @@ function winGame(winBool) {
   modal.show();
 }
 
-export { pawnPromotion, winGame };
+function resingOption() {
+  const msg = document.createElement("p");
+  msg.textContent = `You are about to resign the game\nAre you sure?`;
+
+  const cancelButton = document.createElement("button");
+  cancelButton.textContent = "Cancel";
+  cancelButton.classList.add("cancel-button");
+  cancelButton.onclick = () => {
+    modal.hide();
+  }
+  
+  const resignButton = document.createElement("button");
+  resignButton.textContent = "Resign";
+  resignButton.classList.add("resign-button");
+  resignButton.onclick = () => {
+    alert("Tenemos muuuuucho miero\nSon la 3 de la banana!");
+    location.reload(); //esto simplemente recarga la pagina, no es definitivo -> aqui guardariamos la victorio y/o derrota en el historial
+    modal.hide();
+  }
+  
+  const buttonContainer = document.createElement("div");
+  buttonContainer.appendChild(cancelButton);
+  buttonContainer.appendChild(resignButton);
+  
+  const finalContainer = document.createElement("div");
+  finalContainer.appendChild(msg);
+  finalContainer.appendChild(buttonContainer);
+  finalContainer.classList.add("modal");
+  const modal = new ModalCreator(finalContainer);
+  modal.show();
+}
+
+export { pawnPromotion, winGame, resingOption };

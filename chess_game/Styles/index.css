@@ -169,9 +169,9 @@ body {
 /*nuevos estilos para los botones que hay en la parte de abajo de move_logger*/
 #button-container {
   position: fixed;
-  bottom: 22px;
+  bottom: 52px;
   width: 20vw;
-  height: 80px;
+  height: 70px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -192,6 +192,32 @@ body {
 .button-image {
   width: 30px;
   height: 30px;
+}
+
+.cancel-button, .resign-button {
+  font-size: 20px; /* Aumenta el tamaño del texto */
+  padding: 10px 20px; /* Aumenta el tamaño del botón */
+  margin: 10px; /* Añade espacio entre los botones */
+  border-radius: 5px; /* Añade bordes redondeados */
+  color: white;
+  border: none; /* Sin borde */
+  cursor: pointer; /* Cambia el cursor al pasar por encima */
+}
+
+.cancel-button {
+  background-color: #3b3b3b;
+}
+
+.resign-button {
+  background-color: #59a279;
+}
+
+.cancel-button:hover {
+  background-color: #464646;
+}
+
+.resign-button:hover {
+  background-color: #62b184;
 }
 
 /*#root{
