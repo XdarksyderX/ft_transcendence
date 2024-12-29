@@ -394,6 +394,8 @@ function handlePieceClick(square, color, pieceType, row, direction) {
 function clearPreviousSelfHighlight(piece)
 {
   if (piece) {
+    console.log(piece);
+    
     document.getElementById(piece.current_pos).classList.remove("highlightYellow");
     selfHighlightState = null;
   } 
@@ -408,7 +410,7 @@ function GlobalEvent() {
   ROOT_DIV.addEventListener("click", function(event) {
     const target = event.target;
     const isPieceClick = target.localName === "img";
-    const isHighlightClick = target.localName === "span" || target.childNodes.length === 1;
+    const isHighlightClick = target.localName === "span" || target.childNodes.length === 2;
     if (isPieceClick) // '===' compares both the value and the type without converting either value as '==' do (eg: 5 == '5')
     {
       const clickId = event.target.parentNode.id; //get the id of the parent element of the child, means the square, intead of the piece
@@ -430,14 +432,17 @@ function GlobalEvent() {
     }
     else { //if the click its an impossible move clear the highlighted elements
       clearHighlightLocal();
+      console.log(selfHighlightState);
+      
       clearPreviousSelfHighlight(selfHighlightState);
     }
   });
 }
 
+ //if the person precisely click on the round hightlight  //gets the id of the parent node of the clickd 'span'  //if the clicked element is not a span but still has exactly one child node, means the square minus the round highlight, to ensure the proper movement either way
 function handleHighlightClickEvent(target) {
   clearPreviousSelfHighlight(selfHighlightState);
-  const id = target.localName === "span" ? target.parentNode.id : target.id;  //if the person precisely click on the round hightlight  //gets the id of the parent node of the clickd 'span'  //if the clicked element is not a span but still has exactly one child node, means the square minus the round highlight, to ensure the proper movement either way
+  const id = target.localName === "span" ? target.parentNode.id : target.id;
   if (moveState.piece_name.includes("PAWN"))
     checkDoubleMove(moveState, id);
   moveElement(moveState, id);
@@ -460,4 +465,13 @@ function isOpponentPiece(square) {
          (square.piece.piece_name.includes("BLACK") && inTurn === "white");
 }
 
-export { GlobalEvent, captureNotation};
+
+// Search for any cell that have the class highlightYellow in it and clear it when the board color is changed
+function clearYellowHighlight() {
+  document.querySelectorAll('.highlightYellow').forEach(cell => {
+    cell.classList.remove('highlightYellow');
+  });
+  selfHighlightState = null;
+}
+
+export { GlobalEvent, captureNotation, clearYellowHighlight};

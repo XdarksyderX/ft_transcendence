@@ -1,6 +1,6 @@
 import * as piece from "../Data/pieces.js";
 import { ROOT_DIV } from "../Helper/constants.js";
-import { globalState } from "../index.js";
+import { globalState, highlightColor } from "../index.js";
 
 const globalPiece = new Object();
 
@@ -151,6 +151,7 @@ function assignRepeatedPiece(square, color, pieceType) {
 function renderHighlight(squareId) {
   const highlightSpan = document.createElement("span");
   highlightSpan.classList.add("highlight");
+  highlightSpan.style.backgroundColor = highlightColor; // Aplicar el color de highlight
   document.getElementById(squareId).appendChild(highlightSpan);
 }
 
@@ -163,6 +164,10 @@ function clearHighlight() {
       el.captureHightlight = false;
     }
     if (el.highlight) {
+      const highlightElement = document.getElementById(el.id).querySelector('.highlight');
+      if (highlightElement) {
+        highlightElement.remove();
+      }
       el.highlight = null;
     }
     globalStateRender();
@@ -173,6 +178,15 @@ function circleHighlightRender(highlightSquareIds, keySquareMapper) {
   highlightSquareIds.forEach(highlight => {
     const element = keySquareMapper[highlight];
     element.highlight = true;
+
+    // Crear y añadir el elemento .highlight si no existe
+    let highlightSpan = document.getElementById(highlight).querySelector('.highlight');
+    if (!highlightSpan) {
+      highlightSpan = document.createElement("span");
+      highlightSpan.classList.add("highlight");
+      document.getElementById(highlight).appendChild(highlightSpan);
+    }
+    highlightSpan.style.backgroundColor = highlightColor; // Aplicar el color de highlight
   });
 }
 

@@ -44,11 +44,11 @@ body {
 }
 
 .captureColor{
-  background-color: #ee4b2b;
+  background-color: #ee4b2b !important;
 }
 
 .highlightYellow{
-  background: #f7f769;
+  background: #f7f769 !important;
 }
 
 .highlight{
@@ -176,12 +176,12 @@ body {
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  background-color: #6b6041;
+  background-color: #20201e;
   gap: 30px;
 }
 
 #button1, #button2 {
-  background-color: #0056b3;
+  background-color: #5a5855;
   width: 50px;
   height: 50px;
   display: flex;
@@ -218,6 +218,52 @@ body {
 
 .resign-button:hover {
   background-color: #62b184;
+}
+
+/*Customizacion/settings styles*/
+.settings-panel {
+  position: fixed;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  background-color: #333;
+  color: #fff;
+  border: 1px solid #ccc;
+  padding: 20px;
+  z-index: 1000;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+
+.hidden {
+  display: none;
+}
+
+.option {
+  margin-bottom: 15px;
+}
+
+.option label {
+  color: #fff; /* Color del texto de las etiquetas */
+}
+
+.option select {
+  background-color: #555; /* Fondo de los elementos del formulario */
+  color: #fff; /* Color del texto de los elementos del formulario */
+  border: 1px solid #ccc;
+}
+
+.button-group {
+  display: flex;
+  justify-content: space-between;
+  background-color: #444; /* Fondo de los botones */
+  color: #fff; /* Color del texto de los botones */
+  border: none;
+}
+
+#save-settings, #cancel-settings {
+  width: 48%; /* Ajusta el ancho de los botones para que estén alineados */
 }
 
 /*#root{
