@@ -394,8 +394,6 @@ function handlePieceClick(square, color, pieceType, row, direction) {
 function clearPreviousSelfHighlight(piece)
 {
   if (piece) {
-    console.log(piece);
-    
     document.getElementById(piece.current_pos).classList.remove("highlightYellow");
     selfHighlightState = null;
   } 

@@ -1,4 +1,5 @@
 import * as pieces from "../Data/pieces.js";
+import { keySquareMapper, imgStyle } from "../index.js";
 
 /**
  * This class  is a design pattern aimed at creating
@@ -61,7 +62,7 @@ function pawnPromotion(color, callback, id) {
 
   const createPieceImage = (pieceName) => {
     const img = document.createElement("img");
-    img.src = `/chess_game/Assets/pieces/${color}/${pieceName}.png`;
+    img.src = `/chess_game/Assets/pieces/${imgStyle}/${color}/${pieceName}.png`;
     img.onclick = () => {
       callback(piecesMap[pieceName], id);
       modal.hide();
