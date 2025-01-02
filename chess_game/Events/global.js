@@ -3,7 +3,7 @@ import { globalState, keySquareMapper } from "../index.js"; //import globalState
 import { clearHighlight, globalStateRender, selfHighlight, globalPiece, circleHighlightRender } from "../Render/main.js";
 import { checkOpponetPieceByElement, giveBishopHighlightIds, giveRookHighlightIds, giveKnightHighlightIds, giveQueenHighlightIds, giveKingHighlightIds, checkPieceExist } from "../Helper/commonHelper.js";
 import { giveKnightCaptureIds, giveKingCaptureIds, giveBishopCaptureIds, giveRookCaptureIds, giveQueenCaptureIds } from "../Helper/commonHelper.js";
-import { pawnMovesOptions, pawnCaptureOptions, getCaptureMoves, knightMovesOptions, limitKingMoves, checkEnPassant } from "../Helper/commonHelper.js";
+import { pawnMovesOptions, pawnCaptureOptions, getCaptureMoves, knightMovesOptions, limitKingMoves, checkEnPassant, markCaptureMoves } from "../Helper/commonHelper.js";
 import {logMoves, appendPromotion} from "../Helper/logging.js"
 import { pawnPromotion, winGame } from "../Helper/modalCreator.js";
 
@@ -50,7 +50,7 @@ function captureInTurn(square) {
 }
 
 //creo que esta funcion hay que replantearla
-function checkForCheck() {
+/* function checkForCheck() {
   if (inTurn === "black") {
     const whiteKingCurrentPos = globalPiece.white_king.current_pos;
     const pawns = [];
@@ -80,11 +80,11 @@ function checkForCheck() {
     finalListCheck.push(giveQueenCaptureIds(queen, inTurn));
     
     finalListCheck = finalListCheck.flat();
-    //console.log(`en check for check: finalListCheck: ${finalListCheck}`);
+    console.log(`en check for check: finalListCheck: ${finalListCheck}`);
     const checkOrNot = finalListCheck.find((element) => element === whiteKingCurrentPos);
     if (checkOrNot) {
       whoInCheck = "white";
-      setTimeout(() => {
+       setTimeout(() => {
         alert("You are in check!");
       }, 300); // Ajusta el tiempo de retraso según la duración de tu animación
     }
@@ -122,12 +122,13 @@ function checkForCheck() {
     const checkOrNot = finalListCheck.find((element) => element === blackKingCurrentPos);
     if (checkOrNot) {
       whoInCheck = "black";
-      setTimeout(() => {
+       setTimeout(() => {
         alert("You are in check!");
       }, 300); // Ajusta el tiempo de retraso según la duración de tu animación
     }
   }
-}
+  console.log(whoInCheck);
+} */
 
 function checkForPawnPromotion(piece, id) {
   if (inTurn === "white") {
@@ -349,6 +350,81 @@ function captureHightlightSquare(square, piece) {
   return false;
 }
 
+function checkForCheck() {
+  whoInCheck = null; // Reset the check status
+
+  const kingPosition = inTurn === "white" ? globalPiece.white_king.current_pos : globalPiece.black_king.current_pos;
+  const enemyColor = inTurn === "white" ? "black" : "white";
+  const enemyPieces = Object.values(globalPiece).filter(piece => piece && piece.piece_name && piece.piece_name.includes(enemyColor.toUpperCase()));
+
+  let finalListCheck = [];
+
+  enemyPieces.forEach(piece => {
+    const pieceType = piece.piece_name.split('_')[1].toLowerCase();
+    switch (pieceType) {
+      case 'pawn':
+        finalListCheck.push(pawnCaptureOptions(piece.current_pos, enemyColor === "white" ? 1 : -1));
+        break;
+      case 'knight':
+        finalListCheck.push(giveKnightCaptureIds(piece.current_pos, enemyColor));
+        break;
+      case 'king':
+        finalListCheck.push(giveKingCaptureIds(piece.current_pos, enemyColor));
+        break;
+      case 'bishop':
+        finalListCheck.push(giveBishopCaptureIds(piece.current_pos, enemyColor));
+        break;
+      case 'rook':
+        finalListCheck.push(giveRookCaptureIds(piece.current_pos, enemyColor));
+        break;
+      case 'queen':
+        finalListCheck.push(giveQueenCaptureIds(piece.current_pos, enemyColor));
+        break;
+    }
+  });
+
+  finalListCheck = finalListCheck.flat();
+  const checkOrNot = finalListCheck.find((element) => element === kingPosition);
+  if (checkOrNot) {
+    whoInCheck = inTurn;
+  }
+  console.log(`checkForCheck: whoInCheck: ${whoInCheck}`);
+}  
+
+function filterQueenMovesToProtectKing(queen, color) {
+    const possibleMoves = getCaptureMoves(queen, giveQueenHighlightIds, color);
+    const safeMoves = [];
+
+    possibleMoves.forEach(move => {
+      // Simular el movimiento de la reina
+      const originalPosition = queen.current_pos;
+
+      // Mover la reina temporalmente
+      updateGlobalState(queen, move);
+      clearHighlight();
+      updatePiecePosition(queen, move);
+
+      console.log(`filter: move: ${move}, queen: ${JSON.stringify(queen)}`);
+      
+      // Verificar si el rey sigue en jaque
+      checkForCheck();
+      if (whoInCheck !== color) {
+        safeMoves.push(move);
+      }
+      
+      // Revertir el movimiento
+      updateGlobalState(queen, originalPosition);
+      clearHighlight();
+      updatePiecePosition(queen, originalPosition);
+    });
+
+    // Marcar las celdas de captura
+    const tmp = giveQueenHighlightIds(queen.current_pos);
+    markCaptureMoves(Object.values(tmp), color);
+
+    return safeMoves;
+}
+
 function handlePieceClick(square, color, pieceType, row, direction) {
   const piece = square.piece;
   if (selfHighlightSquare(piece)) return;
@@ -379,7 +455,10 @@ function handlePieceClick(square, color, pieceType, row, direction) {
       knightMovesOptions(piece, giveKnightHighlightIds, color, true);
       break;
     case 'queen':
-      getCaptureMoves(piece, giveQueenHighlightIds, color, true);
+      //getCaptureMoves(piece, giveQueenHighlightIds, color, true);
+      const safeQueenMoves = filterQueenMovesToProtectKing(piece, color);
+      //console.log(`handlePieceClick: safeQueenMoves: ${safeQueenMoves}`)
+      circleHighlightRender(safeQueenMoves, keySquareMapper);
       break;
     case 'king':
       const kingHighlightSquareIds = getCaptureMoves(piece, giveKingHighlightIds, color, true, (moves) => limitKingMoves(moves, color), true);

@@ -1,6 +1,5 @@
 import { keySquareMapper } from "../index.js";
-import { circleHighlightRender } from "../Render/main.js";
-import { globalPiece } from "../Render/main.js";
+import { circleHighlightRender, globalPiece } from "../Render/main.js";
 
 //function to check if opponnet piece exist
 function checkOpponetPieceByElement(id, color) {
@@ -370,6 +369,20 @@ function castlingCheck(piece, color, res) {
     }
 }
 
+function markCaptureMoves(allMoves, color) {
+    for (let i = 0; i < allMoves.length; i++) {
+        const arr = allMoves[i];
+        for (let j = 0; j < arr.length; j++) {
+            const element = arr[j];
+            let pieceRes = checkPieceExist(element);
+            if (pieceRes && pieceRes.piece && pieceRes.piece.piece_name.toLowerCase().includes(color))
+                break;
+            if (checkOpponetPieceByElement(element, color))
+                break;
+        }
+    }
+}
+
 /**
  * this is a general funtion to take bishop, rook, queen, and king possible moves, render the
  * highlight circles to show the posibilities to the player and return its value. Its a refactored
@@ -393,6 +406,7 @@ function getCaptureMoves(piece, highlightIdsFunc, color, renderBool = false, pre
         tmp.push(squares);
       }
     }
+    //console.log(res, tmp)
     if (skipCastlingCheck)
         castlingCheck(piece, color, res);
     highlightSquareIds = res.flat();
@@ -400,22 +414,13 @@ function getCaptureMoves(piece, highlightIdsFunc, color, renderBool = false, pre
         preRenderCallback(highlightSquareIds);
     if (renderBool) {
         circleHighlightRender(highlightSquareIds, keySquareMapper);
-        for (let i = 0; i < tmp.length; i++) {
-            const arr = tmp[i];
-            for (let j = 0; j < arr.length; j++) {
-                const element = arr[j];
-                let pieceRes = checkPieceExist(element);
-                if (pieceRes && pieceRes.piece && pieceRes.piece.piece_name.toLowerCase().includes(color))
-                    break;
-                if (checkOpponetPieceByElement(element, color))
-                    break;
-            }
-        }
+        markCaptureMoves(tmp, color);
     }
+
     return highlightSquareIds;
 }
 
-// this funciton return all the possible moves of the opponent pices
+// this function return all the possible moves of the opponent pices
 function getOpponentMoves(color) {
     let res = new Set();
     const enemyColor = color === "white" ? "black" : "white";
@@ -439,7 +444,7 @@ function getOpponentMoves(color) {
     return res;
 }
   
-/*function that recieve the initia king moves and then check if one of those possible options
+/*function that recieve the initial king moves and then check if one of those possible options
 can be a direct checkmate, the it remove that option to avoid the checkmate*/
 function limitKingMoves(kingInitialMoves, color) {
     let res = getOpponentMoves(color);
@@ -487,4 +492,4 @@ function knightMovesOptions(piece, highlightIdsFunc, color, renderBool = false) 
 
 export { checkOpponetPieceByElement, checkSquareCaptureId, giveBishopHighlightIds, checkPieceExist, giveRookHighlightIds, giveKnightHighlightIds, giveQueenHighlightIds, giveKingHighlightIds,
     giveKnightCaptureIds, giveKingCaptureIds, giveBishopCaptureIds, giveRookCaptureIds, giveQueenCaptureIds,
-    pawnMovesOptions, pawnCaptureOptions, getCaptureMoves, knightMovesOptions, limitKingMoves, checkEnPassant };
+    pawnMovesOptions, pawnCaptureOptions, getCaptureMoves, knightMovesOptions, limitKingMoves, checkEnPassant, markCaptureMoves };
