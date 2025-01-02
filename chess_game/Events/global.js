@@ -3,7 +3,7 @@ import { globalState, keySquareMapper } from "../index.js"; //import globalState
 import { clearHighlight, globalStateRender, selfHighlight, globalPiece, circleHighlightRender } from "../Render/main.js";
 import { checkOpponetPieceByElement, giveBishopHighlightIds, giveRookHighlightIds, giveKnightHighlightIds, giveQueenHighlightIds, giveKingHighlightIds, checkPieceExist } from "../Helper/commonHelper.js";
 import { giveKnightCaptureIds, giveKingCaptureIds, giveBishopCaptureIds, giveRookCaptureIds, giveQueenCaptureIds } from "../Helper/commonHelper.js";
-import { pawnMovesOptions, pawnCaptureOptions, getCaptureMoves, knightMovesOptions, limitKingMoves } from "../Helper/commonHelper.js";
+import { pawnMovesOptions, pawnCaptureOptions, getCaptureMoves, knightMovesOptions, limitKingMoves, checkEnPassant } from "../Helper/commonHelper.js";
 import {logMoves, appendPromotion} from "../Helper/logging.js"
 import { pawnPromotion, winGame } from "../Helper/modalCreator.js";
 
@@ -264,18 +264,14 @@ function updatePiecePosition(piece, id) {
 function makeEnPassant(piece, id) {
   if (!piece.piece_name.includes("PAWN"))
     return;
-  //console.log(`makeEnPassant: piece: ${piece.current_pos}; id: ${id}`);
   const num = inTurn === "white" ? 1 : -1;
   const aux = `${String.fromCharCode(piece.current_pos[0].charCodeAt(0) - 1)}${Number(piece.current_pos[1]) + num}`
   const aux2 = `${String.fromCharCode(piece.current_pos[0].charCodeAt(0) + 1)}${Number(piece.current_pos[1]) + num}`
-  //console.log(`makeEnPassant: num: ${num}; aux: ${aux}; aux2: ${aux2}`);
   if (id === aux || id === aux2) {
     const opPiece = `${id[0]}${Number(id[1]) - num}`
     if (checkPieceExist(opPiece)) {
-      //console.log(`HEMOS HECHO EN PASSANT, opPiece: ${opPiece}`);
       const opSquare = keySquareMapper[opPiece];
       const currentPiece = document.getElementById(opPiece);
-      //console.log(`makeEnPassant: opPiece: ${opPiece}; opSquare: ${JSON.stringify(opSquare)}; currentPiece: ${currentPiece}`);
 
       const flatData =  globalState.flat();
       flatData.forEach(el => {
@@ -302,7 +298,9 @@ function moveElement(piece, id, castle) {
 
   const pawnPromotionBool = checkForPawnPromotion(piece, id);
   let castlingType = moveTwoCastlingPieces(piece, id);
-  makeEnPassant(piece, id);
+  const direction = piece.piece_name.includes("PAWN") ? (inTurn === "white" ? 1 : -1) : null;
+  if (checkEnPassant(piece.current_pos, inTurn, direction))
+    makeEnPassant(piece, id);
   updateGlobalState(piece, id);
   clearHighlight();
   updatePiecePosition(piece, id);
@@ -321,6 +319,7 @@ function moveElement(piece, id, castle) {
   }
   logMoves({from: piece.current_pos, to: id, piece:piece.piece_name}, inTurn, piece, castlingType);
   
+  //para juan cuando el backend este, aqui es donde podriamos guardar en la base de datos los movimientos: keysquaremap es un objeto que tiene todo el tablero actualizado, piece.current_pos es la pos de origen, id, es la posicion de destino
   if (!castle)
     changeTurn();
 }
@@ -425,13 +424,11 @@ function GlobalEvent() {
       const direction = pieceName.includes("PAWN") ? (inTurn === "white" ? 1 : -1) : null; //this var is only to stablish the direction of the pawn in the table in order of it's color
       handlePieceClick(square, inTurn, pieceType, row, direction); //this is the general funciotn in charge of the movement
     }
-    else if (isHighlightClick) {//this is to know if the click is in a square with the round highlight, which is the posible move of a piece. Ensure that only valid moves are processed.
+    else if (isHighlightClick) { //this is to know if the click is in a square with the round highlight, which is the posible move of a piece. Ensure that only valid moves are processed.
       handleHighlightClickEvent(target);
     }
     else { //if the click its an impossible move clear the highlighted elements
       clearHighlightLocal();
-      console.log(selfHighlightState);
-      
       clearPreviousSelfHighlight(selfHighlightState);
     }
   });

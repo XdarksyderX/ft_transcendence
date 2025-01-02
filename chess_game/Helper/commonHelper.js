@@ -289,15 +289,14 @@ function checkEnPassant(curr_pos, color, num) {
     const leftPos = `${String.fromCharCode(curr_pos[0].charCodeAt(0) - 1)}${curr_pos[1]}`;
     const rightPos = `${String.fromCharCode(curr_pos[0].charCodeAt(0) + 1)}${curr_pos[1]}`;
     const opponentColor = color === "white" ? "black" : "white";
-
+    
     // Helper function to check if a position is valid for en passant
     function isValidEnPassant(pos) {
         return pos[0] >= 'a' && pos[0] <= 'h' &&
-               checkPieceExist(pos) &&
-               keySquareMapper[pos].piece.piece_name.toLowerCase().includes(opponentColor) &&
-               keySquareMapper[pos].piece.move;
+        checkPieceExist(pos) &&
+        keySquareMapper[pos].piece.piece_name.toLowerCase().includes(opponentColor) &&
+        keySquareMapper[pos].piece.move;
     }
-
     if (isValidEnPassant(leftPos))
         return `${leftPos[0]}${Number(leftPos[1]) + num}`;
     if (isValidEnPassant(rightPos))
@@ -317,11 +316,8 @@ function pawnMovesOptions(curr_pos, row, num, color) {
         highlightSquareIds = [`${curr_pos[0]}${Number(curr_pos[1]) + num}`,];
         let enPassant = "";
         if (enPassant = checkEnPassant(curr_pos, color, num)) {
-            //console.log("TRUE", num);
-            //console.log(enPassant);
             highlightSquareIds.push(enPassant);
         }
-        //console.log(highlightSquareIds);
     }
     highlightSquareIds = checkSquareCaptureId(highlightSquareIds);
     return highlightSquareIds;
@@ -491,4 +487,4 @@ function knightMovesOptions(piece, highlightIdsFunc, color, renderBool = false) 
 
 export { checkOpponetPieceByElement, checkSquareCaptureId, giveBishopHighlightIds, checkPieceExist, giveRookHighlightIds, giveKnightHighlightIds, giveQueenHighlightIds, giveKingHighlightIds,
     giveKnightCaptureIds, giveKingCaptureIds, giveBishopCaptureIds, giveRookCaptureIds, giveQueenCaptureIds,
-    pawnMovesOptions, pawnCaptureOptions, getCaptureMoves, knightMovesOptions, limitKingMoves };
+    pawnMovesOptions, pawnCaptureOptions, getCaptureMoves, knightMovesOptions, limitKingMoves, checkEnPassant };
