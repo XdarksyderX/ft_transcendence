@@ -21,6 +21,16 @@ export function initializeStartGameEvents() {
                 new: document.getElementById('new-tournament'),
             }
         },
+        chess: {
+            btn: document.getElementById('chess-btn'),
+            playChess: document.getElementById('play-chess'),
+            options: document.getElementById('chess-options'),
+            playFriend: document.getElementById('chess-friend'),
+            playAnyFriend: document.getElementById('chess-random'),
+            friendList: document.getElementById('chess-friend-list'),
+            friendsContainer: document.getElementById('chess-friends-container'),
+            startGameWithFriendButton: document.getElementById('start-chess-with-friend'),
+        },
         modal: {
             waitGame: document.getElementById('wait-game'),
             text: document.getElementById('modal-text'),
@@ -31,15 +41,16 @@ export function initializeStartGameEvents() {
 
     let currentView = null;
 
-    function toggleView(to) {
-        if (currentView) currentView.style.display = 'none';
-        if (to === elements.pong.playPong) {
-            to.style.display = 'block';
+    function toggleView(from, to) {
+        if (!to) { // if im on inittial view
+            elements.pong.playPong.style.display = 'block';
+            elements.chess.playChess.style.display = 'block';
         } else {
             to.style.display = 'flex';
         }
-       // console.log("toggling from: ", currentView, "to: ", to);
+        from.style.display = 'none';
         currentView = to;
+        console.log("toggling from: ", currentView, "to: ", to);
     }
 
     let selectedFriend = null;
@@ -54,29 +65,29 @@ export function initializeStartGameEvents() {
     function togglePongOptions(event) { 
         event.stopPropagation();
         //if (currentView !== elements.pong.quickPlay.friendList && currentView !== elements.pong.quickPlay.options) {
-          if (currentView === elements.pong.playPong) {
-            toggleView(elements.pong.options);
+          if (!currentView) {
+            toggleView(elements.pong.playPong, elements.pong.options);
         }
     }
     elements.pong.btn.addEventListener('click', togglePongOptions);
 
     function backToChooseGame(event) { 
         if (!isModalShown && currentView !== elements.pong.playPong && !elements.pong.btn.contains(event.target)) {
-            toggleView(elements.pong.playPong);
+            toggleView(currentView, null);
         }
     }
     document.addEventListener('click', backToChooseGame);
 
     function showQuickPlayOptions() {
-        toggleView(elements.pong.quickPlay.options);
+        toggleView(currentView, elements.pong.quickPlay.options);
     }
     elements.pong.quickPlay.btn.addEventListener('click', showQuickPlayOptions);
 
-    function playWithFriend() {
-        toggleView(elements.pong.quickPlay.friendList);
-        renderFriendList();
+    function playPongWithFriend() {
+        toggleView(currentView, elements.pong.quickPlay.friendList);
+        renderFriendList(elements.pong.quickPlay.friendsContainer);
     }
-    elements.pong.quickPlay.playFriend.addEventListener('click', playWithFriend);
+    elements.pong.quickPlay.playFriend.addEventListener('click', playPongWithFriend);
 
     function playWithAnyFriend() {
         console.log("Play with any friend option selected");
@@ -92,19 +103,25 @@ export function initializeStartGameEvents() {
 
     function showTorunamentOptions() {
         console.log("Tournament option selected");
-        toggleView(elements.pong.tournament.options);
+        toggleView(currentView, elements.pong.tournament.options);
     }
     elements.pong.tournament.btn.addEventListener('click', showTorunamentOptions);
 
-    function renderFriendList() {
-        elements.pong.quickPlay.friendsContainer.innerHTML = '';
+    function renderFriendList(container) {
+        container.innerHTML = '';
+        let startBtn;
+        if (container === elements.pong.quickPlay.friendsContainer)
+            startBtn = elements.pong.quickPlay.startGameWithFriendButton;
+        else 
+            startBtn = elements.chess.startGameWithFriendButton;
+        console.log("startBtn: ", startBtn);
         friends.forEach(friend => {
-            const friendBtn = createFriendBtn(friend);
-            elements.pong.quickPlay.friendsContainer.appendChild(friendBtn);
+            const friendBtn = createFriendBtn(friend, startBtn);
+            container.appendChild(friendBtn);
         });
     }
 
-    function createFriendBtn(friend) {
+    function createFriendBtn(friend, startBtn) {
         const friendBtn = document.createElement('div');
         friendBtn.className = 'friend-btn';
         friendBtn.setAttribute('data-friend-id', friend.id);
@@ -112,33 +129,34 @@ export function initializeStartGameEvents() {
         let color = (friend.status === 'online') ? 'accent' : 'light';
         friendBtn.style.color = `var(--${color})`;
         friendBtn.style.border = `1px solid var(--${color})`;
-        friendBtn.addEventListener('click', () => toggleFriendSelection(friend));
+        friendBtn.addEventListener('click', () => toggleFriendSelection(friend, startBtn));
         return (friendBtn);
     }
 
-    function toggleFriendSelection(friend) {
+    function toggleFriendSelection(friend, btn) { // btn is for chess or for pong
+        console.log('toggleFriendSelection called with btn:', btn); // Debugging line
         if (friend.status !== 'online') {
             alert('This friend is not available to play right now.');
             return;
         }
         const newFriendBtn = document.querySelector(`.friend-btn[data-friend-id="${friend.id}"]`);
         if (selectedFriend === friend) {
-            unselectFriend(true);
+            unselectFriend(true, btn);
         } else {
-            unselectFriend(false);
+            unselectFriend(false, btn);
             selectedFriend = friend;
             newFriendBtn.classList.add('selected');
-            elements.pong.quickPlay.startGameWithFriendButton.disabled = false;
+            btn.disabled = false;
         }
     }
 
-    function unselectFriend(all) {
+    function unselectFriend(all, btn) {
         if (selectedFriend) {
             const friendBtn = document.querySelector(`.friend-btn[data-friend-id="${selectedFriend.id}"]`);
             friendBtn.classList.remove('selected');            
             if (all) {
                 selectedFriend = null;
-                elements.pong.quickPlay.startGameWithFriendButton.disabled = true;
+                btn.disabled = true;
             }
         }    
     }
@@ -179,6 +197,26 @@ export function initializeStartGameEvents() {
         });
     }
 
+
+    function toggleChessOptions(event) {
+        event.stopPropagation();
+        if (!currentView) {
+            toggleView(elements.chess.playChess, elements.chess.options);
+        }
+    }
+    elements.chess.btn.addEventListener('click', toggleChessOptions);
+
+    function playChessWithFriend() {
+        console.log("playchess tggles from: ", currentView);
+        toggleView(currentView, elements.chess.friendList);
+        renderFriendList(elements.chess.friendsContainer);
+    }
+    elements.chess.playFriend.addEventListener('click', playChessWithFriend);
+
+
+
+
+
     elements.pong.quickPlay.startGameWithFriendButton.addEventListener('click', launchWaitModal);
-    currentView = elements.pong.playPong;
+    //currentView = elements.pong.playPong;
 }
