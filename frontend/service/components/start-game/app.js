@@ -40,6 +40,14 @@ export function initializeStartGameEvents() {
     };
 
     let currentView = null;
+    let selectedFriend = null;
+    let isModalShown = false;
+    const friends = [
+        { id: 1, name: 'Alice', status: 'online' },
+        { id: 2, name: 'Bob', status: 'offline' },
+        { id: 3, name: 'Charlie', status: 'online' },
+        { id: 4, name: 'David', status: 'away' }
+    ];
 
     function toggleView(from, to) {
         if (!to) { // if im on inittial view
@@ -50,33 +58,45 @@ export function initializeStartGameEvents() {
         }
         from.style.display = 'none';
         currentView = to;
-        console.log("toggling from: ", currentView, "to: ", to);
+      //  console.log("toggling from: ", currentView, "to: ", to);
     }
-
-    let selectedFriend = null;
-    let isModalShown = false;
-    const friends = [
-        { id: 1, name: 'Alice', status: 'online' },
-        { id: 2, name: 'Bob', status: 'offline' },
-        { id: 3, name: 'Charlie', status: 'online' },
-        { id: 4, name: 'David', status: 'away' }
-    ];
 
     function togglePongOptions(event) { 
         event.stopPropagation();
-        //if (currentView !== elements.pong.quickPlay.friendList && currentView !== elements.pong.quickPlay.options) {
-          if (!currentView) {
+        // if I already clicked on play chess, it goes back to initial view
+        if (elements.chess.playChess.style.display === 'none') {
+            backToChooseGame(event);
+        }
+        if (!currentView) {
             toggleView(elements.pong.playPong, elements.pong.options);
         }
     }
     elements.pong.btn.addEventListener('click', togglePongOptions);
-
+/* 
     function backToChooseGame(event) { 
-        if (!isModalShown && currentView !== elements.pong.playPong && !elements.pong.btn.contains(event.target)) {
+
+        console.log('click :c');
+        if (currentView && !isModalShown) 
+        {
+            let btn = elements.pong.btn;
+            if (elements.chess.btn.style.display === 'none')
+                btn = elements.chess.btn;
+            if (!btn.contains(event.target)) {
+                toggleView(currentView, null);
+            }
+        }
+    } */
+    function backToChooseGame(event) { 
+
+        console.log('click :c');
+        if (currentView && !isModalShown) {
             toggleView(currentView, null);
+            //there's no need to check if btn.contains(event.target)
+            //cause I handle each btn in other functions
         }
     }
-    document.addEventListener('click', backToChooseGame);
+   // document.addEventListener('click', backToChooseGame);
+    document.getElementById('chose-game').addEventListener('click', backToChooseGame);
 
     function showQuickPlayOptions() {
         toggleView(currentView, elements.pong.quickPlay.options);
@@ -161,9 +181,9 @@ export function initializeStartGameEvents() {
         }    
     }
 
-    function launchWaitModal() {
+    function launchWaitModal(game) {
         const modal = new bootstrap.Modal(elements.modal.waitGame);
-        elements.modal.text.innerHTML = `Waiting for ${selectedFriend.name} to accept the game...`;
+        elements.modal.text.innerHTML = `Waiting for ${selectedFriend.name} to start a game of ${game}...`;
         modal.show();
         isModalShown = true;
         handleProgressBar(modal);
@@ -197,9 +217,11 @@ export function initializeStartGameEvents() {
         });
     }
 
-
     function toggleChessOptions(event) {
         event.stopPropagation();
+        if (elements.pong.playPong.style.display === 'none') {
+            backToChooseGame(event);
+        }
         if (!currentView) {
             toggleView(elements.chess.playChess, elements.chess.options);
         }
@@ -213,10 +235,6 @@ export function initializeStartGameEvents() {
     }
     elements.chess.playFriend.addEventListener('click', playChessWithFriend);
 
-
-
-
-
-    elements.pong.quickPlay.startGameWithFriendButton.addEventListener('click', launchWaitModal);
-    //currentView = elements.pong.playPong;
+    elements.pong.quickPlay.startGameWithFriendButton.addEventListener('click', () => launchWaitModal('pong'));
+    elements.chess.startGameWithFriendButton.addEventListener('click', () => launchWaitModal('chess'));
 }
