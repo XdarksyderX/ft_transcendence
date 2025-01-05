@@ -396,32 +396,76 @@ function filterQueenMovesToProtectKing(queen, color) {
     const safeMoves = [];
 
     possibleMoves.forEach(move => {
-      // Simular el movimiento de la reina
       const originalPosition = queen.current_pos;
 
-      // Mover la reina temporalmente
       updateGlobalState(queen, move);
-      clearHighlight();
       updatePiecePosition(queen, move);
 
-      console.log(`filter: move: ${move}, queen: ${JSON.stringify(queen)}`);
-      
-      // Verificar si el rey sigue en jaque
       checkForCheck();
       if (whoInCheck !== color) {
         safeMoves.push(move);
       }
       
-      // Revertir el movimiento
       updateGlobalState(queen, originalPosition);
-      clearHighlight();
       updatePiecePosition(queen, originalPosition);
     });
 
-    // Marcar las celdas de captura
+    selfHighlight(queen);
     const tmp = giveQueenHighlightIds(queen.current_pos);
-    markCaptureMoves(Object.values(tmp), color);
+    const captureOptions = markCaptureMoves(Object.values(tmp), color);
 
+    checkForCheck();
+    if (whoInCheck === color) {
+      const opponentColor = color === "white" ? "black" : "white";
+      captureOptions.forEach(element => {
+        const square = keySquareMapper[element];
+        if (square && square.piece) {
+          const piece = square.piece;
+          const pieceType = piece.piece_name.split('_')[1].toLowerCase();
+          let captureMoves = [];
+
+          switch (pieceType) {
+              case 'pawn':
+                captureMoves = pawnCaptureOptions(piece.current_pos, opponentColor === "white" ? 1 : -1);
+                break;
+              case 'knight':
+                  captureMoves = giveKnightCaptureIds(piece.current_pos, opponentColor);
+                  break;
+              case 'bishop':
+                  captureMoves = giveBishopCaptureIds(piece.current_pos, opponentColor);
+                  break;
+              case 'rook':
+                  captureMoves = giveRookCaptureIds(piece.current_pos, opponentColor);
+                  break;
+              case 'queen':
+                  captureMoves = giveQueenCaptureIds(piece.current_pos, opponentColor);
+                  break;
+              case 'king':
+                  captureMoves = giveKingCaptureIds(piece.current_pos, opponentColor);
+                  break;
+          }
+          let kingInDangerBool = false;
+          for (let i = 0; i < captureMoves.length; i++) {
+            const captureElement = captureMoves[i];
+            if (captureElement === globalPiece[`${color}_king`].current_pos) {
+              kingInDangerBool = true;
+              break;
+            }
+          }
+          if (!kingInDangerBool) {
+            const flatData = globalState.flat();
+            for (let i = 0; i < flatData.length; i++) {
+              const el = flatData[i];
+              if (el.id === element && el.captureHightlight) {
+                  document.getElementById(el.id).classList.remove("captureColor");
+                  el.captureHightlight = false;
+                  break;
+              }
+          }
+          }
+        }
+      });
+    }
     return safeMoves;
 }
 

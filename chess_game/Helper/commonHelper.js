@@ -370,6 +370,7 @@ function castlingCheck(piece, color, res) {
 }
 
 function markCaptureMoves(allMoves, color) {
+    let tmp = [];
     for (let i = 0; i < allMoves.length; i++) {
         const arr = allMoves[i];
         for (let j = 0; j < arr.length; j++) {
@@ -377,10 +378,13 @@ function markCaptureMoves(allMoves, color) {
             let pieceRes = checkPieceExist(element);
             if (pieceRes && pieceRes.piece && pieceRes.piece.piece_name.toLowerCase().includes(color))
                 break;
-            if (checkOpponetPieceByElement(element, color))
+            if (checkOpponetPieceByElement(element, color)){
+                tmp.push(element);
                 break;
+            }
         }
     }
+    return tmp;
 }
 
 /**
