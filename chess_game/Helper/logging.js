@@ -38,6 +38,9 @@ function logMoves(logMoves, inTurn, piece, castlingType) {
         row.innerHTML = `${moveNotation}`;
         rightCol.appendChild(row);
     }
+    // Scroll to the bottom of the move logger
+    const moveLogger = document.getElementById("move_logger");
+    moveLogger.scrollTop = moveLogger.scrollHeight;
 }
 
 function appendPromotion(inTurn, pieceName) {

@@ -94,7 +94,6 @@ function giveBishopCaptureIds(id, color) {
 
     for (let i = 0; i < tmp.length; i++) {
         const arr = tmp[i];
-    
         for (let j = 0; j < arr.length; j++) {
           const element = arr[j];
           let pieceRes = checkPieceExist(element);

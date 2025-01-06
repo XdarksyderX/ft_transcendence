@@ -72,6 +72,26 @@ function checkWin(piece) {
   return false;
 }
 
+//this is the update for globalPiece when a pawn its promoted to other type of piece
+function globalPieceUpdate(id, realPiece) {
+  const pawnArray = inTurn === "white" ? globalPiece.black_pawns : globalPiece.white_pawns;
+  const pawnIndex = pawnArray.findIndex(pawn => pawn.current_pos === id);
+  if (pawnIndex !== -1)
+    pawnArray[pawnIndex].current_pos = null;
+
+  const pieceType = realPiece.piece_name.split('_')[1].toLowerCase();
+  const color = inTurn === "white" ? "black" : "white";
+  let pieceKey = `${color}_${pieceType}`;
+  if (globalPiece[pieceKey]) {
+    let i = 1;
+    while (globalPiece[`${pieceKey}_${i}`]) {
+      i++;
+    }
+    pieceKey = `${pieceKey}_${i}`;
+  }
+  globalPiece[pieceKey] = realPiece;
+}
+
 /**
  * This function is called during the pawn promotion process to replace
  * the original pawn with the selected promoted piece.
@@ -94,11 +114,13 @@ function checkWin(piece) {
  * Append the new `<img>` element to the square's HTML.
  * @param {function} piece - A function returning the promoted piece's details.
  * @param {string} id - The ID of the square where the pawn is located.
- */
+*/
 function callbackPiece(piece, id) {
   const realPiece = piece(id);
   const currentSquare = keySquareMapper[id];
   
+  globalPieceUpdate(id, realPiece);
+
   piece.current_pos = id;
   currentSquare.piece = realPiece;
   appendPromotion(inTurn, realPiece.piece_name);
@@ -233,11 +255,10 @@ function moveElement(piece, id, castle) {
   }
   
   if (pawnPromotionBool) {
-    console.log("Before Pawn Promotion")
-    console.log(globalPiece);
     pawnPromotion(inTurn, callbackPiece, id);
     console.log("After Pawn Promotion")
     console.log(globalPiece);
+    console.log(keySquareMapper);
   }
   logMoves({from: piece.current_pos, to: id, piece:piece.piece_name}, inTurn, piece, castlingType);
   
@@ -279,7 +300,6 @@ function checkForCheck() {
   let finalListCheck = [];
   
   enemyPieces.forEach(piece => {
-    debugger
     const pieceType = piece.piece_name.split('_')[1].toLowerCase();
     switch (pieceType) {
       case 'pawn':
