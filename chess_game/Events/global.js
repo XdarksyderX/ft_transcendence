@@ -3,8 +3,8 @@ import { globalState, keySquareMapper } from "../index.js"; //import globalState
 import { clearHighlight, globalStateRender, selfHighlight, globalPiece, circleHighlightRender } from "../Render/main.js";
 import { checkOpponetPieceByElement, giveBishopHighlightIds, giveRookHighlightIds, giveKnightHighlightIds, giveQueenHighlightIds, giveKingHighlightIds, checkPieceExist } from "../Helper/commonHelper.js";
 import { giveKnightCaptureIds, giveKingCaptureIds, giveBishopCaptureIds, giveRookCaptureIds, giveQueenCaptureIds } from "../Helper/commonHelper.js";
-import { pawnMovesOptions, pawnCaptureOptions, getCaptureMoves, knightMovesOptions, limitKingMoves, checkEnPassant, markCaptureMoves } from "../Helper/commonHelper.js";
-import {logMoves, appendPromotion} from "../Helper/logging.js"
+import { pawnMovesOptions, pawnCaptureOptions, getPossibleMoves, knightMovesOptions, limitKingMoves, checkEnPassant, markCaptureMoves } from "../Helper/commonHelper.js";
+import { logMoves, appendPromotion } from "../Helper/logging.js"
 import { pawnPromotion, winGame } from "../Helper/modalCreator.js";
 
 //highlighted or not => state
@@ -48,87 +48,6 @@ function captureInTurn(square) {
   }
   return;
 }
-
-//creo que esta funcion hay que replantearla
-/* function checkForCheck() {
-  if (inTurn === "black") {
-    const whiteKingCurrentPos = globalPiece.white_king.current_pos;
-    const pawns = [];
-    globalPiece.black_pawns.forEach(piece => {
-      pawns.push(piece.current_pos);
-    });
-    const knight_1 = globalPiece.black_knight_1.current_pos;
-    const knight_2 = globalPiece.black_knight_2.current_pos;
-    const king = globalPiece.black_king.current_pos;
-    const bishop_1 = globalPiece.black_bishop_1.current_pos;
-    const bishop_2 = globalPiece.black_bishop_2.current_pos;
-    const rook_1 = globalPiece.black_rook_1.current_pos;
-    const rook_2 = globalPiece.black_rook_2.current_pos;
-    const queen = globalPiece.black_queen.current_pos;
-    
-    let finalListCheck = [];
-    pawns.forEach(piece => {
-      finalListCheck.push(pawnCaptureOptions(piece, -1));
-    });
-    finalListCheck.push(giveKnightCaptureIds(knight_1, inTurn));
-    finalListCheck.push(giveKnightCaptureIds(knight_2, inTurn));
-    finalListCheck.push(giveKingCaptureIds(king, inTurn));
-    finalListCheck.push(giveBishopCaptureIds(bishop_1, inTurn));
-    finalListCheck.push(giveBishopCaptureIds(bishop_2, inTurn));
-    finalListCheck.push(giveRookCaptureIds(rook_1, inTurn));
-    finalListCheck.push(giveRookCaptureIds(rook_2, inTurn));
-    finalListCheck.push(giveQueenCaptureIds(queen, inTurn));
-    
-    finalListCheck = finalListCheck.flat();
-    console.log(`en check for check: finalListCheck: ${finalListCheck}`);
-    const checkOrNot = finalListCheck.find((element) => element === whiteKingCurrentPos);
-    if (checkOrNot) {
-      whoInCheck = "white";
-       setTimeout(() => {
-        alert("You are in check!");
-      }, 300); // Ajusta el tiempo de retraso según la duración de tu animación
-    }
-  }
-  else {
-    const blackKingCurrentPos = globalPiece.black_king.current_pos;
-    const pawns = [];
-    globalPiece.white_pawns.forEach(piece => {
-      pawns.push(piece.current_pos);
-    });
-    const knight_1 = globalPiece.white_knight_1.current_pos;
-    const knight_2 = globalPiece.white_knight_2.current_pos;
-    const king = globalPiece.white_king.current_pos;
-    const bishop_1 = globalPiece.white_bishop_1.current_pos;
-    const bishop_2 = globalPiece.white_bishop_2.current_pos;
-    const rook_1 = globalPiece.white_rook_1.current_pos;
-    const rook_2 = globalPiece.white_rook_2.current_pos;
-    const queen = globalPiece.white_queen.current_pos;
-    
-    let finalListCheck = [];
-    pawns.forEach(piece => {
-      finalListCheck.push(pawnCaptureOptions(piece, 1));
-    });
-    finalListCheck.push(giveKnightCaptureIds(knight_1, inTurn));
-    finalListCheck.push(giveKnightCaptureIds(knight_2, inTurn));
-    finalListCheck.push(giveKingCaptureIds(king, inTurn));
-    finalListCheck.push(giveBishopCaptureIds(bishop_1, inTurn));
-    finalListCheck.push(giveBishopCaptureIds(bishop_2, inTurn));
-    finalListCheck.push(giveRookCaptureIds(rook_1, inTurn));
-    finalListCheck.push(giveRookCaptureIds(rook_2, inTurn));
-    finalListCheck.push(giveQueenCaptureIds(queen, inTurn));
-    
-    finalListCheck = finalListCheck.flat();
-    //console.log(`en check for check: finalListCheck: ${finalListCheck}`);
-    const checkOrNot = finalListCheck.find((element) => element === blackKingCurrentPos);
-    if (checkOrNot) {
-      whoInCheck = "black";
-       setTimeout(() => {
-        alert("You are in check!");
-      }, 300); // Ajusta el tiempo de retraso según la duración de tu animación
-    }
-  }
-  console.log(whoInCheck);
-} */
 
 function checkForPawnPromotion(piece, id) {
   if (inTurn === "white") {
@@ -302,21 +221,23 @@ function moveElement(piece, id, castle) {
   const direction = piece.piece_name.includes("PAWN") ? (inTurn === "white" ? 1 : -1) : null;
   if (checkEnPassant(piece.current_pos, inTurn, direction))
     makeEnPassant(piece, id);
+
   updateGlobalState(piece, id);
   clearHighlight();
   updatePiecePosition(piece, id);
-  
   checkForCheck();
   
   if (winBool) {
-    setTimeout(() => {
-      winGame(winBool);
-    }, 50); // Ajusta el tiempo de retraso según la duración de tu animación
+    setTimeout(() => { winGame(winBool); }, 50);
     return;
   }
   
   if (pawnPromotionBool) {
+    console.log("Before Pawn Promotion")
+    console.log(globalPiece);
     pawnPromotion(inTurn, callbackPiece, id);
+    console.log("After Pawn Promotion")
+    console.log(globalPiece);
   }
   logMoves({from: piece.current_pos, to: id, piece:piece.piece_name}, inTurn, piece, castlingType);
   
@@ -351,15 +272,14 @@ function captureHightlightSquare(square, piece) {
 }
 
 function checkForCheck() {
-  whoInCheck = null; // Reset the check status
-
+  whoInCheck = null;
   const kingPosition = inTurn === "white" ? globalPiece.white_king.current_pos : globalPiece.black_king.current_pos;
   const enemyColor = inTurn === "white" ? "black" : "white";
-  const enemyPieces = Object.values(globalPiece).filter(piece => piece && piece.piece_name && piece.piece_name.includes(enemyColor.toUpperCase()));
-
+  const enemyPieces = Object.values(globalPiece).flat().filter(piece => piece && piece.piece_name && piece.piece_name.includes(enemyColor.toUpperCase()));
   let finalListCheck = [];
-
+  
   enemyPieces.forEach(piece => {
+    debugger
     const pieceType = piece.piece_name.split('_')[1].toLowerCase();
     switch (pieceType) {
       case 'pawn':
@@ -385,88 +305,93 @@ function checkForCheck() {
 
   finalListCheck = finalListCheck.flat();
   const checkOrNot = finalListCheck.find((element) => element === kingPosition);
-  if (checkOrNot) {
+  if (checkOrNot)
     whoInCheck = inTurn;
-  }
-  console.log(`checkForCheck: whoInCheck: ${whoInCheck}`);
+  //console.log(`checkForCheck: whoInCheck: ${whoInCheck}`);
 }  
 
-function filterQueenMovesToProtectKing(queen, color) {
-    const possibleMoves = getCaptureMoves(queen, giveQueenHighlightIds, color);
-    const safeMoves = [];
+function simulateMoves(piece, possibleMoves, safeMoves, color) {
+  possibleMoves.forEach(move => {
+    const originalPosition = piece.current_pos;
 
-    possibleMoves.forEach(move => {
-      const originalPosition = queen.current_pos;
-
-      updateGlobalState(queen, move);
-      updatePiecePosition(queen, move);
-
-      checkForCheck();
-      if (whoInCheck !== color) {
-        safeMoves.push(move);
-      }
-      
-      updateGlobalState(queen, originalPosition);
-      updatePiecePosition(queen, originalPosition);
-    });
-
-    selfHighlight(queen);
-    const tmp = giveQueenHighlightIds(queen.current_pos);
-    const captureOptions = markCaptureMoves(Object.values(tmp), color);
+    updateGlobalState(piece, move);
+    updatePiecePosition(piece, move);
 
     checkForCheck();
-    if (whoInCheck === color) {
-      const opponentColor = color === "white" ? "black" : "white";
-      captureOptions.forEach(element => {
-        const square = keySquareMapper[element];
-        if (square && square.piece) {
-          const piece = square.piece;
-          const pieceType = piece.piece_name.split('_')[1].toLowerCase();
-          let captureMoves = [];
+    if (whoInCheck !== color)
+      safeMoves.push(move);
 
-          switch (pieceType) {
-              case 'pawn':
-                captureMoves = pawnCaptureOptions(piece.current_pos, opponentColor === "white" ? 1 : -1);
-                break;
-              case 'knight':
-                  captureMoves = giveKnightCaptureIds(piece.current_pos, opponentColor);
-                  break;
-              case 'bishop':
-                  captureMoves = giveBishopCaptureIds(piece.current_pos, opponentColor);
-                  break;
-              case 'rook':
-                  captureMoves = giveRookCaptureIds(piece.current_pos, opponentColor);
-                  break;
-              case 'queen':
-                  captureMoves = giveQueenCaptureIds(piece.current_pos, opponentColor);
-                  break;
-              case 'king':
-                  captureMoves = giveKingCaptureIds(piece.current_pos, opponentColor);
-                  break;
-          }
-          let kingInDangerBool = false;
-          for (let i = 0; i < captureMoves.length; i++) {
-            const captureElement = captureMoves[i];
-            if (captureElement === globalPiece[`${color}_king`].current_pos) {
-              kingInDangerBool = true;
-              break;
-            }
-          }
-          if (!kingInDangerBool) {
-            const flatData = globalState.flat();
-            for (let i = 0; i < flatData.length; i++) {
-              const el = flatData[i];
-              if (el.id === element && el.captureHightlight) {
-                  document.getElementById(el.id).classList.remove("captureColor");
-                  el.captureHightlight = false;
-                  break;
-              }
-          }
+    updateGlobalState(piece, originalPosition);
+    updatePiecePosition(piece, originalPosition);
+  });
+}
+
+function returnOnePieceCaptureOptions(piece, pieceType, opponentColor) {
+  let captureMoves = [];
+  switch (pieceType) {
+    case 'pawn':
+      captureMoves = pawnCaptureOptions(piece.current_pos, opponentColor === "white" ? 1 : -1);
+      break;
+    case 'knight':
+      captureMoves = giveKnightCaptureIds(piece.current_pos, opponentColor);
+      break;
+    case 'bishop':
+      captureMoves = giveBishopCaptureIds(piece.current_pos, opponentColor);
+      break;
+    case 'rook':
+      captureMoves = giveRookCaptureIds(piece.current_pos, opponentColor);
+      break;
+    case 'queen':
+      captureMoves = giveQueenCaptureIds(piece.current_pos, opponentColor);
+      break;
+    case 'king':
+      captureMoves = giveKingCaptureIds(piece.current_pos, opponentColor);
+      break;
+  }
+  return captureMoves;
+}
+
+function filterMovesForKingProtection(piece, color) {
+  const possibleMoves = getPossibleMoves(piece, giveQueenHighlightIds, color);
+  const safeMoves = [];
+
+  simulateMoves(piece, possibleMoves, safeMoves, color);
+  selfHighlight(piece);
+
+  const tmp = giveQueenHighlightIds(piece.current_pos);
+  const captureOptions = markCaptureMoves(Object.values(tmp), color);
+
+  checkForCheck();
+  if (whoInCheck === color) {
+    const opponentColor = color === "white" ? "black" : "white";
+    captureOptions.forEach(element => {
+      const square = keySquareMapper[element];
+      if (square && square.piece) {
+        const piece = square.piece;
+        const pieceType = piece.piece_name.split('_')[1].toLowerCase();
+        let captureMoves = [];
+
+        captureMoves = returnOnePieceCaptureOptions(piece, pieceType, opponentColor);
+
+        let kingInDangerBool = false;
+        for (let i = 0; i < captureMoves.length; i++) {
+          if (captureMoves[i] === globalPiece[`${color}_king`].current_pos) {
+            kingInDangerBool = true;
+            break;
           }
         }
-      });
-    }
-    return safeMoves;
+        if (!kingInDangerBool) {
+          const flatData = globalState.flat();
+          const el = flatData.find(el => el.id === element && el.captureHightlight);
+          if (el) {
+            document.getElementById(el.id).classList.remove("captureColor");
+            el.captureHightlight = false;
+          }
+        }
+      }
+    });
+  }
+  circleHighlightRender(safeMoves, keySquareMapper);
 }
 
 function handlePieceClick(square, color, pieceType, row, direction) {
@@ -490,22 +415,19 @@ function handlePieceClick(square, color, pieceType, row, direction) {
       captureIds.forEach(element => checkOpponetPieceByElement(element, color));
       break;
     case 'bishop':
-      getCaptureMoves(piece, giveBishopHighlightIds, color, true);
+      getPossibleMoves(piece, giveBishopHighlightIds, color, true);
       break;
     case 'rook':
-      getCaptureMoves(piece, giveRookHighlightIds, color, true);
+      getPossibleMoves(piece, giveRookHighlightIds, color, true);
       break;
     case 'knight':
       knightMovesOptions(piece, giveKnightHighlightIds, color, true);
       break;
     case 'queen':
-      //getCaptureMoves(piece, giveQueenHighlightIds, color, true);
-      const safeQueenMoves = filterQueenMovesToProtectKing(piece, color);
-      //console.log(`handlePieceClick: safeQueenMoves: ${safeQueenMoves}`)
-      circleHighlightRender(safeQueenMoves, keySquareMapper);
+      filterMovesForKingProtection(piece, color);
       break;
     case 'king':
-      const kingHighlightSquareIds = getCaptureMoves(piece, giveKingHighlightIds, color, true, (moves) => limitKingMoves(moves, color), true);
+      const kingHighlightSquareIds = getPossibleMoves(piece, giveKingHighlightIds, color, true, (moves) => limitKingMoves(moves, color), true);
       circleHighlightRender(kingHighlightSquareIds, keySquareMapper);
       break;
   }
@@ -582,7 +504,6 @@ function isOpponentPiece(square) {
   return (square.piece.piece_name.includes("WHITE") && inTurn === "black") ||
          (square.piece.piece_name.includes("BLACK") && inTurn === "white");
 }
-
 
 // Search for any cell that have the class highlightYellow in it and clear it when the board color is changed
 function clearYellowHighlight() {

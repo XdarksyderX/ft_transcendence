@@ -16,15 +16,12 @@ function globalStateRender() {
         highlightSpan.classList.add("highlight");
         document.getElementById(element.id).appendChild(highlightSpan);
       }
-      //else if (element.highlight === null) {
       else {
         const el = document.getElementById(element.id);
         const highlights = Array.from(el.getElementsByClassName("highlight"));
-        //const highlights = Array.from(el.getElementsByTagName("span"));
         highlights.forEach(element => {
           el.removeChild(element);
         });
-        //document.getElementById(element.id).innerHTML = "";
       }
     });
   });
@@ -179,14 +176,14 @@ function circleHighlightRender(highlightSquareIds, keySquareMapper) {
     const element = keySquareMapper[highlight];
     element.highlight = true;
 
-    // Crear y añadir el elemento .highlight si no existe
+    // create and add the element .highlight if doesn't exist
     let highlightSpan = document.getElementById(highlight).querySelector('.highlight');
     if (!highlightSpan) {
       highlightSpan = document.createElement("span");
       highlightSpan.classList.add("highlight");
       document.getElementById(highlight).appendChild(highlightSpan);
     }
-    highlightSpan.style.backgroundColor = highlightColor; // Aplicar el color de highlight
+    highlightSpan.style.backgroundColor = highlightColor;
   });
 }
 

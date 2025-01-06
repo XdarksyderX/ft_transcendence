@@ -626,3 +626,85 @@ if (event.target.localName === "img") // '===' compares both the value and the t
         clearPreviousSelfHighlight(selfHighlightState);
       }
     }
+
+
+//original checkForCheck
+/* function checkForCheck() {
+  if (inTurn === "black") {
+    const whiteKingCurrentPos = globalPiece.white_king.current_pos;
+    const pawns = [];
+    globalPiece.black_pawns.forEach(piece => {
+      pawns.push(piece.current_pos);
+    });
+    const knight_1 = globalPiece.black_knight_1.current_pos;
+    const knight_2 = globalPiece.black_knight_2.current_pos;
+    const king = globalPiece.black_king.current_pos;
+    const bishop_1 = globalPiece.black_bishop_1.current_pos;
+    const bishop_2 = globalPiece.black_bishop_2.current_pos;
+    const rook_1 = globalPiece.black_rook_1.current_pos;
+    const rook_2 = globalPiece.black_rook_2.current_pos;
+    const queen = globalPiece.black_queen.current_pos;
+    
+    let finalListCheck = [];
+    pawns.forEach(piece => {
+      finalListCheck.push(pawnCaptureOptions(piece, -1));
+    });
+    finalListCheck.push(giveKnightCaptureIds(knight_1, inTurn));
+    finalListCheck.push(giveKnightCaptureIds(knight_2, inTurn));
+    finalListCheck.push(giveKingCaptureIds(king, inTurn));
+    finalListCheck.push(giveBishopCaptureIds(bishop_1, inTurn));
+    finalListCheck.push(giveBishopCaptureIds(bishop_2, inTurn));
+    finalListCheck.push(giveRookCaptureIds(rook_1, inTurn));
+    finalListCheck.push(giveRookCaptureIds(rook_2, inTurn));
+    finalListCheck.push(giveQueenCaptureIds(queen, inTurn));
+    
+    finalListCheck = finalListCheck.flat();
+    console.log(`en check for check: finalListCheck: ${finalListCheck}`);
+    const checkOrNot = finalListCheck.find((element) => element === whiteKingCurrentPos);
+    if (checkOrNot) {
+      whoInCheck = "white";
+       setTimeout(() => {
+        alert("You are in check!");
+      }, 300); // Ajusta el tiempo de retraso según la duración de tu animación
+    }
+  }
+  else {
+    const blackKingCurrentPos = globalPiece.black_king.current_pos;
+    const pawns = [];
+    globalPiece.white_pawns.forEach(piece => {
+      pawns.push(piece.current_pos);
+    });
+    const knight_1 = globalPiece.white_knight_1.current_pos;
+    const knight_2 = globalPiece.white_knight_2.current_pos;
+    const king = globalPiece.white_king.current_pos;
+    const bishop_1 = globalPiece.white_bishop_1.current_pos;
+    const bishop_2 = globalPiece.white_bishop_2.current_pos;
+    const rook_1 = globalPiece.white_rook_1.current_pos;
+    const rook_2 = globalPiece.white_rook_2.current_pos;
+    const queen = globalPiece.white_queen.current_pos;
+    
+    let finalListCheck = [];
+    pawns.forEach(piece => {
+      finalListCheck.push(pawnCaptureOptions(piece, 1));
+    });
+    finalListCheck.push(giveKnightCaptureIds(knight_1, inTurn));
+    finalListCheck.push(giveKnightCaptureIds(knight_2, inTurn));
+    finalListCheck.push(giveKingCaptureIds(king, inTurn));
+    finalListCheck.push(giveBishopCaptureIds(bishop_1, inTurn));
+    finalListCheck.push(giveBishopCaptureIds(bishop_2, inTurn));
+    finalListCheck.push(giveRookCaptureIds(rook_1, inTurn));
+    finalListCheck.push(giveRookCaptureIds(rook_2, inTurn));
+    finalListCheck.push(giveQueenCaptureIds(queen, inTurn));
+    
+    finalListCheck = finalListCheck.flat();
+    //console.log(`en check for check: finalListCheck: ${finalListCheck}`);
+    const checkOrNot = finalListCheck.find((element) => element === blackKingCurrentPos);
+    if (checkOrNot) {
+      whoInCheck = "black";
+       setTimeout(() => {
+        alert("You are in check!");
+      }, 300); // Ajusta el tiempo de retraso según la duración de tu animación
+    }
+  }
+  console.log(whoInCheck);
+} */

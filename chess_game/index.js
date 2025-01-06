@@ -43,7 +43,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const boardColor = document.getElementById('board-color').value;
         const [whiteTileColor, blackTileColor] = boardColor.split(';').map(style => style.split(':')[1]);
 
-        //Limpiar cualquier highlight del tablero antes de cambiar de color por si acaso
         clearHighlight();
         clearYellowHighlight();
         
@@ -97,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /*add a custom method to String prototipe that replace a part of an
-string in a specific position. Ex: str = "hello" -> str = str.replaceAt(1, "a") = "hallo" */
+string in a specific position. Ex: str = "hello" -> str = str.replaceAt(1, "a") = "hallo" */ //borrar?
 
 String.prototype.replaceAt = function (index, replacement) {
     return (this.substring(0, index) + replacement + this.substring(index + replacement.length));

@@ -1,8 +1,15 @@
-import { keySquareMapper } from "../index.js";
+import { highlightColor, keySquareMapper } from "../index.js";
 import { circleHighlightRender, globalPiece } from "../Render/main.js";
 
-//function to check if opponnet piece exist
-function checkOpponetPieceByElement(id, color) {
+/**
+ * function to check if opponnet piece exist and highlight it with captureColor,
+ * if the captureHighlight bool is true
+ * @param {*} id 
+ * @param {*} color 
+ * @param {*} captureHighlight 
+ * @returns 
+ */
+function checkOpponetPieceByElement(id, color, captureHighlight = true) {
     const opponentColor = color === "white" ? "BLACK" : "WHITE";
     const element = keySquareMapper[id];
 
@@ -10,23 +17,11 @@ function checkOpponetPieceByElement(id, color) {
         return false;
 
     if (element.piece && element.piece.piece_name.includes(opponentColor)) {
-        const el = document.getElementById(id);
-        el.classList.add("captureColor");
-        element.captureHightlight = true;
-        return true;
-    }
-    return false;
-}
-
-//function to check if opponnet piece exist
-function checkOpponetPieceByElementNoDom(id, color) {
-    const opponentColor = color === "white" ? "BLACK" : "WHITE";
-    const element = keySquareMapper[id];
-
-    if (!element)
-        return false;
-
-    if (element.piece && element.piece.piece_name.includes(opponentColor)) {
+        if (captureHighlight) {
+            const el = document.getElementById(id);
+            el.classList.add("captureColor");
+            element.captureHightlight = true;
+        }
         return true;
     }
     return false;
@@ -83,7 +78,7 @@ function giveBishopHighlightIds(id) {
     };
 }
 
-//???
+//return only the cells that are really under attack
 function giveBishopCaptureIds(id, color) {
     if (!id)
         return [];
@@ -106,7 +101,7 @@ function giveBishopCaptureIds(id, color) {
           if (pieceRes && pieceRes.piece && pieceRes.piece.piece_name.toLowerCase().includes(color)) {
             break;
           }
-          if (checkOpponetPieceByElementNoDom(element, color)) {
+          if (checkOpponetPieceByElement(element, color, false)) {
             returnArr.push(element);
             break;
           }
@@ -123,9 +118,9 @@ function straightMove(id, alphaStep, numStep) {
     let num = Number(id[1]);
     
     while (true) {
-        alpha = String.fromCharCode(alpha.charCodeAt(0) + alphaStep); // Move the letter part
-        num += numStep; // Move the number part
-        if (alpha < 'a' || alpha > 'h' || num < 1 || num > 8) { // Verify if the coordinates are within the limits of the chessboard
+        alpha = String.fromCharCode(alpha.charCodeAt(0) + alphaStep); // move the letter part
+        num += numStep; // move the number part
+        if (alpha < 'a' || alpha > 'h' || num < 1 || num > 8) { // check if the coordinates are within the limits of the chessboard
             break;
         }
         moves.push(`${alpha}${num}`);
@@ -142,7 +137,6 @@ function giveRookHighlightIds(id) {
     };
 }
 
-//??
 function giveRookCaptureIds(id, color) {
     if (!id)
         return [];
@@ -165,7 +159,7 @@ function giveRookCaptureIds(id, color) {
           if (pieceRes && pieceRes.piece && pieceRes.piece.piece_name.toLowerCase().includes(color)) {
             break;
           }
-          if (checkOpponetPieceByElementNoDom(element, color)) {
+          if (checkOpponetPieceByElement(element, color, false)) {
             returnArr.push(element);
             break;
           }
@@ -206,14 +200,13 @@ function giveKnightHighlightIds(id) {
     ];
 }
 
-//??
 function giveKnightCaptureIds(id, color) {
     if (!id)
         return [];
     let resArr =  giveKnightHighlightIds(id);
 
     resArr = resArr.filter(element => {
-        if (checkOpponetPieceByElementNoDom(element, color)) {
+        if (checkOpponetPieceByElement(element, color, false)) {
             return true;
         }
     });
@@ -233,7 +226,6 @@ function giveQueenHighlightIds(id) {
     }
 }
 
-//??
 function giveQueenCaptureIds(id, color) {
     if (!id)
         return [];
@@ -258,23 +250,20 @@ function giveKingHighlightIds(id) {
     for (const key in res) {
         if (Object.prototype.hasOwnProperty.call(res, key)) {
             const element = res[key];
-            
-            if (element.length != 0) {
+            if (element.length != 0)
                 res[key] = new Array(element[0]);
-            }
         }
     }
     return res;
 }
 
-//??
 function giveKingCaptureIds(id, color) {
     if (!id)
         return [];
     let res = giveKingHighlightIds(id);
     res = Object.values(res).flat();
     res = res.filter(element => {
-        if (checkOpponetPieceByElementNoDom(element, color))
+        if (checkOpponetPieceByElement(element, color, false))
             return true;
     })
     return res;
@@ -303,14 +292,14 @@ function checkEnPassant(curr_pos, color, num) {
     return false;
 }
 
+//on intial postion, pawns moves different
 function pawnMovesOptions(curr_pos, row, num, color) {
     let highlightSquareIds = null;
-    //on intial postion, pawns moves different
     if (curr_pos[1] == row) {
         highlightSquareIds = [
             `${curr_pos[0]}${Number(curr_pos[1]) + num}`,
             `${curr_pos[0]}${Number(curr_pos[1]) + (num * 2)}`, ];
-        }
+    }
     else {
         highlightSquareIds = [`${curr_pos[0]}${Number(curr_pos[1]) + num}`,];
         let enPassant = "";
@@ -353,18 +342,16 @@ function castlingCheck(piece, color, res) {
             const d = keySquareMapper[`${color === "white" ? 'd1' : 'd8'}`];
             const kingPath = [`${color === "white" ? 'e1' : 'e8'}`, `${color === "white" ? 'd1' : 'd8'}`, `${color === "white" ? 'c1' : 'c8'}`];
             
-            if (!b.piece && !c.piece && !d.piece && isPathSafeForCastling(kingPath, color)) {
+            if (!b.piece && !c.piece && !d.piece && isPathSafeForCastling(kingPath, color))
                 res.push(`${color === "white" ? 'c1' : 'c8'}`);
-            }
         }
         if (!rook2.move) {
             const f = keySquareMapper[`${color === "white" ? 'f1' : 'f8'}`];
             const g = keySquareMapper[`${color === "white" ? 'g1' : 'g8'}`];
             const kingPath = [`${color === "white" ? 'e1' : 'e8'}`, `${color === "white" ? 'f1' : 'f8'}`, `${color === "white" ? 'g1' : 'g8'}`];
             
-            if (!f.piece && !g.piece && isPathSafeForCastling(kingPath, color)) {
+            if (!f.piece && !g.piece && isPathSafeForCastling(kingPath, color))
                 res.push(`${color === "white" ? 'g1' : 'g8'}`);
-            }
         }
     }
 }
@@ -398,7 +385,7 @@ function markCaptureMoves(allMoves, color) {
  * @param {*} preRenderCallback this callback funcion is just for the king, that call limitKingMoves to avoid an auto checkmate
  * @returns 
  */
-function getCaptureMoves(piece, highlightIdsFunc, color, renderBool = false, preRenderCallback = null, skipCastlingCheck = false) {
+function getPossibleMoves(piece, highlightIdsFunc, color, renderBool = false, preRenderCallback = null, skipCastlingCheck = false) {
     const curr_pos = piece.current_pos;
     let highlightSquareIds = highlightIdsFunc(curr_pos);
     let tmp = [], res = [];
@@ -410,7 +397,6 @@ function getCaptureMoves(piece, highlightIdsFunc, color, renderBool = false, pre
         tmp.push(squares);
       }
     }
-    //console.log(res, tmp)
     if (skipCastlingCheck)
         castlingCheck(piece, color, res);
     highlightSquareIds = res.flat();
@@ -420,7 +406,6 @@ function getCaptureMoves(piece, highlightIdsFunc, color, renderBool = false, pre
         circleHighlightRender(highlightSquareIds, keySquareMapper);
         markCaptureMoves(tmp, color);
     }
-
     return highlightSquareIds;
 }
 
@@ -430,14 +415,14 @@ function getOpponentMoves(color) {
     const enemyColor = color === "white" ? "black" : "white";
     const pawnDirection = enemyColor === "white" ? 1 : -1;
 
-    res = new Set([...res, ...getCaptureMoves(globalPiece[`${enemyColor}_bishop_1`], giveBishopHighlightIds, enemyColor)]);
-    res = new Set([...res, ...getCaptureMoves(globalPiece[`${enemyColor}_bishop_2`], giveBishopHighlightIds, enemyColor)]);
-    res = new Set([...res, ...getCaptureMoves(globalPiece[`${enemyColor}_rook_1`], giveRookHighlightIds, enemyColor)]);
-    res = new Set([...res, ...getCaptureMoves(globalPiece[`${enemyColor}_rook_2`], giveRookHighlightIds, enemyColor)]);
-    res = new Set([...res, ...getCaptureMoves(globalPiece[`${enemyColor}_queen`], giveQueenHighlightIds, enemyColor)]);
+    res = new Set([...res, ...getPossibleMoves(globalPiece[`${enemyColor}_bishop_1`], giveBishopHighlightIds, enemyColor)]);
+    res = new Set([...res, ...getPossibleMoves(globalPiece[`${enemyColor}_bishop_2`], giveBishopHighlightIds, enemyColor)]);
+    res = new Set([...res, ...getPossibleMoves(globalPiece[`${enemyColor}_rook_1`], giveRookHighlightIds, enemyColor)]);
+    res = new Set([...res, ...getPossibleMoves(globalPiece[`${enemyColor}_rook_2`], giveRookHighlightIds, enemyColor)]);
+    res = new Set([...res, ...getPossibleMoves(globalPiece[`${enemyColor}_queen`], giveQueenHighlightIds, enemyColor)]);
     res = new Set([...res, ...knightMovesOptions(globalPiece[`${enemyColor}_knight_1`], giveKnightHighlightIds, enemyColor)]);
     res = new Set([...res, ...knightMovesOptions(globalPiece[`${enemyColor}_knight_2`], giveKnightHighlightIds, enemyColor)]);
-    res = new Set([...res, ...getCaptureMoves(globalPiece[`${enemyColor}_king`], giveKingHighlightIds, enemyColor)]);
+    res = new Set([...res, ...getPossibleMoves(globalPiece[`${enemyColor}_king`], giveKingHighlightIds, enemyColor)]);
 
     for (let pawn of globalPiece[`${enemyColor}_pawns`]) {
         let auxCapture = pawnCaptureOptions(pawn.current_pos, pawnDirection);
@@ -455,7 +440,7 @@ function limitKingMoves(kingInitialMoves, color) {
 
     for (let i = kingInitialMoves.length - 1; i >= 0; i--) {
         if (res.has(kingInitialMoves[i])) {
-        kingInitialMoves.splice(i, 1);
+            kingInitialMoves.splice(i, 1);
         }
     }
 }
@@ -484,7 +469,6 @@ function knightMovesOptions(piece, highlightIdsFunc, color, renderBool = false) 
     
     if (renderBool) {
         circleHighlightRender(highlightSquareIds, keySquareMapper);
-        
         highlightSquareIds.forEach(element => {
             let bool = checkOpponetPieceByElement(element, color);
             if (bool)
@@ -496,4 +480,4 @@ function knightMovesOptions(piece, highlightIdsFunc, color, renderBool = false) 
 
 export { checkOpponetPieceByElement, checkSquareCaptureId, giveBishopHighlightIds, checkPieceExist, giveRookHighlightIds, giveKnightHighlightIds, giveQueenHighlightIds, giveKingHighlightIds,
     giveKnightCaptureIds, giveKingCaptureIds, giveBishopCaptureIds, giveRookCaptureIds, giveQueenCaptureIds,
-    pawnMovesOptions, pawnCaptureOptions, getCaptureMoves, knightMovesOptions, limitKingMoves, checkEnPassant, markCaptureMoves };
+    pawnMovesOptions, pawnCaptureOptions, getPossibleMoves, knightMovesOptions, limitKingMoves, checkEnPassant, markCaptureMoves };
