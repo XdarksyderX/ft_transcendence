@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from core.models import MatchHistory, MatchInvitation, PongGame
 
+
 class MatchHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = MatchHistory
@@ -8,9 +9,14 @@ class MatchHistorySerializer(serializers.ModelSerializer):
 
 
 class MatchInvitationSerializer(serializers.ModelSerializer):
+    games = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=PongGame.objects.all()
+    )
+
     class Meta:
         model = MatchInvitation
-        fields = ['id', 'sender', 'receiver', 'game', 'token', 'status', 'created_at']
+        fields = ['id', 'sender', 'receiver', 'games', 'token', 'status', 'created_at']
         read_only_fields = ['token', 'created_at']
 
 
@@ -29,6 +35,11 @@ class PendingMatchesSerializer(serializers.ModelSerializer):
 
 
 class MatchInvitationDetailSerializer(serializers.ModelSerializer):
+    games = serializers.PrimaryKeyRelatedField(
+        many=True,
+        read_only=True
+    )
+
     class Meta:
         model = MatchInvitation
-        fields = ['id', 'sender', 'receiver', 'game', 'token', 'status', 'created_at']
+        fields = ['id', 'sender', 'receiver', 'games', 'token', 'status', 'created_at']

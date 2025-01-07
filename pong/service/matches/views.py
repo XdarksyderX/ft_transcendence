@@ -30,7 +30,7 @@ class MatchInvitationView(APIView):
         if serializer.is_valid():
             invitation = serializer.save()
             response_data = serializer.data
-            response_data['token'] = invitation.token
+            response_data['token'] = invitation.token  # Incluye el token en la respuesta
             return Response(response_data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -65,9 +65,20 @@ class JoinMatchView(APIView):
             invitation = MatchInvitation.objects.get(token=token, status='pending')
         except MatchInvitation.DoesNotExist:
             return Response({'error': 'Invalid or expired token'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Actualizar el estado de todas las partidas asociadas al token
+        games = invitation.games.all()
+        for game in games:
+            game.status = 'in_progress'
+            game.save()
+
         invitation.status = 'accepted'
         invitation.save()
-        return Response({'message': 'Successfully joined the match', 'game_id': invitation.game.id})
+
+        return Response({
+            'message': 'Successfully joined the matches',
+            'game_ids': [game.id for game in games]
+        })
 
 
 class PendingMatchesView(APIView):
