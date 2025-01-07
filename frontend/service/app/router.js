@@ -18,6 +18,7 @@ const routes = [
     { url: "/start-game", file: "./components/start-game/start-game.html" },
     { url: "/profile", file: "./components/profile/profile.html" },
     { url: "/friends", file: "./components/friends/friends.html" },
+    { url: "/ongoing-tournaments", file: "./components/tournament/tournament.html" },
 ];
 
 async function router() {

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">    
+  <title>Tournament Bracket</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      padding: 0;
+      background-color: #f8f9fa;
+    }
+
+    .bracket {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+      align-items: flex-start;
+    }
+
+    .round {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0 20px;
+    }
+
+    .match {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-around;
+      width: 120px;
+      height: 60px;
+      border: 2px solid #000;
+      margin: 10px 0;
+      border-radius: 5px;
+      background-color: #fff;
+      cursor: pointer;
+    }
+
+    .match.winner {
+      background-color: #d4edda;
+      border-color: #28a745;
+    }
+
+    .round-title {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    /* Align semifinals and finals to center */
+    .round:nth-child(2),
+    .round:nth-child(3) {
+      justify-content: center !important;
+      background-color: green;
+    }
+  </style>
+</head>
+<body>
+  <h1>Tournament Bracket</h1>
+  <div id="bracket" class="bracket"></div>
+
+  <script>
+    // Phase 1: Preliminary rounds
+    const phase1 = [
+      ["Team A", "Team B"],
+      ["Team C", "Team D"],
+      ["Team E", "Team F"],
+      ["Team G", "Team H"]
+    ];
+
+    // Phase 2: Semifinals
+    const phase2 = [
+      ["Team A", "Team D"],
+      ["Team F", "Team G"]
+    ];
+
+    // Phase 3: Finals
+    const phase3 = [
+      ["Team A", "Team F"]
+    ];
+
+    const allPhases = [phase1, phase2, phase3];
+    const phaseTitles = ["Phase 1", "Phase 2", "Phase 3"];
+
+    function generateBracket(phases) {
+      const bracket = document.getElementById("bracket");
+
+      phases.forEach((phase, phaseIndex) => {
+        const phaseDiv = document.createElement("div");
+        phaseDiv.classList.add("round");
+        phaseDiv.classList.add("h-100");
+        phaseDiv.classList.add("bg-danger");
+
+        const title = document.createElement("div");
+        title.classList.add("round-title");
+        title.textContent = phaseTitles[phaseIndex];
+        phaseDiv.appendChild(title);
+
+        phase.forEach((match) => {
+          const matchDiv = document.createElement("div");
+          matchDiv.classList.add("match");
+
+          const team1 = document.createElement("div");
+          const team2 = document.createElement("div");
+
+          team1.textContent = match[0];
+          team2.textContent = match[1];
+
+          matchDiv.appendChild(team1);
+          matchDiv.appendChild(team2);
+          phaseDiv.appendChild(matchDiv);
+
+        });
+
+        bracket.appendChild(phaseDiv);
+      });
+    }
+
+    generateBracket(allPhases);
+  </script>
+</body>
+</html>
