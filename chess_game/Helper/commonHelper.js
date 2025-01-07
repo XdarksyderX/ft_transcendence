@@ -479,4 +479,4 @@ function knightMovesOptions(piece, highlightIdsFunc, color, renderBool = false) 
 
 export { checkOpponetPieceByElement, checkSquareCaptureId, giveBishopHighlightIds, checkPieceExist, giveRookHighlightIds, giveKnightHighlightIds, giveQueenHighlightIds, giveKingHighlightIds,
     giveKnightCaptureIds, giveKingCaptureIds, giveBishopCaptureIds, giveRookCaptureIds, giveQueenCaptureIds,
-    pawnMovesOptions, pawnCaptureOptions, getPossibleMoves, knightMovesOptions, limitKingMoves, checkEnPassant, markCaptureMoves };
+    pawnMovesOptions, pawnCaptureOptions, getPossibleMoves, knightMovesOptions, limitKingMoves, checkEnPassant, markCaptureMoves, adjustKnightHighlighting };

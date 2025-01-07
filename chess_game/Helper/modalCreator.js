@@ -1,5 +1,5 @@
 import * as pieces from "../Data/pieces.js";
-import { keySquareMapper, imgStyle } from "../index.js";
+import { imgStyle } from "../index.js";
 
 /**
  * This class  is a design pattern aimed at creating

@@ -371,15 +371,25 @@ function returnOnePieceCaptureOptions(piece, pieceType, opponentColor) {
   return captureMoves;
 }
 
-function filterMovesForKingProtection(piece, color) {
-  const possibleMoves = getPossibleMoves(piece, giveQueenHighlightIds, color);
+function filterMovesForKingProtection(piece, color, movesGetterFunc, highlightIdsFunc, pieceType = null) {
+  let possibleMoves = movesGetterFunc(piece, highlightIdsFunc, color);
   const safeMoves = [];
+  let captureOptions = [];
+
+  if (pieceType == "knight")
+    possibleMoves = possibleMoves.filter(move => !checkPieceExist(move));
 
   simulateMoves(piece, possibleMoves, safeMoves, color);
   selfHighlight(piece);
 
-  const tmp = giveQueenHighlightIds(piece.current_pos);
-  const captureOptions = markCaptureMoves(Object.values(tmp), color);
+  if (pieceType != "knight")
+    captureOptions = markCaptureMoves(Object.values(highlightIdsFunc(piece.current_pos)), color);
+  else {
+    captureOptions = giveKnightCaptureIds(piece.current_pos, color);
+    captureOptions.forEach(element => {
+      checkOpponetPieceByElement(element, color);
+    });
+  }
 
   checkForCheck();
   if (whoInCheck === color) {
@@ -435,16 +445,17 @@ function handlePieceClick(square, color, pieceType, row, direction) {
       captureIds.forEach(element => checkOpponetPieceByElement(element, color));
       break;
     case 'bishop':
-      getPossibleMoves(piece, giveBishopHighlightIds, color, true);
+      filterMovesForKingProtection(piece, color, getPossibleMoves, giveBishopHighlightIds);
       break;
     case 'rook':
-      getPossibleMoves(piece, giveRookHighlightIds, color, true);
+      //getPossibleMoves(piece, giveRookHighlightIds, color, true);
+      filterMovesForKingProtection(piece, color, getPossibleMoves, giveRookHighlightIds);
       break;
     case 'knight':
-      knightMovesOptions(piece, giveKnightHighlightIds, color, true);
+      filterMovesForKingProtection(piece, color, knightMovesOptions, giveKnightHighlightIds, pieceType);
       break;
-    case 'queen':
-      filterMovesForKingProtection(piece, color);
+      case 'queen':
+      filterMovesForKingProtection(piece, color, getPossibleMoves, giveQueenHighlightIds);
       break;
     case 'king':
       const kingHighlightSquareIds = getPossibleMoves(piece, giveKingHighlightIds, color, true, (moves) => limitKingMoves(moves, color), true);
