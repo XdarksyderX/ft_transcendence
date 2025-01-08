@@ -32,7 +32,7 @@
 	  justify-content: center;
     }
 
-	.pair-round {
+	.round.even {
 		/* background: linear-gradient(to top, var(--medium), var(--dark)); */
 		/* background-color: #2d124074; */
 		border-left: 1px solid var(--light);
@@ -48,7 +48,7 @@
       width: 120px;
       height: 60px;
       border: 2px solid var(--light);
-	  box-shadow: 0 0 5px var(--light);
+	    box-shadow: 0 0 5px var(--light);
 
       margin: 10px 0;
       border-radius: 5px;
@@ -317,6 +317,9 @@ const tournaments = [tournament1, tournament2];
     function generateRound(phase) {
       const round = document.createElement('div');
       round.classList.add('round');
+      if (phase.number % 2 === 0) {
+        round.classList.add('even');
+      }
       const matches = generateMatches(phase.matches);
       round.innerHTML = `
         <div class="mt-2 ${phase.number === 1 ? '' : 'position-absolute top-0'}">Phase ${phase.number}</div>
