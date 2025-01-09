@@ -223,7 +223,6 @@ function makeEnPassant(piece, id) {
 
       currentPiece.innerHTML = "";
       delete opSquare.piece;
-      console.log(globalPiece.black_pawns, globalPiece.white_pawns);
     }
   }
 }
@@ -254,12 +253,9 @@ function moveElement(piece, id, castle) {
     return;
   }
   
-  if (pawnPromotionBool) {
+  if (pawnPromotionBool)
     pawnPromotion(inTurn, callbackPiece, id);
-    console.log("After Pawn Promotion")
-    console.log(globalPiece);
-    console.log(keySquareMapper);
-  }
+
   logMoves({from: piece.current_pos, to: id, piece:piece.piece_name}, inTurn, piece, castlingType);
   
   //para juan cuando el backend este, aqui es donde podriamos guardar en la base de datos los movimientos: keysquaremap es un objeto que tiene todo el tablero actualizado, piece.current_pos es la pos de origen, id, es la posicion de destino
@@ -303,7 +299,7 @@ function checkForCheck() {
     const pieceType = piece.piece_name.split('_')[1].toLowerCase();
     switch (pieceType) {
       case 'pawn':
-        finalListCheck.push(pawnCaptureOptions(piece.current_pos, enemyColor === "white" ? 1 : -1));
+        finalListCheck.push(pawnCaptureOptions(piece.current_pos, enemyColor));
         break;
       case 'knight':
         finalListCheck.push(giveKnightCaptureIds(piece.current_pos, enemyColor));
@@ -327,7 +323,6 @@ function checkForCheck() {
   const checkOrNot = finalListCheck.find((element) => element === kingPosition);
   if (checkOrNot)
     whoInCheck = inTurn;
-  //console.log(`checkForCheck: whoInCheck: ${whoInCheck}`);
 }  
 
 function simulateMoves(piece, possibleMoves, safeMoves, color) {
@@ -350,7 +345,7 @@ function returnOnePieceCaptureOptions(piece, pieceType, opponentColor) {
   let captureMoves = [];
   switch (pieceType) {
     case 'pawn':
-      captureMoves = pawnCaptureOptions(piece.current_pos, opponentColor === "white" ? 1 : -1);
+      captureMoves = pawnCaptureOptions(piece.current_pos, opponentColor);
       break;
     case 'knight':
       captureMoves = giveKnightCaptureIds(piece.current_pos, opponentColor);
@@ -382,10 +377,10 @@ function filterMovesForKingProtection(piece, color, movesGetterFunc, highlightId
   simulateMoves(piece, possibleMoves, safeMoves, color);
   selfHighlight(piece);
 
-  if (pieceType != "knight")
+  if (pieceType != "knight" && pieceType != "pawn")
     captureOptions = markCaptureMoves(Object.values(highlightIdsFunc(piece.current_pos)), color);
   else {
-    captureOptions = giveKnightCaptureIds(piece.current_pos, color);
+    captureOptions = highlightIdsFunc(piece.current_pos, color);
     captureOptions.forEach(element => {
       checkOpponetPieceByElement(element, color);
     });
@@ -424,7 +419,7 @@ function filterMovesForKingProtection(piece, color, movesGetterFunc, highlightId
   circleHighlightRender(safeMoves, keySquareMapper);
 }
 
-function handlePieceClick(square, color, pieceType, direction) {
+function handlePieceClick(square, color, pieceType) {
   const piece = square.piece;
   if (selfHighlightSquare(piece)) return;
   if (captureHightlightSquare(square, piece)) return;
@@ -439,16 +434,12 @@ function handlePieceClick(square, color, pieceType, direction) {
 
   switch (pieceType) {
     case 'pawn':
-      const highlightSquareIds = pawnMovesOptions(piece, color);
-      circleHighlightRender(highlightSquareIds, keySquareMapper);
-      const captureIds = pawnCaptureOptions(piece.current_pos, direction);
-      captureIds.forEach(element => checkOpponetPieceByElement(element, color));
+      filterMovesForKingProtection(piece, color, pawnMovesOptions, pawnCaptureOptions, pieceType);
       break;
     case 'bishop':
       filterMovesForKingProtection(piece, color, getPossibleMoves, giveBishopHighlightIds);
       break;
     case 'rook':
-      //getPossibleMoves(piece, giveRookHighlightIds, color, true);
       filterMovesForKingProtection(piece, color, getPossibleMoves, giveRookHighlightIds);
       break;
     case 'knight':
@@ -496,9 +487,7 @@ function GlobalEvent() {
 
       const pieceName = square.piece.piece_name;
       const pieceType = pieceName.split('_')[1].toLowerCase(); // Obtener el tipo de pieza pawn, bishop, etc..
-      //const row = pieceName.includes("PAWN") ? (inTurn === "white" ? "2" : "7") : null; //this var is only to check the row, so the we know if the pawn can do the initial special move of two squares or not. if a pawn is not clicked, its null because it doesn't matter.
-      const direction = pieceName.includes("PAWN") ? (inTurn === "white" ? 1 : -1) : null; //this var is only to stablish the direction of the pawn in the table in order of it's color
-      handlePieceClick(square, inTurn, pieceType, direction); //this is the general funciotn in charge of the movement
+      handlePieceClick(square, inTurn, pieceType); //this is the general funciotn in charge of the movement
     }
     else if (isHighlightClick) { //this is to know if the click is in a square with the round highlight, which is the posible move of a piece. Ensure that only valid moves are processed.
       handleHighlightClickEvent(target);

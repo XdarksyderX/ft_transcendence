@@ -292,7 +292,7 @@ function checkEnPassant(curr_pos, color, num) {
 }
 
 //on intial postion, pawns moves different
-function pawnMovesOptions(piece, color) {
+function pawnMovesOptions(piece, unusedFunc = null, color) {
     let highlightSquareIds = null;
     const curr_pos = piece.current_pos;
     const row = color === "white" ? "2" : "7";
@@ -313,13 +313,14 @@ function pawnMovesOptions(piece, color) {
     return highlightSquareIds;
 }
 
-function pawnCaptureOptions(curr_pos, num) {
+function pawnCaptureOptions(curr_pos, color) {
     if (!curr_pos)
 		return null;
-    console.log(num)
+    const auxNum = color === "white" ? 1 : -1;
+
     const validColumns = new Set(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']);
-    const col1 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) - 1)}${Number(curr_pos[1]) + num}`;
-    const col2 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) + 1)}${Number(curr_pos[1]) + num}`;
+    const col1 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) - 1)}${Number(curr_pos[1]) + auxNum}`;
+    const col2 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) + 1)}${Number(curr_pos[1]) + auxNum}`;
     
     let captureIds = [col1, col2].filter(pos => validColumns.has(pos[0]));
     return captureIds;
@@ -415,7 +416,6 @@ function getPossibleMoves(piece, highlightIdsFunc, color, renderBool = false, pr
 function getOpponentMoves(color) {
     let res = new Set();
     const enemyColor = color === "white" ? "black" : "white";
-    const pawnDirection = enemyColor === "white" ? 1 : -1;
 
     res = new Set([...res, ...getPossibleMoves(globalPiece[`${enemyColor}_bishop_1`], giveBishopHighlightIds, enemyColor)]);
     res = new Set([...res, ...getPossibleMoves(globalPiece[`${enemyColor}_bishop_2`], giveBishopHighlightIds, enemyColor)]);
@@ -427,7 +427,7 @@ function getOpponentMoves(color) {
     res = new Set([...res, ...getPossibleMoves(globalPiece[`${enemyColor}_king`], giveKingHighlightIds, enemyColor)]);
 
     for (let pawn of globalPiece[`${enemyColor}_pawns`]) {
-        let auxCapture = pawnCaptureOptions(pawn.current_pos, pawnDirection);
+        let auxCapture = pawnCaptureOptions(pawn.current_pos, enemyColor);
         if (auxCapture) {
             res = new Set([...res, ...auxCapture]);
         }
