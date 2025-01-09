@@ -62,6 +62,25 @@
 
     }
 
+    .match.available {
+    border-color: var(--lorange);
+    box-shadow: 0 0 5px var(--lorange);
+    animation: blink 1s infinite;
+    }
+    .match.done {
+      border-color: var(--accent);
+      box-shadow: 0 0 5px var(--accent);
+    }
+  @keyframes blink {
+  0%, 100% {
+    box-shadow: 0 0 10px var(--lorange);
+  }
+  50% {
+    box-shadow: 0 0 5px transparent;
+  }
+}
+
+
     .winner {
 		color: var(--accent);
 		text-shadow: 0 0 2px var(--light);
@@ -254,7 +273,7 @@ function renderAllTournaments() {
   });
 
   container.addEventListener('click', (e) => {
-    const matchElement = e.target.closest('.match.pending'); // looks for the closest pending match to the click
+    const matchElement = e.target.closest('.match.available'); // looks for the closest available match to the click
     if (matchElement) {
       const matchId = matchElement.dataset.matchId; //access to the data-match-id we added while creating the element
       const allMatches = tournaments.flatMap(tournament => tournament.phases.flatMap(phase => phase.matches)); // combines all matches in one array
@@ -319,9 +338,15 @@ function generateMatch(match, openPhase) {
   
   if (match.status === 'pending' && openPhase && match.teams.length === 2) {
     console.log('Match is pending, phase is open, and teams are complete:', match);
-    
-    matchElement.classList.add('pending');
+    if (match.teams.includes('Team A')) {
+      matchElement.classList.add('available');
+    }
+    else
+       matchElement.classList.add('pending');
     matchElement.dataset.matchId = match.matchId;
+  }
+  if (match.winner) {
+    matchElement.classList.add('done');
   }
   
   matchElement.innerHTML = `
