@@ -292,17 +292,20 @@ function checkEnPassant(curr_pos, color, num) {
 }
 
 //on intial postion, pawns moves different
-function pawnMovesOptions(curr_pos, row, num, color) {
+function pawnMovesOptions(piece, color) {
     let highlightSquareIds = null;
+    const curr_pos = piece.current_pos;
+    const row = color === "white" ? "2" : "7";
+    const direction = color === "white" ? 1 : -1;
     if (curr_pos[1] == row) {
         highlightSquareIds = [
-            `${curr_pos[0]}${Number(curr_pos[1]) + num}`,
-            `${curr_pos[0]}${Number(curr_pos[1]) + (num * 2)}`, ];
+            `${curr_pos[0]}${Number(curr_pos[1]) + direction}`,
+            `${curr_pos[0]}${Number(curr_pos[1]) + (direction * 2)}`, ];
     }
     else {
-        highlightSquareIds = [`${curr_pos[0]}${Number(curr_pos[1]) + num}`,];
+        highlightSquareIds = [`${curr_pos[0]}${Number(curr_pos[1]) + direction}`,];
         let enPassant = "";
-        if (enPassant = checkEnPassant(curr_pos, color, num)) {
+        if (enPassant = checkEnPassant(curr_pos, color, direction)) {
             highlightSquareIds.push(enPassant);
         }
     }
@@ -313,7 +316,7 @@ function pawnMovesOptions(curr_pos, row, num, color) {
 function pawnCaptureOptions(curr_pos, num) {
     if (!curr_pos)
 		return null;
-    
+    console.log(num)
     const validColumns = new Set(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']);
     const col1 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) - 1)}${Number(curr_pos[1]) + num}`;
     const col2 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) + 1)}${Number(curr_pos[1]) + num}`;

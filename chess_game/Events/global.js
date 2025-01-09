@@ -424,7 +424,7 @@ function filterMovesForKingProtection(piece, color, movesGetterFunc, highlightId
   circleHighlightRender(safeMoves, keySquareMapper);
 }
 
-function handlePieceClick(square, color, pieceType, row, direction) {
+function handlePieceClick(square, color, pieceType, direction) {
   const piece = square.piece;
   if (selfHighlightSquare(piece)) return;
   if (captureHightlightSquare(square, piece)) return;
@@ -439,7 +439,7 @@ function handlePieceClick(square, color, pieceType, row, direction) {
 
   switch (pieceType) {
     case 'pawn':
-      const highlightSquareIds = pawnMovesOptions(piece.current_pos, row, direction, color);
+      const highlightSquareIds = pawnMovesOptions(piece, color);
       circleHighlightRender(highlightSquareIds, keySquareMapper);
       const captureIds = pawnCaptureOptions(piece.current_pos, direction);
       captureIds.forEach(element => checkOpponetPieceByElement(element, color));
@@ -496,9 +496,9 @@ function GlobalEvent() {
 
       const pieceName = square.piece.piece_name;
       const pieceType = pieceName.split('_')[1].toLowerCase(); // Obtener el tipo de pieza pawn, bishop, etc..
-      const row = pieceName.includes("PAWN") ? (inTurn === "white" ? "2" : "7") : null; //this var is only to check the row, so the we know if the pawn can do the initial special move of two squares or not. if a pawn is not clicked, its null because it doesn't matter.
+      //const row = pieceName.includes("PAWN") ? (inTurn === "white" ? "2" : "7") : null; //this var is only to check the row, so the we know if the pawn can do the initial special move of two squares or not. if a pawn is not clicked, its null because it doesn't matter.
       const direction = pieceName.includes("PAWN") ? (inTurn === "white" ? 1 : -1) : null; //this var is only to stablish the direction of the pawn in the table in order of it's color
-      handlePieceClick(square, inTurn, pieceType, row, direction); //this is the general funciotn in charge of the movement
+      handlePieceClick(square, inTurn, pieceType, direction); //this is the general funciotn in charge of the movement
     }
     else if (isHighlightClick) { //this is to know if the click is in a square with the round highlight, which is the posible move of a piece. Ensure that only valid moves are processed.
       handleHighlightClickEvent(target);
