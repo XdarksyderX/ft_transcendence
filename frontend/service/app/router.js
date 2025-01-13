@@ -7,7 +7,11 @@ import { initializeProfileEvents } from '../components/profile/app.js';
 import { initialize404 } from '../components/error/app.js';
 import { initializeFriendsEvents } from '../components/friends/app.js';
 import { initializeStatsEvents } from '../components/stats/app.js';
+import { initializeOngoingTournaments } from '../components/tournament/app.js';
+
+
 import { loadChat, loadSidebar } from './render.js'; // temporal
+
 
 const routes = [
     { url: "/404", file: "./components/error/404.html" },
@@ -45,6 +49,9 @@ async function router() {
         case "/start-game":
             initializeStartGameEvents(); // i guess
             initializeNeonFrames();
+            break;
+        case "/ongoing-tournaments":
+            initializeOngoingTournaments();
             break;
         case "/profile":
             initializeNeonFrames();
