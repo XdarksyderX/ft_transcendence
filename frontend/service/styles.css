@@ -191,7 +191,7 @@ input:focus, select:focus, .ctm-btn:focus, .ctm-btn-dark:focus {
     align-items: flex-start;
     justify-content: center;
     padding: 1rem;
-    padding-top: calc(100vh / 9); 
+    padding-top: calc(100vh / 11); 
     overflow-y: auto;
     height: calc(100vh - 50px); /* navbar is 50px */
 }

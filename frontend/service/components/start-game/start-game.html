@@ -26,11 +26,11 @@
 							</div>
 							<div id="friend-list" class="h-100 flex-column" style="display: none;">
 								<h5 class="ctm-text-light mb-3">Select a friend to play with:</h5>
-								<div id="friends-container" class="mb-3"></div>
+								<div id="friends-container" class="mb-3 friends-container"></div>
 								<button id="start-game-with-friend" class="btn ctm-btn mb-3" disabled>Start Game with Friend</button>
 							</div>
 							<div id="tournament-options" class="h-100 flex-column" style="display: none;">
-								<div id="ongoing-tournaments" class="btn ctm-btn mb-3 flex-grow-1 d-flex align-items-center justify-content-center">Ongoing Tournaments</div>
+								<a href="/ongoing-tournaments" id="ongoing-tournaments" class="btn ctm-btn mb-3 flex-grow-1 d-flex align-items-center justify-content-center">Ongoing Tournaments</a>
 								<div id="new-tournament" class="btn ctm-btn mb-3 flex-grow-1 d-flex align-items-center justify-content-center">New Tournament</div>
 							</div>
 						</div>
@@ -38,15 +38,26 @@
 				</div>
 			</div>
 			<div class="col-md-5 mb-4">
-				<a href="chess.html" class="card-link">
+				<div id="chess-btn" class="card-link">
 					<div class="ctm-card card-hover h-100">
-						<div class="card-body text-center">
+						<div class="card-body text-center d-flex flex-column">
 							<h3 class="ctm-text-title mb-3">Play Chess</h3>
-							<img src="https://images.chesscomfiles.com/uploads/v1/images_users/tiny_mce/PedroPinhata/phpNtZwIg.png" alt="Play Chess" class="img-fluid rounded mb-3">
-							<p class="ctm-text-light">Click to start a game of Chess!</p>
+							<div id="play-chess">
+								<img src="https://images.chesscomfiles.com/uploads/v1/images_users/tiny_mce/PedroPinhata/phpNtZwIg.png" alt="Play Chess" class="img-fluid rounded mb-3">
+								<p class="ctm-text-light">Click to start a game of Chess!</p>
+							</div>
+							<div id="chess-options" class="h-100 flex-column" style="display: none;">
+								<div id="chess-friend" class="btn ctm-btn mb-3 flex-grow-1 d-flex align-items-center justify-content-center">Play with a friend</div>
+								<div id="chess-random" class="btn ctm-btn mb-3 flex-grow-1 d-flex align-items-center justify-content-center">Play with any friend</div>
+							</div>
+							<div id="chess-friend-list" class="h-100 flex-column" style="display: none;">
+								<h5 class="ctm-text-light mb-3">Select a friend to play with:</h5>
+								<div id="chess-friends-container" class="mb-3 friends-container"></div>
+								<button id="start-chess-with-friend" class="btn ctm-btn mb-3" disabled>Start Game with Friend</button>
+							</div>
 						</div>
 					</div>
-				</a>
+				</div>
 			</div>
 		</div>
 	</div>

@@ -23,7 +23,9 @@
     color: var(--dark) !important;
 }
 
-#friends-container {
+
+.friends-container {
+    height: 172px !important;
     overflow-y: auto;
 }
 /* .card-body {
