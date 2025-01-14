@@ -1,3 +1,5 @@
+import { throwAlert } from "../../app/render.js";
+//import { navigateTo } from "../../app/router.js";
 export function initializeStartGameEvents() {
     const elements = {
         pong: {
@@ -111,13 +113,13 @@ export function initializeStartGameEvents() {
 
     function playWithAnyFriend() {
         console.log("Play with any friend option selected");
-        alert("this eventually will take you to waiting room");
+        throwAlert("this eventually will take you to waiting room");
     }
     elements.pong.quickPlay.playAnyFriend.addEventListener('click', playWithAnyFriend);
 
     function playAgainstMachine() {
         console.log("Play against the machine option selected");
-        alert("this eventually will take you to pong directly");
+        throwAlert("this eventually will take you to pong directly");
     }
     elements.pong.quickPlay.playMachine.addEventListener('click', playAgainstMachine);
 
@@ -156,7 +158,7 @@ export function initializeStartGameEvents() {
     function toggleFriendSelection(friend, btn) { // btn is for chess or for pong
         console.log('toggleFriendSelection called with btn:', btn); // Debugging line
         if (friend.status !== 'online') {
-            alert('This friend is not available to play right now.');
+            throwAlert('This friend is not available to play right now.');
             return;
         }
         const newFriendBtn = document.querySelector(`.friend-btn[data-friend-id="${friend.id}"]`);

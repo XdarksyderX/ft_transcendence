@@ -61,8 +61,8 @@ export function initializeFriendsEvents() {
             </p>
             <p>friends since: 4/8/24</p>
             <p>
-                <div class="btn ctm-btn-secondary" data-bs-toggle="modal" data-bs-target="#deleteModal">delete</div>
-                <div class="btn ctm-btn-danger" data-bs-toggle="modal" data-bs-target="#blockModal">block</div>
+                <div class="btn ctm-btn-secondary" data-bs-toggle="modal" data-bs-target="#delete-modal">delete</div>
+                <div class="btn ctm-btn-danger" data-bs-toggle="modal" data-bs-target="#block-modal">block</div>
             </p>
         `;
     }
