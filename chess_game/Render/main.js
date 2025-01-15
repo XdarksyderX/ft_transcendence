@@ -1,6 +1,7 @@
 import * as piece from "../Data/pieces.js";
 import { ROOT_DIV } from "../Helper/constants.js";
 import { globalState, highlightColor } from "../index.js";
+import { getChess960Piece } from "../Variants/chess960.js";
 
 const globalPiece = new Object();
 
@@ -93,34 +94,49 @@ const piecePositions = {
   "e1": piece.whiteKing
 };
 
+
+/**
+ * This function takes the chessboard data and renders it as HTML elements on the web page.
+ * It is only called when the game starts (only for one time).
+ * 
+ * We double iterate over each row and square checking if the current square contains a pieceand creating
+ * a new div element for each square.
+ * If the piece is not null, we retrieve the HTML element corresponding to the current square using its 'id',
+ * which is unique.
+ * Then, we create a new <img> element, set the 'src' attribute of the <img> element to the URL of the piece.
+ * We add a CSS class to the <img> element for styling purposes, and finally we append that new element
+ * representing the piece to the square's HTML element.
+ * @param {*} data a 2D array representing the chessboard, where each element is a row of squares.
+ */
 function initGameRender(data)
 {
   globalPiece.black_pawns = [];
   globalPiece.white_pawns = [];
 
+  //chess960 variant -> aqui tendriamos que tener alguna variable con al que controlar si se ha seleccionado dicha variante de juego
+  //getChess960Piece();
+
   data.forEach(element => {
-    const rowEl = document.createElement("div"); //for each row, a new div element (rowEl) is created to represent the row
-    element.forEach((square) => { //iterate for each swquare in a row
-      const squareDiv = document.createElement("div"); // a new div element (squareDiv) is created to represent the square.
+    const rowEl = document.createElement("div");
+    element.forEach((square) => {
+      const squareDiv = document.createElement("div");
       squareDiv.id = square.id;
-      squareDiv.classList.add(square.color, "square"); // that elemente is assigned to two CSS clasess: one for the square's color and one generic class("square").
+      squareDiv.classList.add(square.color, "square");
 
       if (square.id[1] == 7) {
         square.piece = piece.blackPawn(square.id);
         globalPiece.black_pawns.push(square.piece);
-      }
-      else if (square.id[1] == 2) {
+      } else if (square.id[1] == 2) {
         square.piece = piece.whitePawn(square.id);
         globalPiece.white_pawns.push(square.piece);
-      }
-      else if (piecePositions[square.id]) {
-        square.piece = piecePositions[square.id](square.id); // render specific piece like if square.id == "d8") -> square.piece = piece.blackKing(square.id)
+      } else if (piecePositions[square.id]) {
+        square.piece = piecePositions[square.id](square.id);
         assignSpecificPiece(square);
       }
-      rowEl.appendChild(squareDiv); //squareDiv element is appended to the rowEl
+      rowEl.appendChild(squareDiv);
     });
-    rowEl.classList.add("squareRow"); //after all squares in the row have been processed, the rowEl is assigned a CSS class("squareRow") to style the row.
-    ROOT_DIV.appendChild(rowEl); //the rowEl is the appended to the ROOT_DIV, adding the row to the web page
+    rowEl.classList.add("squareRow");
+    ROOT_DIV.appendChild(rowEl);
   });
   pieceRender(data);
 }
@@ -187,4 +203,4 @@ function circleHighlightRender(highlightSquareIds, keySquareMapper) {
   });
 }
 
-export { initGameRender, renderHighlight, clearHighlight, selfHighlight, globalStateRender, globalPiece, circleHighlightRender };
+export { initGameRender, renderHighlight, clearHighlight, selfHighlight, globalStateRender, globalPiece, circleHighlightRender, piecePositions };
