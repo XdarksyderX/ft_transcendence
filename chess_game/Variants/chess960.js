@@ -1,63 +1,68 @@
 import * as piece from "../Data/pieces.js";
 import { piecePositions } from "../Render/main.js";
 
-function generateChess960Position() {
-  const positions = Array(8).fill(null);
-  const pieces = ["Rook", "Knight", "Bishop", "Queen", "King", "Bishop", "Knight", "Rook"];
-
-  // Place bishops on different color squares
-  const bishop1Pos = Math.floor(Math.random() * 4) * 2;
-  const bishop2Pos = Math.floor(Math.random() * 4) * 2 + 1;
-  positions[bishop1Pos] = "Bishop";
-  positions[bishop2Pos] = "Bishop";
-
-  // Place the queen
-  let remainingPositions = positions.map((pos, index) => pos === null ? index : null).filter(pos => pos !== null);
-  const queenPos = remainingPositions[Math.floor(Math.random() * remainingPositions.length)];
-  positions[queenPos] = "Queen";
-
-  // Place the knights
-  remainingPositions = positions.map((pos, index) => pos === null ? index : null).filter(pos => pos !== null);
-  const knight1Pos = remainingPositions[Math.floor(Math.random() * remainingPositions.length)];
-  positions[knight1Pos] = "Knight";
-  remainingPositions = positions.map((pos, index) => pos === null ? index : null).filter(pos => pos !== null);
-  const knight2Pos = remainingPositions[Math.floor(Math.random() * remainingPositions.length)];
-  positions[knight2Pos] = "Knight";
-
-  // Place the rooks and king
-  remainingPositions = positions.map((pos, index) => pos === null ? index : null).filter(pos => pos !== null);
-  positions[remainingPositions[0]] = "Rook";
-  positions[remainingPositions[1]] = "King";
-  positions[remainingPositions[2]] = "Rook";
-
-  const positionMap = {};
-  const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
-  positions.forEach((piece, index) => {
-    positionMap[`${files[index]}1`] = piece;
-    positionMap[`${files[index]}8`] = piece;
-  });
-
-  console.log(positionMap)
-  return positionMap;
-}
-
+//reasign the intial positions of the pieces in the piecePostion var
 function getChess960Piece() {
     const chess960Positions = generateChess960Position();
     Object.keys(chess960Positions).forEach(key => {
-      piecePositions[key] = (key[1] === '1' ? piece[`white${chess960Positions[key]}`] : piece[`black${chess960Positions[key]}`]);
+        piecePositions[key] = (key[1] === '1' ? piece[`white${chess960Positions[key]}`] : piece[`black${chess960Positions[key]}`]);
     });
 }
-/*   switch (position) {
-    case "Rook":
-      return color === "white" ? piece.whiteRook : piece.blackRook;
-    case "Knight":
-      return color === "white" ? piece.whiteKnight : piece.blackKnight;
-    case "Bishop":
-      return color === "white" ? piece.whiteBishop : piece.blackBishop;
-    case "Queen":
-      return color === "white" ? piece.whiteQueen : piece.blackQueen;
-    case "King":
-      return color === "white" ? piece.whiteKing : piece.blackKing;
-  } */
 
-export { generateChess960Position, getChess960Piece };
+/**
+ * This function generates a random initial position for the Chess960 variant.
+ * 
+ * The rules for Chess960 are:
+ * - The two bishops must be placed on opposite-colored squares.
+ * - The king must be placed between the two rooks.
+ * - The opponent's pieces mirror the player's pieces.
+ * 
+ * The function follows these steps:
+ * 1. Initialize an array `positions` with 8 null values to represent the 8 squares on the first rank.
+ * 2. Randomly place the two bishops on opposite-colored squares.
+ * 3. Randomly place the queen and the knights on one of the remaining empty squares.
+ * 5. Place the two rooks and the king on the remaining three squares, ensuring the king is between the rooks.
+ * 6. Create a `positionMap` object to map the file (a-h) and rank (1 for white, 8 for black) to the piece type.
+ * @returns {Object} An object representing the initial positions of the pieces for Chess960.
+ */
+function generateChess960Position() {
+    const positions = Array(8).fill(null);
+
+    const bishop1Pos = Math.floor(Math.random() * 4) * 2;
+    const bishop2Pos = Math.floor(Math.random() * 4) * 2 + 1;
+    positions[bishop1Pos] = "Bishop";
+    positions[bishop2Pos] = "Bishop";
+
+    placePiece(positions, "Queen");
+    placePiece(positions, "Knight");
+    placePiece(positions, "Knight");
+
+    const remainingPositions = positions.map((pos, index) => pos === null ? index : null).filter(pos => pos !== null);
+    positions[remainingPositions[0]] = "Rook";
+    positions[remainingPositions[1]] = "King";
+    positions[remainingPositions[2]] = "Rook";
+
+    const positionMap = {};
+    const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+    positions.forEach((piece, index) => {
+        positionMap[`${files[index]}1`] = piece;
+        positionMap[`${files[index]}8`] = piece;
+    });
+    return positionMap;
+}
+
+/**
+ * This helper function places a given piece in a random empty position on the board.
+ * 
+ * First, we identify all empty positions in the `positions` array, then we select a
+ * random empty position, so we can finally place the given piece in the selected position.
+ * @param {Array} positions The actual randomized positions of the pieces.
+ * @param {string} piece The piece to be placed
+ */
+function placePiece(positions, piece) {
+    const remainingPositions = positions.map((pos, index) => pos === null ? index : null).filter(pos => pos !== null);
+    const pos = remainingPositions[Math.floor(Math.random() * remainingPositions.length)];
+    positions[pos] = piece;
+}
+
+export { getChess960Piece };
