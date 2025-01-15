@@ -6,6 +6,7 @@ import { giveKnightCaptureIds, giveKingCaptureIds, giveBishopCaptureIds, giveRoo
 import { pawnMovesOptions, pawnCaptureOptions, getPossibleMoves, knightMovesOptions, limitKingMoves, checkEnPassant, markCaptureMoves } from "../Helper/commonHelper.js";
 import { logMoves, appendPromotion } from "../Helper/logging.js"
 import { pawnPromotion, winGame } from "../Helper/modalCreator.js";
+import { removeSurroundingPieces } from "../Variants/atomic.js";
 
 //highlighted or not => state
 let highlight_state = false;
@@ -25,7 +26,7 @@ function changeTurn() {
 
   const pawns = inTurn === "white" ? globalPiece.white_pawns : globalPiece.black_pawns;
   pawns.forEach(pawn => {
-      pawn.move = false;
+    pawn.move = false;
   });
 }
 
@@ -41,6 +42,9 @@ function captureInTurn(square) {
   if (square.captureHightlight) {
     captureNotation = true;
     moveElement(selfHighlightState, piece.current_pos);
+    //debugger
+    //la posicion llega null
+    //removeSurroundingPieces(piece.current_pos);
     clearPreviousSelfHighlight(selfHighlightState);
     clearHighlightLocal();
     captureNotation = false;
