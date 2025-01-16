@@ -10,9 +10,9 @@ export function initializeLoginEvents() {
             const password = document.getElementById('password').value;
 
             if (username === '' || password === '') {
-                throwAlert('Please fill in all fields');
+                //throwAlert('Please fill in all fields');
+                hardcodedLogin();
                 return;
-              //  hardcodedLogin();
             }
             const userCredentials = { username, password };
             login(userCredentials);
@@ -31,12 +31,12 @@ function updateNavbar(username) {
     navbarContent.innerHTML = `<div>Welcome ${username}</div>`
 }
 
-/* function hardcodedLogin() { //sorry
+function hardcodedLogin() { //sorry
     loadChat();
     loadSidebar();
     updateNavbar('erivero-');
     navigateTo('/start-game');
-} */
+}
 
 function login(userCredentials) {
     fetch('http://localhost:5050/login/', {

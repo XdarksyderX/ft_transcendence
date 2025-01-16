@@ -63,6 +63,17 @@ export function initializeStartGameEvents() {
       //  console.log("toggling from: ", currentView, "to: ", to);
     }
 
+    function handleOverlay(reveal) {
+        const overlay = document.getElementById('overlay');
+        
+
+            overlay.style.display = 'block';
+            document.getElementById('chat-container').style.zIndex = '100';
+            reveal.style.zIndex = '100';
+            console.log('overlay: ',overlay.style.zIndex, 'pong: ', reveal.style.zIndex );
+
+    }
+
     function togglePongOptions(event) { 
         event.stopPropagation();
         // if I already clicked on play chess, it goes back to initial view
@@ -70,24 +81,13 @@ export function initializeStartGameEvents() {
             backToChooseGame(event);
         }
         if (!currentView) {
+            handleOverlay(elements.pong.btn);
+          //  elements.pong.options.classList.add('overlay');
             toggleView(elements.pong.playPong, elements.pong.options);
         }
     }
     elements.pong.btn.addEventListener('click', togglePongOptions);
-/* 
-    function backToChooseGame(event) { 
 
-        console.log('click :c');
-        if (currentView && !isModalShown) 
-        {
-            let btn = elements.pong.btn;
-            if (elements.chess.btn.style.display === 'none')
-                btn = elements.chess.btn;
-            if (!btn.contains(event.target)) {
-                toggleView(currentView, null);
-            }
-        }
-    } */
     function backToChooseGame(event) { 
 
         console.log('click :c');

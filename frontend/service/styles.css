@@ -201,6 +201,7 @@ input:focus, select:focus, .ctm-btn:focus, .ctm-btn-dark:focus {
     padding-top: calc(100vh / 11); 
     overflow-y: auto;
     height: calc(100vh - 50px); /* navbar is 50px */
+    position: relative;
 }
 
 @media (max-height: 900px) {
