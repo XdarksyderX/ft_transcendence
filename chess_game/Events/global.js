@@ -42,9 +42,8 @@ function captureInTurn(square) {
   if (square.captureHightlight) {
     captureNotation = true;
     moveElement(selfHighlightState, piece.current_pos);
-    //debugger
-    //la posicion llega null
-    //removeSurroundingPieces(piece.current_pos);
+    //atomic variant -> aqui tendriamos que tener alguna variable con al que controlar si se ha seleccionado dicha variante de juego
+    //removeSurroundingPieces(square.id);
     clearPreviousSelfHighlight(selfHighlightState);
     clearHighlightLocal();
     captureNotation = false;

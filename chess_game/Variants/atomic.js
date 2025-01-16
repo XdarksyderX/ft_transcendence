@@ -39,25 +39,18 @@ function removeSurroundingPieces(pos) {
         const opSquare = keySquareMapper[element]
         const opPiece = document.getElementById(element);
         const flatData = globalState.flat();
-        flatData.forEach(el => {
-            if (el.id === element)
-                el.piece.current_pos = null;
-        });
-        opPiece.innerHTML = "";
-        delete opSquare.piece;
+
+        opPiece.classList.add('animate__animated', 'animate__tada', 'explosion-red');
+        setTimeout(() => {
+            flatData.forEach(el => {
+                if (el.id === element)
+                    el.piece.current_pos = null;
+            });
+            opPiece.innerHTML = "";
+            delete opSquare.piece;
+            opPiece.classList.remove('animate__animated', 'animate__tada', 'explosion-red');
+        }, 1000);
     });
 }
-
-/*       const opSquare = keySquareMapper[opPiece];
-      const currentPiece = document.getElementById(opPiece);
-
-      const flatData =  globalState.flat();
-      flatData.forEach(el => {
-        if (el.id === opPiece)
-          el.piece.current_pos = null;
-      });
-
-      currentPiece.innerHTML = "";
-      delete opSquare.piece; */
 
 export { removeSurroundingPieces }
