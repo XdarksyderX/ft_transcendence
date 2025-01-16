@@ -1,5 +1,6 @@
 import { navigateTo } from '../../app/router.js';
 import { throwAlert } from '../../app/render.js';
+import { handleServerError } from '../login/login.js'
 
 export function initializeSignupEvents() {
 	const cancelSignup = document.getElementById('cancel-signup');
@@ -37,22 +38,25 @@ export function initializeSignupEvents() {
 }
 
 function register(userCredentials) {
-	fetch('http://localhost:5000/register/', {
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify(userCredentials)
-	})
-	.then(response => handleServerError(response))
-	.then(data => {
-		if (data.status === 'success') {
-			throwAlert('Registration successful! Please check your email for verification.');
-			navigateTo('/login'); // Redirect to the login page
-		} else {
-			throwAlert(data.message || 'Registration error. Please try again.');
-		}
-	})
-	.catch(error => {
-		console.error('Registration error:', error);
-		throwAlert('An error occurred during registration. Please try again later.');
-	});
+	console.log(JSON.stringify(userCredentials));
+
+    fetch('http://localhost:5050/register/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userCredentials)
+    })
+    .then(response => handleServerError(response))
+    .then(data => {
+        if (data.status === 'success') {
+            throwAlert('Registration successful! Please check your email for verification.');
+            navigateTo('/login');
+        } else {
+            throwAlert(data.message || 'Registration error. Please try again.');
+        }
+    })
+    .catch(error => {
+        console.error('Registration error:', error.message); // Imprime solo el mensaje de error
+        throwAlert('An error occurred during registration. Please try again later.');
+    });
 }
+

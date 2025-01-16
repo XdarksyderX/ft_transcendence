@@ -10,12 +10,12 @@ export function initializeLoginEvents() {
             const password = document.getElementById('password').value;
 
             if (username === '' || password === '') {
-/*                 throwAlert('Please fill in all fields');
-                return; */
-                hardcodedLogin();
+                throwAlert('Please fill in all fields');
+                return;
+              //  hardcodedLogin();
             }
             const userCredentials = { username, password };
-            // login(userCredentials);
+            login(userCredentials);
         });
     }
     const cancelLogin = document.getElementById('cancel-login');
@@ -31,15 +31,15 @@ function updateNavbar(username) {
     navbarContent.innerHTML = `<div>Welcome ${username}</div>`
 }
 
-function hardcodedLogin() { //sorry
+/* function hardcodedLogin() { //sorry
     loadChat();
     loadSidebar();
     updateNavbar('erivero-');
     navigateTo('/start-game');
-}
+} */
 
 function login(userCredentials) {
-    fetch('http://localhost:5000/login/', {
+    fetch('http://localhost:5050/login/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userCredentials)
@@ -53,6 +53,7 @@ function login(userCredentials) {
         } else if (data.status === 'error' && data.message === 'OTP required.') {
             showOTPForm(data.temp_token);
         } else {
+            console.log(data.message);
             throwAlert(data.message || 'Authentication error');
         }
     })
@@ -128,3 +129,4 @@ function handleServerError(response) {
     return response.json();
 }
 
+export { handleServerError}
