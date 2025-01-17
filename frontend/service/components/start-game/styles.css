@@ -3,6 +3,7 @@
     color: inherit;
     display: block;
     height: 100%;
+    position: relative;
 }
 
 .friend-btn {
@@ -43,13 +44,7 @@ img {
     display: none;
 }
 
-#pong-btn, #chess-btn {
-    position: relative;
-}
 
-#chess-btn {
-    z-index: 1 !important;
-}
 .overlay {
     position: absolute;
     top: 0;

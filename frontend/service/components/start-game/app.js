@@ -38,12 +38,16 @@ export function initializeStartGameEvents() {
             text: document.getElementById('modal-text'),
             progressBar: document.getElementById('progress-bar'),
             timer: document.getElementById('timer')
+        },
+        overlay: {
+            lay: document.getElementById('overlay'),
+            chat: document.getElementById('chat-container'),
         }
     };
 
     let currentView = null;
     let selectedFriend = null;
-    let isModalShown = false;
+
     const friends = [
         { id: 1, name: 'Alice', status: 'online' },
         { id: 2, name: 'Bob', status: 'offline' },
@@ -52,7 +56,7 @@ export function initializeStartGameEvents() {
     ];
 
     function toggleView(from, to) {
-        if (!to) { // if im on inittial view
+        if (!to) { // if I go to inittial view
             elements.pong.playPong.style.display = 'block';
             elements.chess.playChess.style.display = 'block';
         } else {
@@ -63,48 +67,37 @@ export function initializeStartGameEvents() {
       //  console.log("toggling from: ", currentView, "to: ", to);
     }
 
-    function handleOverlay(reveal) {
-        const overlay = document.getElementById('overlay');
-        
-
-            overlay.style.display = 'block';
-            document.getElementById('chat-container').style.zIndex = '100';
-            reveal.style.zIndex = '100';
-            console.log('overlay: ',overlay.style.zIndex, 'pong: ', reveal.style.zIndex );
-
+    // displays an overlay covering everything but the chat and the selected game card
+    function showOverlay(reveal) {
+        elements.overlay.lay.style.display = 'block';
+        elements.overlay.chat.style.zIndex = '100';
+        reveal.style.zIndex = '100';
     }
-
+    // hides the overlay restoring the original z-index
+    function hideOverlay() {
+        elements.overlay.lay.style.display = 'none';
+       elements.overlay.chat.style.zIndex = 'auto';
+        elements.pong.btn.style.zIndex = 'auto';
+        elements.chess.btn.style.zIndex = 'auto';
+        toggleView(currentView, null);
+    }
+    //clicking on the overlay will go back to chose game view
+    overlay.addEventListener('click', hideOverlay);
+    // goes from initial view to pong-options
     function togglePongOptions(event) { 
         event.stopPropagation();
-        // if I already clicked on play chess, it goes back to initial view
-        if (elements.chess.playChess.style.display === 'none') {
-            backToChooseGame(event);
-        }
         if (!currentView) {
-            handleOverlay(elements.pong.btn);
-          //  elements.pong.options.classList.add('overlay');
+            showOverlay(elements.pong.btn);
             toggleView(elements.pong.playPong, elements.pong.options);
         }
     }
     elements.pong.btn.addEventListener('click', togglePongOptions);
-
-    function backToChooseGame(event) { 
-
-        console.log('click :c');
-        if (currentView && !isModalShown) {
-            toggleView(currentView, null);
-            //there's no need to check if btn.contains(event.target)
-            //cause I handle each btn in other functions
-        }
-    }
-   // document.addEventListener('click', backToChooseGame);
-    document.getElementById('chose-game').addEventListener('click', backToChooseGame);
-
+    // goes from pong-options to quick-play-options
     function showQuickPlayOptions() {
         toggleView(currentView, elements.pong.quickPlay.options);
     }
     elements.pong.quickPlay.btn.addEventListener('click', showQuickPlayOptions);
-
+    // goes from quick-play-options to friend-list rendering it
     function playPongWithFriend() {
         toggleView(currentView, elements.pong.quickPlay.friendList);
         renderFriendList(elements.pong.quickPlay.friendsContainer);
@@ -187,7 +180,6 @@ export function initializeStartGameEvents() {
         const modal = new bootstrap.Modal(elements.modal.waitGame);
         elements.modal.text.innerHTML = `Waiting for ${selectedFriend.name} to start a game of ${game}...`;
         modal.show();
-        isModalShown = true;
         handleProgressBar(modal);
     }
     
@@ -215,16 +207,13 @@ export function initializeStartGameEvents() {
             elements.modal.progressBar.setAttribute('aria-valuenow', 100);
             elements.modal.timer.textContent = '30s';
             elements.modal.timer.style.color = 'var(--dark);'
-            isModalShown = false;
         });
     }
 
     function toggleChessOptions(event) {
         event.stopPropagation();
-        if (elements.pong.playPong.style.display === 'none') {
-            backToChooseGame(event);
-        }
         if (!currentView) {
+            showOverlay(elements.chess.btn);
             toggleView(elements.chess.playChess, elements.chess.options);
         }
     }
