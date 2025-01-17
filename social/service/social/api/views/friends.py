@@ -21,7 +21,7 @@ class FriendListView(APIView):
         Returns:
             The friend list or a error message
       """
-    def get(self, request, user_id):
+    def get(self, request):
         # TODO hacer una funcion con esto y usarlo pra la apis, asi estaría autenticado
         auth_header = request.META.get('HTTP_AUTHORIZATION', '')
 
@@ -36,7 +36,7 @@ class FriendListView(APIView):
             return Response({'error: invalid auth cookie'}, status=status.HTTP_401_UNAUTHORIZED)
         # TE DEVUELVE EL ID: user_id = decoded_payload["id"]
         try:
-            friend_data = Friends.objects.get(user_id=user_id)
+            friend_data = Friends.objects.get(user_id=decoded_payload["user_id"])
             serializer = FriendsListSerializer(friend_data)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Friends.DoesNotExist:
