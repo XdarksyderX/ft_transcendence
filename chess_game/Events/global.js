@@ -7,6 +7,7 @@ import { pawnMovesOptions, pawnCaptureOptions, getPossibleMoves, knightMovesOpti
 import { logMoves, appendPromotion } from "../Helper/logging.js"
 import { pawnPromotion, winGame } from "../Helper/modalCreator.js";
 import { removeSurroundingPieces } from "../Variants/atomic.js";
+import { test } from "../Variants/kirby.js";
 
 //highlighted or not => state
 let highlight_state = false;
@@ -40,10 +41,11 @@ function captureInTurn(square) {
   }
   
   if (square.captureHightlight) {
-    captureNotation = true;
+    captureNotation = true
     moveElement(selfHighlightState, piece.current_pos);
     //atomic variant -> aqui tendriamos que tener alguna variable con al que controlar si se ha seleccionado dicha variante de juego
     //removeSurroundingPieces(square.id);
+    test(square, piece);
     clearPreviousSelfHighlight(selfHighlightState);
     clearHighlightLocal();
     captureNotation = false;
@@ -119,6 +121,7 @@ function globalPieceUpdate(id, realPiece) {
  * @param {string} id - The ID of the square where the pawn is located.
 */
 function callbackPiece(piece, id) {
+  console.log(piece, id)
   const realPiece = piece(id);
   const currentSquare = keySquareMapper[id];
   
@@ -462,6 +465,7 @@ function handlePieceClick(square, color, pieceType) {
 //simple function that clear the yellow highlight when you click a square with a piece
 function clearPreviousSelfHighlight(piece)
 {
+  //bug -> cuando paso por aqui desde test() me salta un error
   if (piece) {
     document.getElementById(piece.current_pos).classList.remove("highlightYellow");
     selfHighlightState = null;
@@ -536,4 +540,4 @@ function clearYellowHighlight() {
   selfHighlightState = null;
 }
 
-export { GlobalEvent, captureNotation, clearYellowHighlight};
+export { GlobalEvent, captureNotation, clearYellowHighlight, globalPieceUpdate, callbackPiece};
