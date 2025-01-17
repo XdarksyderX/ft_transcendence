@@ -13,7 +13,7 @@ class User(models.Model):
         User value.
     """
     user_id = models.CharField(max_length=20, unique=True, verbose_name='User ID', blank=False) # TODO middlewareÑ ver si esto asi sería correcto
-    # user = models.CharField(max_length = 20, unique = True, verbose_name = 'Username', blank = False) # TODO QUITAR USER Y RECIBIRLO POR COOKIE, CMABIAR APIS PARA USAR ID 
+    username = models.CharField(max_length = 20, unique = True, verbose_name = 'Username', blank = False)
     avatar = models.URLField(max_length=200, blank=True, null=True)
     friends = models.JSONField(default=list)
     blocked = models.JSONField(default=list)

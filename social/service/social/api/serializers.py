@@ -2,21 +2,37 @@ from rest_framework import serializers
 from social.models import User, Status, Friends
 
 # PROFILE SERIALIZERS
-class StatusSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Status
-        fields = ['online', 'missing', 'disconnected']
-
 class ProfileSerializer(serializers.ModelSerializer):
-    status = StatusSerializer(source='status', read_only=True)  # Incluye el estado relacionado
+    """
+    Serializer to return the status and avatar of a user.
+    """
+    # Campo para obtener el status del usuario
+    status = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ['id', 'user', 'avatar', 'status']
+        fields = ['username', 'avatar', 'status']
+
+    def get_status(self, obj):
+        """
+        Retrieves the status of the user (online, missing, or disconnected).
+        """
+        try:
+            user_status = Status.objects.get(user_id=obj)
+            if user_status.online:
+                return "Online"
+            elif user_status.missing:
+                return "Missing"
+            elif user_status.disconnected:
+                return "Disconnected"
+            else:
+                return "Unknown"
+        except Status.DoesNotExist:
+            return "No status available"
 
 
 # FRIENDS LIST SERIALIZER
-class FriendsListSerializer(serializers.ModelSerializer):
+class FriendsListSerializer(serializers.ModelSerializer): # TODO es antiguo habrá que cambairlo
     friends = serializers.SerializerMethodField()
     pending_friends = serializers.SerializerMethodField()
     blocked = serializers.SerializerMethodField()

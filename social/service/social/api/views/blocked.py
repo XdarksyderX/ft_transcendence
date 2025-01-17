@@ -3,9 +3,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 from django.db.models import Q
-from social.models import Friends, User
+from django.http import JsonResponse
+from social.models import User
 
-class BlockUserView(APIView):
+import jwt
+from config.settings import JWT_SECRET
+
+class BlockUserView(APIView): # GOOD
     """
     Content:
         This function add a user in the blocked user list from other user.
@@ -17,31 +21,53 @@ class BlockUserView(APIView):
     Returns:
         Status messages
     """
-    def post(self, request, user_id, block_user_id):
+    def post(self, request, username): # TODO o me pasa el block_user_id o el username y con la API obtengo el ID
         try:
-            # Verify the users
-            user = User.objects.get(id=user_id)
-            block_user = User.objects.get(id=block_user_id)
+            auth_header = request.META.get('HTTP_AUTHORIZATION', '')
 
-            friend_data, created = Friends.objects.get_or_create(user=user)
+            if not auth_header.startswith('Bearer '):
+                return JsonResponse({'error': 'Invalid or missing Authorization header'}, status=status.HTTP_401_UNAUTHORIZED)
+
+            jwt_token = auth_header.split('Bearer ')[1]
+            try:
+                decoded_payload = jwt.decode(jwt_token, JWT_SECRET, algorithms=['HS256'])
+            except:
+                return Response({'error: invalid auth cookie'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+            # Verify the user
+            # try:
+            user_data = User.objects.get(user_id=decoded_payload["user_id"])
+            # except user_data.DoesNotExist:
+            #     return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+            # Verify if the user is trying to block himself
+            if user_data.username == username:
+                return Response({'error': 'You cannot block yourself.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Verify if the user to block exists
+            # try:
+            User.objects.get(username=username)
+            # except User.DoesNotExist:
+            #     return Response({'error': 'User to block does not exist.'}, status=status.HTTP_404_NOT_FOUND)
 
             # Verify is the user is already blocked
-            if block_user_id in friend_data.blocked:
-                return Response({'message': f'User {block_user_id} is already blocked.'}, 
+            if username in user_data.blocked:
+                return Response({'message': f'User {username} is already blocked.'}, 
                                 status=status.HTTP_200_OK)
 
             # Add the user
-            friend_data.blocked.append(block_user_id)
-            friend_data.save()
+            user_data.blocked.append(username)
+            user_data.save()
 
-            return Response({'message': f'User {block_user_id} has been blocked successfully.'}, 
+            return Response({'message': f'User {username} has been blocked successfully.'}, 
                             status=status.HTTP_200_OK)
 
         except User.DoesNotExist:
             return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
-        except Friends.DoesNotExist:
-            return Response({'error': 'Friend data not found for the user.'}, 
-                            status=status.HTTP_404_NOT_FOUND)
+        # except Friends.DoesNotExist:
+        #     return Response({'error': 'Friend data not found for the user.'}, 
+        #                     status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -58,26 +84,46 @@ class UnblockUserView(APIView):
         Returns:
             Status messages
     """
-    def post(self, request, user_id, unblock_user_id):
+    def post(self, request, user_id, username):
         try:
-            # Verify the users
-            user = User.objects.get(id=user_id)
-            unblock_user = User.objects.get(id=unblock_user_id)
+            auth_header = request.META.get('HTTP_AUTHORIZATION', '')
 
-            friend_data = Friends.objects.get(user=user)
+            if not auth_header.startswith('Bearer '):
+                return JsonResponse({'error': 'Invalid or missing Authorization header'}, status=status.HTTP_401_UNAUTHORIZED)
 
-            # Verify if the user is blocked
-            if unblock_user_id not in friend_data.blocked:
-                return Response({'message': f'User {unblock_user_id} is not blocked.'}, 
-                                status=status.HTTP_200_OK)
-            if user_id == unblock_user_id:
+            jwt_token = auth_header.split('Bearer ')[1]
+            try:
+                decoded_payload = jwt.decode(jwt_token, JWT_SECRET, algorithms=['HS256'])
+            except:
+                return Response({'error: invalid auth cookie'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+             # Verify the user
+            try:
+                user_data = Friends.objects.get(user_id=decoded_payload["user_id"])
+            except user_data.DoesNotExist:
+                return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+            # Verify if the user is trying to block himself
+            if user_data.username == username:
                 return Response({'error': 'You cannot unblock yourself.'}, status=status.HTTP_400_BAD_REQUEST)
 
-            # Delete the user from the list
-            friend_data.blocked.remove(unblock_user_id)
-            friend_data.save()
+            # Verify if the user to unblock exists
+            try:
+                User.objects.get(username=username)
+            except User.DoesNotExist:
+                return Response({'error': 'User to block does not exist.'}, status=status.HTTP_404_NOT_FOUND)
 
-            return Response({'message': f'User {unblock_user_id} has been unblocked successfully.'}, 
+            # Verify if the user is blocked
+            if username not in user_data.blocked:
+                return Response({'message': f'User {username} is not blocked.'}, 
+                                status=status.HTTP_200_OK)
+
+            # Delete the user from the list
+            user_data.blocked.remove(username)
+            user_data.save()
+
+            return Response({'message': f'User {username} has been unblocked successfully.'}, 
                             status=status.HTTP_200_OK)
 
         except User.DoesNotExist:
