@@ -164,9 +164,16 @@ body::before {
     border-radius: 10px;
 }
 /* modals */
-.modal-header, .modal-footer {
+.modal-header {
     border: none;
+    background-color: var(--dark);
 }
+
+.modal-footer {
+    border: none;
+    /* background-color: var(--darkish); */
+}
+
 
 .close-modal {
    color: var(--title);
@@ -175,7 +182,7 @@ body::before {
 }
 .modal-content {
     color: var(--light);
-    background: linear-gradient(to top, var(--medium), var(--dark));
+    background: linear-gradient(to bottom, var(--dark), var(--medium));
 }
 
 
@@ -194,6 +201,7 @@ input:focus, select:focus, .ctm-btn:focus, .ctm-btn-dark:focus {
     padding-top: calc(100vh / 11); 
     overflow-y: auto;
     height: calc(100vh - 50px); /* navbar is 50px */
+    position: relative;
 }
 
 @media (max-height: 900px) {

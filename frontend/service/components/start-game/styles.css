@@ -3,6 +3,7 @@
     color: inherit;
     display: block;
     height: 100%;
+    position: relative;
 }
 
 .friend-btn {
@@ -42,3 +43,16 @@ img {
 #quick-play-options {
     display: none;
 }
+
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.459);
+    display: none;
+    z-index: 50;
+  }
+  

@@ -35,8 +35,8 @@ function redirectToLogin() {
 
 function redirectToHome() {
     const currentPath = window.location.pathname;
-    if (currentPath !== '/home.html') {
-        navigateTo('/home');
+    if (currentPath !== '/start-game') {
+        navigateTo('/start-game');
     }
 }
 
