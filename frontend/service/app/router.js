@@ -8,8 +8,7 @@ import { initialize404 } from '../components/error/app.js';
 import { initializeFriendsEvents } from '../components/friends/app.js';
 import { initializeStatsEvents } from '../components/stats/app.js';
 import { initializeOngoingTournaments } from '../components/tournament/app.js';
-
-
+import { initializeChessEvents } from '../components/chess/index.js';
 import { loadChat, loadSidebar } from './render.js'; // temporal
 
 
@@ -24,6 +23,8 @@ const routes = [
     { url: "/friends", file: "./components/friends/friends.html" },
     { url: "/game-stats", file: "./components/stats/stats.html" },
     { url: "/ongoing-tournaments", file: "./components/tournament/tournament.html" },
+    { url: "/chess", file: "./components/chess/chess.html" },
+
 ];
 
 async function router() {
@@ -68,6 +69,9 @@ async function router() {
             loadSidebar();
             initializeNeonFrames();
             initializeStatsEvents();
+            break;
+        case "/chess":
+            initializeChessEvents()
             break;
         default:
             initialize404();
