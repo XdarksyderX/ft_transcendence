@@ -35,7 +35,7 @@
 }
 
 .black{
-  background-color: #5c3973;
+  background-color: var(--medium);
 }
 
 .piece, .button-image {
@@ -192,7 +192,7 @@
 }
 
 /*nuevos estilos para los botones que hay en la parte de abajo de move-logger*/
-#button-container {
+/* #button-container {
   position: fixed;
   bottom: 52px;
   width: 20vw;
@@ -204,7 +204,7 @@
   background-color: #20201e;
   gap: 30px;
 }
-
+ */
 #button1, #button2 {
   background-color: #5a5855;
   width: 50px;

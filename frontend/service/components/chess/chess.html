@@ -20,22 +20,24 @@
     </div>
     <div id="alpha-coord-bottom" class="row w-100 ms-0"></div>
   </div>
-  <div id="move-logger">
-    <div class="d-flex p-4 justify-content-center">
-      <div id="leftCol" class="col ms-3"></div>
-      <div id="rightCol" class="col ms-5"></div>
-    </div>
-    <!-- Nueva sección para los botones -->
-    <div id="button-container" class="d-flex justify-content-center mt-3">
-      <button id="button1" class="btn btn-secondary mx-2" title="Settings">
-        <img src="components/chess/Assets/icons/settings_icon.png" alt="Button 1 Image" class="button-image">
-      </button>
-      <button id="button2" class="btn btn-secondary mx-2" title="Resign">
-        <img src="components/chess/Assets/icons/flag_icon.png" alt="Button 2 Image" class="button-image">
-      </button>
-    </div>
+  <div id="chess-col" class="d-flex flex-column h-100 ms-4">
+      <div id="move-logger" class="flex-grow-1">
+          <div class="d-flex p-4 justify-content-center">
+              <div id="leftCol" class="col ms-3"></div>
+              <div id="rightCol" class="col ms-5"></div>
+          </div>
+      </div>
+      <!-- Nueva sección para los botones -->
+      <div id="button-container" class="d-flex justify-content-center mt-3">
+          <button id="button1" class="btn btn-secondary mx-2" title="Settings">
+              <img src="components/chess/Assets/icons/settings_icon.png" alt="Button 1 Image" class="button-image">
+          </button>
+          <button id="button2" class="btn btn-secondary mx-2" title="Resign">
+              <img src="components/chess/Assets/icons/flag_icon.png" alt="Button 2 Image" class="button-image">
+          </button>
+      </div>
   </div>
-
+    
   <!-- Panel de configuración -->
   <div id="settings-panel" class="settings-panel hidden">
     <h3>Customize Your Chess Game</h3>
