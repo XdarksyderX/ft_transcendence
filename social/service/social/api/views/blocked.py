@@ -128,8 +128,10 @@ class UnblockUserView(APIView):
 
         except User.DoesNotExist:
             return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
-        except Friends.DoesNotExist:
-            return Response({'error': 'Friend data not found for the user.'}, 
-                            status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+# TODO crear api lista usuarios bloqueados
+# TODO crear api lista de amigos
+# TODO API ELIMINAR AMIGO
+# TODO API METER FECHA LISTA DE AMIGOS (OPCIONAL)

@@ -64,18 +64,4 @@ class Status(models.Model):
         elif self.disconnected == True:
             return f"User id: {self.user_id}, Status: Disconnected"
 
-# class Friends(models.Model):
-#     """
-#     Content:
-#         This table has the id , friends, pending friends and blocked users.
-
-#     Args:
-#         models.Model (class from Django for define Data Models).
-
-#     Returns:
-#         Void
-#     """
-#     user_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name='friends', verbose_name='friends')
-#     pending_friends = models.JSONField(default=list)
-
     # TODO meter friend y blocked en el modelo user, Crear un modelo con lista de invitaciones enviada y recibidas
