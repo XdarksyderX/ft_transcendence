@@ -6,6 +6,7 @@ import * as pieces from "../Data/pieces.js";
 //import { blackKnight, whiteKnight } from "../Data/pieces.js";
 import { globalPiece } from "../Render/main.js"
 import { globalPieceUpdate, callbackPiece } from "../Events/global.js";
+import { keySquareMapper } from "../index.js";
 
 function getPieceType(piece) {
   const pieceType = piece.piece_name.split('_')[1].toLowerCase();
@@ -22,13 +23,16 @@ function test(square, capturedPiece) {
 
   console.log(capturedPiece, piece);
   console.log(globalPiece);
-
+  
   if (capturedPiece.piece_name.includes("BLACK_KNIGHT")) {
     callbackPiece(pieces.whiteKnight, square.id);
   }
   else if (capturedPiece.piece_name.includes("WHITE_KNIGHT")) {
     callbackPiece(pieces.blackKnight, square.id);
   }
+  console.log(globalPiece);
+  console.log(keySquareMapper);
+  
 }
 
 export { test }

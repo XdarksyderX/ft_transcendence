@@ -45,6 +45,7 @@ function captureInTurn(square) {
     moveElement(selfHighlightState, piece.current_pos);
     //atomic variant -> aqui tendriamos que tener alguna variable con al que controlar si se ha seleccionado dicha variante de juego
     //removeSurroundingPieces(square.id);
+    //debugger
     test(square, piece);
     clearPreviousSelfHighlight(selfHighlightState);
     clearHighlightLocal();
@@ -465,11 +466,13 @@ function handlePieceClick(square, color, pieceType) {
 //simple function that clear the yellow highlight when you click a square with a piece
 function clearPreviousSelfHighlight(piece)
 {
-  //bug -> cuando paso por aqui desde test() me salta un error
   if (piece) {
-    document.getElementById(piece.current_pos).classList.remove("highlightYellow");
+    const element = document.getElementById(piece.current_pos);
+    if (element) {
+      element.classList.remove("highlightYellow");
+    }
     selfHighlightState = null;
-  } 
+  }
 }
 
 /**
