@@ -1,0 +1,710 @@
+Estructura:
+
+<index.html>: es el archivo principal de HTML donde se define la estructura del contenido de la 
+pagina web. Es el punto de entrada de la aplicacion web. Incluye referencias a los archivos CSS y JS.
+
+<index.js>: Archivo de JavaScript principal donde se maneja la lógica del juego. Es referenciado 
+desde el HTML para manipular el DOM (Document Object Model) y responder a eventos del usuario.
+
+<Data/data.js>: Archivo donde se almacenan los datos relacionados con el juego.
+
+<Render/main.js>: Archivo donde manejamos la renderizacion de elementos.
+
+<Styles/index.css>: Archivo CSS donde defines los estilos visuales de la pagina. Es referenciado desde 
+el archivo HTML para aplicar los estilos allí definidos.
+
+/* original function to give highlight ids for rook. The movement is diagonal
+I'm going to keep this for a while to be sure */
+/* function giveRookHighlightId(id) {
+    let finalReturnArray = [];
+
+    function top(id) {
+        let alpha = id[0];
+        let num = Number(id[1]);
+        let resArr = [];
+        
+        while (num != 8) {
+            //alpha = String.fromCharCode(alpha.charCodeAt(0) - 1);
+            num = num + 1;
+            resArr.push(`${alpha}${num}`);
+        }
+        return resArr;
+    }
+
+    function bottom(id) {
+        let alpha = id[0];
+        let num = Number(id[1]);
+        let resArr = [];
+        
+        while (num != 1) {
+            //alpha = String.fromCharCode(alpha.charCodeAt(0) - 1);
+            num = num - 1;
+            resArr.push(`${alpha}${num}`);
+        }
+        return resArr;
+    }
+
+    function right(id) {
+        let alpha = id[0];
+        let num = Number(id[1]);
+        let resArr = [];
+
+        while (alpha != "h") {
+            alpha = String.fromCharCode(alpha.charCodeAt(0) + 1);
+            //num = num + 1;
+            resArr.push(`${alpha}${num}`);
+        }
+        return resArr;
+    }
+
+    function left(id) {
+        let alpha = id[0];
+        let num = Number(id[1]);
+        let resArr = [];
+
+        while (alpha != "a") {
+            alpha = String.fromCharCode(alpha.charCodeAt(0) - 1);
+            //num = num + 1;
+            resArr.push(`${alpha}${num}`);
+        }
+        return resArr;
+    }
+
+    return {
+        back: top(id),
+        front: bottom(id),
+        right: right(id),
+        left: left(id),
+    };
+} */
+
+/* original function to give highlight ids for bishop. The movement is diagonal
+I'm going to keep this for a while to be sure */
+/* function giveBishopHighlightIds(id) {
+    let finalReturnArray = [];
+    
+    function topLeft(id) {
+        let alpha = id[0];
+        let num = Number(id[1]);
+        let resArr = [];
+        
+        while (alpha != "a" && num != 8) {
+            alpha = String.fromCharCode(alpha.charCodeAt(0) - 1);
+            num = num + 1;
+            resArr.push(`${alpha}${num}`);
+        }
+        return resArr;
+    }
+
+    function bottomLeft(id) {
+        let alpha = id[0];
+        let num = Number(id[1]);
+        let resArr = [];
+
+        while (alpha != "a" && num != 1) {
+            alpha = String.fromCharCode(alpha.charCodeAt(0) - 1);
+            num = num - 1;
+            resArr.push(`${alpha}${num}`);
+        }
+        return resArr;
+    }
+
+    function topRight(id) {
+        let alpha = id[0];
+        let num = Number(id[1]);
+        let resArr = [];
+
+        while (alpha != "h" && num != 8) {
+            alpha = String.fromCharCode(alpha.charCodeAt(0) + 1);
+            num = num + 1;
+            resArr.push(`${alpha}${num}`);
+        }
+        return resArr;
+    }
+
+    function bottomRight(id) {
+        let alpha = id[0];
+        let num = Number(id[1]);
+        let resArr = [];
+
+        while (alpha != "h" && num != 1) {
+            alpha = String.fromCharCode(alpha.charCodeAt(0) + 1);
+            num = num - 1;
+            resArr.push(`${alpha}${num}`);
+        }
+        return resArr;
+    }
+
+    return {
+        topLeft: topLeft(id),
+        topRight: topRight(id),
+        bottomLeft: bottomLeft(id),
+        bottomRight: bottomRight(id),
+    };
+} */
+
+
+/* function giveKnightHighlightIds(id) {
+    if (!id)
+        return;
+    function left() {
+        let alpha = id[0];
+        let num = Number(id[1]);
+        let resArr = [];
+
+        let tmp = 0;
+
+        while (alpha != "a") {
+            if (tmp == 2)
+                break;
+            alpha = String.fromCharCode(alpha.charCodeAt(0) - 1);
+            //num = num + 1;
+            resArr.push(`${alpha}${num}`);
+            tmp += 1;
+        }
+        
+        if (resArr.length == 2) {
+            let finalArr = [];
+            const lastElement = resArr[resArr.length - 1];
+            let alpha = lastElement[0];
+            let num = Number(lastElement[1]);
+            if (num < 8) {
+                finalArr.push(`${alpha}${Number(num + 1)}`)
+            }
+            if (num > 1) {
+                finalArr.push(`${alpha}${Number(num - 1)}`)
+            }
+            //resArr.push(`${Number(lastElement[1])}`)
+            return finalArr;
+        }
+        else {
+            return [];
+        }
+    }
+    function right() {
+        let alpha = id[0];
+        let num = Number(id[1]);
+        let resArr = [];
+
+        let tmp = 0;
+
+        while (alpha != "h") {
+            if (tmp == 2)
+                break;
+            alpha = String.fromCharCode(alpha.charCodeAt(0) + 1);
+            //num = num + 1;
+            resArr.push(`${alpha}${num}`);
+            tmp += 1;
+        }
+        
+        if (resArr.length == 2) {
+            let finalArr = [];
+            const lastElement = resArr[resArr.length - 1];
+            let alpha = lastElement[0];
+            let num = Number(lastElement[1]);
+            if (num < 8) {
+                finalArr.push(`${alpha}${Number(num + 1)}`)
+            }
+            if (num > 1) {
+                finalArr.push(`${alpha}${Number(num - 1)}`)
+            }
+            //resArr.push(`${Number(lastElement[1])}`)
+            return finalArr;
+        }
+        else {
+            return [];
+        }
+    }
+    function top() {
+        let alpha = id[0];
+        let num = Number(id[1]);
+        let resArr = [];
+
+        let tmp = 0;
+
+        while (num != 8) {
+            if (tmp == 2)
+                break;
+            //alpha = String.fromCharCode(alpha.charCodeAt(0) + 1);
+            num += 1;
+            resArr.push(`${alpha}${num}`);
+            tmp += 1;
+        }
+        
+        if (resArr.length == 2) {
+            let finalArr = [];
+            const lastElement = resArr[resArr.length - 1];
+            let alpha = lastElement[0];
+            let num = Number(lastElement[1]);
+            if (alpha != "a") {
+                let alpha2 = String.fromCharCode(alpha.charCodeAt(0) - 1);
+                finalArr.push(`${alpha2}${num}`)
+            }
+            if (alpha != "h") {
+                let alpha2 = String.fromCharCode(alpha.charCodeAt(0) + 1);
+                finalArr.push(`${alpha2}${num}`)
+            }
+            //resArr.push(`${Number(lastElement[1])}`)
+            return finalArr;
+        }
+        else {
+            return [];
+        }
+    }
+    function bottom() {
+        let alpha = id[0];
+        let num = Number(id[1]);
+        let resArr = [];
+
+        let tmp = 0;
+
+        while (num != 1) {
+            if (tmp == 2)
+                break;
+            //alpha = String.fromCharCode(alpha.charCodeAt(0) + 1);
+            num -= 1;
+            resArr.push(`${alpha}${num}`);
+            tmp += 1;
+        }
+        
+        if (resArr.length == 2) {
+            let finalArr = [];
+            const lastElement = resArr[resArr.length - 1];
+            let alpha = lastElement[0];
+            let num = Number(lastElement[1]);
+            if (alpha != "a") {
+                let alpha2 = String.fromCharCode(alpha.charCodeAt(0) - 1);
+                finalArr.push(`${alpha2}${num}`)
+            }
+            if (alpha != "h") {
+                let alpha2 = String.fromCharCode(alpha.charCodeAt(0) + 1);
+                finalArr.push(`${alpha2}${num}`)
+            }
+            //resArr.push(`${Number(lastElement[1])}`)
+            return finalArr;
+        }
+        else {
+            return [];
+        }
+    }
+    return [...top(), ...bottom(), ...left(), ...right()]
+} */
+
+original highlightSquareIds calculations for pawns
+
+//on intial postion, pwns moves different
+  if (curr_pos[1] == "7") { // "2" -> for whitePawn
+    highlightSquareIds = [
+      `${curr_pos[0]}${Number(curr_pos[1]) - 1}`, // + 1 -> for whitePawn
+      `${curr_pos[0]}${Number(curr_pos[1]) - 2}`, ]; // + 2 -> for whitePawn
+  }
+  else {
+    highlightSquareIds = [`${curr_pos[0]}${Number(curr_pos[1]) - 1}`,]; // + 1 -> for whitePawn
+  }
+
+  highlightSquareIds = checkSquareCaptureId(highlightSquareIds);
+
+original capture logic calculations for pawns
+  /* //capture id logic
+  const col1 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) - 1)}${Number(curr_pos[1]) + 1}`; //this last add operation is -1 for black pawns
+  const col2 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) + 1)}${Number(curr_pos[1]) + 1}`;//this last add operation is -1 for black pawns
+
+  let captureIds = [col1, col2];*/
+
+  /* function test(kingInitialMoves){
+  console.log(`en test kingInitialMoves: ${kingInitialMoves}`)
+  
+  let res = [];
+  res = res.concat(test2(globalPiece.black_bishop_1.current_pos));
+  res = res.concat(test2(globalPiece.black_bishop_2.current_pos));
+  for (let pawn of globalPiece.black_pawns) {
+    let auxCapture = pawnCaptureOptions(pawn.current_pos, -1);
+    res = res.concat(auxCapture);
+  }
+  console.log(`res: ${res}`)
+  for (let i = kingInitialMoves.length - 1; i >= 0; i--) {
+    if (res.find(e => e === kingInitialMoves[i])) {
+      console.log(`element: ${kingInitialMoves[i]}`);
+      kingInitialMoves.splice(i, 1);
+    }
+  }
+  console.log(`resultado final: ${kingInitialMoves}`)
+} */
+
+movimiento original del rey (blanco), en el que el enroque funciona (salvo que no se comprueba los jaques)
+/*   const curr_pos = piece.current_pos;
+
+  let highlightSquareIds = giveKingHighlightIds(curr_pos);
+  let tmp = []; //for capture
+  
+  const { top, bottom, left, right, bottomLeft, bottomRight, topLeft, topRight } = highlightSquareIds;
+
+  let res = [];
+
+  if (!piece.move) {
+    const rook1 = globalPiece.white_rook_1;
+    const rook2 = globalPiece.white_rook_2;
+
+    if (!rook1.move) {
+      const b1 = keySquareMapper['b1'];
+      const c1 = keySquareMapper['c1'];
+      const d1 = keySquareMapper['d1'];
+      
+      if (!b1.piece && !c1.piece && !d1.piece) {
+        res.push("c1");
+      }
+    }
+    if (!rook2.move) {
+      const f1 = keySquareMapper['f1'];
+      const g1 = keySquareMapper['g1'];
+      
+      if (!f1.piece && !g1.piece) {
+        res.push("g1");
+      }
+    }
+  }
+
+  res.push(checkSquareCaptureId(top));
+  res.push(checkSquareCaptureId(bottom));
+  res.push(checkSquareCaptureId(left));
+  res.push(checkSquareCaptureId(right));
+  res.push(checkSquareCaptureId(bottomLeft));
+  res.push(checkSquareCaptureId(bottomRight));
+  res.push(checkSquareCaptureId(topLeft));
+  res.push(checkSquareCaptureId(topRight));
+
+  tmp.push(top);
+  tmp.push(bottom);
+  tmp.push(left);
+  tmp.push(right);
+  tmp.push(bottomLeft);
+  tmp.push(bottomRight);
+  tmp.push(topLeft);
+  tmp.push(topRight);
+
+  highlightSquareIds = res.flat();
+  limitKingMoves(highlightSquareIds)
+  
+  circleHighlightRender(highlightSquareIds, keySquareMapper);
+
+  for (let i = 0; i < tmp.length; i++) {
+    const arr = tmp[i];
+
+    for (let j = 0; j < arr.length; j++) {
+      const element = arr[j];
+      let pieceRes = checkPieceExist(element);
+      if (pieceRes && pieceRes.piece && pieceRes.piece.piece_name.toLowerCase().includes("white")) {
+        break;
+      }
+      if (checkOpponetPieceByElement(element, "white")) {
+        break;
+      }
+    }
+  } */
+
+como se me quedaron las funciones de cada pieza stand alone antes de ir a full con la refactorizacion
+/*//pawn event
+function pawnClick(square, color, row, direction)
+{
+  const piece = square.piece;
+  if (selfHighlightSquare(piece))
+    return;
+  
+  if (captureHightlightSquare(square, piece))
+    return;
+
+  //clear all highlights
+  clearPreviousSelfHighlight(selfHighlightState);
+  clearHighlightLocal();
+  
+  //highlighting logic
+  selfHighlight(piece);
+  highlight_state = true;
+  selfHighlightState = piece;
+
+  moveState = piece;
+  
+  const curr_pos = piece.current_pos;
+
+  let highlightSquareIds = pawnMovesOptions(curr_pos, row, direction);
+  circleHighlightRender(highlightSquareIds, keySquareMapper);
+  let captureIds = pawnCaptureOptions(curr_pos, direction);
+
+  captureIds.forEach(element => {
+    checkOpponetPieceByElement(element, color);
+  });
+    
+  globalStateRender();
+}
+
+//bishop event
+function bishopClick(square, color)
+{
+  const piece = square.piece;
+  if (selfHighlightSquare(piece))
+    return;
+
+  if (captureHightlightSquare(square, piece))
+    return;
+
+  //clear all highlights
+  clearPreviousSelfHighlight(selfHighlightState);
+  clearHighlightLocal();
+  
+  //highlighting logic
+  selfHighlight(piece);
+  highlight_state = true;
+  selfHighlightState = piece;
+  
+  moveState = piece;
+ 
+  getCaptureMoves(piece, giveBishopHighlightIds, color, true);
+  globalStateRender();
+}
+
+//rook event
+function rookClick(square, color)
+{
+  const piece = square.piece;
+  if (selfHighlightSquare(piece))
+    return;
+  
+  if (captureHightlightSquare(square, piece))
+    return;
+
+  //clear all highlights
+  clearPreviousSelfHighlight(selfHighlightState);
+  clearHighlightLocal();
+  
+  //highlighting logic
+  selfHighlight(piece);
+  highlight_state = true;
+  selfHighlightState = piece;
+
+  moveState = piece;
+  
+  getCaptureMoves(piece, giveRookHighlightIds, color, true);
+  globalStateRender();
+}
+
+//knight event
+function knightClick(square, color)
+{
+  const piece = square.piece;
+  if (selfHighlightSquare(piece))
+    return;
+  
+  if (captureHightlightSquare(square, piece))
+    return;
+
+  //clear all highlights
+  clearPreviousSelfHighlight(selfHighlightState);
+  clearHighlightLocal();
+  
+  //highlighting logic
+  selfHighlight(piece);
+  highlight_state = true;
+  selfHighlightState = piece;
+  
+  moveState = piece;
+  
+  knightMovesOptions(piece, giveKnightHighlightIds, color, true);
+  globalStateRender();
+}
+
+//queen event
+function queenClick(square, color)
+{
+  const piece = square.piece;
+  if (selfHighlightSquare(piece))
+    return;
+  
+  if (captureHightlightSquare(square, piece))
+    return;
+  
+  //clear all highlights
+  clearPreviousSelfHighlight(selfHighlightState);
+  clearHighlightLocal();
+  
+  //highlighting logic
+  selfHighlight(piece);
+  highlight_state = true;
+  selfHighlightState = piece;
+  
+  moveState = piece;
+
+  getCaptureMoves(piece, giveQueenHighlightIds, color, true);
+  globalStateRender();
+}
+
+//king event
+function kingClick(square, color)
+{
+  const piece = square.piece;
+  if (selfHighlightSquare(piece))
+    return;
+  
+  if (captureHightlightSquare(square, piece))
+    return;
+
+  //clear all highlights
+  clearPreviousSelfHighlight(selfHighlightState);
+  clearHighlightLocal();
+  
+  //highlighting logic
+  selfHighlight(piece);
+  highlight_state = true;
+  selfHighlightState = piece;
+  
+  moveState = piece;
+  
+  let highlightSquareIds = getCaptureMoves(piece, giveKingHighlightIds, color, true, (moves) => limitKingMoves(moves, color));
+  circleHighlightRender(highlightSquareIds, keySquareMapper);
+  globalStateRender();
+}*/
+
+//GobalEvent original
+if (event.target.localName === "img") // '===' compares both the value and the type without converting either value as '==' do (eg: 5 == '5')
+    {
+      const clickId = event.target.parentNode.id; //get the id of the parent element of the child, means the square, intead of the piece
+      const square = keySquareMapper[clickId]; //Search in the flattened array for an square with the id that matched the clickId. The find method return the forst matching element
+      
+      if ((square.piece.piece_name.includes("WHITE") && inTurn === "black" || (square.piece.piece_name.includes("BLACK") && inTurn === "white"))) {
+        captureInTurn(square);
+        return;
+      }
+
+      const pieceName = square.piece.piece_name;
+      const pieceType = pieceName.split('_')[1].toLowerCase(); // Obtener el tipo de pieza
+
+      if (square.piece.piece_name == "WHITE_PAWN" && inTurn == "white")
+        handlePieceClick(square, inTurn, pieceType, "2", 1);
+      else if (square.piece.piece_name == "BLACK_PAWN" && inTurn == "black")
+        handlePieceClick(square, inTurn, pieceType, "7", -1);
+      else if (square.piece.piece_name == "WHITE_BISHOP" && inTurn == "white")
+        handlePieceClick(square, inTurn, pieceType);
+      else if (square.piece.piece_name == "BLACK_BISHOP" && inTurn == "black")
+        handlePieceClick(square, inTurn, pieceType);
+      else if (square.piece.piece_name == "WHITE_ROOK" && inTurn == "white")
+        handlePieceClick(square, inTurn, pieceType);
+      else if (square.piece.piece_name == "BLACK_ROOK" && inTurn == "black")
+        handlePieceClick(square, inTurn, pieceType);
+      else if (square.piece.piece_name == "WHITE_KNIGHT" && inTurn == "white")
+        handlePieceClick(square, inTurn, pieceType);
+      else if (square.piece.piece_name == "BLACK_KNIGHT" && inTurn == "black")
+        handlePieceClick(square, inTurn, pieceType);
+      else if (square.piece.piece_name == "WHITE_QUEEN" && inTurn == "white")
+        handlePieceClick(square, inTurn, pieceType);
+      else if (square.piece.piece_name == "BLACK_QUEEN" && inTurn == "black")
+        handlePieceClick(square, inTurn, pieceType);
+      else if (square.piece.piece_name == "WHITE_KING" && inTurn == "white")
+        handlePieceClick(square, inTurn, pieceType);
+      else if (square.piece.piece_name == "BLACK_KING" && inTurn == "black")
+        handlePieceClick(square, inTurn, pieceType);
+    }
+    else //this is to know if the click is in a square with the round highlight, which is the posible move of a piece. Ensure that only valid moves are processed.
+    {
+      const childElementsOfclickedEl = Array.from(event.target.childNodes); //Converts the child nodes (possible moves) of the clickd element into a array to manipulate it better
+      if (childElementsOfclickedEl.length == 1 || event.target.localName == "span") {
+        if (event.target.localName == "span") //if the person precisely click on the round hightlight
+        {
+          clearPreviousSelfHighlight(selfHighlightState);
+          const id =  event.target.parentNode.id; //gets the id of the parent node of the clickd 'span'
+          moveElement(moveState, id); //call the function to move the piece to the new position
+          moveState = null; //reset the oceState to null indicating the move is done.
+        }
+        else //if the clicked element is not a span but still has exactly one child node, means the square minus the round highlight, to ensure the proper movement either way
+        {
+          clearPreviousSelfHighlight(selfHighlightState);
+          const id =  event.target.id; //gets the id of the clicked element
+          moveElement(moveState, id);
+          moveState = null;
+        }
+      }
+      else { //if the click its an impossible move clear the highlighted elements
+        clearHighlightLocal();
+        clearPreviousSelfHighlight(selfHighlightState);
+      }
+    }
+
+
+//original checkForCheck
+/* function checkForCheck() {
+  if (inTurn === "black") {
+    const whiteKingCurrentPos = globalPiece.white_king.current_pos;
+    const pawns = [];
+    globalPiece.black_pawns.forEach(piece => {
+      pawns.push(piece.current_pos);
+    });
+    const knight_1 = globalPiece.black_knight_1.current_pos;
+    const knight_2 = globalPiece.black_knight_2.current_pos;
+    const king = globalPiece.black_king.current_pos;
+    const bishop_1 = globalPiece.black_bishop_1.current_pos;
+    const bishop_2 = globalPiece.black_bishop_2.current_pos;
+    const rook_1 = globalPiece.black_rook_1.current_pos;
+    const rook_2 = globalPiece.black_rook_2.current_pos;
+    const queen = globalPiece.black_queen.current_pos;
+    
+    let finalListCheck = [];
+    pawns.forEach(piece => {
+      finalListCheck.push(pawnCaptureOptions(piece, -1));
+    });
+    finalListCheck.push(giveKnightCaptureIds(knight_1, inTurn));
+    finalListCheck.push(giveKnightCaptureIds(knight_2, inTurn));
+    finalListCheck.push(giveKingCaptureIds(king, inTurn));
+    finalListCheck.push(giveBishopCaptureIds(bishop_1, inTurn));
+    finalListCheck.push(giveBishopCaptureIds(bishop_2, inTurn));
+    finalListCheck.push(giveRookCaptureIds(rook_1, inTurn));
+    finalListCheck.push(giveRookCaptureIds(rook_2, inTurn));
+    finalListCheck.push(giveQueenCaptureIds(queen, inTurn));
+    
+    finalListCheck = finalListCheck.flat();
+    console.log(`en check for check: finalListCheck: ${finalListCheck}`);
+    const checkOrNot = finalListCheck.find((element) => element === whiteKingCurrentPos);
+    if (checkOrNot) {
+      whoInCheck = "white";
+       setTimeout(() => {
+        alert("You are in check!");
+      }, 300); // Ajusta el tiempo de retraso según la duración de tu animación
+    }
+  }
+  else {
+    const blackKingCurrentPos = globalPiece.black_king.current_pos;
+    const pawns = [];
+    globalPiece.white_pawns.forEach(piece => {
+      pawns.push(piece.current_pos);
+    });
+    const knight_1 = globalPiece.white_knight_1.current_pos;
+    const knight_2 = globalPiece.white_knight_2.current_pos;
+    const king = globalPiece.white_king.current_pos;
+    const bishop_1 = globalPiece.white_bishop_1.current_pos;
+    const bishop_2 = globalPiece.white_bishop_2.current_pos;
+    const rook_1 = globalPiece.white_rook_1.current_pos;
+    const rook_2 = globalPiece.white_rook_2.current_pos;
+    const queen = globalPiece.white_queen.current_pos;
+    
+    let finalListCheck = [];
+    pawns.forEach(piece => {
+      finalListCheck.push(pawnCaptureOptions(piece, 1));
+    });
+    finalListCheck.push(giveKnightCaptureIds(knight_1, inTurn));
+    finalListCheck.push(giveKnightCaptureIds(knight_2, inTurn));
+    finalListCheck.push(giveKingCaptureIds(king, inTurn));
+    finalListCheck.push(giveBishopCaptureIds(bishop_1, inTurn));
+    finalListCheck.push(giveBishopCaptureIds(bishop_2, inTurn));
+    finalListCheck.push(giveRookCaptureIds(rook_1, inTurn));
+    finalListCheck.push(giveRookCaptureIds(rook_2, inTurn));
+    finalListCheck.push(giveQueenCaptureIds(queen, inTurn));
+    
+    finalListCheck = finalListCheck.flat();
+    //console.log(`en check for check: finalListCheck: ${finalListCheck}`);
+    const checkOrNot = finalListCheck.find((element) => element === blackKingCurrentPos);
+    if (checkOrNot) {
+      whoInCheck = "black";
+       setTimeout(() => {
+        alert("You are in check!");
+      }, 300); // Ajusta el tiempo de retraso según la duración de tu animación
+    }
+  }
+  console.log(whoInCheck);
+} */
