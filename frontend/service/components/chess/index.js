@@ -20,6 +20,21 @@ globalState.flat().forEach((square) => {
 
 let highlightColor = 'rgba(0, 0, 0, 0.15)'; // Color por defecto
 
+function generateCoordinates() {
+    const alphaCoord = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+    const numCoord = ['8', '7', '6', '5', '4', '3', '2', '1'];
+
+    const alphaCoordContainer = document.getElementById('alpha-coord');
+    const alphaCoordBottomContainer = document.getElementById('alpha-coord-bottom');
+    const numCoordContainer = document.getElementById('num-coord');
+    const numCoordRightContainer = document.getElementById('num-coord-right');
+
+    alphaCoordContainer.innerHTML = '<div class="empty-tile""></div>' + alphaCoord.map(letter => `<div class="tile-x">${letter}</div>`).join('');
+    alphaCoordBottomContainer.innerHTML = '<div class="empty-tile""></div>' + alphaCoord.map(letter => `<div class="tile-x">${letter}</div>`).join('');
+    numCoordContainer.innerHTML = numCoord.map(number => `<div class="tile-y">${number}</div>`).join('');
+    numCoordRightContainer.innerHTML = numCoord.map(number => `<div class="tile-y">${number}</div>`).join('');
+}
+
 export function initializeChessEvents() {
     const button1 = document.getElementById('button1');
     const button2 = document.getElementById('button2');
@@ -30,6 +45,7 @@ export function initializeChessEvents() {
     
     initGameRender(globalState);
     GlobalEvent();
+    generateCoordinates();
     button1.addEventListener('click', () => {
       settingsPanel.classList.toggle('hidden');
     });

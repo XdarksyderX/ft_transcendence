@@ -38,10 +38,18 @@
   background-color: #5c3973;
 }
 
-.piece{
+.piece, .button-image {
   width: 100%;
+  height: 100% !important;
   cursor: pointer; /*grab?*/
 }
+
+.button-image {
+  width: 30px;
+  height: 30px;
+}
+
+
 
 .captureColor{
   background-color: #ee4b2b !important;
@@ -134,23 +142,23 @@
 }
 
 /* Estilo para la barra de desplazamiento en navegadores WebKit (Chrome, Safari) */
-#move_logger::-webkit-scrollbar {
+#move-logger::-webkit-scrollbar {
   width: 12px;
 }
 
-#move_logger::-webkit-scrollbar-track {
+#move-logger::-webkit-scrollbar-track {
   background: #2c2c2c; /* Color del fondo de la barra de desplazamiento */
 }
 
-#move_logger::-webkit-scrollbar-thumb {
+#move-logger::-webkit-scrollbar-thumb {
   background-color: #555; /* Color de la barra de desplazamiento */
   border-radius: 10px;
   border: 3px solid #2c2c2c; /* Espacio alrededor de la barra de desplazamiento */
 }
 
-#move_logger{
+#move-logger{
   width: 20vw;
-  /*height: 640px; *//*80px (square) x 8 nº*/
+  height: 640px; /*80px (square) x 8 nº*/
   max-height: 640px;
   overflow-y: auto; /*scroll*/
   color: white;
@@ -183,7 +191,7 @@
   height: 40px;
 }
 
-/*nuevos estilos para los botones que hay en la parte de abajo de move_logger*/
+/*nuevos estilos para los botones que hay en la parte de abajo de move-logger*/
 #button-container {
   position: fixed;
   bottom: 52px;
@@ -206,10 +214,7 @@
   justify-content: center;
 }
 
-.button-image {
-  width: 30px;
-  height: 30px;
-}
+
 
 .cancel-button, .resign-button {
   font-size: 20px; /* Aumenta el tamaño del texto */

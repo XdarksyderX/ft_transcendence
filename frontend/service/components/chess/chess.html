@@ -9,7 +9,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
   <title>Chess Game</title>
 </head>
-<!-- Cuerpo del documento donde se coloca el contenido visible -->
 <body class="d-flex mt-4"> -->
   <!-- Contenedor principal donde se renderizará el tablero de ajedrez y otros elementos del juego -->
   <div id="chess-container">
@@ -21,7 +20,7 @@
     </div>
     <div id="alpha-coord-bottom" class="row w-100 ms-0"></div>
   </div>
-  <div id="move_logger">
+  <div id="move-logger">
     <div class="d-flex p-4 justify-content-center">
       <div id="leftCol" class="col ms-3"></div>
       <div id="rightCol" class="col ms-5"></div>
@@ -62,24 +61,6 @@
   </div>
 
   <!-- Enlaza el archivo JavaScript principal y lo define como un módulo ES6 -->
-  <script type="module" src="index.js"></script>
-  <script>
-    function generateCoordinates() {
-      const alphaCoord = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
-      const numCoord = ['8', '7', '6', '5', '4', '3', '2', '1'];
 
-      const alphaCoordContainer = document.getElementById('alpha-coord');
-      const alphaCoordBottomContainer = document.getElementById('alpha-coord-bottom');
-      const numCoordContainer = document.getElementById('num-coord');
-      const numCoordRightContainer = document.getElementById('num-coord-right');
-
-      alphaCoordContainer.innerHTML = '<div class="empty-tile""></div>' + alphaCoord.map(letter => `<div class="tile-x">${letter}</div>`).join('');
-      alphaCoordBottomContainer.innerHTML = '<div class="empty-tile""></div>' + alphaCoord.map(letter => `<div class="tile-x">${letter}</div>`).join('');
-      numCoordContainer.innerHTML = numCoord.map(number => `<div class="tile-y">${number}</div>`).join('');
-      numCoordRightContainer.innerHTML = numCoord.map(number => `<div class="tile-y">${number}</div>`).join('');
-    }
-
-    document.addEventListener('DOMContentLoaded', generateCoordinates);
-  </script>
 <!-- </body>
 </html> -->

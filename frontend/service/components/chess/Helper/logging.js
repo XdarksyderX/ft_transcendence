@@ -39,7 +39,7 @@ function logMoves(logMoves, inTurn, piece, castlingType) {
         rightCol.appendChild(row);
     }
     // Scroll to the bottom of the move logger
-    const moveLogger = document.getElementById("move_logger");
+    const moveLogger = document.getElementById("move-logger");
     moveLogger.scrollTop = moveLogger.scrollHeight;
 }
 
