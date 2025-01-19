@@ -1,0 +1,330 @@
+/*all the visible content on the web page.*/
+/* body {
+  background-color: #2f2e2a;
+  justify-content: center;
+  gap: 2vw;
+} */
+/*
+ *  Styles the root element to be a flex container with a column direccion, center it ahorizontally
+ *  and adjunst its width to fit its content. this is the main container where the chessboard and
+ *  other game elements are rendered.
+ *  flex: provides a more efficient way to align and distribute space among items in a container.
+*/
+/* #root{
+  display: flex; 
+  flex-direction: column;
+  width: fit-content;
+} */
+
+/*
+ *  Targets any HTML element with the class squareRow. In your JavaScript, this class is applied to
+ * <div> elements that represent rows of squares on the chessboard.
+*/
+.squareRow {
+  display: flex;
+}
+
+.square{
+  width: 80px;
+  height: 80px;
+  position: relative;
+}
+
+.white{
+  background-color: #84cca3;
+}
+
+.black{
+  background-color: var(--medium);
+}
+
+.piece, .button-image {
+  width: 100%;
+  height: 100% !important;
+  cursor: pointer; /*grab?*/
+}
+
+.button-image {
+  width: 30px;
+  height: 30px;
+}
+
+
+
+.captureColor{
+  background-color: #ee4b2b !important;
+}
+
+.highlightYellow{
+  background: #f7f769 !important;
+}
+
+.highlight{
+  display: block;
+  width: 30px;
+  height: 30px;
+  margin: auto;
+  margin-top: 26px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.15);
+}
+
+.chess-modal{
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex-direction: column;
+  position: absolute;
+  top: 155px;
+  bottom: 0;
+  right: 100px;
+  left: 0;
+}
+
+.blur{
+  filter: blur(5px);
+}
+
+.chess-modal p{
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 35px;
+  padding: 4px 8px;
+  background-color: #ee4b2b;
+  color: white;
+}
+
+.chess-modal img{
+  box-sizing: border-box;
+  border: 5px solid transparent;
+  width: 24%;
+}
+
+.chess-modal img:hover{
+  border: 5px solid yellow;
+  cursor: pointer;
+}
+
+.retry-button, .home-button {
+  font-size: 20px; /* Aumenta el tamaño del texto */
+  padding: 10px 20px; /* Aumenta el tamaño del botón */
+  margin: 10px; /* Añade espacio entre los botones */
+  border-radius: 5px; /* Añade bordes redondeados */
+  background-color: #007BFF;
+  color: white;
+  border: none; /* Sin borde */
+  cursor: pointer; /* Cambia el cursor al pasar por encima */
+}
+
+.retry-button:hover, .home-button:hover {
+  background-color: #0056b3; /* Color de fondo al pasar el cursor */
+}
+
+.labelId{
+  position: absolute;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  left: 2px;
+  top: 0.5px;
+
+}
+
+.white-label-id{
+  color: #5c3973;
+}
+
+.black-label-id{
+  color: #84cca3;
+}
+
+.d-flex{
+  display: flex;
+}
+
+/* Estilo para la barra de desplazamiento en navegadores WebKit (Chrome, Safari) */
+#move-logger::-webkit-scrollbar {
+  width: 12px;
+}
+
+#move-logger::-webkit-scrollbar-track {
+  background: #2c2c2c; /* Color del fondo de la barra de desplazamiento */
+}
+
+#move-logger::-webkit-scrollbar-thumb {
+  background-color: #555; /* Color de la barra de desplazamiento */
+  border-radius: 10px;
+  border: 3px solid #2c2c2c; /* Espacio alrededor de la barra de desplazamiento */
+}
+
+#move-logger{
+  width: 20vw;
+  height: 640px; /*80px (square) x 8 nº*/
+  max-height: 640px;
+  overflow-y: auto; /*scroll*/
+  color: white;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #262522;
+}
+
+.tile-x {
+  text-align: center;
+  height: 32px;
+  width: 80px;
+  padding-left: 20px;
+  margin-top: 7px;
+}
+
+.tile-y {
+  text-align: center;
+  height: 80px;
+  width: 40px;
+  padding-top: 24px;
+}
+
+#chess-container {
+  background-color: #262522;
+  color: white;
+}
+
+.empty-tile {
+  width: 40px;
+  height: 40px;
+}
+
+/*nuevos estilos para los botones que hay en la parte de abajo de move-logger*/
+/* #button-container {
+  position: fixed;
+  bottom: 52px;
+  width: 20vw;
+  height: 70px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  background-color: #20201e;
+  gap: 30px;
+}
+ */
+#button1, #button2 {
+  background-color: #5a5855;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+
+.cancel-button, .resign-button {
+  font-size: 20px; /* Aumenta el tamaño del texto */
+  padding: 10px 20px; /* Aumenta el tamaño del botón */
+  margin: 10px; /* Añade espacio entre los botones */
+  border-radius: 5px; /* Añade bordes redondeados */
+  color: white;
+  border: none; /* Sin borde */
+  cursor: pointer; /* Cambia el cursor al pasar por encima */
+}
+
+.cancel-button {
+  background-color: #3b3b3b;
+}
+
+.resign-button {
+  background-color: #59a279;
+}
+
+.cancel-button:hover {
+  background-color: #464646;
+}
+
+.resign-button:hover {
+  background-color: #62b184;
+}
+
+/*Customizacion/settings styles*/
+.settings-panel {
+  position: fixed;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  background-color: #333;
+  color: #fff;
+  border: 1px solid #ccc;
+  padding: 20px;
+  z-index: 1000;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+
+.hidden {
+  display: none;
+}
+
+.option {
+  margin-bottom: 15px;
+}
+
+.option label {
+  color: #fff; /* Color del texto de las etiquetas */
+}
+
+.option select {
+  background-color: #555; /* Fondo de los elementos del formulario */
+  color: #fff; /* Color del texto de los elementos del formulario */
+  border: 1px solid #ccc;
+}
+
+.button-group {
+  display: flex;
+  justify-content: space-between;
+  background-color: #444; /* Fondo de los botones */
+  color: #fff; /* Color del texto de los botones */
+  border: none;
+}
+
+#save-settings, #cancel-settings {
+  width: 48%; /* Ajusta el ancho de los botones para que estén alineados */
+}
+
+/*animation for the atomic variant*/
+@keyframes explosion-red {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.5);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2);
+  }
+}
+
+.explosion-red {
+  background-color: rgba(159, 16, 16, 0.788);
+  animation: explosion-red 1s ease-outque;
+}
+
+/*#root{
+  display: flex; 
+  flex-direction: column;
+  width: fit-content;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  position: absolute;
+  top: 15%;
+  bottom: 50%;
+  right: 37%;
+  left: 15%;
+}*/

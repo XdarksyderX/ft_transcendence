@@ -1,0 +1,13 @@
+.history {
+	height: 90%;
+	overflow-y: auto;
+	border-radius: 5px;
+	border: 1px solid var(--light);
+	background-color: var(--dark);
+  }
+
+  .stats {
+	border-radius: 5px;
+	box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3), -2px -3px 5px rgba(132, 204, 163, 0.4);
+
+  }

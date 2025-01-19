@@ -1,7 +1,10 @@
+import { navigateTo } from '../../app/router.js';
+
 (function verifyAndRedirect() {
+ 
     const accessToken = localStorage.getItem('authToken');
     if (!accessToken) {
-        redirectToLogin();
+        navigateTo('/'); 
         return;
     }
 
@@ -22,18 +25,18 @@
 
 function redirectToLogin() {
     const currentPath = window.location.pathname;
-    if (currentPath.endsWith('/login.html') || currentPath.endsWith('/register.html') || currentPath.endsWith('/index.html')) {
+    if (currentPath === '/login' || currentPath === '/register'
+        || currentPath === '/') {
         return;
     }
-    window.location.href = '/login.html';
+    navigateTo('/login');
 }
-// aparentemente window.location.href volvería a cargar la página y dejaría de ser SPA
-// por lo que se debería usar history.pushState() para cambiar la URL sin recargar la página
-// pendiente arreglar 
+
+
 function redirectToHome() {
     const currentPath = window.location.pathname;
-    if (currentPath !== '/home.html') {
-        window.location.href = '/home.html';
+    if (currentPath !== '/start-game') {
+        navigateTo('/start-game');
     }
 }
 
@@ -55,17 +58,17 @@ function logout() {
     .then(data => {
         console.log('Logout successful:', data.message);
         localStorage.removeItem('authToken');
-        window.location.href = '/login.html';
+        navigateTo('/');
     })
     .catch(error => {
         console.error('An error occurred during logout:', error);
         localStorage.removeItem('authToken');
-        window.location.href = '/login.html'; 
+        navigateTo('/'); 
     });
 }
 
 
-function verifyAccessToken(accessToken) {
+async function verifyAccessToken(accessToken) {
     return fetch('http://localhost:5000/verify-token/', {
         method: 'POST',
         headers: {
@@ -87,7 +90,7 @@ function verifyAccessToken(accessToken) {
     });
 }
 
-function refreshAccessToken() {
+async function refreshAccessToken() {
     console.log('Attempting to refresh token...');
     return fetch('http://localhost:5000/refresh/', {
         method: 'POST',
@@ -116,14 +119,6 @@ function refreshAccessToken() {
     });
 }
 
-function redirectToLogin() {
-    const currentPath = window.location.pathname;
-    if (currentPath.endsWith('/login.html') || currentPath.endsWith('/register.html')
-        || currentPath.endsWith('/index.html')) {
-        return;
-    }
-    window.location.href = '/login.html';
-}
 
 function handleServerError(response) {
     if (response.status >= 500 && response.status < 600) {
