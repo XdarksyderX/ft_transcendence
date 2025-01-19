@@ -1,8 +1,6 @@
 import { globalState, keySquareMapper } from "../index.js"; //import globalState object, a 2D array representing the state of the chessboard
 import { clearHighlight, globalStateRender, selfHighlight, globalPiece, circleHighlightRender } from "../Render/main.js";
-import { checkOpponetPieceByElement, giveBishopHighlightIds, giveRookHighlightIds, giveKnightHighlightIds, giveQueenHighlightIds, giveKingHighlightIds, checkPieceExist } from "../Helper/commonHelper.js";
-import { giveKnightCaptureIds, giveKingCaptureIds, giveBishopCaptureIds, giveRookCaptureIds, giveQueenCaptureIds } from "../Helper/commonHelper.js";
-import { pawnMovesOptions, pawnCaptureOptions, getPossibleMoves, knightMovesOptions, limitKingMoves, checkEnPassant, markCaptureMoves } from "../Helper/commonHelper.js";
+import * as help from "../Helper/commonHelper.js"
 import { logMoves, appendPromotion } from "../Helper/logging.js"
 import { pawnPromotion, winGame } from "../Helper/modalCreator.js";
 import { removeSurroundingPieces } from "../Variants/atomic.js";
@@ -226,7 +224,7 @@ function makeEnPassant(piece, id) {
   const aux2 = `${String.fromCharCode(piece.current_pos[0].charCodeAt(0) + 1)}${Number(piece.current_pos[1]) + num}`
   if (id === aux || id === aux2) {
     const opPiece = `${id[0]}${Number(id[1]) - num}`
-    if (checkPieceExist(opPiece)) {
+    if (help.checkPieceExist(opPiece)) {
       const opSquare = keySquareMapper[opPiece];
       const currentPiece = document.getElementById(opPiece);
 
@@ -255,7 +253,7 @@ function moveElement(piece, id, castle) {
   const pawnPromotionBool = checkForPawnPromotion(piece, id);
   let castlingType = moveTwoCastlingPieces(piece, id);
   const direction = piece.piece_name.includes("PAWN") ? (inTurn === "white" ? 1 : -1) : null;
-  if (checkEnPassant(piece.current_pos, inTurn, direction))
+  if (help.checkEnPassant(piece.current_pos, inTurn, direction))
     makeEnPassant(piece, id);
 
   updateGlobalState(piece, id);
@@ -314,22 +312,22 @@ function checkForCheck() {
     const pieceType = piece.piece_name.split('_')[1].toLowerCase();
     switch (pieceType) {
       case 'pawn':
-        finalListCheck.push(pawnCaptureOptions(piece.current_pos, enemyColor));
+        finalListCheck.push(help.pawnCaptureOptions(piece.current_pos, enemyColor));
         break;
       case 'knight':
-        finalListCheck.push(giveKnightCaptureIds(piece.current_pos, enemyColor));
+        finalListCheck.push(help.giveKnightCaptureIds(piece.current_pos, enemyColor));
         break;
       case 'king':
-        finalListCheck.push(giveKingCaptureIds(piece.current_pos, enemyColor));
+        finalListCheck.push(help.giveKingCaptureIds(piece.current_pos, enemyColor));
         break;
       case 'bishop':
-        finalListCheck.push(giveBishopCaptureIds(piece.current_pos, enemyColor));
+        finalListCheck.push(help.giveBishopCaptureIds(piece.current_pos, enemyColor));
         break;
       case 'rook':
-        finalListCheck.push(giveRookCaptureIds(piece.current_pos, enemyColor));
+        finalListCheck.push(help.giveRookCaptureIds(piece.current_pos, enemyColor));
         break;
       case 'queen':
-        finalListCheck.push(giveQueenCaptureIds(piece.current_pos, enemyColor));
+        finalListCheck.push(help.giveQueenCaptureIds(piece.current_pos, enemyColor));
         break;
     }
   });
@@ -360,22 +358,22 @@ function returnOnePieceCaptureOptions(piece, pieceType, opponentColor) {
   let captureMoves = [];
   switch (pieceType) {
     case 'pawn':
-      captureMoves = pawnCaptureOptions(piece.current_pos, opponentColor);
+      captureMoves = help.pawnCaptureOptions(piece.current_pos, opponentColor);
       break;
     case 'knight':
-      captureMoves = giveKnightCaptureIds(piece.current_pos, opponentColor);
+      captureMoves = help.giveKnightCaptureIds(piece.current_pos, opponentColor);
       break;
     case 'bishop':
-      captureMoves = giveBishopCaptureIds(piece.current_pos, opponentColor);
+      captureMoves = help.giveBishopCaptureIds(piece.current_pos, opponentColor);
       break;
     case 'rook':
-      captureMoves = giveRookCaptureIds(piece.current_pos, opponentColor);
+      captureMoves = help.giveRookCaptureIds(piece.current_pos, opponentColor);
       break;
     case 'queen':
-      captureMoves = giveQueenCaptureIds(piece.current_pos, opponentColor);
+      captureMoves = help.giveQueenCaptureIds(piece.current_pos, opponentColor);
       break;
     case 'king':
-      captureMoves = giveKingCaptureIds(piece.current_pos, opponentColor);
+      captureMoves = help.giveKingCaptureIds(piece.current_pos, opponentColor);
       break;
   }
   return captureMoves;
@@ -387,17 +385,17 @@ function filterMovesForKingProtection(piece, color, movesGetterFunc, highlightId
   let captureOptions = [];
 
   if (pieceType == "knight")
-    possibleMoves = possibleMoves.filter(move => !checkPieceExist(move));
+    possibleMoves = possibleMoves.filter(move => !help.checkPieceExist(move));
 
   simulateMoves(piece, possibleMoves, safeMoves, color);
   selfHighlight(piece);
 
   if (pieceType != "knight" && pieceType != "pawn")
-    captureOptions = markCaptureMoves(Object.values(highlightIdsFunc(piece.current_pos)), color);
+    captureOptions = help.markCaptureMoves(Object.values(highlightIdsFunc(piece.current_pos)), color);
   else {
     captureOptions = highlightIdsFunc(piece.current_pos, color);
     captureOptions.forEach(element => {
-      checkOpponetPieceByElement(element, color);
+      help.checkOpponetPieceByElement(element, color);
     });
   }
 
@@ -449,22 +447,22 @@ function handlePieceClick(square, color, pieceType) {
 
   switch (pieceType) {
     case 'pawn':
-      filterMovesForKingProtection(piece, color, pawnMovesOptions, pawnCaptureOptions, pieceType);
+      filterMovesForKingProtection(piece, color, help.pawnMovesOptions, help.pawnCaptureOptions, pieceType);
       break;
     case 'bishop':
-      filterMovesForKingProtection(piece, color, getPossibleMoves, giveBishopHighlightIds);
+      filterMovesForKingProtection(piece, color, help.getPossibleMoves, help.giveBishopHighlightIds);
       break;
     case 'rook':
-      filterMovesForKingProtection(piece, color, getPossibleMoves, giveRookHighlightIds);
+      filterMovesForKingProtection(piece, color, help.getPossibleMoves, help.giveRookHighlightIds);
       break;
     case 'knight':
-      filterMovesForKingProtection(piece, color, knightMovesOptions, giveKnightHighlightIds, pieceType);
+      filterMovesForKingProtection(piece, color, help.knightMovesOptions, help.giveKnightHighlightIds, pieceType);
       break;
       case 'queen':
-      filterMovesForKingProtection(piece, color, getPossibleMoves, giveQueenHighlightIds);
+      filterMovesForKingProtection(piece, color, help.getPossibleMoves, help.giveQueenHighlightIds);
       break;
     case 'king':
-      const kingHighlightSquareIds = getPossibleMoves(piece, giveKingHighlightIds, color, true, (moves) => limitKingMoves(moves, color), true);
+      const kingHighlightSquareIds = help.getPossibleMoves(piece, help.giveKingHighlightIds, color, true, (moves) => help.limitKingMoves(moves, color), true);
       circleHighlightRender(kingHighlightSquareIds, keySquareMapper);
       break;
   }
