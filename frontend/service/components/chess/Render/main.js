@@ -1,5 +1,4 @@
 import * as piece from "../Data/pieces.js";
-// import { ROOT_DIV } from "../Helper/constants.js";
 import { globalState, highlightColor } from "../index.js";
 import { getChess960Piece } from "../Variants/chess960.js";
 

@@ -1,4 +1,3 @@
-//import { ROOT_DIV } from "../Helper/constants.js";
 import { globalState, keySquareMapper } from "../index.js"; //import globalState object, a 2D array representing the state of the chessboard
 import { clearHighlight, globalStateRender, selfHighlight, globalPiece, circleHighlightRender } from "../Render/main.js";
 import { checkOpponetPieceByElement, giveBishopHighlightIds, giveRookHighlightIds, giveKnightHighlightIds, giveQueenHighlightIds, giveKingHighlightIds, checkPieceExist } from "../Helper/commonHelper.js";
@@ -7,7 +6,7 @@ import { pawnMovesOptions, pawnCaptureOptions, getPossibleMoves, knightMovesOpti
 import { logMoves, appendPromotion } from "../Helper/logging.js"
 import { pawnPromotion, winGame } from "../Helper/modalCreator.js";
 import { removeSurroundingPieces } from "../Variants/atomic.js";
-import { test } from "../Variants/kirby.js";
+import { kirbyTransformation } from "../Variants/kirby.js";
 
 //highlighted or not => state
 let highlight_state = false;
@@ -45,8 +44,9 @@ function captureInTurn(square) {
     moveElement(selfHighlightState, piece.current_pos);
     //atomic variant -> aqui tendriamos que tener alguna variable con al que controlar si se ha seleccionado dicha variante de juego
     //removeSurroundingPieces(square.id);
-    //debugger
-    test(square, piece);
+
+    //kirby variant -> aqui tendriamos que tener alguna variable con al que controlar si se ha seleccionado dicha variante de juego
+    //kirbyTransformation(square, piece, inTurn);
     clearPreviousSelfHighlight(selfHighlightState);
     clearHighlightLocal();
     captureNotation = false;
@@ -78,24 +78,30 @@ function checkWin(piece) {
   return false;
 }
 
-//this is the update for globalPiece when a pawn its promoted to other type of piece
+//this is the update for globalPiece when a pawn its promoted/demoted to other type of piece
 function globalPieceUpdate(id, realPiece) {
-  const pawnArray = inTurn === "white" ? globalPiece.black_pawns : globalPiece.white_pawns;
-  const pawnIndex = pawnArray.findIndex(pawn => pawn.current_pos === id);
-  if (pawnIndex !== -1)
-    pawnArray[pawnIndex].current_pos = null;
-
   const pieceType = realPiece.piece_name.split('_')[1].toLowerCase();
   const color = inTurn === "white" ? "black" : "white";
   let pieceKey = `${color}_${pieceType}`;
-  if (globalPiece[pieceKey]) {
-    let i = 1;
-    while (globalPiece[`${pieceKey}_${i}`]) {
-      i++;
-    }
-    pieceKey = `${pieceKey}_${i}`;
+
+  if (pieceType === "pawn") {
+    const pawnArray = inTurn === "white" ? globalPiece.black_pawns : globalPiece.white_pawns;
+    const pawnIndex = pawnArray.findIndex(pawn => pawn.current_pos === id);
+    if (pawnIndex !== -1)
+      pawnArray[pawnIndex].current_pos = null;
+    else
+      pawnArray.push(realPiece);
   }
-  globalPiece[pieceKey] = realPiece;
+  else {
+    if (globalPiece[pieceKey]) {
+      let i = 1;
+      while (globalPiece[`${pieceKey}_${i}`]) {
+        i++;
+      }
+      pieceKey = `${pieceKey}_${i}`;
+    }
+    globalPiece[pieceKey] = realPiece;
+  }
 }
 
 /**
@@ -122,12 +128,13 @@ function globalPieceUpdate(id, realPiece) {
  * @param {string} id - The ID of the square where the pawn is located.
 */
 function callbackPiece(piece, id) {
-  console.log(piece, id)
   const realPiece = piece(id);
   const currentSquare = keySquareMapper[id];
+  const previousPiece = currentSquare.piece;
+  
   
   globalPieceUpdate(id, realPiece);
-
+  
   piece.current_pos = id;
   currentSquare.piece = realPiece;
   appendPromotion(inTurn, realPiece.piece_name);
@@ -139,6 +146,7 @@ function callbackPiece(piece, id) {
   const currentElement = document.getElementById(id); 
   currentElement.innerHTML = '';
   currentElement.append(image);
+  previousPiece.current_pos = null;
 }
 
 function moveTwoCastlingPieces(piece, id) {
@@ -476,7 +484,7 @@ function clearPreviousSelfHighlight(piece)
 }
 
 /**
- * Set up an event listener for click events on the ROOT_DIV element. When a cloc event ocurrs within ROOT_DIV, the provided
+ * Set up an event listener for click events on the root element. When a cloc event ocurrs within root, the provided
  * callback function is executed. We check if the clicked element is an <img> tag. This ensure that the code ontly runs when
  * an image of a chess piece is clicked.
  */
