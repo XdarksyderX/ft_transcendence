@@ -1,13 +1,10 @@
-//import { ROOT_DIV } from "../Helper/constants.js";
 import { globalState, keySquareMapper } from "../index.js"; //import globalState object, a 2D array representing the state of the chessboard
 import { clearHighlight, globalStateRender, selfHighlight, globalPiece, circleHighlightRender } from "../Render/main.js";
-import { checkOpponetPieceByElement, giveBishopHighlightIds, giveRookHighlightIds, giveKnightHighlightIds, giveQueenHighlightIds, giveKingHighlightIds, checkPieceExist } from "../Helper/commonHelper.js";
-import { giveKnightCaptureIds, giveKingCaptureIds, giveBishopCaptureIds, giveRookCaptureIds, giveQueenCaptureIds } from "../Helper/commonHelper.js";
-import { pawnMovesOptions, pawnCaptureOptions, getPossibleMoves, knightMovesOptions, limitKingMoves, checkEnPassant, markCaptureMoves } from "../Helper/commonHelper.js";
+import * as help from "../Helper/commonHelper.js"
 import { logMoves, appendPromotion } from "../Helper/logging.js"
 import { pawnPromotion, winGame } from "../Helper/modalCreator.js";
 import { removeSurroundingPieces } from "../Variants/atomic.js";
-import { test } from "../Variants/kirby.js";
+import { kirbyTransformation } from "../Variants/kirby.js";
 
 //highlighted or not => state
 let highlight_state = false;
@@ -45,8 +42,9 @@ function captureInTurn(square) {
     moveElement(selfHighlightState, piece.current_pos);
     //atomic variant -> aqui tendriamos que tener alguna variable con al que controlar si se ha seleccionado dicha variante de juego
     //removeSurroundingPieces(square.id);
-    //debugger
-    test(square, piece);
+
+    //kirby variant -> aqui tendriamos que tener alguna variable con al que controlar si se ha seleccionado dicha variante de juego
+    //kirbyTransformation(square, piece, inTurn);
     clearPreviousSelfHighlight(selfHighlightState);
     clearHighlightLocal();
     captureNotation = false;
@@ -78,24 +76,30 @@ function checkWin(piece) {
   return false;
 }
 
-//this is the update for globalPiece when a pawn its promoted to other type of piece
+//this is the update for globalPiece when a pawn its promoted/demoted to other type of piece
 function globalPieceUpdate(id, realPiece) {
-  const pawnArray = inTurn === "white" ? globalPiece.black_pawns : globalPiece.white_pawns;
-  const pawnIndex = pawnArray.findIndex(pawn => pawn.current_pos === id);
-  if (pawnIndex !== -1)
-    pawnArray[pawnIndex].current_pos = null;
-
   const pieceType = realPiece.piece_name.split('_')[1].toLowerCase();
   const color = inTurn === "white" ? "black" : "white";
   let pieceKey = `${color}_${pieceType}`;
-  if (globalPiece[pieceKey]) {
-    let i = 1;
-    while (globalPiece[`${pieceKey}_${i}`]) {
-      i++;
-    }
-    pieceKey = `${pieceKey}_${i}`;
+
+  if (pieceType === "pawn") {
+    const pawnArray = inTurn === "white" ? globalPiece.black_pawns : globalPiece.white_pawns;
+    const pawnIndex = pawnArray.findIndex(pawn => pawn.current_pos === id);
+    if (pawnIndex !== -1)
+      pawnArray[pawnIndex].current_pos = null;
+    else
+      pawnArray.push(realPiece);
   }
-  globalPiece[pieceKey] = realPiece;
+  else {
+    if (globalPiece[pieceKey]) {
+      let i = 1;
+      while (globalPiece[`${pieceKey}_${i}`]) {
+        i++;
+      }
+      pieceKey = `${pieceKey}_${i}`;
+    }
+    globalPiece[pieceKey] = realPiece;
+  }
 }
 
 /**
@@ -122,12 +126,13 @@ function globalPieceUpdate(id, realPiece) {
  * @param {string} id - The ID of the square where the pawn is located.
 */
 function callbackPiece(piece, id) {
-  console.log(piece, id)
   const realPiece = piece(id);
   const currentSquare = keySquareMapper[id];
+  const previousPiece = currentSquare.piece;
+  
   
   globalPieceUpdate(id, realPiece);
-
+  
   piece.current_pos = id;
   currentSquare.piece = realPiece;
   appendPromotion(inTurn, realPiece.piece_name);
@@ -139,6 +144,7 @@ function callbackPiece(piece, id) {
   const currentElement = document.getElementById(id); 
   currentElement.innerHTML = '';
   currentElement.append(image);
+  previousPiece.current_pos = null;
 }
 
 function moveTwoCastlingPieces(piece, id) {
@@ -218,7 +224,7 @@ function makeEnPassant(piece, id) {
   const aux2 = `${String.fromCharCode(piece.current_pos[0].charCodeAt(0) + 1)}${Number(piece.current_pos[1]) + num}`
   if (id === aux || id === aux2) {
     const opPiece = `${id[0]}${Number(id[1]) - num}`
-    if (checkPieceExist(opPiece)) {
+    if (help.checkPieceExist(opPiece)) {
       const opSquare = keySquareMapper[opPiece];
       const currentPiece = document.getElementById(opPiece);
 
@@ -247,7 +253,7 @@ function moveElement(piece, id, castle) {
   const pawnPromotionBool = checkForPawnPromotion(piece, id);
   let castlingType = moveTwoCastlingPieces(piece, id);
   const direction = piece.piece_name.includes("PAWN") ? (inTurn === "white" ? 1 : -1) : null;
-  if (checkEnPassant(piece.current_pos, inTurn, direction))
+  if (help.checkEnPassant(piece.current_pos, inTurn, direction))
     makeEnPassant(piece, id);
 
   updateGlobalState(piece, id);
@@ -306,22 +312,22 @@ function checkForCheck() {
     const pieceType = piece.piece_name.split('_')[1].toLowerCase();
     switch (pieceType) {
       case 'pawn':
-        finalListCheck.push(pawnCaptureOptions(piece.current_pos, enemyColor));
+        finalListCheck.push(help.pawnCaptureOptions(piece.current_pos, enemyColor));
         break;
       case 'knight':
-        finalListCheck.push(giveKnightCaptureIds(piece.current_pos, enemyColor));
+        finalListCheck.push(help.giveKnightCaptureIds(piece.current_pos, enemyColor));
         break;
       case 'king':
-        finalListCheck.push(giveKingCaptureIds(piece.current_pos, enemyColor));
+        finalListCheck.push(help.giveKingCaptureIds(piece.current_pos, enemyColor));
         break;
       case 'bishop':
-        finalListCheck.push(giveBishopCaptureIds(piece.current_pos, enemyColor));
+        finalListCheck.push(help.giveBishopCaptureIds(piece.current_pos, enemyColor));
         break;
       case 'rook':
-        finalListCheck.push(giveRookCaptureIds(piece.current_pos, enemyColor));
+        finalListCheck.push(help.giveRookCaptureIds(piece.current_pos, enemyColor));
         break;
       case 'queen':
-        finalListCheck.push(giveQueenCaptureIds(piece.current_pos, enemyColor));
+        finalListCheck.push(help.giveQueenCaptureIds(piece.current_pos, enemyColor));
         break;
     }
   });
@@ -352,22 +358,22 @@ function returnOnePieceCaptureOptions(piece, pieceType, opponentColor) {
   let captureMoves = [];
   switch (pieceType) {
     case 'pawn':
-      captureMoves = pawnCaptureOptions(piece.current_pos, opponentColor);
+      captureMoves = help.pawnCaptureOptions(piece.current_pos, opponentColor);
       break;
     case 'knight':
-      captureMoves = giveKnightCaptureIds(piece.current_pos, opponentColor);
+      captureMoves = help.giveKnightCaptureIds(piece.current_pos, opponentColor);
       break;
     case 'bishop':
-      captureMoves = giveBishopCaptureIds(piece.current_pos, opponentColor);
+      captureMoves = help.giveBishopCaptureIds(piece.current_pos, opponentColor);
       break;
     case 'rook':
-      captureMoves = giveRookCaptureIds(piece.current_pos, opponentColor);
+      captureMoves = help.giveRookCaptureIds(piece.current_pos, opponentColor);
       break;
     case 'queen':
-      captureMoves = giveQueenCaptureIds(piece.current_pos, opponentColor);
+      captureMoves = help.giveQueenCaptureIds(piece.current_pos, opponentColor);
       break;
     case 'king':
-      captureMoves = giveKingCaptureIds(piece.current_pos, opponentColor);
+      captureMoves = help.giveKingCaptureIds(piece.current_pos, opponentColor);
       break;
   }
   return captureMoves;
@@ -379,17 +385,17 @@ function filterMovesForKingProtection(piece, color, movesGetterFunc, highlightId
   let captureOptions = [];
 
   if (pieceType == "knight")
-    possibleMoves = possibleMoves.filter(move => !checkPieceExist(move));
+    possibleMoves = possibleMoves.filter(move => !help.checkPieceExist(move));
 
   simulateMoves(piece, possibleMoves, safeMoves, color);
   selfHighlight(piece);
 
   if (pieceType != "knight" && pieceType != "pawn")
-    captureOptions = markCaptureMoves(Object.values(highlightIdsFunc(piece.current_pos)), color);
+    captureOptions = help.markCaptureMoves(Object.values(highlightIdsFunc(piece.current_pos)), color);
   else {
     captureOptions = highlightIdsFunc(piece.current_pos, color);
     captureOptions.forEach(element => {
-      checkOpponetPieceByElement(element, color);
+      help.checkOpponetPieceByElement(element, color);
     });
   }
 
@@ -441,22 +447,22 @@ function handlePieceClick(square, color, pieceType) {
 
   switch (pieceType) {
     case 'pawn':
-      filterMovesForKingProtection(piece, color, pawnMovesOptions, pawnCaptureOptions, pieceType);
+      filterMovesForKingProtection(piece, color, help.pawnMovesOptions, help.pawnCaptureOptions, pieceType);
       break;
     case 'bishop':
-      filterMovesForKingProtection(piece, color, getPossibleMoves, giveBishopHighlightIds);
+      filterMovesForKingProtection(piece, color, help.getPossibleMoves, help.giveBishopHighlightIds);
       break;
     case 'rook':
-      filterMovesForKingProtection(piece, color, getPossibleMoves, giveRookHighlightIds);
+      filterMovesForKingProtection(piece, color, help.getPossibleMoves, help.giveRookHighlightIds);
       break;
     case 'knight':
-      filterMovesForKingProtection(piece, color, knightMovesOptions, giveKnightHighlightIds, pieceType);
+      filterMovesForKingProtection(piece, color, help.knightMovesOptions, help.giveKnightHighlightIds, pieceType);
       break;
       case 'queen':
-      filterMovesForKingProtection(piece, color, getPossibleMoves, giveQueenHighlightIds);
+      filterMovesForKingProtection(piece, color, help.getPossibleMoves, help.giveQueenHighlightIds);
       break;
     case 'king':
-      const kingHighlightSquareIds = getPossibleMoves(piece, giveKingHighlightIds, color, true, (moves) => limitKingMoves(moves, color), true);
+      const kingHighlightSquareIds = help.getPossibleMoves(piece, help.giveKingHighlightIds, color, true, (moves) => help.limitKingMoves(moves, color), true);
       circleHighlightRender(kingHighlightSquareIds, keySquareMapper);
       break;
   }
@@ -476,7 +482,7 @@ function clearPreviousSelfHighlight(piece)
 }
 
 /**
- * Set up an event listener for click events on the ROOT_DIV element. When a cloc event ocurrs within ROOT_DIV, the provided
+ * Set up an event listener for click events on the root element. When a cloc event ocurrs within root, the provided
  * callback function is executed. We check if the clicked element is an <img> tag. This ensure that the code ontly runs when
  * an image of a chess piece is clicked.
  */
