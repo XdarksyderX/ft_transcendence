@@ -131,7 +131,4 @@ class UnblockUserView(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
-# TODO crear api lista usuarios bloqueados
-# TODO crear api lista de amigos
-# TODO API ELIMINAR AMIGO
 # TODO API METER FECHA LISTA DE AMIGOS (OPCIONAL)

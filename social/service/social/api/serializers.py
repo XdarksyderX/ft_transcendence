@@ -1,12 +1,21 @@
 from rest_framework import serializers
 from social.models import User, Status, InvitationRequest
 
+
+class UserInfoSerializer(serializers.ModelSerializer):
+    """
+    Serializer to return the user information.
+    """
+    class Meta:
+        model = User
+        fields = ['username', 'avatar']
+
 # PROFILE SERIALIZERS
 class ProfileSerializer(serializers.ModelSerializer):
     """
     Serializer to return the status and avatar of a user.
     """
-    # Campo para obtener el status del usuario
+    # Field to get the user's status
     status = serializers.SerializerMethodField()
 
     class Meta:
