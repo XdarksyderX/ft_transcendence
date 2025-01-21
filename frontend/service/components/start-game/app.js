@@ -260,3 +260,5 @@ export function initializeStartGameEvents() {
     elements.pong.quickPlay.startGameWithFriendButton.addEventListener('click', () => launchWaitModal('pong'));
     elements.chess.startGameWithFriendButton.addEventListener('click', () => launchWaitModal('chess'));
 }
+
+export {chessVariant}
