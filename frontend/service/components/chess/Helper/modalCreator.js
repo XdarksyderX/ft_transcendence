@@ -1,5 +1,6 @@
 import * as pieces from "../Data/pieces.js";
 import { imgStyle } from "../index.js";
+import { navigateTo } from "../../../app/router.js";
 
 /**
  * This class  is a design pattern aimed at creating
@@ -108,7 +109,8 @@ function winGame(winBool) {
   homeButton.classList.add("home-button");
   homeButton.onclick = () => {
     alert("jaja no ka pasao");
-    location.reload(); //esto simplemente recarga la pagina, no es definitivo -> aqui guardariamos la victoria y/o derrota en el historial
+    //location.reload(); //esto simplemente recarga la pagina, no es definitivo -> aqui guardariamos la victoria y/o derrota en el historial
+    navigateTo('/start-game');
     modal.hide();
   }
   
@@ -141,7 +143,8 @@ function resingOption() {
   resignButton.classList.add("resign-button");
   resignButton.onclick = () => {
     alert("Tenemos muuuuucho miero\nSon la 3 de la banana!");
-    location.reload(); //esto simplemente recarga la pagina, no es definitivo -> aqui guardariamos la victorio y/o derrota en el historial
+    //location.reload(); //esto simplemente recarga la pagina, no es definitivo -> aqui guardariamos la victorio y/o derrota en el historial
+    navigateTo('/start-game');
     modal.hide();
   }
   

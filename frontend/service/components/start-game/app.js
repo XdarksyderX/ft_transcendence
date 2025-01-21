@@ -1,3 +1,4 @@
+let chessVariant = null;
 import { throwAlert } from "../../app/render.js";
 //import { navigateTo } from "../../app/router.js";
 export function initializeStartGameEvents() {
@@ -27,6 +28,15 @@ export function initializeStartGameEvents() {
             btn: document.getElementById('chess-btn'),
             playChess: document.getElementById('play-chess'),
             options: document.getElementById('chess-options'),
+            variants: {
+                classic: document.getElementById('classic-chess'),
+                spicy: document.getElementById('spicy-chess'),
+                container: document.getElementById('chess-variants'),
+                duck: document.getElementById('duck-chess'),
+                kirby: document.getElementById('kirby-chess'),
+                bomb: document.getElementById('bomb-chess'),
+            },
+            friendsOptions: document.getElementById('chess-friend-options'),
             playFriend: document.getElementById('chess-friend'),
             playAnyFriend: document.getElementById('chess-random'),
             friendList: document.getElementById('chess-friend-list'),
@@ -209,7 +219,7 @@ export function initializeStartGameEvents() {
             elements.modal.timer.style.color = 'var(--dark);'
         });
     }
-
+    // toggles from init to chess options
     function toggleChessOptions(event) {
         event.stopPropagation();
         if (!currentView) {
@@ -219,13 +229,36 @@ export function initializeStartGameEvents() {
     }
     elements.chess.btn.addEventListener('click', toggleChessOptions);
 
+    function chooseClasicChess() {
+        chessVariant = 'classic';
+        toggleView(currentView, elements.chess.friendsOptions);
+    }
+    elements.chess.variants.classic.addEventListener('click', chooseClasicChess);
+
     function playChessWithFriend() {
-        console.log("playchess tggles from: ", currentView);
+    //    console.log("playchess tggles from: ", currentView);
         toggleView(currentView, elements.chess.friendList);
         renderFriendList(elements.chess.friendsContainer);
     }
     elements.chess.playFriend.addEventListener('click', playChessWithFriend);
 
+    function showChessVariants() {
+        toggleView(currentView, elements.chess.variants.container);
+    } 
+    elements.chess.variants.spicy.addEventListener('click', showChessVariants);
+
+    function chooseChessVariant(event) {
+        const variant = event.target.closest('[id$="-chess"]')
+        if (variant) {
+            chessVariant = variant.id.split('-')[0];
+            console.log('selected variant: ', chessVariant);
+            toggleView(currentView, elements.chess.friendsOptions);
+        }
+    }
+    elements.chess.variants.container.addEventListener('click', chooseChessVariant);
+
     elements.pong.quickPlay.startGameWithFriendButton.addEventListener('click', () => launchWaitModal('pong'));
     elements.chess.startGameWithFriendButton.addEventListener('click', () => launchWaitModal('chess'));
 }
+
+export {chessVariant}
