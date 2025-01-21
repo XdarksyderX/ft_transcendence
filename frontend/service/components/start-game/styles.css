@@ -56,3 +56,14 @@ img {
     z-index: 50;
   }
   
+.tooltip-inner {
+    background-color: #ffffff !important; /* Background color */
+    color: #ff0000 !important; /* Text color */
+    font-size: 14px !important; /* Font size */
+    padding: 5px 10px !important; /* Padding */
+    border-radius: 5px !important; /* Border radius */
+}
+
+.tooltip-arrow {
+    border-top-color: #333 !important; /* Arrow color */
+}
