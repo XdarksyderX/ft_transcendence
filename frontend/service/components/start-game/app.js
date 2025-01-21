@@ -1,3 +1,4 @@
+let chessVariant = null;
 import { throwAlert } from "../../app/render.js";
 //import { navigateTo } from "../../app/router.js";
 export function initializeStartGameEvents() {
@@ -56,7 +57,6 @@ export function initializeStartGameEvents() {
 
     let currentView = null;
     let selectedFriend = null;
-    let chessVariant = null;
 
     const friends = [
         { id: 1, name: 'Alice', status: 'online' },

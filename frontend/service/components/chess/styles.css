@@ -52,11 +52,11 @@
 
 
 .captureColor{
-  background-color: #ee4b2b !important;
+  background-color: var(--danger);
 }
 
 .highlightYellow{
-  background: #f7f769 !important;
+  background: var(--accent);
 }
 
 .highlight{
@@ -141,29 +141,32 @@
   display: flex;
 }
 
-/* Estilo para la barra de desplazamiento en navegadores WebKit (Chrome, Safari) */
-#move-logger::-webkit-scrollbar {
+/* #move-logger::-webkit-scrollbar {
   width: 12px;
 }
 
 #move-logger::-webkit-scrollbar-track {
-  background: #2c2c2c; /* Color del fondo de la barra de desplazamiento */
+  background: #2c2c2c;
 }
 
 #move-logger::-webkit-scrollbar-thumb {
-  background-color: #555; /* Color de la barra de desplazamiento */
+  background-color: #555; 
   border-radius: 10px;
-  border: 3px solid #2c2c2c; /* Espacio alrededor de la barra de desplazamiento */
-}
+  border: 3px solid #2c2c2c;
+} */
 
 #move-logger{
   width: 20vw;
-  height: 640px; /*80px (square) x 8 nº*/
+  max-width: 300px;
+  height: 628px; /*80px (square) x 8 nº*/
   max-height: 640px;
   overflow-y: auto; /*scroll*/
-  color: white;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #262522;
+  color: var(--light);
+  margin: 10px;
+  border-radius: 5px;
+  background-color: #0301031c;
+  /* font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; */
+  
 }
 
 .tile-x {
@@ -182,13 +185,22 @@
 }
 
 #chess-container {
-  background-color: #262522;
-  color: white;
+  /* background-color: var(--dark); */
+  background: linear-gradient(225deg, var(--dark), var(--darkish));
+  box-shadow: 0 0 10px #00F56A, 0 0 10px #00F56A, 0 0 10px #00f56a79, 0 0 40px #00F56Acc;
+  color: var(--light);
+  border-radius: 5px;
 }
 
 .empty-tile {
   width: 40px;
   height: 40px;
+}
+
+#chess-side-container {
+  background: linear-gradient(225deg, var(--dark), var(--darkish),  #920505cc, var(--title));
+  border-radius: 5px;
+
 }
 
 /*nuevos estilos para los botones que hay en la parte de abajo de move-logger*/
@@ -205,15 +217,16 @@
   gap: 30px;
 }
  */
-#button1, #button2 {
-  background-color: #5a5855;
+/* #button1, #button2 {
+  background-color: var(--dark);
+  color: var(--light) !important;
   width: 50px;
   height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-
+ */
 
 
 .cancel-button, .resign-button {
@@ -249,12 +262,12 @@
   left: 50%;
   transform: translate(-50%, -50%);
   width: 300px;
-  background-color: #333;
-  color: #fff;
-  border: 1px solid #ccc;
+  background-color: var(--dark);
+  color:var(--light);
+  border: 1px solid var(--light);
   padding: 20px;
   z-index: 1000;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+/*   box-shadow: 0 4px 8px var(--lorange); */
   border-radius: 10px;
 }
 
@@ -266,24 +279,23 @@
   margin-bottom: 15px;
 }
 
-.option label {
-  color: #fff; /* Color del texto de las etiquetas */
-}
 
 .option select {
-  background-color: #555; /* Fondo de los elementos del formulario */
-  color: #fff; /* Color del texto de los elementos del formulario */
-  border: 1px solid #ccc;
+  background-color: var(--darkish);
+  color: var(--light);
+  border: 1px solid var(--light);
+  border-radius: 5px;
+  padding: 3px;
 }
 
-.button-group {
+/* .button-group {
   display: flex;
   justify-content: space-between;
-  background-color: #444; /* Fondo de los botones */
-  color: #fff; /* Color del texto de los botones */
+  background-color: #444;
+  color: #fff; 
   border: none;
 }
-
+ */
 #save-settings, #cancel-settings {
   width: 48%; /* Ajusta el ancho de los botones para que estén alineados */
 }
@@ -328,3 +340,4 @@
   right: 37%;
   left: 15%;
 }*/
+
