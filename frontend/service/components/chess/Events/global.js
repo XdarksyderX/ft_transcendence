@@ -19,6 +19,8 @@ let whoInCheck = null;
 let winBool = false;
 let captureNotation = false;
 
+const chessVariantTmp = sessionStorage.getItem('chessVariant'); //borrar -> solucion temporal para asegurar la persistencia de la variable hasta que tengamos backend
+
 function changeTurn() {
   inTurn = inTurn === "white" ? "black" : "white";
 
@@ -40,11 +42,11 @@ function captureInTurn(square) {
   if (square.captureHightlight) {
     captureNotation = true
     moveElement(selfHighlightState, piece.current_pos);
-    //atomic variant -> aqui tendriamos que tener alguna variable con al que controlar si se ha seleccionado dicha variante de juego
-    //removeSurroundingPieces(square.id);
+    if (chessVariantTmp === "bomb")
+      removeSurroundingPieces(square.id);
 
-    //kirby variant -> aqui tendriamos que tener alguna variable con al que controlar si se ha seleccionado dicha variante de juego
-    //kirbyTransformation(square, piece, inTurn);
+    if (chessVariantTmp === "kirby")
+      kirbyTransformation(square, piece, inTurn);
     clearPreviousSelfHighlight(selfHighlightState);
     clearHighlightLocal();
     captureNotation = false;

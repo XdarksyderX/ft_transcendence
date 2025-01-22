@@ -3,6 +3,7 @@ import { globalState, highlightColor } from "../index.js";
 import { getChess960Piece } from "../Variants/chess960.js";
 
 const globalPiece = new Object();
+const chessVariantTmp = sessionStorage.getItem('chessVariant'); //borrar -> solucion temporal para asegurar la persistencia de la variable hasta que tengamos backend
 
 /**
  * funciton globlaStateRender is usefull to render pieces from globalStateData,
@@ -112,8 +113,8 @@ function initGameRender(data)
   globalPiece.black_pawns = [];
   globalPiece.white_pawns = [];
 
-  //chess960 variant -> aqui tendriamos que tener alguna variable con al que controlar si se ha seleccionado dicha variante de juego
-  //getChess960Piece();
+  if (chessVariantTmp === "960")
+    getChess960Piece();
 
   data.forEach(element => {
     const rowEl = document.createElement("div");
