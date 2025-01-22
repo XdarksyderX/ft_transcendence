@@ -231,6 +231,7 @@ export function initializeStartGameEvents() {
 
     function chooseClasicChess() {
         chessVariant = 'classic';
+        sessionStorage.setItem('chessVariant', chessVariant); //borrar -> solucion temporal para asegurar la persistencia de la variable hasta que tengamos backend
         toggleView(currentView, elements.chess.friendsOptions);
     }
     elements.chess.variants.classic.addEventListener('click', chooseClasicChess);
@@ -252,6 +253,7 @@ export function initializeStartGameEvents() {
         if (variant) {
             chessVariant = variant.id.split('-')[0];
             console.log('selected variant: ', chessVariant);
+            sessionStorage.setItem('chessVariant', chessVariant); //borrar -> solucion temporal para asegurar la persistencia de la variable hasta que tengamos backend
             toggleView(currentView, elements.chess.friendsOptions);
         }
     }
@@ -260,5 +262,3 @@ export function initializeStartGameEvents() {
     elements.pong.quickPlay.startGameWithFriendButton.addEventListener('click', () => launchWaitModal('pong'));
     elements.chess.startGameWithFriendButton.addEventListener('click', () => launchWaitModal('chess'));
 }
-
-export {chessVariant}
