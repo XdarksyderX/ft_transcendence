@@ -245,9 +245,17 @@ export function initializeStartGameEvents() {
 
     function showChessVariants() {
         toggleView(currentView, elements.chess.variants.container);
-    } 
+    
+        // Initialize the tooltip
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    
+    }
+    
     elements.chess.variants.spicy.addEventListener('click', showChessVariants);
-
+    
     function chooseChessVariant(event) {
         const variant = event.target.closest('[id$="-chess"]')
         if (variant) {

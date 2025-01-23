@@ -17,7 +17,6 @@ const routes = [
     { url: "/", file: "./components/index.html" },
     { url: "/login", file: "./components/login/login.html" },
     { url: "/signup", file: "./components/signup/signup.html" },
-    { url: "/chat", file: "./components/chat/chat.html" }, //I guess i'll render chat once im logged in another .js
     { url: "/start-game", file: "./components/start-game/start-game.html" },
     { url: "/profile", file: "./components/profile/profile.html" },
     { url: "/friends", file: "./components/friends/friends.html" },
