@@ -32,9 +32,9 @@ export function initializeStartGameEvents() {
                 classic: document.getElementById('classic-chess'),
                 spicy: document.getElementById('spicy-chess'),
                 container: document.getElementById('chess-variants'),
-                duck: document.getElementById('duck-chess'),
+/*                 duck: document.getElementById('duck-chess'),
                 kirby: document.getElementById('kirby-chess'),
-                bomb: document.getElementById('bomb-chess'),
+                bomb: document.getElementById('bomb-chess'), */
             },
             friendsOptions: document.getElementById('chess-friend-options'),
             playFriend: document.getElementById('chess-friend'),
