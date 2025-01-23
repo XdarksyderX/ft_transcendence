@@ -99,7 +99,7 @@ export function initializeChessEvents() {
                 return null;
             }
             const pieceType = extractString(piece.src);
-            piece.src = `Assets/pieces/${style}/${pieceType}.png`; 
+            piece.src = `components/chess/Assets/pieces/${style}/${pieceType}.png`; 
         });
     }
 

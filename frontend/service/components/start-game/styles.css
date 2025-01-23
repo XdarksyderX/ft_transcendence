@@ -56,3 +56,18 @@ img {
     z-index: 50;
   }
   
+  .tooltip-inner {
+    background-color: var(--dark);
+    color: var(--light);
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.tooltip-arrow {
+    border-top-color: var(--dark);
+}
+
+
+#chess-variants .fas.fa-question-circle {
+    font-size: 1.5em;
+}
