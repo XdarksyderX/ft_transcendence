@@ -40,3 +40,23 @@ class ProfileView(APIView):
             return Response(serializer.data, status=200)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+class SearchUsersView(APIView):
+    """
+    APIView to search for users by their username.
+    """
+    def get(self, request, username):
+        try:
+            # Search for users whose username contains the search term (case-insensitive)
+            users = User.objects.filter(username__icontains=username)
+
+            # Prepare the response data
+            users_data = [{
+                "user_id": user.user_id,
+                "username": user.username,
+                "avatar": user.avatar
+            } for user in users]
+
+            return Response({users_data}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

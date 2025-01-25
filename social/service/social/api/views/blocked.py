@@ -36,10 +36,10 @@ class BlockUserView(APIView): # GOOD
 
 
             # Verify the user
-            # try:
-            user_data = User.objects.get(user_id=decoded_payload["user_id"])
-            # except user_data.DoesNotExist:
-            #     return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+            try:
+                user_data = User.objects.get(user_id=decoded_payload["user_id"])
+            except user_data.DoesNotExist:
+                return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
 
             # Verify if the user is trying to block himself
             if user_data.username == username:
@@ -100,7 +100,7 @@ class UnblockUserView(APIView):
 
              # Verify the user
             try:
-                user_data = Friends.objects.get(user_id=decoded_payload["user_id"])
+                user_data = User.objects.get(user_id=decoded_payload["user_id"])
             except user_data.DoesNotExist:
                 return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -130,5 +130,39 @@ class UnblockUserView(APIView):
             return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
+
+class IsUserBlockedView(APIView):
+    """
+    APIView to check if a user is blocked.
+    """
+    def get(self, request, target_username):
+        try:
+            auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+
+            if not auth_header.startswith('Bearer '):
+                return JsonResponse({'error': 'Invalid or missing Authorization header'}, status=status.HTTP_401_UNAUTHORIZED)
+
+            jwt_token = auth_header.split('Bearer ')[1]
+            try:
+                decoded_payload = jwt.decode(jwt_token, JWT_SECRET, algorithms=['HS256'])
+            except:
+                return Response({'error: invalid auth cookie'}, status=status.HTTP_401_UNAUTHORIZED)
+            
+
+             # Verify the user
+            try:
+                user = User.objects.get(user_id=decoded_payload["user_id"])
+            except user.DoesNotExist:
+                return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+
+            
+            # Check if the target user is in the blocked list
+            is_blocked = target_username in user.blocked
+
+            return Response({"is_blocked": is_blocked}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
 # TODO API METER FECHA LISTA DE AMIGOS (OPCIONAL)
