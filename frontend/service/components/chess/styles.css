@@ -51,17 +51,15 @@
   height: 30px;
 }
 
-
-
 .captureColor{
-  background-color: var(--danger);
+  background-color: var(--danger) !important;
 }
 
 .highlightYellow{
-  background: var(--accent);
+  background: var(--accent) !important;
 }
 .black.square.highlightYellow{
-  background: var(--dark);
+  background: var(--dark) !important;
 }
 
 .highlightYellow .piece {
