@@ -95,7 +95,7 @@ export function initializeChessEvents() {
         } else {
             updateHighlightYellowColor('var(--lorange)', 'var(--lorange)');
         }
-        if (boardColor === 'white:#ffffff;black:#000000') {
+        if (boardColor === 'white:#ffffff;black:#2e2e2e') {
             highlightColor = 'rgba(113, 113, 113, 0.52)'; // Color para el estilo "Black"
         } else {
             highlightColor = 'rgba(0, 0, 0, 0.15)'; // Color por defecto

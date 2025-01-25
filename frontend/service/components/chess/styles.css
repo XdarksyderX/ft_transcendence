@@ -53,6 +53,7 @@
 
 .captureColor{
   background-color: var(--danger) !important;
+  color: rgb(41, 40, 40);
 }
 
 .highlightYellow{
