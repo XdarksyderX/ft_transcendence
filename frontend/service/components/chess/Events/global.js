@@ -5,6 +5,7 @@ import { logMoves, appendPromotion } from "../Helper/logging.js"
 import { pawnPromotion, winGame } from "../Helper/modalCreator.js";
 import { removeSurroundingPieces } from "../Variants/atomic.js";
 import { kirbyTransformation } from "../Variants/kirby.js";
+import { whitePawnHordeMoves, checkWinForBlackHorde } from "../Variants/horde.js"
 
 //highlighted or not => state
 let highlight_state = false;
@@ -261,8 +262,16 @@ function moveElement(piece, id, castle) {
   updateGlobalState(piece, id);
   clearHighlight();
   updatePiecePosition(piece, id);
-  checkForCheck();
+  if (chessVariantTmp === "horde" && inTurn === "black") //esto es un parche y esta mal -> guarrada
+    checkForCheck()
+  else if (chessVariantTmp != "horde")
+    checkForCheck();
   
+  if (chessVariantTmp === "horde" && inTurn === "black") {
+    winBool = checkWinForBlackHorde();
+    console.log(winBool)
+  }
+
   if (winBool) {
     setTimeout(() => { winGame(winBool); }, 50);
     return;
@@ -347,7 +356,8 @@ function simulateMoves(piece, possibleMoves, safeMoves, color) {
     updateGlobalState(piece, move);
     updatePiecePosition(piece, move);
 
-    checkForCheck();
+    if (chessVariantTmp !== "horde" || (chessVariantTmp === "horde" && inTurn === "black")) //esto es un parche y esta mal -> guarrada
+      checkForCheck();
     if (whoInCheck !== color)
       safeMoves.push(move);
 
@@ -401,7 +411,8 @@ function filterMovesForKingProtection(piece, color, movesGetterFunc, highlightId
     });
   }
 
-  checkForCheck();
+  if (chessVariantTmp !== "horde" || (chessVariantTmp === "horde" && inTurn === "black")) //esto es un parche y esta mal -> guarrada
+    checkForCheck();
   if (whoInCheck === color) {
     const opponentColor = color === "white" ? "black" : "white";
     captureOptions.forEach(element => {
@@ -449,7 +460,16 @@ function handlePieceClick(square, color, pieceType) {
 
   switch (pieceType) {
     case 'pawn':
-      filterMovesForKingProtection(piece, color, help.pawnMovesOptions, help.pawnCaptureOptions, pieceType);
+      if (chessVariantTmp === "horde" && inTurn === "white") {
+        const movesIds = whitePawnHordeMoves(piece);
+        circleHighlightRender(movesIds, keySquareMapper);
+        const captureIds = help.pawnCaptureOptions(piece.current_pos, color);
+        captureIds.forEach(element => help.checkOpponetPieceByElement(element, color));
+/*         console.log(movesIds);
+        console.log(captureIds); */
+      } else {
+        filterMovesForKingProtection(piece, color, help.pawnMovesOptions, help.pawnCaptureOptions, pieceType);
+      }
       break;
     case 'bishop':
       filterMovesForKingProtection(piece, color, help.getPossibleMoves, help.giveBishopHighlightIds);
@@ -464,6 +484,7 @@ function handlePieceClick(square, color, pieceType) {
       filterMovesForKingProtection(piece, color, help.getPossibleMoves, help.giveQueenHighlightIds);
       break;
     case 'king':
+      //debugger
       const kingHighlightSquareIds = help.getPossibleMoves(piece, help.giveKingHighlightIds, color, true, (moves) => help.limitKingMoves(moves, color), true);
       circleHighlightRender(kingHighlightSquareIds, keySquareMapper);
       break;

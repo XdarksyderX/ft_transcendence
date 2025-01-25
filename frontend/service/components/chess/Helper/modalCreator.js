@@ -94,15 +94,6 @@ function winGame(winBool) {
     return;
   const msg = document.createElement("p");
   msg.textContent = `${winBool} Wins!`;
-
-  const retryButton = document.createElement("button");
-  retryButton.textContent = "Retry";
-  retryButton.classList.add("retry-button");
-  retryButton.onclick = () => {
-    alert("oh shit here I go again");
-    location.reload(); //esto simplemente recarga la pagina, no es definitivo -> aqui guardariamos la victoria y/o derrota en el historial
-    modal.hide();
-  }
   
   const homeButton = document.createElement("button");
   homeButton.textContent = "Home";
@@ -115,7 +106,6 @@ function winGame(winBool) {
   }
   
   const buttonContainer = document.createElement("div");
-  buttonContainer.appendChild(retryButton);
   buttonContainer.appendChild(homeButton);
   
   const finalContainer = document.createElement("div");
