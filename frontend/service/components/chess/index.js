@@ -20,6 +20,25 @@ globalState.flat().forEach((square) => {
 
 let highlightColor = 'rgba(0, 0, 0, 0.15)'; // Color por defecto
 
+function updateHighlightYellowColor(whiteTileColor, blackTileColor) {
+    const styleSheet = document.styleSheets[12]; // 12 is the  index of chess/styles.css
+    
+    const whiteTileRule = `.highlightYellow { background-color: ${whiteTileColor} !important; }`;
+    const blackTileRule = `.black.square.highlightYellow { background-color: ${blackTileColor} !important; }`;
+    
+    // Remove existing .highlightYellow rules if they exist
+    for (let i = 0; i < styleSheet.cssRules.length; i++) {
+        if (styleSheet.cssRules[i].selectorText === '.highlightYellow' || styleSheet.cssRules[i].selectorText === '.black.square.highlightYellow') {
+            styleSheet.deleteRule(i);
+            i--; // Adjust index after deletion
+        }
+    }
+
+    // Add new .highlightYellow rules
+    styleSheet.insertRule(whiteTileRule, styleSheet.cssRules.length);
+    styleSheet.insertRule(blackTileRule, styleSheet.cssRules.length);
+}
+
 function generateCoordinates() {
     const alphaCoord = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
     const numCoord = ['8', '7', '6', '5', '4', '3', '2', '1'];
@@ -71,6 +90,11 @@ export function initializeChessEvents() {
         });
 
         // Cambiar el color de .highlight si el estilo es "Black"
+        if (boardColor === 'white:#84cca3;black:#5c3973') {
+            updateHighlightYellowColor('var(--accent)', 'var(--dark)');
+        } else {
+            updateHighlightYellowColor('var(--lorange)', 'var(--lorange)');
+        }
         if (boardColor === 'white:#ffffff;black:#000000') {
             highlightColor = 'rgba(113, 113, 113, 0.52)'; // Color para el estilo "Black"
         } else {
