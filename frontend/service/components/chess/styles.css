@@ -28,6 +28,8 @@
   width: 80px;
   height: 80px;
   position: relative;
+/*   justify-content: center;
+  align-items: center; */
 }
 
 .white{
@@ -49,14 +51,23 @@
   height: 30px;
 }
 
-
-
 .captureColor{
-  background-color: var(--danger);
+  background-color: var(--danger) !important;
+  color: rgb(41, 40, 40);
 }
 
 .highlightYellow{
-  background: var(--accent);
+  background: var(--accent) !important;
+}
+.black.square.highlightYellow{
+  background: var(--dark) !important;
+}
+
+.highlightYellow .piece {
+ height: 106% !important;
+ width: 106% !important;
+ margin-top: -6% !important;
+ margin-left: -3% !important;
 }
 
 .highlight{
@@ -158,8 +169,9 @@
 #move-logger{
   width: 20vw;
   max-width: 300px;
+  min-width: 200px !important;
   height: 628px; /*80px (square) x 8 nº*/
-  max-height: 640px;
+/*   max-height: 640px; */
   overflow-y: auto; /*scroll*/
   color: var(--light);
   margin: 10px;
@@ -183,6 +195,49 @@
   width: 40px;
   padding-top: 24px;
 }
+
+@media (max-width: 770px) { /* resizes move-logger when the screen width is less than 770px */
+  #move-logger {
+    width: 90vw;
+    max-width: 400px;
+  }
+}
+
+@media (max-width: 770px) {
+  .square {
+    height: 40px;
+    width: 40px;
+  }
+
+  .highlight {
+    height: 15px;
+    width: 15px;
+    margin-top: 13px;
+
+  }
+
+  .tile-x, .tile-y {
+    display: none;
+  }
+
+  #alpha-coord, #alpha-coord-bottom, 
+  #num-coord-right, #num-coord-left, .empty-tile {
+    display: none;
+  }
+
+  #chess-side-container {
+    margin-top: 20px;
+    margin-left: 0px !important;
+  }
+  #grid-container, #chess-container {
+    /* max-width: 340px !important; */
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+}
+
 
 #chess-container {
   /* background-color: var(--dark); */
