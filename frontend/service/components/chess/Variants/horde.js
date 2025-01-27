@@ -1,6 +1,7 @@
 import * as piece from "../Data/pieces.js";
 import { globalPiece } from "../Render/main.js";
-import { checkEnPassant, checkSquareCaptureId } from "../Helper/commonHelper.js";
+import { checkEnPassant, checkSquareCaptureId, pawnCaptureOptions, checkOpponetPieceByElement } from "../Helper/commonHelper.js";
+import { keySquareMapper } from "../index.js";
 
 const piecePositionsHorde = {
   "a8": piece.blackRook,
@@ -12,13 +13,14 @@ const piecePositionsHorde = {
   "d8": piece.blackQueen,
   "e8": piece.blackKing,
 };
+
 //esto es un parche y esta mal -> guarrada
 function renderHordePieces(square, globalPiece, assignSpecificPiece) {
   if (square.id[1] == 7) {
     square.piece = piece.blackPawn(square.id);
     globalPiece.black_pawns.push(square.piece);
   } else if (/* square.id[1] == 1 || square.id[1] == 2 || square.id[1] == 3 || square.id[1] == 4
-    || square.id == "b5" || square.id == "c5" || */square.id == "f2" || square.id == "g2") {
+    || square.id == "b5" || square.id == "c5" || */square.id == "f2" || square.id == "g2") { //parche
     square.piece = piece.whitePawn(square.id);
     globalPiece.white_pawns.push(square.piece);
   } else if (piecePositionsHorde[square.id]) {
@@ -48,8 +50,6 @@ function whitePawnHordeMoves(piece) {
 }
 
 function checkWinForBlackHorde() {
-  console.log(globalPiece);
-  //debugger
   for (const key in globalPiece) {
     if (key.includes("white") && globalPiece[key] !== null) {
       if (Array.isArray(globalPiece[key])) {
@@ -66,4 +66,11 @@ function checkWinForBlackHorde() {
   return "Black";
 }
 
-export { renderHordePieces, whitePawnHordeMoves, checkWinForBlackHorde }
+function whitePawnHordeRenderMoves (piece, color, circleHighlightRenderFunc) {
+  const movesIds = whitePawnHordeMoves(piece);
+  circleHighlightRenderFunc(movesIds, keySquareMapper);
+  const captureIds = pawnCaptureOptions(piece.current_pos, color);
+  captureIds.forEach(element => checkOpponetPieceByElement(element, color));
+}
+
+export { renderHordePieces, checkWinForBlackHorde, whitePawnHordeRenderMoves }
