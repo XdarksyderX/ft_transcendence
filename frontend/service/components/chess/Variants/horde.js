@@ -19,8 +19,8 @@ function renderHordePieces(square, globalPiece, assignSpecificPiece) {
   if (square.id[1] == 7) {
     square.piece = piece.blackPawn(square.id);
     globalPiece.black_pawns.push(square.piece);
-  } else if (/* square.id[1] == 1 || square.id[1] == 2 || square.id[1] == 3 || square.id[1] == 4
-    || square.id == "b5" || square.id == "c5" || */square.id == "f2" || square.id == "g2") { //parche
+  } else if (square.id[1] == 1 || square.id[1] == 2 || square.id[1] == 3 || square.id[1] == 4
+    || square.id == "b5" || square.id == "c5" || square.id == "f2" || square.id == "g2") {
     square.piece = piece.whitePawn(square.id);
     globalPiece.white_pawns.push(square.piece);
   } else if (piecePositionsHorde[square.id]) {

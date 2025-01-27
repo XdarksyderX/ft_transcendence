@@ -88,7 +88,6 @@ function pawnPromotion(color, callback, id) {
   modal.show();
 }
 
-//aqui habria que conectar los distintos botones a distintas paginas del front -> ver con Eli
 function winGame(winBool) {
   if(!winBool)
     return;
@@ -99,8 +98,7 @@ function winGame(winBool) {
   homeButton.textContent = "Home";
   homeButton.classList.add("home-button");
   homeButton.onclick = () => {
-    alert("jaja no ka pasao");
-    //location.reload(); //esto simplemente recarga la pagina, no es definitivo -> aqui guardariamos la victoria y/o derrota en el historial
+    //aqui guardariamos la victoria y/o derrota en el historial
     navigateTo('/start-game');
     modal.hide();
   }
@@ -116,7 +114,6 @@ function winGame(winBool) {
   modal.show();
 }
 
-//aqui habria que conectar los distintos botones a distintas paginas del front -> ver con Eli
 function resingOption() {
   const msg = document.createElement("p");
   msg.textContent = `You are about to resign the game\nAre you sure?`;
@@ -132,8 +129,7 @@ function resingOption() {
   resignButton.textContent = "Resign";
   resignButton.classList.add("resign-button");
   resignButton.onclick = () => {
-    alert("Tenemos muuuuucho miero\nSon la 3 de la banana!");
-    //location.reload(); //esto simplemente recarga la pagina, no es definitivo -> aqui guardariamos la victorio y/o derrota en el historial
+    //aqui guardariamos la victoria y/o derrota en el historial
     navigateTo('/start-game');
     modal.hide();
   }

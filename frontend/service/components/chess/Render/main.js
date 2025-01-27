@@ -143,7 +143,6 @@ function initGameRender(data)
     document.getElementById('root').appendChild(rowEl);
   });
   pieceRender(data);
-  console.log(globalPiece);
 }
 
 function assignSpecificPiece(square) {
