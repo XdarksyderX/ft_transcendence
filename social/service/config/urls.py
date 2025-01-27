@@ -19,22 +19,29 @@ from django.urls import path, include
 
 from chat.api.router import router_chat
 from chat.api.views import UserMessagesView, UsersListsView
-from social.api.views.profile import ProfileView
-from social.api.views.friends import FriendListView
-from social.api.views.blocked import BlockUserView, UnblockUserView
-from social.api.views.pending_friends import AcceptFriendRequestView, DenyFriendRequestView, SendFriendRequestView
+from social.api.views.blocked import BlockUserView, UnblockUserView, IsUserBlockedView
+from social.api.views.friends import FriendListView, BlockedFriendListView, RemoveFriendView, PendingReceivedRequestsView, PendingSentRequestsView, AcceptFriendRequestView, DeclineFriendRequestView, CancelFriendRequestView
+from social.api.views.profile import ProfileView, SearchUsersView
+
 
 urlpatterns = [
     path('all_messages/', include(router_chat.urls)), # TODO CREO QUE ES DE PRUEBA SE PUEDE BORRAR
     path('messages/<str:username>/<str:username2>/', UserMessagesView.as_view(), name='user-messages'),
-    path('user_list/<str:username>/', UsersListsView.as_view(), name='user-lists'),
-    path('profile_view/<str:username>/', ProfileView.as_view(), name='profile'),
-    path('friends_list/<int:user_id>/', FriendListView.as_view(), name='friends_list'),
-#     path('friends/pending/<int:user_id>/', PendingFriendListView.as_view(), name='pending_friends_list'),
-#     path('friends/list/<int:user_id>/', BlockedFriendListView.as_view(), name='blocked_friends_list'),
-    path('api/user/<int:user_id>/block/<int:block_user_id>/', BlockUserView.as_view(), name='block_user'),
-    path('api/user/<int:user_id>/unblock/<int:unblock_user_id>/', UnblockUserView.as_view(), name='unblock_user'),
-    path('api/user/<int:user_id>/accept/<int:friend_id>/', AcceptFriendRequestView.as_view(), name='accept_friend'),
-    path('api/user/<int:user_id>/deny/<int:friend_id>/', DenyFriendRequestView.as_view(), name='deny_friend'),
-    path('api/user/<int:user_id>/send_request/<int:friend_id>/', SendFriendRequestView.as_view(), name='send_friend_request'),
+
+    # Social
+    path('api/social/block_user/<str:username>/', BlockUserView.as_view(), name='block_user'),
+    path('api/social/unblock_user/<str:username>/', UnblockUserView.as_view(), name='unblock_user'),
+    path('api/is_blocked/<str:username>/', IsUserBlockedView.as_view(), name='is_blocked'),
+    path('api/social/blocked_friends_list/', BlockedFriendListView.as_view(), name='blocked_friends_list'),
+
+    path('api/social/friends_list/', FriendListView.as_view(), name='friends_list'),
+    path('api/social/remove_friend/<str:username>/', RemoveFriendView.as_view(), name='remove_friend'),
+    path('api/social/pending_received_requests/', PendingReceivedRequestsView.as_view(), name='pending_received_requests'),
+    path('api/social/pending_sent_requests/', PendingSentRequestsView.as_view(), name='pending_sent_requests'),
+    path('api/social/accept_friend_request/<str:username>/', AcceptFriendRequestView.as_view(), name='accept_friend_request'),
+    path('api/social/decline_friend_request/<str:username>/', DeclineFriendRequestView.as_view(), name='decline_friend_request'),
+    path('api/social/cancel_friend_request/<str:username>/', CancelFriendRequestView.as_view(), name='cancel_friend_request'),
+
+    path('api/social/profile_view/', ProfileView.as_view(), name='profile'),
+    path('api/social/search_users/<str:username>/', SearchUsersView.as_view(), name='search_users'),
 ]
