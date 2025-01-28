@@ -8,7 +8,6 @@ import { initGameRender, clearHighlight } from "./Render/main.js";
 import { GlobalEvent, clearYellowHighlight } from "./Events/global.js";
 import { resingOption } from "./Helper/modalCreator.js";
 
-//will be usefull until game ends
 const globalState = initGame();
 let keySquareMapper = {};
 let imgStyle = "modern";
@@ -19,6 +18,25 @@ globalState.flat().forEach((square) => {
 
 
 let highlightColor = 'rgba(0, 0, 0, 0.15)';
+
+export function initializeChessEvents() {
+    const settingsPanel = document.getElementById('settings-panel');
+    const saveSettingsButton = document.getElementById('save-settings');
+    const cancelSettingsButton = document.getElementById('cancel-settings');
+    const pieceStyleSelect = document.getElementById('piece-style');
+    
+    initGameRender(globalState);
+    GlobalEvent();
+    generateCoordinates();
+    setupButtonEvents(settingsPanel, saveSettingsButton, cancelSettingsButton, pieceStyleSelect)
+
+    document.addEventListener('click', (event) => {
+        if (!settingsPanel.contains(event.target) && !button1.contains(event.target)) {
+            settingsPanel.classList.add('hidden');
+        }
+    });
+
+}
 
 function setupButtonEvents(settingsPanel, saveSettingsButton, cancelSettingsButton, pieceStyleSelect) {
     const button1 = document.getElementById('button1');
@@ -70,85 +88,6 @@ function saveSettings(pieceStyleSelect, settingsPanel) {
     changePieceStyle(pieceStyle);
     settingsPanel.classList.add('hidden');
 }
-
-export function initializeChessEvents() {
-    const settingsPanel = document.getElementById('settings-panel');
-    const saveSettingsButton = document.getElementById('save-settings');
-    const cancelSettingsButton = document.getElementById('cancel-settings');
-    const pieceStyleSelect = document.getElementById('piece-style');
-    
-    initGameRender(globalState);
-    GlobalEvent();
-    generateCoordinates();
-    setupButtonEvents(settingsPanel, saveSettingsButton, cancelSettingsButton, pieceStyleSelect)
-
-    document.addEventListener('click', (event) => {
-        if (!settingsPanel.contains(event.target) && !button1.contains(event.target)) {
-            settingsPanel.classList.add('hidden');
-        }
-    });
-
-}
-/* export function initializeChessEvents() {
-    const button1 = document.getElementById('button1');
-    const button2 = document.getElementById('button2');
-    const button3 = document.getElementById('button3');
-    const settingsPanel = document.getElementById('settings-panel');
-    const saveSettingsButton = document.getElementById('save-settings');
-    const cancelSettingsButton = document.getElementById('cancel-settings');
-    const pieceStyleSelect = document.getElementById('piece-style');
-    
-    initGameRender(globalState);
-    GlobalEvent();
-    generateCoordinates();
-    button1.addEventListener('click', () => {
-        settingsPanel.classList.toggle('hidden');
-    });
-  
-    button2.addEventListener('click', () => {
-        resingOption();
-    });
-
-    button3.addEventListener('click', () => {
-        flipBoard();
-    });
-
-    saveSettingsButton.addEventListener('click', () => {
-        const pieceStyle = pieceStyleSelect.value.toLowerCase();
-        const boardColor = document.getElementById('board-color').value;
-        const [whiteTileColor, blackTileColor] = boardColor.split(';').map(style => style.split(':')[1]);
-
-        clearHighlight();
-        clearYellowHighlight();
-        
-        document.querySelectorAll('.white').forEach(cell => {
-            cell.style.backgroundColor = whiteTileColor;
-        });
-        document.querySelectorAll('.black').forEach(cell => {
-            cell.style.backgroundColor = blackTileColor;
-        });
-
-        if (boardColor === 'white:#ffffff;black:#000000') {
-            highlightColor = 'rgba(113, 113, 113, 0.52)';
-        } else {
-            highlightColor = 'rgba(0, 0, 0, 0.15)';
-        }
-
-        changePieceStyle(pieceStyle);
-        settingsPanel.classList.add('hidden');
-    });
-    
-    cancelSettingsButton.addEventListener('click', () => {
-        settingsPanel.classList.add('hidden');
-    });
-
-    document.addEventListener('click', (event) => {
-        if (!settingsPanel.contains(event.target) && !button1.contains(event.target)) {
-            settingsPanel.classList.add('hidden');
-        }
-    });
-
-} */
 
 function generateCoordinates() {
     const alphaCoord = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
