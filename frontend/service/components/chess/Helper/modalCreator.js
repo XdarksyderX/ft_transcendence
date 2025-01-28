@@ -24,13 +24,13 @@ class ModalCreator {
   show() {
     this.open = true;
     document.body.appendChild(this.body);
-    document.getElementById("root").classList.add("blur");
+    document.getElementById("app-container").classList.add("blur");
   }
   
   hide(){
     this.open = false;
     document.body.removeChild(this.body);
-    document.getElementById("root").classList.remove("blur");
+    document.getElementById("app-container").classList.remove("blur");
   }
 }
 
@@ -72,6 +72,7 @@ function pawnPromotion(color, callback, id) {
   };
 
   const imageContainer = document.createElement("div");
+  imageContainer.classList.add("image-container");
   ["rook", "knight", "bishop", "queen"].forEach((pieceName) => {
     imageContainer.appendChild(createPieceImage(pieceName));
   });

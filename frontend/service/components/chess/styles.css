@@ -42,15 +42,12 @@
   width: 100%;
   height: 100% !important;
   cursor: pointer; /*grab?*/
-
 }
 
 .button-image {
   width: 30px;
   height: 30px;
 }
-
-
 
 .captureColor{
   background-color: var(--danger);
@@ -87,17 +84,19 @@
 }
 
 .chess-modal p{
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   font-size: 35px;
   padding: 4px 8px;
-  background-color: #ee4b2b;
+  background-color: var(--danger);
   color: white;
+  border-radius: 5px;
 }
 
 .chess-modal img{
   box-sizing: border-box;
   border: 5px solid transparent;
   width: 24%;
+  height: auto;
+  object-fit: contain;
 }
 
 .chess-modal img:hover{
@@ -105,29 +104,48 @@
   cursor: pointer;
 }
 
-.retry-button, .home-button {
-  font-size: 20px; /* Aumenta el tamaño del texto */
-  padding: 10px 20px; /* Aumenta el tamaño del botón */
-  margin: 10px; /* Añade espacio entre los botones */
-  border-radius: 5px; /* Añade bordes redondeados */
-  background-color: #007BFF;
-  color: white;
-  border: none; /* Sin borde */
-  cursor: pointer; /* Cambia el cursor al pasar por encima */
+/* Añade un contenedor flexible para las imágenes */
+.image-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
 }
 
-.retry-button:hover, .home-button:hover {
-  background-color: #0056b3; /* Color de fondo al pasar el cursor */
+/* Media queries para ajustar el tamaño de las imágenes en pantallas más pequeñas */
+@media (max-width: 768px) {
+  .chess-modal img {
+    width: 45%;
+  }
+}
+
+@media (max-width: 480px) {
+  .chess-modal img {
+    width: 90%;
+  }
+}
+
+.home-button {
+  font-size: 20px;
+  padding: 10px 20px;
+  margin: 10px;
+  border-radius: 5px;
+  background-color: var(--light);
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.home-button:hover {
+  background-color: #62b184;
 }
 
 .labelId{
   position: absolute;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   font-weight: 600;
   font-size: 14px;
   left: 2px;
   top: 0.5px;
-
 }
 
 .white-label-id{
@@ -167,8 +185,6 @@
   margin: 10px;
   border-radius: 5px;
   background-color: #0301031c;
-  /* font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; */
-  
 }
 
 .tile-x {
@@ -275,25 +291,25 @@
 
 
 .cancel-button, .resign-button {
-  font-size: 20px; /* Aumenta el tamaño del texto */
-  padding: 10px 20px; /* Aumenta el tamaño del botón */
-  margin: 10px; /* Añade espacio entre los botones */
-  border-radius: 5px; /* Añade bordes redondeados */
+  font-size: 20px;
+  padding: 10px 20px;
+  margin: 10px;
+  border-radius: 5px;
   color: white;
-  border: none; /* Sin borde */
-  cursor: pointer; /* Cambia el cursor al pasar por encima */
+  border: none;
+  cursor: pointer;
 }
 
 .cancel-button {
-  background-color: #3b3b3b;
+  background-color: var(--darkish);
 }
 
 .resign-button {
-  background-color: #59a279;
+  background-color: var(--light);
 }
 
 .cancel-button:hover {
-  background-color: #464646;
+  background-color: var(--dark);
 }
 
 .resign-button:hover {
@@ -342,7 +358,7 @@
 }
  */
 #save-settings, #cancel-settings {
-  width: 48%; /* Ajusta el ancho de los botones para que estén alineados */
+  width: 48%;
 }
 
 /*animation for the atomic variant*/
