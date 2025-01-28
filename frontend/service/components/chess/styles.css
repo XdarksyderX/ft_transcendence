@@ -28,6 +28,8 @@
   width: 80px;
   height: 80px;
   position: relative;
+/*   justify-content: center;
+  align-items: center; */
 }
 
 .white{
@@ -50,11 +52,22 @@
 }
 
 .captureColor{
-  background-color: var(--danger);
+  background-color: var(--danger) !important;
+  color: rgb(41, 40, 40);
 }
 
 .highlightYellow{
-  background: var(--accent);
+  background: var(--accent) !important;
+}
+.black.square.highlightYellow{
+  background: var(--dark) !important;
+}
+
+.highlightYellow .piece {
+ height: 106% !important;
+ width: 106% !important;
+ margin-top: -6% !important;
+ margin-left: -3% !important;
 }
 
 .highlight{
