@@ -204,6 +204,23 @@ input:focus, select:focus, .ctm-btn:focus, .ctm-btn-dark:focus {
     position: relative;
 }
 
+/* Define the keyframe animation */
+@keyframes fadeInSliceUp {
+  from {
+    transform: translateY(5%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0%);
+    opacity: 1;
+  }
+}
+
+/* Apply the animation to all child elements of #app */
+#app > * {
+  animation: fadeInSliceUp 0.4s ease-out;
+}
+
 @media (max-height: 900px) {
     .vertical-wrap {
         padding-top: calc(100vh / 15);

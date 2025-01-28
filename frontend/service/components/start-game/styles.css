@@ -55,6 +55,20 @@ img {
     display: none;
     z-index: 50;
   }
+
+@keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  /* Apply the animation to the .overlay child of #app */
+  #app > .overlay {
+    animation: fadeIn 0.5s ease-out;
+  }
   
   .tooltip-inner {
     background-color: var(--dark);
@@ -62,6 +76,7 @@ img {
     padding: 5px 10px;
     border-radius: 5px;
 }
+
 
 .tooltip-arrow {
     border-top-color: var(--dark);
