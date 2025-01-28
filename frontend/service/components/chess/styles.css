@@ -386,3 +386,23 @@
   left: 15%;
 }*/
 
+/*flip board*/
+.flipped {
+  transform: rotate(180deg);
+}
+
+.flipped .piece {
+  transform: rotate(180deg);
+}
+
+.flipped .row, .flipped .d-flex {
+  flex-direction: row-reverse;
+}
+
+.flipped .flex-column {
+  flex-direction: column-reverse;
+}
+
+.flipped .tile-x, .flipped .tile-y {
+  transform: rotate(180deg);
+}
