@@ -1,5 +1,6 @@
 import { highlightColor, keySquareMapper } from "../index.js";
 import { circleHighlightRender, globalPiece } from "../Render/main.js";
+const chessVariantTmp = sessionStorage.getItem('chessVariant'); //borrar -> solucion temporal para asegurar la persistencia de la variable hasta que tengamos backend
 
 /**
  * function to check if opponnet piece exist and highlight it with captureColor,
@@ -417,20 +418,33 @@ function getOpponentMoves(color) {
     let res = new Set();
     const enemyColor = color === "white" ? "black" : "white";
 
-    res = new Set([...res, ...getPossibleMoves(globalPiece[`${enemyColor}_bishop_1`], giveBishopHighlightIds, enemyColor)]);
-    res = new Set([...res, ...getPossibleMoves(globalPiece[`${enemyColor}_bishop_2`], giveBishopHighlightIds, enemyColor)]);
-    res = new Set([...res, ...getPossibleMoves(globalPiece[`${enemyColor}_rook_1`], giveRookHighlightIds, enemyColor)]);
-    res = new Set([...res, ...getPossibleMoves(globalPiece[`${enemyColor}_rook_2`], giveRookHighlightIds, enemyColor)]);
-    res = new Set([...res, ...getPossibleMoves(globalPiece[`${enemyColor}_queen`], giveQueenHighlightIds, enemyColor)]);
-    res = new Set([...res, ...knightMovesOptions(globalPiece[`${enemyColor}_knight_1`], giveKnightHighlightIds, enemyColor)]);
-    res = new Set([...res, ...knightMovesOptions(globalPiece[`${enemyColor}_knight_2`], giveKnightHighlightIds, enemyColor)]);
-    res = new Set([...res, ...getPossibleMoves(globalPiece[`${enemyColor}_king`], giveKingHighlightIds, enemyColor)]);
+
+    const enemyPieces = Object.values(globalPiece).flat().filter(piece => piece && piece.piece_name && piece.piece_name.includes(enemyColor.toUpperCase()));
+    enemyPieces.forEach(piece => {
+        const pieceType = piece.piece_name.split('_')[1].toLowerCase();
+        switch (pieceType) {
+            case 'knight':
+                res = new Set([...res, ...knightMovesOptions(piece, giveKnightHighlightIds, enemyColor)]);
+                break;
+            case 'bishop':
+                res = new Set([...res, ...getPossibleMoves(piece, giveBishopHighlightIds, enemyColor)]);
+                break;
+            case 'rook':
+                res = new Set([...res, ...getPossibleMoves(piece, giveRookHighlightIds, enemyColor)]);
+                break;
+            case 'queen':
+                res = new Set([...res, ...getPossibleMoves(piece, giveQueenHighlightIds, enemyColor)]);
+                break;
+            case 'king':
+                res = new Set([...res, ...getPossibleMoves(piece, giveKingHighlightIds, enemyColor)]);
+                break;
+        }
+    });
 
     for (let pawn of globalPiece[`${enemyColor}_pawns`]) {
         let auxCapture = pawnCaptureOptions(pawn.current_pos, enemyColor);
-        if (auxCapture) {
+        if (auxCapture)
             res = new Set([...res, ...auxCapture]);
-        }
     }
     return res;
 }

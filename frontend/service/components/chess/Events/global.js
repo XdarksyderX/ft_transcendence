@@ -5,6 +5,7 @@ import { logMoves, appendPromotion } from "../Helper/logging.js"
 import { pawnPromotion, winGame } from "../Helper/modalCreator.js";
 import { removeSurroundingPieces } from "../Variants/atomic.js";
 import { kirbyTransformation } from "../Variants/kirby.js";
+import { checkWinForBlackHorde, whitePawnHordeRenderMoves } from "../Variants/horde.js"
 
 //highlighted or not => state
 let highlight_state = false;
@@ -261,8 +262,13 @@ function moveElement(piece, id, castle) {
   updateGlobalState(piece, id);
   clearHighlight();
   updatePiecePosition(piece, id);
+
   checkForCheck();
   
+  if (chessVariantTmp === "horde" && inTurn === "black") {
+    winBool = checkWinForBlackHorde();
+  }
+
   if (winBool) {
     setTimeout(() => { winGame(winBool); }, 50);
     return;
@@ -304,6 +310,8 @@ function captureHightlightSquare(square, piece) {
 }
 
 function checkForCheck() {
+  if (chessVariantTmp === "horde" && inTurn === "white") return null;
+
   whoInCheck = null;
   const kingPosition = inTurn === "white" ? globalPiece.white_king.current_pos : globalPiece.black_king.current_pos;
   const enemyColor = inTurn === "white" ? "black" : "white";
@@ -348,6 +356,7 @@ function simulateMoves(piece, possibleMoves, safeMoves, color) {
     updatePiecePosition(piece, move);
 
     checkForCheck();
+
     if (whoInCheck !== color)
       safeMoves.push(move);
 
@@ -449,7 +458,10 @@ function handlePieceClick(square, color, pieceType) {
 
   switch (pieceType) {
     case 'pawn':
-      filterMovesForKingProtection(piece, color, help.pawnMovesOptions, help.pawnCaptureOptions, pieceType);
+      if (chessVariantTmp === "horde" && inTurn === "white")
+        whitePawnHordeRenderMoves(piece, color, circleHighlightRender);
+      else
+        filterMovesForKingProtection(piece, color, help.pawnMovesOptions, help.pawnCaptureOptions, pieceType);
       break;
     case 'bishop':
       filterMovesForKingProtection(piece, color, help.getPossibleMoves, help.giveBishopHighlightIds);

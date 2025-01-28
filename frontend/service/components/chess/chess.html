@@ -11,7 +11,7 @@
 </head>
 <body class="d-flex mt-4"> -->
   <!-- Contenedor principal donde se renderizará el tablero de ajedrez y otros elementos del juego -->
-   <div class="d-flex flex-column flex-md-row"> <!-- with this, side content is pushed under the chess on narrow screens -->
+   <div id="app-container" class="d-flex flex-column flex-md-row"> <!-- with this, side content is pushed under the chess on narrow screens -->
       <div id="chess-container">
         <div id="alpha-coord" class="row w-100 ms-0"></div>
         <div id="grid-container" class="d-flex">
@@ -33,8 +33,11 @@
           <button id="button1" class="btn ctm-btn-dark mx-2" title="Settings">
             <i class="bi bi-gear button-image" alt="Button 1 Image"></i>
           </button>
+          <button id="button3" class="btn ctm-btn-secondary mx-2" title="Flip Board">
+            <i class="bi bi-arrow-down-up button-image" alt="Button 3 Image"></i>
+          </button>
           <button id="button2" class="btn ctm-btn-danger mx-2" title="Resign">
-            <i class="bi bi-flag button-image" alt="Button 2 Image"></i>
+            <i class="bi bi-flag-fill button-image" alt="Button 2 Image"></i>
           </button>
         </div>
       </div>    

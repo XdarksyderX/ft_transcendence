@@ -24,13 +24,13 @@ class ModalCreator {
   show() {
     this.open = true;
     document.body.appendChild(this.body);
-    document.getElementById("root").classList.add("blur");
+    document.getElementById("app-container").classList.add("blur");
   }
   
   hide(){
     this.open = false;
     document.body.removeChild(this.body);
-    document.getElementById("root").classList.remove("blur");
+    document.getElementById("app-container").classList.remove("blur");
   }
 }
 
@@ -72,6 +72,7 @@ function pawnPromotion(color, callback, id) {
   };
 
   const imageContainer = document.createElement("div");
+  imageContainer.classList.add("image-container");
   ["rook", "knight", "bishop", "queen"].forEach((pieceName) => {
     imageContainer.appendChild(createPieceImage(pieceName));
   });
@@ -88,34 +89,22 @@ function pawnPromotion(color, callback, id) {
   modal.show();
 }
 
-//aqui habria que conectar los distintos botones a distintas paginas del front -> ver con Eli
 function winGame(winBool) {
   if(!winBool)
     return;
   const msg = document.createElement("p");
   msg.textContent = `${winBool} Wins!`;
-
-  const retryButton = document.createElement("button");
-  retryButton.textContent = "Retry";
-  retryButton.classList.add("retry-button");
-  retryButton.onclick = () => {
-    alert("oh shit here I go again");
-    location.reload(); //esto simplemente recarga la pagina, no es definitivo -> aqui guardariamos la victoria y/o derrota en el historial
-    modal.hide();
-  }
   
   const homeButton = document.createElement("button");
   homeButton.textContent = "Home";
   homeButton.classList.add("home-button");
   homeButton.onclick = () => {
-    alert("jaja no ka pasao");
-    //location.reload(); //esto simplemente recarga la pagina, no es definitivo -> aqui guardariamos la victoria y/o derrota en el historial
+    //aqui guardariamos la victoria y/o derrota en el historial
     navigateTo('/start-game');
     modal.hide();
   }
   
   const buttonContainer = document.createElement("div");
-  buttonContainer.appendChild(retryButton);
   buttonContainer.appendChild(homeButton);
   
   const finalContainer = document.createElement("div");
@@ -126,7 +115,6 @@ function winGame(winBool) {
   modal.show();
 }
 
-//aqui habria que conectar los distintos botones a distintas paginas del front -> ver con Eli
 function resingOption() {
   const msg = document.createElement("p");
   msg.textContent = `You are about to resign the game\nAre you sure?`;
@@ -142,8 +130,7 @@ function resingOption() {
   resignButton.textContent = "Resign";
   resignButton.classList.add("resign-button");
   resignButton.onclick = () => {
-    alert("Tenemos muuuuucho miero\nSon la 3 de la banana!");
-    //location.reload(); //esto simplemente recarga la pagina, no es definitivo -> aqui guardariamos la victorio y/o derrota en el historial
+    //aqui guardariamos la victoria y/o derrota en el historial
     navigateTo('/start-game');
     modal.hide();
   }

@@ -1,6 +1,7 @@
 import * as piece from "../Data/pieces.js";
 import { globalState, highlightColor } from "../index.js";
 import { getChess960Piece } from "../Variants/chess960.js";
+import { renderHordePieces } from "../Variants/horde.js";
 
 const globalPiece = new Object();
 const chessVariantTmp = sessionStorage.getItem('chessVariant'); //borrar -> solucion temporal para asegurar la persistencia de la variable hasta que tengamos backend
@@ -94,7 +95,6 @@ const piecePositions = {
   "e1": piece.whiteKing
 };
 
-
 /**
  * This function takes the chessboard data and renders it as HTML elements on the web page.
  * It is only called when the game starts (only for one time).
@@ -123,15 +123,19 @@ function initGameRender(data)
       squareDiv.id = square.id;
       squareDiv.classList.add(square.color, "square");
 
-      if (square.id[1] == 7) {
-        square.piece = piece.blackPawn(square.id);
-        globalPiece.black_pawns.push(square.piece);
-      } else if (square.id[1] == 2) {
-        square.piece = piece.whitePawn(square.id);
-        globalPiece.white_pawns.push(square.piece);
-      } else if (piecePositions[square.id]) {
-        square.piece = piecePositions[square.id](square.id);
-        assignSpecificPiece(square);
+      if (chessVariantTmp === "horde") {
+        renderHordePieces(square, globalPiece, assignSpecificPiece);
+      } else {
+        if (square.id[1] == 7) {
+          square.piece = piece.blackPawn(square.id);
+          globalPiece.black_pawns.push(square.piece);
+        } else if (square.id[1] == 2) {
+          square.piece = piece.whitePawn(square.id);
+          globalPiece.white_pawns.push(square.piece);
+        } else if (piecePositions[square.id]) {
+          square.piece = piecePositions[square.id](square.id);
+          assignSpecificPiece(square);
+        }
       }
       rowEl.appendChild(squareDiv);
     });
