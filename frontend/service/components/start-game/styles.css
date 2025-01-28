@@ -65,10 +65,21 @@ img {
     }
   }
 
+  @keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
   /* Apply the animation to the .overlay child of #app */
   #app > .overlay {
     animation: fadeIn 0.5s ease-out;
   }
+
+  
   
   .tooltip-inner {
     background-color: var(--dark);
