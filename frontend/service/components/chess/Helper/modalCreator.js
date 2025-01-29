@@ -98,10 +98,11 @@ function winGame(winBool) {
 
     <div class="tv mx-4 position-relative mb-3">
        <p class="ctm-text-title">${winBool} Wins! </p>
-       <img src="https://media.tenor.com/3ruuMQDaetoAAAAj/rolling-rainbow-cat.gif">
-    </div>
-
-  `;
+        <img src="../../resources/win.gif">
+       </div>
+       
+       `;
+      //  <img src="https://media.tenor.com/3ruuMQDaetoAAAAj/rolling-rainbow-cat.gif">
 
   const homeButton = document.createElement("button");
   homeButton.textContent = "Got it!";
