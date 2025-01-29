@@ -38,35 +38,69 @@ function processFrame(imageSrc, callback) {
     };
 }
 
-export function initializeGreetingBot() {
-    let processedCount = 0;
-
+function initializeGreetingBot() {
+    let processedCount = 0
+  
     frames.forEach((frame, index) => {
-        processFrame(frame, (processedCanvas) => {
-            processedCanvases[index] = processedCanvas;
-            processedCount++;
-            if (processedCount === frames.length) {
-                startAnimation();
-            }
-        });
-    });
-
+      processFrame(frame, (processedCanvas) => {
+        processedCanvases[index] = processedCanvas
+        processedCount++
+        if (processedCount === frames.length) {
+          startAnimation()
+        }
+      })
+    })
+  
     // Process the light image with the same color change
     processFrame("/resources/greetings/light.png", (processedCanvas) => {
-        processedLightCanvas = processedCanvas;
-        const lightCanvas = document.getElementById("greeting-light");
-        const ctx = lightCanvas.getContext("2d");
+      processedLightCanvas = processedCanvas
+      const lightCanvas = document.getElementById("greeting-light")
+      const ctx = lightCanvas.getContext("2d")
+  
+      lightCanvas.width = processedCanvas.width
+      lightCanvas.height = processedCanvas.height
+      ctx.drawImage(processedCanvas, 0, 0)
+  
+      animateLightEffect(lightCanvas)
+    })
+  
 
-        lightCanvas.width = processedCanvas.width;
-        lightCanvas.height = processedCanvas.height;
-        ctx.drawImage(processedCanvas, 0, 0);
+}
 
-        animateLightEffect(lightCanvas);
+function initializeScrollTransition() {
+    // Use Intersection Observer for scroll animation
+    const resumeCards = document.querySelectorAll(".resume-card")
+    const options = {
+        root: null,
+        rootMargin: "-20% 0px -20% 0px", // Trigger when 20% of the element is visible
+        threshold: 0.3, // Trigger when 30% of the element is visible
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add("scrolled")
+        } else {
+            entry.target.classList.remove("scrolled")
+        }
+        })
+    }, options)
+
+    resumeCards.forEach((card) => {
+        observer.observe(card)
+    })
+}
+  
+export function initializeIndexEvents() {
+
+    initializeGreetingBot();
+
+    document.getElementById("scroll-arrow").addEventListener('click', () => {
+        document.getElementById("resume-section").scrollIntoView({ behavior : "smooth"})
     });
 
-    document.getElementById('scroll-arrow').addEventListener('click', function() {
-        document.getElementById('resume-section').scrollIntoView({ behavior: 'smooth' });
-    });
+    initializeScrollTransition()
+
 }
 
 function startAnimation() {

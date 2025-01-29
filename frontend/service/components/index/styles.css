@@ -87,28 +87,27 @@
     padding: 5rem 0;
   } */
   
-  .resume-card--right,
-  .resume-card--left {
+  .resume-card {
     padding: 3rem;
     margin-bottom: 3rem;
     border-radius: 15px;
-    transition: all 0.3s ease;
     width: 100%;
+    --transparent-dark: #190a23c4;
+    --transparent-medium: #5c39731f;
   }
   
   .resume-card--right {
-    background: linear-gradient(to right, rgba(25, 10, 36, 0.1), rgba(25, 10, 36, 0.8));
+    background: linear-gradient(to right, var(--transparent-medium), var(--transparent-dark));
   }
   
   .resume-card--left {
-    background: linear-gradient(to left, rgba(25, 10, 36, 0.1), rgba(25, 10, 36, 0.8));
+    background: linear-gradient(to left, var(--transparent-medium), var(--transparent-dark));
   }
   
-  .resume-card--right:hover,
-  .resume-card--left:hover {
+/*   .resume-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-  }
+  } */
 
 
 
@@ -117,12 +116,15 @@
     box-shadow: 0 10px 20px var(--lorange);
 }
 
-  .ctm-text-title {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-  }
-  
-  .ctm-text-light {
+.resume-card .ctm-text-light {
+    color: var(--dark);
+    transition: color 1s ease;
+}
+.resume-card.scrolled .ctm-text-light {
+    color: var(--light);
+}
+
+.resume-section  .ctm-text-light {
     font-size: 1.2rem;
     margin-bottom: 0.5rem;
   }
