@@ -80,47 +80,82 @@
   background-color: rgba(0, 0, 0, 0.15);
 }
 
-.chess-modal{
+.chess-modal {
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
   flex-direction: column;
-  position: absolute;
-  top: 155px;
-  bottom: 0;
-  right: 100px;
-  left: 0;
+  position: fixed;
+  top: 25%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(to top, var(--medium), var(--dark));  padding: 20px;
+  border-radius: 10px;
+  /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); */
+  box-shadow: 0 0 10px #00F56A, 0 0 10px #00F56A, 0 0 15px #00F56A, 0 0 30px #00F56Acc;
+
 }
 
-.blur{
-  filter: blur(5px);
+.blur {
+  filter: blur(5px) brightness(0.5); /* Apply both blur and brightness filters */
+  transition: filter 0.5s ease; /* Smooth transition for filter property */
 }
 
-.chess-modal p{
-  font-size: 35px;
+.chess-modal p {
+  font-size: 30px;
   padding: 4px 8px;
-  background-color: var(--danger);
-  color: white;
+  background: linear-gradient(to bottom, var(--darkish), var(--dark));
+  padding: 2rem;
   border-radius: 5px;
+  text-align: center; /* Center the text */
+  border-bottom: 1px solid var(--light);
 }
 
 .chess-modal img{
   box-sizing: border-box;
-  border: 5px solid transparent;
-  width: 24%;
+  width: 20%;
   height: auto;
+  max-height: 150px;
   object-fit: contain;
+  /* background-color: var(--darkish); */
+  background: linear-gradient(to bottom, var(--medium), var(--darkish));
 }
 
-.chess-modal img:hover{
-  border: 5px solid yellow;
+/* .chess-modal .tv {
+  display: flex;
+  flex-direction: column;
+
+}
+ */
+
+.chess-modal .tv img { /* fully provisional */
+  background: none !important;
+  transform: scale(250%);
+  margin-bottom: 15px;
+}
+
+@keyframes darker {
+  0% {
+    background: linear-gradient(to bottom, var(--darkish), var(--dark));
+  }
+  100% {
+    background: linear-gradient(to bottom, var(--dark), var(--dark));
+  }
+}
+
+.chess-modal img:hover {
+  border: 5px solid var(--light);
+  background: linear-gradient(to bottom, var(--darkish), var(--dark));
+  border-radius: 5px;
   cursor: pointer;
+  animation: darker 1s infinite;
 }
 
 /* Añade un contenedor flexible para las imágenes */
 .image-container {
   display: flex;
   flex-wrap: wrap;
+  flex-grow: 1;
   justify-content: center;
   gap: 10px;
 }
@@ -201,18 +236,21 @@
 }
 
 .tile-x {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   text-align: center;
-  height: 32px;
+  height: 40px;
   width: 80px;
-  padding-left: 20px;
-  margin-top: 7px;
 }
 
 .tile-y {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   text-align: center;
   height: 80px;
   width: 40px;
-  padding-top: 24px;
 }
 
 @media (max-width: 770px) { /* resizes move-logger when the screen width is less than 770px */
@@ -303,7 +341,7 @@
  */
 
 
-.cancel-button, .resign-button {
+/* .cancel-button, .resign-button {
   font-size: 20px;
   padding: 10px 20px;
   margin: 10px;
@@ -311,7 +349,7 @@
   color: white;
   border: none;
   cursor: pointer;
-}
+} */
 
 .cancel-button {
   background-color: var(--darkish);
@@ -330,7 +368,7 @@
 }
 
 /*Customizacion/settings styles*/
-.settings-panel {
+/* .settings-panel {
   position: fixed;
   top: 40%;
   left: 50%;
@@ -341,10 +379,28 @@
   border: 1px solid var(--light);
   padding: 20px;
   z-index: 1000;
-/*   box-shadow: 0 4px 8px var(--lorange); */
+  border-radius: 10px;
+}
+ */
+
+ .settings-panel {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: 300px;
+  height: 300px; /* O un valor fijo si lo necesitas */
+  background-color: var(--dark);
+  color: var(--light);
+  border: 1px solid var(--light);
+  padding: 20px;
+  z-index: 1000;
   border-radius: 10px;
 }
 
+#settings-panel-btns {
+  border-top: 2px solid var(--light);
+  padding-top: 15px;
+}
 .hidden {
   display: none;
 }

@@ -1,71 +1,79 @@
 <div class="d-flex flex-column">
-    <div class="greeting-page">
-        <div class="neon-frame p-3">
-            <div class="ctm-card p-5 d-flex flex-row">
-                <div class="col d-flex flex-column">
-                    <h1 class="ctm-text-title">ft_transcendence</h1>
-                    <h3 class="ctm-text-light mb-5">Welcome, huuman</h3>
-                    <h4 class="ctm-text-light mt-auto" id="neon-text">please, log in to start playing</h4>
-                </div>
-                <div class="col">
-                    <!-- greetings card -->
-                    <div class="tv mx-4 position-relative">
-                        <canvas id="greeting-bot"></canvas>
-                        <canvas id="greeting-light"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Scroll message -->
-    <div class="scroll-message text-center mt-5">
-        <p class="ctm-text-light">Scroll to see a quick resume</p>
-        <div class="arrow-down">
-            <i class="fas fa-chevron-down"></i>
-        </div>
-    </div>
-    <!-- Resume section -->
-<!-- <div class="resume-section mt-5">
-    <div class="neon-frame p-3">
-        <div class="ctm-card p-5 d-flex flex-row">
-            <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
-                <div class="carousel-indicators">
-                  <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-                  <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
-                  <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
-                </div>
-                <div class="carousel-inner">
-                  <div class="carousel-item active">
-                    <div class="w-100">
-                        <img src="../../resources/assets/chat.png" class="d-block" alt="chat">
-                        <div class="ctm-text-light">chat with your friends</div>
-                    </div>
-                  </div>
-                  <div class="carousel-item">
-                    <div class="w-100">
-                        <img src="../../resources/assets/home.gif" class="d-block" alt="chat">
-                        <div class="ctm-text-light">choose between playing chess or pong</div>
-                    </div>
-                  </div>
-                  <div class="carousel-item">
-                    <div class="w-100">
-                        <img src="../../resources/assets/profile.gif" alt="customize" class="img-fluid">
-                        <div class="ctm-text-light">Customize your own profile</div>
-                    </div> 
-                  </div>
-                </div>
-                </div>
-                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
-                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                  <span class="visually-hidden">Previous</span>
-                </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
-                  <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                  <span class="visually-hidden">Next</span>
-                </button>
+  <div class="greeting-page">
+      <div class="neon-frame p-3">
+          <div class="ctm-card p-5 d-flex flex-row">
+              <div class="col d-flex flex-column">
+                  <h1 class="ctm-text-title">ft_transcendence</h1>
+                  <h3 class="ctm-text-light mb-5">Welcome, huuman</h3>
+                  <h4 class="ctm-text-light mt-auto" id="neon-text">
+                    <a href="/login" class="nav-link ctm-link">please, log in to start playing</a>
+                  </h4>
               </div>
+              <div class="col">
+                  <!-- greetings card -->
+                  <div class="tv mx-4 position-relative">
+                      <canvas id="greeting-bot"></canvas>
+                      <canvas id="greeting-light"></canvas>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+  <!-- Scroll message -->
+  <div class="scroll-message text-center mt-5">
+      <p class="ctm-text-light">Scroll to see a quick resume</p>
+      <div class="arrow-down">
+          <i id="scroll-arrow" class="fas fa-chevron-down"></i>
+      </div>
+  </div>
+  <div class="d-flex flex-column">
+    <!-- Previous content remains unchanged -->
+
+    <!-- resume section -->
+    <div id="resume-section" class="resume-section mt-5">
+      <div class="container">
+        <div class="row mb-5 resume-card resume-card--right">
+          <div class="col-md-3">
+            <img src="../../resources/assets/chat.png" alt="chat preview" class="img-fluid rounded mb-3">
+          </div>
+          <div class="col-md-5">
+            <img src="../../resources/assets/friends.png" alt="friends preview" class="img-fluid rounded mb-3">
+          </div>
+          <div class="col-md-4">
+            <h2 class="ctm-text-title mb-3">Social</h2>
+            <p class="ctm-text-light">Make new friends to play with</p>
+            <p class="ctm-text-light">Chat with them</p>
+          </div>
         </div>
+        
+        <div class="row mb-5 resume-card resume-card--left">
+          <div class="col-md-4 order-md-1">
+            <h2 class="ctm-text-title mb-3">Play Chess</h2>
+            <p class="ctm-text-light">Play with your friends or random</p>
+            <p class="ctm-text-light">Choose between classic chess or spicy version</p>
+          </div>
+          <div class="col-md-4 order-md-3">
+            <img src="../../resources/assets/chess.png" alt="chess preview" class="img-fluid rounded mb-3">
+          </div>
+          <div class="col-md-4 order-md-2">
+            <img src="../../resources/assets/chess-variants.png" alt="chess variants preview" class="img-fluid rounded mb-3">
+          </div>
+        </div>
+        
+        <div class="row resume-card resume-card--right">
+          <div class="col-md-4">
+            <img src="https://media.tenor.com/2gyJVMt_L6wAAAAM/pong-video-game.gif" alt="Play Pong" class="img-fluid rounded mb-3">
+          </div>
+          <div class="col-md-4">
+            <img src="../../resources/assets/tournaments.png" alt="tournament preview" class="img-fluid rounded mb-3">
+          </div>
+          <div class="col-md-4">
+            <h2 class="ctm-text-title mb-3">Play Pong</h2>
+            <p class="ctm-text-light">Play with a friend, random, or against AI</p>
+            <p class="ctm-text-light">Play quick games or tournaments</p>
+          </div>
+        </div>
+      </div>
     </div>
 </div>
 
- -->
