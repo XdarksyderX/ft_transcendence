@@ -368,7 +368,7 @@
 }
 
 /*Customizacion/settings styles*/
-.settings-panel {
+/* .settings-panel {
   position: fixed;
   top: 40%;
   left: 50%;
@@ -379,10 +379,28 @@
   border: 1px solid var(--light);
   padding: 20px;
   z-index: 1000;
-/*   box-shadow: 0 4px 8px var(--lorange); */
+  border-radius: 10px;
+}
+ */
+
+ .settings-panel {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: 300px;
+  height: 300px; /* O un valor fijo si lo necesitas */
+  background-color: var(--dark);
+  color: var(--light);
+  border: 1px solid var(--light);
+  padding: 20px;
+  z-index: 1000;
   border-radius: 10px;
 }
 
+#settings-panel-btns {
+  border-top: 2px solid var(--light);
+  padding-top: 15px;
+}
 .hidden {
   display: none;
 }
