@@ -236,18 +236,21 @@
 }
 
 .tile-x {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   text-align: center;
-  height: 32px;
+  height: 40px;
   width: 80px;
-  padding-left: 20px;
-  margin-top: 7px;
 }
 
 .tile-y {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   text-align: center;
   height: 80px;
   width: 40px;
-  padding-top: 24px;
 }
 
 @media (max-width: 770px) { /* resizes move-logger when the screen width is less than 770px */
