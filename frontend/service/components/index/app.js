@@ -63,6 +63,10 @@ export function initializeGreetingBot() {
 
         animateLightEffect(lightCanvas);
     });
+
+    document.getElementById('scroll-arrow').addEventListener('click', function() {
+        document.getElementById('resume-section').scrollIntoView({ behavior: 'smooth' });
+    });
 }
 
 function startAnimation() {
