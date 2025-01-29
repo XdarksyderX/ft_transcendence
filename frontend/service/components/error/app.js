@@ -109,3 +109,5 @@ export function initialize404() {
 			resizeCanvas();
 		});
 }
+
+/* export {applyInitialGreenColor}; */

@@ -85,8 +85,18 @@ export function initializeStartGameEvents() {
     }
     // hides the overlay restoring the original z-index
     function hideOverlay() {
-        elements.overlay.lay.style.display = 'none';
-       elements.overlay.chat.style.zIndex = 'auto';
+        const overlay = elements.overlay.lay;
+        overlay.style.transition = 'opacity 0.3s ease-out';
+        overlay.style.opacity = '0';
+    
+        overlay.addEventListener('transitionend', function handleTransitionEnd() {
+            overlay.style.display = 'none';
+            overlay.style.opacity = '';
+            overlay.style.transition = '';
+            overlay.removeEventListener('transitionend', handleTransitionEnd);
+        });
+    
+        elements.overlay.chat.style.zIndex = 'auto';
         elements.pong.btn.style.zIndex = 'auto';
         elements.chess.btn.style.zIndex = 'auto';
         toggleView(currentView, null);

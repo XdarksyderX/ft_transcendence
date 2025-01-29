@@ -103,4 +103,4 @@ function initializeNeonChat() {
     }
 }
 
-export { initializeNeonFrames, initializeNeonChat };
+export { initializeNeonFrames, initializeNeonChat, animateNeon };

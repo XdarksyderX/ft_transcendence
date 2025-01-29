@@ -10,11 +10,11 @@ import { initializeStatsEvents } from '../components/stats/app.js';
 import { initializeOngoingTournaments } from '../components/tournament/app.js';
 import { initializeChessEvents } from '../components/chess/index.js';
 import { loadChat, loadSidebar } from './render.js'; // temporal
-
+import { initializeGreetingBot } from '../components/index/app.js';
 
 const routes = [
     { url: "/404", file: "./components/error/404.html" },
-    { url: "/", file: "./components/index.html" },
+    { url: "/", file: "./components/index/index.html" },
     { url: "/login", file: "./components/login/login.html" },
     { url: "/signup", file: "./components/signup/signup.html" },
     { url: "/start-game", file: "./components/start-game/start-game.html" },
@@ -37,6 +37,7 @@ async function router() {
     switch (path) {
         case "/":
             initializeNeonFrames();
+            initializeGreetingBot();
             break;
         case "/login":
             initializeLoginEvents();
