@@ -1,9 +1,16 @@
 .tv {
     position: relative;
-/*     background-color: var(--dark); */
     background-color: #190a24;
     border-radius: 5%;
     overflow: hidden; /* Ensure the noise effect stays within the .tv element */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid var(--light);
+}
+
+.greeting-page .tv {
     height: 400px;
     width: 400px;
 }

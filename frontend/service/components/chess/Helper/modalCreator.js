@@ -95,14 +95,19 @@ function winGame(winBool) {
     return;
   const modalBody = document.createElement("div");
   modalBody.innerHTML = `
-    <div class="tv mx-4 position-relative">
+
+    <div class="tv mx-4 position-relative mb-3">
        <p class="ctm-text-title">${winBool} Wins! </p>
        <img src="https://media.tenor.com/3ruuMQDaetoAAAAj/rolling-rainbow-cat.gif">
     </div>
+
   `;
+
   const homeButton = document.createElement("button");
-  homeButton.textContent = "Home";
-  homeButton.classList.add("home-button");
+  homeButton.textContent = "Got it!";
+  homeButton.classList.add("btn");
+  homeButton.classList.add("ctm-btn-secondary");
+  // homeButton.classList.add("mt-5");
   homeButton.onclick = () => {
     //aqui guardariamos la victoria y/o derrota en el historial
     navigateTo('/start-game');

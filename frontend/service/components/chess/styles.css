@@ -91,11 +91,14 @@
   transform: translateX(-50%);
   background: linear-gradient(to top, var(--medium), var(--dark));  padding: 20px;
   border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); */
+  box-shadow: 0 0 10px #00F56A, 0 0 10px #00F56A, 0 0 15px #00F56A, 0 0 30px #00F56Acc;
+
 }
 
-.blur{
-  filter: blur(5px);
+.blur {
+  filter: blur(5px) brightness(0.5); /* Apply both blur and brightness filters */
+  transition: filter 0.5s ease; /* Smooth transition for filter property */
 }
 
 .chess-modal p {
@@ -105,6 +108,7 @@
   padding: 2rem;
   border-radius: 5px;
   text-align: center; /* Center the text */
+  border-bottom: 1px solid var(--light);
 }
 
 .chess-modal img{
@@ -117,25 +121,34 @@
   background: linear-gradient(to bottom, var(--medium), var(--darkish));
 }
 
-.chess-modal .tv {
+/* .chess-modal .tv {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
+
 }
+ */
 
-
-.chess-modal .tv img {
+.chess-modal .tv img { /* fully provisional */
   background: none !important;
-  
+  transform: scale(250%);
+  margin-bottom: 15px;
 }
 
-.chess-modal img:hover{
-  border: 5px solid var(--light);
-  background: linear-gradient(from bottom, var(--darkish), var(--dark));
+@keyframes darker {
+  0% {
+    background: linear-gradient(to bottom, var(--darkish), var(--dark));
+  }
+  100% {
+    background: linear-gradient(to bottom, var(--dark), var(--dark));
+  }
+}
 
+.chess-modal img:hover {
+  border: 5px solid var(--light);
+  background: linear-gradient(to bottom, var(--darkish), var(--dark));
   border-radius: 5px;
   cursor: pointer;
+  animation: darker 1s infinite;
 }
 
 /* Añade un contenedor flexible para las imágenes */
@@ -325,7 +338,7 @@
  */
 
 
-.cancel-button, .resign-button {
+/* .cancel-button, .resign-button {
   font-size: 20px;
   padding: 10px 20px;
   margin: 10px;
@@ -333,7 +346,7 @@
   color: white;
   border: none;
   cursor: pointer;
-}
+} */
 
 .cancel-button {
   background-color: var(--darkish);

@@ -72,7 +72,6 @@ async function router() {
             break;
         case "/chess":
             initializeChessEvents();
-          //  initializeNeonFrames();
             break;
         default:
             initialize404();
