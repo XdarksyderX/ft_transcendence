@@ -80,40 +80,61 @@
   background-color: rgba(0, 0, 0, 0.15);
 }
 
-.chess-modal{
+.chess-modal {
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
   flex-direction: column;
-  position: absolute;
-  top: 155px;
-  bottom: 0;
-  right: 100px;
-  left: 0;
+  position: fixed;
+  top: 25%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(to top, var(--medium), var(--dark));  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .blur{
   filter: blur(5px);
 }
 
-.chess-modal p{
-  font-size: 35px;
+.chess-modal p {
+  font-size: 30px;
   padding: 4px 8px;
-  background-color: var(--danger);
-  color: white;
+  background: linear-gradient(to bottom, var(--darkish), var(--dark));
+  padding: 2rem;
   border-radius: 5px;
+  text-align: center; /* Center the text */
 }
 
 .chess-modal img{
   box-sizing: border-box;
-  border: 5px solid transparent;
-  width: 24%;
+  width: 20%;
   height: auto;
+  max-height: 150px;
   object-fit: contain;
+  /* background-color: var(--darkish); */
+  background: linear-gradient(to bottom, var(--medium), var(--darkish));
+}
+
+.chess-modal .tv {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+
+.chess-modal .tv img {
+  background: none !important;
+  
 }
 
 .chess-modal img:hover{
-  border: 5px solid yellow;
+  border: 5px solid var(--light);
+  background: linear-gradient(from bottom, var(--darkish), var(--dark));
+
+  border-radius: 5px;
   cursor: pointer;
 }
 
@@ -121,6 +142,7 @@
 .image-container {
   display: flex;
   flex-wrap: wrap;
+  flex-grow: 1;
   justify-content: center;
   gap: 10px;
 }

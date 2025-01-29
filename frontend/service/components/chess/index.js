@@ -8,6 +8,9 @@ import { initGameRender, clearHighlight } from "./Render/main.js";
 import { GlobalEvent, clearYellowHighlight } from "./Events/global.js";
 import { resingOption } from "./Helper/modalCreator.js";
 
+import { pawnPromotion } from "./Helper/modalCreator.js"; // fully provisional
+import { winGame } from "./Helper/modalCreator.js";
+
 const globalState = initGame();
 let keySquareMapper = {};
 let imgStyle = "modern";
@@ -37,6 +40,20 @@ function updateHighlightYellowColor(whiteTileColor, blackTileColor) {
     styleSheet.insertRule(blackTileRule, styleSheet.cssRules.length);
 }
 
+function provisionalModalHandle() {
+    
+    document.getElementById("promote-btn").addEventListener("click", () => {
+      pawnPromotion("white", (piece, id) => {
+        console.log(`Promoted to: ${piece.name} at square: ${id}`);
+      }, "e8");
+    });
+
+    document.getElementById("win-btn").addEventListener("click", () => {
+        winGame(true);
+    });
+    
+}
+
 export function initializeChessEvents() {
     const settingsPanel = document.getElementById('settings-panel');
     const saveSettingsButton = document.getElementById('save-settings');
@@ -53,6 +70,8 @@ export function initializeChessEvents() {
             settingsPanel.classList.add('hidden');
         }
     });
+
+    provisionalModalHandle();
 
 }
 

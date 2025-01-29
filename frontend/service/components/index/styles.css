@@ -6,7 +6,6 @@
     overflow: hidden; /* Ensure the noise effect stays within the .tv element */
     height: 400px;
     width: 400px;
-
 }
 
 .tv::before {

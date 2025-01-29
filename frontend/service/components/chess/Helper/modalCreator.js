@@ -79,6 +79,7 @@ function pawnPromotion(color, callback, id) {
 
   const msg = document.createElement("p");
   msg.textContent = "Your Pawn has been promoted";
+  msg.classList.add('ctm-text-title')
 
   const finalContainer = document.createElement("div");
   finalContainer.appendChild(msg);
@@ -92,9 +93,13 @@ function pawnPromotion(color, callback, id) {
 function winGame(winBool) {
   if(!winBool)
     return;
-  const msg = document.createElement("p");
-  msg.textContent = `${winBool} Wins!`;
-  
+  const modalBody = document.createElement("div");
+  modalBody.innerHTML = `
+    <div class="tv mx-4 position-relative">
+       <p class="ctm-text-title">${winBool} Wins! </p>
+       <img src="https://media.tenor.com/3ruuMQDaetoAAAAj/rolling-rainbow-cat.gif">
+    </div>
+  `;
   const homeButton = document.createElement("button");
   homeButton.textContent = "Home";
   homeButton.classList.add("home-button");
@@ -108,7 +113,7 @@ function winGame(winBool) {
   buttonContainer.appendChild(homeButton);
   
   const finalContainer = document.createElement("div");
-  finalContainer.appendChild(msg);
+  finalContainer.appendChild(modalBody);
   finalContainer.appendChild(buttonContainer);
   finalContainer.classList.add("chess-modal");
   const modal = new ModalCreator(finalContainer);
@@ -116,7 +121,7 @@ function winGame(winBool) {
 }
 
 function resingOption() {
-  const msg = document.createElement("p");
+/*   const msg = document.createElement("p");
   msg.textContent = `You are about to resign the game\nAre you sure?`;
 
   const cancelButton = document.createElement("button");
@@ -125,10 +130,10 @@ function resingOption() {
   cancelButton.onclick = () => {
     modal.hide();
   }
-  
-  const resignButton = document.createElement("button");
-  resignButton.textContent = "Resign";
-  resignButton.classList.add("resign-button");
+   */
+  const resignButton = document.getElementById("resign-button");
+/*   resignButton.textContent = "Resign";
+  resignButton.classList.add("resign-button"); */
   resignButton.onclick = () => {
     //aqui guardariamos la victoria y/o derrota en el historial
     navigateTo('/start-game');
