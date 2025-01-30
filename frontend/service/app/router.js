@@ -10,7 +10,9 @@ import { initializeStatsEvents } from '../components/stats/app.js';
 import { initializeOngoingTournaments } from '../components/tournament/app.js';
 import { initializeChessEvents } from '../components/chess/index.js';
 import { loadChat, loadSidebar } from './render.js'; // temporal
+import { loadLogin } from '../components/login/login.js';
 import { initializeIndexEvents } from '../components/index/app.js';
+import { verifyAndRedirect } from './auth.js';
 
 const routes = [
     { url: "/404", file: "./components/error/404.html" },
@@ -27,7 +29,9 @@ const routes = [
 ];
 
 async function router() {
+    console.log('Router function called');
     const path = location.pathname;
+    console.log('Current path:', path);
     const match = routes.find(route => route.url === path) || routes[0];
 
     const html = await fetch(match.file).then(res => res.text());
@@ -59,35 +63,47 @@ async function router() {
             initializeProfileEvents();
             break;
         case "/friends":
-            loadChat();
-            loadSidebar();
+ /*            loadChat();
+            loadSidebar(); */
             initializeNeonFrames();
             initializeFriendsEvents();
             break;
         case "/game-stats":
-            loadChat();
-            loadSidebar();
+/*             loadChat();
+            loadSidebar(); */
             initializeNeonFrames();
             initializeStatsEvents();
             break;
         case "/chess":
+        //    console.log('Initializing chess events');
             initializeChessEvents();
             break;
         default:
             initialize404();
-        }
+    }
 }
 
-function navigateTo(url) {
-     if (url !== window.location.pathname) {
-            //  if (window.location.pathname === '/profile') {
-            //         const modal = new bootstrap.Modal(document.getElementById('exit-game-modal'));
-            //         modal.show();
-            //         return ;
-            // }  
-        history.pushState(null, null, url);
-        router();
-        updateNavbar(window.location.pathname);
+function parseUrl(fullUrl) {
+    const parts = fullUrl.split('/');
+    const url = parts[parts.length - 1];
+    return ("/" + url);
+}
+
+async function navigateTo(fullUrl) {
+    const url = parseUrl(fullUrl);
+    // console.log('navigating: ', url);
+    
+    try {
+        const verify = await verifyAndRedirect();
+        console.log("verify:", verify);
+        
+        if (!(url !== "/login" && url !== "/signup" && !verify)) {
+            history.pushState(null, null, url);
+            router();
+            updateNavbar(window.location.pathname);
+        }
+    } catch (error) {
+        console.error('Error during verification:', error);
     }
 }
 
@@ -104,25 +120,21 @@ function updateNavbar(url) {
 window.addEventListener("popstate", router);
 
 // Initialize the application
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+    const verify = await verifyAndRedirect();
+    if (verify) {
+        loadLogin("paca", false);
+    } 
     router();
+    // replaces links default behavior for our routing system
     document.body.addEventListener("click", (e) => {
-        if (e.target.matches("[data-link]")) {
+        if (e.target.matches("[data-link]") || e.target.tagName === 'A') {
             e.preventDefault();
             navigateTo(e.target.href);
         }
     });
 });
 
-// ensures preventing default link behaviour so it doesn't reload
-document.body.addEventListener('click', (event) => {
-    const target = event.target;
 
-    if (target.tagName === 'A' /* && target.classList.contains('ctm-link') */) {
-        event.preventDefault();
-        const url = target.getAttribute('href');
-        navigateTo(url);
-    }
-});
 
 export { navigateTo };
