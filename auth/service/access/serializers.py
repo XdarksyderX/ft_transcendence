@@ -110,12 +110,9 @@ class RefreshTokenValidator:
         return value
 
 class LogoutSerializer(serializers.Serializer):
-    refresh_token = serializers.CharField(
-        error_messages={'required': 'This field is required: refresh_token'}
+    access_token = serializers.CharField(
+        error_messages={'required': 'This field is required: access_token'}
     )
-
-    def validate_refresh_token(self, value):
-        return RefreshTokenValidator.validate_token(value)
 
 signer = Signer()
 

@@ -13,7 +13,12 @@ class LogoutView(APIView):
     def post(self, request):
         serializer = LogoutSerializer(data=request.data)
         if serializer.is_valid():
-            refresh_token = serializer.validated_data['refresh_token']
+            access_token = serializer.validated_data['access_token']
+            refresh_token = request.COOKIES.get('refresh_token')
+            
+            if not refresh_token:
+                return Response({"status": "error", "message": "Refresh token not found in cookies."}, status=status.HTTP_400_BAD_REQUEST)
+            
             try:
                 refresh = RefreshToken(refresh_token)
                 refresh.blacklist()
@@ -24,7 +29,8 @@ class LogoutView(APIView):
                 try:
                     event_data = wrap_event_data(
                         data={
-                            "user_id": str(refresh.payload['user_id'])
+                            "user_id": str(refresh.payload['user_id']),
+                            "access_token": access_token
                         },
                         event_type="auth.user_logged_out",
                         aggregate_id=str(refresh.payload['user_id'])
