@@ -1,27 +1,31 @@
 import { navigateTo } from '../../app/router.js';
 
-(function verifyAndRedirect() {
- 
-    const accessToken = localStorage.getItem('authToken');
+
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+}
+// Example usage:
+export async function verifyAndRedirect() {
+    const accessToken = getCookie('authToken');
+    console.log('Auth Token:', accessToken);
+
+    if (localStorage.getItem('hardcoded')) {
+        return true;
+    }
     if (!accessToken) {
-        navigateTo('/'); 
-        return;
+        return false;
     }
 
-    verifyAccessToken(accessToken).then(isValid => {
-        if (isValid) {
-            redirectToHome(); // Redirige a home.html si el token es válido
-        } else {
-            refreshAccessToken().then(refreshed => {
-                if (!refreshed) {
-                    redirectToLogin();
-                } else {
-                    redirectToHome(); // Redirige a home.html si el token se refresca con éxito
-                }
-            });
-        }
-    });
-})();
+    const isValid = await verifyAccessToken(accessToken);
+    if (isValid) {
+        return true;
+    } else {
+        const refreshed = await refreshAccessToken();
+        return refreshed;
+    }
+}
 
 function redirectToLogin() {
     const currentPath = window.location.pathname;
@@ -40,14 +44,30 @@ function redirectToHome() {
     }
 }
 
-function logout() {
-    fetch('http://localhost:5000/logout/', {
+export function logout() {
+
+
+    if (localStorage.getItem('hardcoded')) {
+        navigateTo("/");
+        localStorage.removeItem('hardcoded');
+        return ;
+    }
+
+    fetch('http://localhost:5050/logout/', {
         method: 'POST',
-        credentials: 'include',
+        /* credentials: 'include', */
         headers: {
             'Content-Type': 'application/json'
+        },
+        body: {
+            'refresh_token': getCookie('authToken')
         }
     })
+/*     fetch('http://localhost:5050/logout/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: "paco"
+        }) */
     .then(response => {
         if (!response.ok) {
             console.error('Logout failed:', response.statusText);
@@ -56,7 +76,7 @@ function logout() {
         return response.json();
     })
     .then(data => {
-        console.log('Logout successful:', data.message);
+        console.log('Logout successful:', data);
         document.cookie = 'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; secure; HttpOnly; SameSite=Strict';
         navigateTo('/');
     })
@@ -68,7 +88,8 @@ function logout() {
 }
 
 async function verifyAccessToken(accessToken) {
-    return fetch('http://localhost:5000/verify-token/', {
+    console.log("verifying: ", accessToken);
+    return fetch('http://localhost:5050/verify-token/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -91,7 +112,7 @@ async function verifyAccessToken(accessToken) {
 
 async function refreshAccessToken() {
     console.log('Attempting to refresh token...');
-    return fetch('http://localhost:5000/refresh/', {
+    return fetch('http://localhost:5050/refresh/', {
         method: 'POST',
         credentials: 'include', // Include cookies for HTTP-only refresh tokens
         headers: { 'Content-Type': 'application/json' }

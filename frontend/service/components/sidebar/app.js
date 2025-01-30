@@ -1,4 +1,5 @@
-import { navigateTo } from "../../app/router.js";
+// import { navigateTo } from "../../app/router.js";
+import { logout } from "../../app/auth.js";
 
 export function initializeSidebarEvents() {
     const sidebar = document.getElementById('sidebar');
@@ -52,6 +53,6 @@ export function initializeSidebarEvents() {
     // Trigger initial resize event to set correct state
     handleResize();
 
-	//logoutBtn.addEventListener('click', logout());
+	logoutBtn.addEventListener('click', logout);
 	//I'll have to uncoment it when oauth implemented
 }

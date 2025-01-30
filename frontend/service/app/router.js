@@ -11,6 +11,7 @@ import { initializeOngoingTournaments } from '../components/tournament/app.js';
 import { initializeChessEvents } from '../components/chess/index.js';
 import { loadChat, loadSidebar } from './render.js'; // temporal
 import { initializeIndexEvents } from '../components/index/app.js';
+import { verifyAndRedirect } from './auth.js';
 
 const routes = [
     { url: "/404", file: "./components/error/404.html" },
@@ -81,16 +82,27 @@ async function router() {
     }
 }
 
-function navigateTo(url) {
-     if (url !== window.location.pathname) {
-            //  if (window.location.pathname === '/profile') {
-            //         const modal = new bootstrap.Modal(document.getElementById('exit-game-modal'));
-            //         modal.show();
-            //         return ;
-            // }  
-        history.pushState(null, null, url);
-        router();
-        updateNavbar(window.location.pathname);
+function parseUrl(fullUrl) {
+    const parts = fullUrl.split('/');
+    const url = parts[parts.length - 1];
+    return ("/" + url);
+}
+
+async function navigateTo(fullUrl) {
+    const url = parseUrl(fullUrl);
+    // console.log('navigating: ', url);
+    
+    try {
+        const verify = await verifyAndRedirect();
+        console.log("verify:", verify);
+        
+        if (!(url !== "/login" && url !== "/signup" && !verify)) {
+            history.pushState(null, null, url);
+            router();
+            updateNavbar(window.location.pathname);
+        }
+    } catch (error) {
+        console.error('Error during verification:', error);
     }
 }
 
