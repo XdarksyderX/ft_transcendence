@@ -38,6 +38,13 @@ function hardcodedLogin() { //sorry
     navigateTo('/start-game');
 }
 
+function loadLogin(userName) {
+    loadChat();
+    loadSidebar();
+    updateNavbar(userName);
+    navigateTo('/start-game');
+}
+
 function login(userCredentials) {
     fetch('http://localhost:5050/login/', {
         method: 'POST',
@@ -48,8 +55,10 @@ function login(userCredentials) {
     .then(data => {
         if (data.status === 'success' && data.access_token) {
             console.log('Login successful, received access token:', data.access_token);
-            localStorage.setItem('authToken', data.access_token);
-            navigateTo('/start-game');
+            //localStorage.setItem('authToken', data.access_token);
+            document.cookie = `authToken=${data.access_token}; path=/; secure; SameSite=Strict`;
+            console.log('Cookie set:', document.cookie);
+            loadLogin(userCredentials.username);
         } else if (data.status === 'error' && data.message === 'OTP required.') {
             showOTPForm(data.temp_token);
         } else {

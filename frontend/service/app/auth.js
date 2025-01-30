@@ -57,16 +57,15 @@ function logout() {
     })
     .then(data => {
         console.log('Logout successful:', data.message);
-        localStorage.removeItem('authToken');
+        document.cookie = 'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; secure; HttpOnly; SameSite=Strict';
         navigateTo('/');
     })
     .catch(error => {
         console.error('An error occurred during logout:', error);
-        localStorage.removeItem('authToken');
+        document.cookie = 'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; secure; HttpOnly; SameSite=Strict';
         navigateTo('/'); 
     });
 }
-
 
 async function verifyAccessToken(accessToken) {
     return fetch('http://localhost:5000/verify-token/', {
@@ -106,7 +105,7 @@ async function refreshAccessToken() {
     .then(data => {
         if (data.status === 'success' && data.access_token) {
             console.log('Token refreshed successfully.');
-            localStorage.setItem('authToken', data.access_token);
+            document.cookie = `authToken=${data.access_token}; path=/; secure; HttpOnly; SameSite=Strict`;
             return true;
         } else {
             throw new Error('Token refresh failed.');
@@ -114,11 +113,10 @@ async function refreshAccessToken() {
     })
     .catch(error => {
         console.error('Token refresh error:', error);
-        localStorage.removeItem('authToken');
+        document.cookie = 'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; secure; HttpOnly; SameSite=Strict';
         return false;
     });
 }
-
 
 function handleServerError(response) {
     if (response.status >= 500 && response.status < 600) {
