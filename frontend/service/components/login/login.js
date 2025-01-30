@@ -1,5 +1,7 @@
 import { navigateTo } from '../../app/router.js';
 import {loadChat, loadSidebar, throwAlert} from '../../app/render.js';
+import jwtDecode from 'https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.esm.js';
+import { getCookie } from '../../app/auth.js'
 
 export function initializeLoginEvents() {
     const loginForm = document.getElementById('login-form');
@@ -39,10 +41,11 @@ function hardcodedLogin() { //sorry
     navigateTo('/start-game');
 }
 
-export function loadLogin(userName, move = true) {
+export function loadLogin(move = true) {
+    const { username } = jwtDecode(getCookie('authToken'));
     loadChat();
     loadSidebar();
-    updateNavbar(userName);
+    updateNavbar(username);
     if (move) {
         navigateTo('/start-game');
     }
@@ -62,7 +65,7 @@ async function login(userCredentials) {
             //localStorage.setItem('authToken', data.access_token);
             document.cookie = `authToken=${data.access_token}; path=/; secure; SameSite=Strict`;
             console.log('Cookie set:', document.cookie);
-            loadLogin(userCredentials.username);
+            loadLogin();
         } else if (data.status === 'error' && data.message === 'OTP required.') {
             await showOTPForm(data.temp_token, userCredentials.username);
             // Only call loadLogin after successful OTP verification
@@ -106,7 +109,7 @@ function showOTPForm(tempToken, username) {
             try {
                 await verifyOTP(tempToken, otpCode, username);
                 resolve();
-                loadLogin(username); // Call loadLogin after successful OTP verification
+                loadLogin(); // Call loadLogin after successful OTP verification
             } catch (error) {
                 reject(error);
             }
@@ -134,7 +137,7 @@ async function verifyOTP(tempToken, otpCode, username) {
             console.log('OTP verified, received JWT:', data.access_token);
 //          localStorage.setItem('authToken', data.access_token);
             document.cookie = `authToken=${data.access_token}; path=/; secure; SameSite=Strict`;
-            loadLogin(username);
+            loadLogin();
 
            // navigateTo('/start-game');
         } else {

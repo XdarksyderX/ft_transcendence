@@ -123,7 +123,7 @@ window.addEventListener("popstate", router);
 document.addEventListener("DOMContentLoaded", async () => {
     const verify = await verifyAndRedirect();
     if (verify) {
-        loadLogin("paca", false);
+        loadLogin(false);
     } 
     router();
     // replaces links default behavior for our routing system

@@ -1,7 +1,7 @@
 import { navigateTo } from '../../app/router.js';
 
 
-function getCookie(name) {
+export function getCookie(name) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) return parts.pop().split(';').shift();
@@ -30,6 +30,7 @@ export async function verifyAndRedirect() {
 
 export function logout() {
 
+    document.cookie = 'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; secure; SameSite=Strict';
 
     if (localStorage.getItem('hardcoded')) {
         navigateTo("/");
@@ -44,7 +45,7 @@ export function logout() {
             'Content-Type': 'application/json'
         },
         body: {
-            'refresh_token': getCookie('authToken')
+            'access_token': getCookie('authToken')
         }
     })
 /*     fetch('http://localhost:5050/logout/', {
