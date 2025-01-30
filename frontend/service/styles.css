@@ -190,7 +190,7 @@ input:focus, select:focus, .ctm-btn:focus, .ctm-btn-secondary:focus,
 .ctm-btn-danger:focus, .ctm-btn-dark:focus {
     border-color: var(--light) !important; 
     box-shadow: 0 0 5px var(--light) !important;
-    outline: none !important
+    outline: 1px solid var(--light) !important;
 }
 
 #app {

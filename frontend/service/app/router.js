@@ -27,7 +27,9 @@ const routes = [
 ];
 
 async function router() {
+    console.log('Router function called');
     const path = location.pathname;
+    console.log('Current path:', path);
     const match = routes.find(route => route.url === path) || routes[0];
 
     const html = await fetch(match.file).then(res => res.text());
@@ -59,23 +61,24 @@ async function router() {
             initializeProfileEvents();
             break;
         case "/friends":
-            loadChat();
-            loadSidebar();
+ /*            loadChat();
+            loadSidebar(); */
             initializeNeonFrames();
             initializeFriendsEvents();
             break;
         case "/game-stats":
-            loadChat();
-            loadSidebar();
+/*             loadChat();
+            loadSidebar(); */
             initializeNeonFrames();
             initializeStatsEvents();
             break;
         case "/chess":
+        //    console.log('Initializing chess events');
             initializeChessEvents();
             break;
         default:
             initialize404();
-        }
+    }
 }
 
 function navigateTo(url) {
@@ -106,23 +109,15 @@ window.addEventListener("popstate", router);
 // Initialize the application
 document.addEventListener("DOMContentLoaded", () => {
     router();
+    // replaces links default behavior for our routing system
     document.body.addEventListener("click", (e) => {
-        if (e.target.matches("[data-link]")) {
+        if (e.target.matches("[data-link]") || e.target.tagName === 'A') {
             e.preventDefault();
             navigateTo(e.target.href);
         }
     });
 });
 
-// ensures preventing default link behaviour so it doesn't reload
-document.body.addEventListener('click', (event) => {
-    const target = event.target;
 
-    if (target.tagName === 'A' /* && target.classList.contains('ctm-link') */) {
-        event.preventDefault();
-        const url = target.getAttribute('href');
-        navigateTo(url);
-    }
-});
 
 export { navigateTo };
