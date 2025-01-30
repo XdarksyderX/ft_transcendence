@@ -15,7 +15,8 @@
                         <p id="total-friends" class="mb-1"></p>
                         <p id="total-matches" class="mb-3"></p>
                         <div class="d-flex justify-content-center">
-                            <button id="edit-profile" class="btn ctm-btn">Edit profile</button>
+                            <button id="edit-profile" class="btn ctm-btn me-1">Edit profile</button>
+                            <button id="delete-profile-btn" class="btn ctm-btn-danger ms-1" data-bs-toggle="modal" data-bs-target="#delete-profile-modal">Delete Profile</button>
                             <button id="save-changes" class="btn ctm-btn" style="display: none;">Save changes</button>
                         </div>
                     </div>
@@ -75,3 +76,22 @@
         </div>
     </section>  
 </div>
+<!-- delete profile modal -->
+<div class="modal fade" id="delete-profile-modal" tabindex="-1" aria-labelledby="delete-profile-modal-label" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title ctm-text-title" id="delete-modal-label">Delete Profile</h5>
+          <button type="button" class="close-modal" data-bs-dismiss="modal" aria-label="Close">x</button>
+        </div>
+         <div class="modal-body">
+            <h5>Are you sure you want to delete your profile?</h5>
+            <p>This action can't be reverted.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn ctm-btn" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn ctm-btn-danger">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>

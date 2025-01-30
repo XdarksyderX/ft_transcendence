@@ -27,7 +27,9 @@ const routes = [
 ];
 
 async function router() {
+    //console.log('Router function called');
     const path = location.pathname;
+    //console.log('Current path:', path);
     const match = routes.find(route => route.url === path) || routes[0];
 
     const html = await fetch(match.file).then(res => res.text());
@@ -59,23 +61,24 @@ async function router() {
             initializeProfileEvents();
             break;
         case "/friends":
-            loadChat();
-            loadSidebar();
+ /*            loadChat();
+            loadSidebar(); */
             initializeNeonFrames();
             initializeFriendsEvents();
             break;
         case "/game-stats":
-            loadChat();
-            loadSidebar();
+/*             loadChat();
+            loadSidebar(); */
             initializeNeonFrames();
             initializeStatsEvents();
             break;
         case "/chess":
+        //    console.log('Initializing chess events');
             initializeChessEvents();
             break;
         default:
             initialize404();
-        }
+    }
 }
 
 function navigateTo(url) {

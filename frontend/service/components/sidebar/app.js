@@ -22,18 +22,18 @@ export function initializeSidebarEvents() {
     // Add event listener to the toggle button
     sidebarToggle.addEventListener('click', toggleSidebar);
 
-    // Function to handle clicks outside the sidebar
-    function handleOutsideClick(event) {
+    // function to hide the sidebar if you click outside or navigate to a link
+    function handleHideOnClick(event) {
         const isSmallScreen = window.innerWidth < 992;
         const clickedOutsideSidebar = !sidebar.contains(event.target) && event.target !== sidebarToggle;
-
-        if (isSmallScreen && sidebar.classList.contains('show') && clickedOutsideSidebar) {
-            sidebar.classList.remove('show');
+        if (isSmallScreen && sidebar.classList.contains('show')) {
+            if (event.target.tagName === 'A' || clickedOutsideSidebar) {
+                sidebar.classList.remove('show');
+            }
         }
-    }
 
-    // Listen for clicks on the document to apply the previous function
-    document.addEventListener('click', handleOutsideClick);
+    }
+    document.addEventListener('click', handleHideOnClick);
 
     // Function to handle window resize to show/hide sidebar
     function handleResize() {
@@ -51,7 +51,6 @@ export function initializeSidebarEvents() {
 
     // Trigger initial resize event to set correct state
     handleResize();
-
 
 	//logoutBtn.addEventListener('click', logout());
 	//I'll have to uncoment it when oauth implemented
