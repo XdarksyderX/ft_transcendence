@@ -35,25 +35,12 @@ class VerifyEmailView(APIView):
                 "message": "Email verified successfully."
             }, status=status.HTTP_200_OK)
         
-        # Handle invalid serializer response with specific field error
-        errors = serializer.errors
-        field_name, field_errors = next(iter(errors.items()))
-        error_message = field_errors[0] if isinstance(field_errors, list) else field_errors
-        return Response({
-            "status": "error",
-            "message": error_message
-        }, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"status": "error", "message": serializer.errors.get('error', 'Invalid request.')}, status=status.HTTP_400_BAD_REQUEST)
 
 class Activate2FAView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        if request.user.is_anonymous:
-            return Response({
-                "status": "error",
-                "message": "User must be authenticated to activate 2FA."
-            }, status=status.HTTP_401_UNAUTHORIZED)
-
         if request.user.oauth_registered:
             return Response({
                 "status": "error",
@@ -69,21 +56,12 @@ class Activate2FAView(APIView):
 
             if enable_2fa:
                 if two_fa_instance.is_active:
-                    return Response({
-                        "status": "error",
-                        "message": "2FA is already activated."
-                    }, status=status.HTTP_400_BAD_REQUEST)
-
+                    return Response({"status": "error", "message": "2FA is already activated."}, status=status.HTTP_400_BAD_REQUEST)
                 secret = pyotp.random_base32()
                 TwoFA.objects.update_or_create(user=user, defaults={"secret": secret, "is_active": True})
-
             else:
                 if not two_fa_instance.is_active:
-                    return Response({
-                        "status": "error",
-                        "message": "2FA is already deactivated."
-                    }, status=status.HTTP_400_BAD_REQUEST)
-
+                    return Response({"status": "error", "message": "2FA is already deactivated."}, status=status.HTTP_400_BAD_REQUEST)
                 TwoFA.objects.filter(user=user).update(is_active=False)
 
             user.two_fa_enabled = enable_2fa
@@ -93,10 +71,7 @@ class Activate2FAView(APIView):
             try:
                 event_type = "auth.2fa_enabled" if enable_2fa else "auth.2fa_disabled"
                 event_data = wrap_event_data(
-                    data={
-                        "user_id": user.id,
-                        "username": user.username,
-                    },
+                    data={"user_id": user.id, "username": user.username},
                     event_type=event_type,
                     aggregate_id=str(user.id)
                 )
@@ -104,21 +79,9 @@ class Activate2FAView(APIView):
             finally:
                 rabbit_client.close()
 
-            response_data = {
-                "status": "success",
-                "message": "2FA {} successfully.".format("enabled" if enable_2fa else "disabled")
-            }
-
+            response_data = {"status": "success", "message": f"2FA {'enabled' if enable_2fa else 'disabled'} successfully."}
             if enable_2fa:
                 response_data["secret"] = secret
-
             return Response(response_data, status=status.HTTP_200_OK)
 
-        # Handle invalid serializer response with specific field error
-        errors = serializer.errors
-        field_name, field_errors = next(iter(errors.items()))
-        error_message = field_errors[0] if isinstance(field_errors, list) else field_errors
-        return Response({
-            "status": "error",
-            "message": error_message
-        }, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"status": "error", "message": serializer.errors.get('error', 'Invalid request.')}, status=status.HTTP_400_BAD_REQUEST)

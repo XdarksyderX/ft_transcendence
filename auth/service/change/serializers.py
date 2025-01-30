@@ -16,13 +16,13 @@ class ChangeUsernameSerializer(serializers.Serializer):
     def validate(self, data):
         user = User.objects.filter(email=data['email']).first()
         if not user:
-            raise serializers.ValidationError("Email not registered.")
+            raise serializers.ValidationError({"error": "Email not registered."})
 
         if not user.check_password(data['current_password']):
-            raise serializers.ValidationError("Invalid current password.")
+            raise serializers.ValidationError({"error": "Invalid current password."})
 
         if User.objects.filter(username=data['new_username']).exists():
-            raise serializers.ValidationError("This username is already taken.")
+            raise serializers.ValidationError({"error": "This username is already taken."})
         
         return data
 
@@ -39,7 +39,7 @@ class ChangeEmailSerializer(serializers.Serializer):
 
     def validate_new_email(self, value):
         if User.objects.filter(email=value).exists():
-            raise serializers.ValidationError("This email is already taken.")
+            raise serializers.ValidationError({"error": "This email is already taken."})
         return value
 
     def save(self, user):
@@ -55,7 +55,7 @@ class ResetPasswordRequestSerializer(serializers.Serializer):
 
     def validate_email(self, value):
         if not User.objects.filter(email=value).exists():
-            raise serializers.ValidationError("Email not registered.")
+            raise serializers.ValidationError({"error": "Email not registered."})
         return value
 
 class ResetPasswordSerializer(serializers.Serializer):
@@ -69,7 +69,7 @@ class ResetPasswordSerializer(serializers.Serializer):
 
     def validate_new_password(self, value):
         if len(value) < 8:
-            raise serializers.ValidationError("Password must be at least 8 characters long.")
+            raise serializers.ValidationError({"error": "Password must be at least 8 characters long."})
         return value
 
     def save(self, user):

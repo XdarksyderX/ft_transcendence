@@ -21,14 +21,17 @@ class LoginView(APIView):
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
+            # Obtenemos username y password del serializer validado
             username = serializer.validated_data['username']
             password = serializer.validated_data['password']
 
             user = authenticate(request, username=username, password=password)
             if user is not None:
+                # Verificamos si el email está confirmado
                 if not user.is_email_verified:
                     return Response({"status": "error", "message": "Email is not verified."}, status=status.HTTP_403_FORBIDDEN)
 
+                # Verificamos si el usuario tiene 2FA habilitado
                 if user.two_fa_enabled:
                     temp_token = signer.sign(user.id)
                     return Response({
@@ -37,12 +40,14 @@ class LoginView(APIView):
                         "temp_token": temp_token
                     }, status=status.HTTP_202_ACCEPTED)
 
+                # Si no tiene 2FA, autenticamos directamente
                 refresh = RefreshToken.for_user(user)
                 response = Response({
                     "status": "success",
-                    "access_token": str(refresh.access_token),
+                    "access_token": str(refresh.access_token)
                 }, status=status.HTTP_200_OK)
 
+                # Configuramos la cookie del refresh token
                 expiration = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=7)
                 response.set_cookie(
                     key='refresh_token',
@@ -70,10 +75,10 @@ class LoginView(APIView):
             else:
                 return Response({"status": "error", "message": "Invalid credentials."}, status=status.HTTP_401_UNAUTHORIZED)
         else:
-            errors = serializer.errors
-            field_name, field_errors = next(iter(errors.items()))
-            error_message = field_errors[0] if isinstance(field_errors, list) else field_errors
-            return Response({"status": "error", "message": error_message}, status=status.HTTP_401_UNAUTHORIZED)
+            if "error" in serializer.errors:
+                error_message = serializer.errors['error']
+                return Response({"status": "error", "message": error_message}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({"status": "error", "message": "Invalid credentials."}, status=status.HTTP_401_UNAUTHORIZED)
 
     def verify_otp(self, request):
         temp_token = request.data.get('temp_token')
@@ -110,7 +115,7 @@ class LoginView(APIView):
         refresh = RefreshToken.for_user(user)
         response = Response({
             "status": "success",
-            "access_token": str(refresh.access_token),
+            "access_token": str(refresh.access_token)
         }, status=status.HTTP_200_OK)
 
         expiration = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=7)
