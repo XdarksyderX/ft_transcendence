@@ -39,11 +39,13 @@ function hardcodedLogin() { //sorry
     navigateTo('/start-game');
 }
 
-function loadLogin(userName) {
+export function loadLogin(userName, move = true) {
     loadChat();
     loadSidebar();
     updateNavbar(userName);
-    navigateTo('/start-game');
+    if (move) {
+        navigateTo('/start-game');
+    }
 }
 async function login(userCredentials) {
     try {

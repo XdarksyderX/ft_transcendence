@@ -9,7 +9,7 @@ function getCookie(name) {
 // Example usage:
 export async function verifyAndRedirect() {
     const accessToken = getCookie('authToken');
-    console.log('Auth Token:', accessToken);
+    console.log('they see me verifying');
 
     if (localStorage.getItem('hardcoded')) {
         return true;
@@ -27,22 +27,6 @@ export async function verifyAndRedirect() {
     }
 }
 
-function redirectToLogin() {
-    const currentPath = window.location.pathname;
-    if (currentPath === '/login' || currentPath === '/register'
-        || currentPath === '/') {
-        return;
-    }
-    navigateTo('/login');
-}
-
-
-function redirectToHome() {
-    const currentPath = window.location.pathname;
-    if (currentPath !== '/start-game') {
-        navigateTo('/start-game');
-    }
-}
 
 export function logout() {
 
@@ -70,7 +54,8 @@ export function logout() {
         }) */
     .then(response => {
         if (!response.ok) {
-            console.error('Logout failed:', response.statusText);
+            console.error('Logout failed:', response);
+            document.cookie = 'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; secure; HttpOnly; SameSite=Strict';
             return;
         }
         return response.json();

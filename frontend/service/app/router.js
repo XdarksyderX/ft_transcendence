@@ -10,6 +10,7 @@ import { initializeStatsEvents } from '../components/stats/app.js';
 import { initializeOngoingTournaments } from '../components/tournament/app.js';
 import { initializeChessEvents } from '../components/chess/index.js';
 import { loadChat, loadSidebar } from './render.js'; // temporal
+import { loadLogin } from '../components/login/login.js';
 import { initializeIndexEvents } from '../components/index/app.js';
 import { verifyAndRedirect } from './auth.js';
 
@@ -119,7 +120,11 @@ function updateNavbar(url) {
 window.addEventListener("popstate", router);
 
 // Initialize the application
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+    const verify = await verifyAndRedirect();
+    if (verify) {
+        loadLogin("paca", false);
+    } 
     router();
     // replaces links default behavior for our routing system
     document.body.addEventListener("click", (e) => {
