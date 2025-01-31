@@ -258,7 +258,7 @@ export function initializeStartGameEvents() {
         throwAlert("this eventually will take you to waiting room");
         navigateTo("/chess");
     }
-    elements.chess.playRandom.addEventListener("cick", playChessWithRandom);
+    elements.chess.playRandom.addEventListener("click", playChessWithRandom);
 
     function showChessVariants() {
         toggleView(currentView, elements.chess.variants.container);
@@ -286,4 +286,5 @@ export function initializeStartGameEvents() {
 
     elements.pong.quickPlay.startGameWithFriendButton.addEventListener('click', () => launchWaitModal('pong'));
     elements.chess.startGameWithFriendButton.addEventListener('click', () => launchWaitModal('chess'));
+    elements.pong.tournament.ongoing.addEventListener('click', () => navigateTo("/ongoing-tournaments"));
 }
