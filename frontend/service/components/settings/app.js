@@ -6,8 +6,9 @@ import { getCookie } from '../../app/auth.js'
 const url2FA = 'http://localhost:5050/activate-2fa'
 
 function get2FAstatus() {
-	const { is_2fa_enabled } = jwtDecode(getCookie('authToken'));
-	return (is_2fa_enabled);
+	const { two_fa_enabled } = jwtDecode(getCookie('authToken'));
+	console.log("2fa is: ", two_fa_enabled);
+	return (two_fa_enabled);
 }
 async function set2FAstatus(status) {
     try {
@@ -24,7 +25,7 @@ async function set2FAstatus(status) {
         
         const data = JSON.parse(responseText);
         if (response.ok) {
-            throwAlert(`2FA is now ${status ? 'enabled' : 'disabled'}`);
+			handle2FAmodal(status);
         } else {
             console.error('Failed to update 2FA status:', data.message);
             throwAlert('Failed to update 2FA status.');
@@ -34,6 +35,34 @@ async function set2FAstatus(status) {
         throwAlert('Failed to update 2FA status.');
     }
 }
+
+function handle2FAmodal(status) {
+    const modalElement = document.getElementById('2fa-qr-modal');
+    const modal = new bootstrap.Modal(modalElement, {
+        backdrop: 'static', // Disables closing the modal by clicking outside of it
+        keyboard: false     // Disables closing the modal with the escape key
+    });
+
+	console.log('status: ', status);
+    if (!status) {
+        throwAlert(`2FA is now disabled`);
+    } else {
+        modal.show();
+    }
+
+    // Disable the close buttons
+    const closeButtons = modalElement.querySelectorAll('.close-qr-modal');
+    closeButtons.forEach(button => {
+        button.disabled = true;
+    });
+
+    setTimeout(() => {
+        closeButtons.forEach(button => {
+            button.disabled = false;
+        });
+    }, 5000); // 5 seconds
+}
+
 function toggle2FA(event) {
 
 	const status = document.getElementById('2fa-status');
