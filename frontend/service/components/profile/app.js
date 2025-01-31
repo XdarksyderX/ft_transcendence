@@ -5,7 +5,7 @@ export function initializeProfileEvents() {
         totalFriends: document.getElementById('total-friends'),
         totalMatches: document.getElementById('total-matches'),
         editProfile: document.getElementById('edit-profile'),
-        deleteProfile: document.getElementById('delete-profile-btn'),
+        // deleteProfile: document.getElementById('delete-profile-btn'),
         saveChanges: document.getElementById('save-changes'),
         // cancelChanges: document.getElementById('cancel-changes'),
         cancelChanges: document.querySelectorAll('.cancel-btn'),
@@ -51,7 +51,7 @@ export function initializeProfileEvents() {
     function toggleEditMode(isEditing) {
         elements.editProfile.style.display = isEditing ? 'none' : 'inline-block';
         elements.saveChanges.style.display = isEditing ? 'inline-block' : 'none';
-        elements.deleteProfile.style.display = !isEditing ? 'inline-block' : 'none';
+        // elements.deleteProfile.style.display = !isEditing ? 'inline-block' : 'none';
         elements.changePicture.style.display = isEditing ? 'inline-block' : 'none';
         
         if (isEditing) {

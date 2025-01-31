@@ -13,6 +13,7 @@ import { loadChat, loadSidebar } from './render.js'; // temporal
 import { loadLogin } from '../components/login/login.js';
 import { initializeIndexEvents } from '../components/index/app.js';
 import { verifyAndRedirect } from './auth.js';
+import { initializeSettingsEvents } from '../components/settings/app.js';
 
 const routes = [
     { url: "/404", file: "./components/error/404.html" },
@@ -81,6 +82,7 @@ async function router() {
             break;
         case "/settings":
             initializeNeonFrames();
+            initializeSettingsEvents();
             break ;
         default:
             initialize404();
