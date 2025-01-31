@@ -9,7 +9,7 @@ export function getCookie(name) {
 // Example usage:
 export async function verifyAndRedirect() {
     const accessToken = getCookie('authToken');
-    console.log('they see me verifying');
+    // console.log('they see me verifying');
 
     if (localStorage.getItem('hardcoded')) {
         return true;
@@ -74,7 +74,7 @@ export function logout() {
 }
 
 async function verifyAccessToken(accessToken) {
-    console.log("verifying: ", accessToken);
+    // console.log("verifying: ", accessToken);
     return fetch('http://localhost:5050/verify-token/', {
         method: 'POST',
         headers: {

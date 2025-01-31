@@ -3,18 +3,6 @@
 	border: 1px solid var(--accent);
 }
 
-
-:root {
-	--dark: #2D1240;
-	--darkish: #462A56;
-	--medium: #5C3973;
-	--accent: #00F56A;
-	--light: #84cca3;
-	--title: #F59C00;
-	--lorange: #f1c478;
-    --transition: #a90808;
-    --danger: #c10505;
-}
 /* .form-check-input {
     width: 1em;
     height: 1em;
@@ -46,4 +34,11 @@
 	border: 1px solid var(--accent);
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%2300F56A'/%3e%3c/svg%3e") !important; /* Ball color when checked */
 
+}
+
+.qr {
+    margin-top: 20px;
+    height: 300px;
+    width: 300px;
+    background-color: white;
 }
