@@ -1,15 +1,40 @@
 import { throwAlert } from "../../app/render.js";
 import { navigateTo } from "../../app/router.js";
+import jwtDecode from 'https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.esm.js';
+import { getCookie } from '../../app/auth.js'
 
 let hardcodedStatus = false;
+const url2FA = 'http://localhost:5050/activate-2fa'
 
-function get2FAstatus() { //this will evenctually be a fetch
-	return (hardcodedStatus);
+function get2FAstatus() {
+	const { is_2fa_enabled } = jwtDecode(getCookie('authToken'));
+	return (is_2fa_enabled);
 }
 
-function set2FAstatus(status) {
-	hardcodedStatus = status;
-    throwAlert(`2FA is now ${status ? 'enabled' : 'disabled'}`);
+async function set2FAstatus(status) {
+    try {
+        const response = await fetch(url2FA, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${getCookie('authToken')}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ enable: status })
+        });
+        const responseText = await response.text();
+        console.log('Response text:', responseText);
+        
+        const data = JSON.parse(responseText);
+        if (response.ok) {
+            throwAlert(`2FA is now ${status ? 'enabled' : 'disabled'}`);
+        } else {
+            console.error('Failed to update 2FA status:', data.message);
+            throwAlert('Failed to update 2FA status.');
+        }
+    } catch (error) {
+        console.error('Error setting 2FA status:', error);
+        throwAlert('Failed to update 2FA status.');
+    }
 }
 
 function toggle2FA(event) {
