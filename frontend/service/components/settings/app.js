@@ -60,7 +60,7 @@ function init2FAEvents() {
 
 async function set2FAstatus(status) {
     try {
-        const response = await fetch(apiUrl + '/activate-2f', {
+        const response = await fetch(`${apiUrl}/activate-2fa` , {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${getCookie('authToken')}`,
@@ -83,6 +83,7 @@ async function set2FAstatus(status) {
         throwAlert('Failed to update 2FA status.');
     }
 }
+
 
 /* async function changePassword(currentPw, newPw) {
     try {
@@ -138,7 +139,7 @@ function parsePasswords(currentPw, newPw, confirmPw) {
 }
 
 function changePassword() {
-	throwAlert('perdón no doy abasto esto todavía no está hecho');
+	throwAlert('perdón no doy a basto esto todavía no está hecho');
 }
 
 function initChangePasswordEvents() {
