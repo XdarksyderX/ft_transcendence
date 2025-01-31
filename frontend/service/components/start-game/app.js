@@ -1,6 +1,7 @@
 let chessVariant = null;
 import { throwAlert } from "../../app/render.js";
-//import { navigateTo } from "../../app/router.js";
+import { navigateTo } from "../../app/router.js";
+
 export function initializeStartGameEvents() {
     const elements = {
         pong: {
@@ -11,7 +12,7 @@ export function initializeStartGameEvents() {
                 btn: document.getElementById('quick-play'),
                 options: document.getElementById('quick-play-options'),
                 playFriend: document.getElementById('play-friend'),
-                playAnyFriend: document.getElementById('play-any-friend'),
+                playRandom: document.getElementById('play-any-friend'),
                 playMachine: document.getElementById('play-machine'),
                 friendList: document.getElementById('friend-list'),
                 friendsContainer: document.getElementById('friends-container'),
@@ -38,7 +39,7 @@ export function initializeStartGameEvents() {
             },
             friendsOptions: document.getElementById('chess-friend-options'),
             playFriend: document.getElementById('chess-friend'),
-            playAnyFriend: document.getElementById('chess-random'),
+            playRandom: document.getElementById('chess-random'),
             friendList: document.getElementById('chess-friend-list'),
             friendsContainer: document.getElementById('chess-friends-container'),
             startGameWithFriendButton: document.getElementById('start-chess-with-friend'),
@@ -124,11 +125,11 @@ export function initializeStartGameEvents() {
     }
     elements.pong.quickPlay.playFriend.addEventListener('click', playPongWithFriend);
 
-    function playWithAnyFriend() {
+    function playPongWithRandom() {
         console.log("Play with any friend option selected");
         throwAlert("this eventually will take you to waiting room");
     }
-    elements.pong.quickPlay.playAnyFriend.addEventListener('click', playWithAnyFriend);
+    elements.pong.quickPlay.playRandom.addEventListener('click', playPongWithRandom);
 
     function playAgainstMachine() {
         console.log("Play against the machine option selected");
@@ -252,6 +253,12 @@ export function initializeStartGameEvents() {
         renderFriendList(elements.chess.friendsContainer);
     }
     elements.chess.playFriend.addEventListener('click', playChessWithFriend);
+
+    function playChessWithRandom() {
+        throwAlert("this eventually will take you to waiting room");
+        navigateTo("/chess");
+    }
+    elements.chess.playRandom.addEventListener("cick", playChessWithRandom);
 
     function showChessVariants() {
         toggleView(currentView, elements.chess.variants.container);

@@ -8,13 +8,14 @@ export function initializeLoginEvents() {
     if (loginForm) {
         loginForm.addEventListener('submit', function(event) {
             event.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
+            let username = document.getElementById('username').value;
+            let password = document.getElementById('password').value;
 
             if (username === '' || password === '') {
                 //throwAlert('Please fill in all fields');
-                hardcodedLogin();
+                //hardcodedLogin();
                 return;
+Z
             }
             const userCredentials = { username, password };
             login(userCredentials);
