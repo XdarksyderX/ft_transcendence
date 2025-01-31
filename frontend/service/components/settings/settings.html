@@ -1,0 +1,89 @@
+<!-- pendiente comprobar verticalwrapp -->
+<!-- pendiente comprobar verticalwrapp -->
+<div id="settings-container" class="blinking-neon-frame w-50">
+    <div class="card ctm-card ctm-text-light d-flex flex-column">
+        <button id="cancel-changes" class="btn cancel-btn position-absolute top-0 end-0 m-2" style="display:none;">x</button>
+        <div class="card-body justify-content-center">
+            <h2 class="card-title text-center mb-4 ctm-text-title">Settings</h2>
+            <section class="d-flex flex-column w-75 mx-auto"> <!-- security section -->
+                <h5 class="ctm-text-title text-center">Security</h5>        
+                <div class="form-group d-flex justify-content-between align-items-center resume-card resume-card--right mb-0">
+                    <label id="2fa-status" for="2fa-toggle" class="flex-grow-1"></label>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="2fa-toggle">
+                        <label class="form-check-label" for="2fa-toggle"></label>
+                    </div>
+                </div>
+                <div class="form-group resume-card resume-card--left mt-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <label for="change-password-toggle" class="flex-grow-1">Change Password</label>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="change-password-toggle" data-bs-toggle="collapse" data-bs-target="#change-password-form">
+                            <label class="form-check-label" for="change-password-toggle"></label>
+                        </div>
+                    </div>
+                    <div id="change-password-form" class="collapse mt-2">
+                        <input type="password" class="form-control ctm-form mb-2" placeholder="Actual Password">
+                        <input type="password" class="form-control ctm-form mb-2 mb-2" placeholder="New Password">
+                        <input type="password" class="form-control ctm-form mb-2 mb-2" placeholder="Confirm Password">
+                        <div class="d-flex justify-content-center">
+                            <button type="submit" class="btn ctm-btn mt-2">Change Password</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section class="d-flex flex-column w-75 mx-auto"> <!-- profile section -->
+                <h5 class="ctm-text-title text-center">Profile</h5>        
+                <div class="form-group d-flex justify-content-between align-items-center resume-card resume-card--right mb-0">
+                    <div class="flex-grow-1">Edit profile</div>
+                    <div id="edit-profile-pencil" class="btn ctm-btn">
+                        <i class="fas fa-pencil-alt"></i>
+                    </div>
+                </div>
+                <div class="form-group resume-card resume-card--left mt-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <label for="delete-profile-toggle" class="flex-grow-1">Delete Profile</label>
+                        <div id="delete-profile-btn" class="btn ctm-btn-danger" data-bs-toggle="modal" data-bs-target="#delete-profile-modal">
+                            <i class="fas fa-ban"></i>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section class="d-flex flex-column w-75 mx-auto"> <!-- blocked users section -->
+                <h5 class="ctm-text-title text-center">Blocked users</h5>        
+                <div class="form-group resume-card resume-card--left mt-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <label for="blocked-users-toggle" class="flex-grow-1">Show blocked users</label>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="blocked-users-toggle" data-bs-toggle="collapse" data-bs-target="#blocked-users-container">
+                            <label class="form-check-label" for="blocked-users-toggle"></label>
+                        </div>
+                    </div>
+                    <div id="blocked-users-container" class="collapse mt-2">
+                        nope, not yet
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+
+<!-- delete profile modal -->
+<div class="modal fade" id="delete-profile-modal" tabindex="-1" aria-labelledby="delete-profile-modal-label" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title ctm-text-title" id="delete-modal-label">Delete Profile</h5>
+          <button type="button" class="close-modal" data-bs-dismiss="modal" aria-label="Close">x</button>
+        </div>
+         <div class="modal-body">
+            <h5>Are you sure you want to delete your profile?</h5>
+            <p>This action can't be reverted.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn ctm-btn" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn ctm-btn-danger">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>

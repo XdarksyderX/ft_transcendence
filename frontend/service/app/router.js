@@ -13,6 +13,7 @@ import { loadChat, loadSidebar } from './render.js'; // temporal
 import { loadLogin } from '../components/login/login.js';
 import { initializeIndexEvents } from '../components/index/app.js';
 import { verifyAndRedirect } from './auth.js';
+import { initializeSettingsEvents } from '../components/settings/app.js';
 
 const routes = [
     { url: "/404", file: "./components/error/404.html" },
@@ -23,6 +24,7 @@ const routes = [
     { url: "/profile", file: "./components/profile/profile.html" },
     { url: "/friends", file: "./components/friends/friends.html" },
     { url: "/game-stats", file: "./components/stats/stats.html" },
+    { url: "/settings", file: "./components/settings/settings.html" },
     { url: "/ongoing-tournaments", file: "./components/tournament/tournament.html" },
     { url: "/chess", file: "./components/chess/chess.html" },
 
@@ -78,6 +80,10 @@ async function router() {
         //    console.log('Initializing chess events');
             initializeChessEvents();
             break;
+        case "/settings":
+            initializeNeonFrames();
+            initializeSettingsEvents();
+            break ;
         default:
             initialize404();
     }
@@ -123,7 +129,7 @@ window.addEventListener("popstate", router);
 document.addEventListener("DOMContentLoaded", async () => {
     const verify = await verifyAndRedirect();
     if (verify) {
-        loadLogin("paca", false);
+        loadLogin(false);
     } 
     router();
     // replaces links default behavior for our routing system
