@@ -22,15 +22,15 @@
                             <label class="form-check-label" for="change-password-toggle"></label>
                         </div>
                     </div>
-                    <div id="change-password-form" class="collapse mt-2">
-                        <input type="password" class="form-control ctm-form mb-2" placeholder="Actual Password">
-                        <input type="password" class="form-control ctm-form mb-2 mb-2" placeholder="New Password">
-                        <input type="password" class="form-control ctm-form mb-2 mb-2" placeholder="Confirm Password">
+                    <form id="change-password-form" class="collapse mt-2">
+                        <input type="password" id="current-password" class="form-control ctm-form mb-2" placeholder="Actual Password">
+                        <input type="password" id="new-password" class="form-control ctm-form mb-2 mb-2" placeholder="New Password">
+                        <input type="password" id="confirm-new-password" class="form-control ctm-form mb-2 mb-2" placeholder="Confirm Password">
                         <div class="d-flex justify-content-center">
-                            <button type="submit" class="btn ctm-btn mt-2">Change Password</button>
+                            <button type="submit" id="change-password-button" class="btn ctm-btn mt-2">Change Password</button>
                         </div>
                     </div>
-                </div>
+                </form>
             </section>
             <section class="d-flex flex-column w-75 mx-auto"> <!-- profile section -->
                 <h5 class="ctm-text-title text-center">Profile</h5>        
