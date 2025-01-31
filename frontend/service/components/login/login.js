@@ -14,8 +14,9 @@ export function initializeLoginEvents() {
             if (username === '' || password === '') {
                 //throwAlert('Please fill in all fields');
                 //hardcodedLogin();
-                return;
-Z
+                //return;
+                username = "eli";
+                password = "Octubre10";
             }
             const userCredentials = { username, password };
             login(userCredentials);

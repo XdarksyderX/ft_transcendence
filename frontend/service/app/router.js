@@ -23,6 +23,7 @@ const routes = [
     { url: "/profile", file: "./components/profile/profile.html" },
     { url: "/friends", file: "./components/friends/friends.html" },
     { url: "/game-stats", file: "./components/stats/stats.html" },
+    { url: "/settings", file: "./components/settings/settings.html" },
     { url: "/ongoing-tournaments", file: "./components/tournament/tournament.html" },
     { url: "/chess", file: "./components/chess/chess.html" },
 
@@ -78,6 +79,9 @@ async function router() {
         //    console.log('Initializing chess events');
             initializeChessEvents();
             break;
+        case "/settings":
+            initializeNeonFrames();
+            break ;
         default:
             initialize404();
     }
