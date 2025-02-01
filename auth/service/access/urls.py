@@ -14,7 +14,6 @@ urlpatterns = [
     re_path(r'^logout/?$', LogoutView.as_view(), name='logout'),
     re_path(r'^verify-token/?$', VerifyTokenView.as_view(), name='verify'),
     re_path(r'^refresh/?$', RefreshTokenView.as_view(), name='token_refresh'),
-    re_path(r'^verify-otp/?$', VerifyOTPView.as_view(), name='verify_otp'),
     re_path(r'^oauth/42/?$', FortyTwoOAuthView.as_view(), name='oauth_42'),
     re_path(r'^oauth/42/callback/?$', FortyTwoCallbackView.as_view(), name='oauth_42_callback'),
     
