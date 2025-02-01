@@ -44,8 +44,9 @@ class RegisterUserSerializer(serializers.ModelSerializer):
         user = User(
             username=validated_data['username'],
             email=validated_data['email'],
-            is_email_verified=False
+            is_email_verified=settings.DEBUG
         )
+        print(settings.DEBUG)
         user.set_password(validated_data['password'])
         user.save()
 

@@ -5,7 +5,6 @@ from .views.LoginView import LoginView
 from .views.LogoutView import LogoutView
 from .views.RefreshTokenView import RefreshTokenView
 from .views.RegisterView import RegisterUserView
-from .views.VerifyOTPView import VerifyOTPView
 from .views.VerifyTokenView import VerifyTokenView
 
 urlpatterns = [

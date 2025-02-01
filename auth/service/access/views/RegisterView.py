@@ -35,7 +35,6 @@ class RegisterUserView(APIView):
                 "user_id": user.id
             }, status=status.HTTP_201_CREATED)
 
-        print(serializer.errors)
         required_fields = {"username", "email", "password"}
         has_required_error = any(
             field in serializer.errors and any("This field is required" in str(err) for err in serializer.errors[field])
