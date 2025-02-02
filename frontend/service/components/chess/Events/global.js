@@ -22,6 +22,8 @@ let captureNotation = false;
 
 const chessVariantTmp = sessionStorage.getItem('chessVariant'); //borrar -> solucion temporal para asegurar la persistencia de la variable hasta que tengamos backend
 
+const moveSound = new Audio('components/chess/Assets/music/sound2.mp3');
+
 function changeTurn() {
   inTurn = inTurn === "white" ? "black" : "white";
 
@@ -262,6 +264,8 @@ function moveElement(piece, id, castle) {
   updateGlobalState(piece, id);
   clearHighlight();
   updatePiecePosition(piece, id);
+
+  moveSound.play();
 
   checkForCheck();
   

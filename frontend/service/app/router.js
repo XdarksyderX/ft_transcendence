@@ -14,6 +14,7 @@ import { loadLogin } from '../components/login/login.js';
 import { initializeIndexEvents } from '../components/index/app.js';
 import { verifyAndRedirect } from './auth.js';
 import { initializeSettingsEvents } from '../components/settings/app.js';
+import { startBackgroundMusic } from '../components/chess/Render/main.js';
 
 const routes = [
     { url: "/404", file: "./components/error/404.html" },
@@ -79,6 +80,7 @@ async function router() {
         case "/chess":
         //    console.log('Initializing chess events');
             initializeChessEvents();
+            //startBackgroundMusic()
             break;
         case "/settings":
             initializeNeonFrames();

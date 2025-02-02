@@ -1,6 +1,7 @@
 let chessVariant = null;
 import { throwAlert } from "../../app/render.js";
 import { navigateTo } from "../../app/router.js";
+import { startBackgroundMusic } from "../chess/Render/main.js";
 
 export function initializeStartGameEvents() {
     const elements = {
@@ -257,6 +258,7 @@ export function initializeStartGameEvents() {
     function playChessWithRandom() {
         throwAlert("this eventually will take you to waiting room");
         navigateTo("/chess");
+        //startBackgroundMusic();
     }
     elements.chess.playRandom.addEventListener("click", playChessWithRandom);
 
