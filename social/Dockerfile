@@ -12,13 +12,16 @@
 
 FROM python:3.11-bookworm
 
-COPY service /var/www/service
-
-RUN pip install --no-cache-dir -r /var/www/service/requirements.txt
+COPY service /service
 
 RUN apt-get update && apt-get install -y postgresql postgresql-contrib redis-server
 
-EXPOSE 5000
+RUN python3 -m venv /service/.venv && source /service/.venv/bin/activate
+
+RUN pip install --no-cache-dir -r /service/requirements.txt
+
+
+EXPOSE 5051
 EXPOSE 6379
 
 COPY entrypoint.sh /entrypoint.sh

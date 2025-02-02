@@ -1,13 +1,7 @@
-from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
-from django.db.models import Q
-from django.http import JsonResponse
-from friends.models import User
-
-import jwt
-from config.settings import JWT_SECRET
+from core.models import User
 
 class BlockUserView(APIView): # GOOD
     """

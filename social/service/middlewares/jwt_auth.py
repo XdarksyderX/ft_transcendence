@@ -1,7 +1,7 @@
 import jwt
 from django.conf import settings
 from django.utils.deprecation import MiddlewareMixin
-from friends.models import User # TODO middleware: de que modelo importo ver si esta bien
+from core.models import User # TODO middleware: de que modelo importo ver si esta bien
 
 class JWTAuthenticationMiddleware(MiddlewareMixin):
     """
@@ -15,7 +15,7 @@ class JWTAuthenticationMiddleware(MiddlewareMixin):
 
         token = auth_header.split(' ')[1]
         try:
-            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+            payload = jwt.decode(token, settings.JWT_SECRET, algorithms=['HS256'])
             user_id = payload.get('user_id')
 
             try:

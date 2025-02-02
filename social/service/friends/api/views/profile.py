@@ -1,13 +1,8 @@
-from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
-from django.db.models import Q
-from friends.models import User, Status
+from core.models import User
 from friends.api.serializers import ProfileSerializer
-import jwt
-from config.settings import JWT_SECRET
-from django.http import JsonResponse
 
 class ProfileView(APIView):
     """
@@ -23,23 +18,15 @@ class ProfileView(APIView):
     """
     def get(self, request):
         try:
-            auth_header = request.META.get('HTTP_AUTHORIZATION', '')
-
-            if not auth_header.startswith('Bearer '):
-                return JsonResponse({'error': 'Invalid or missing Authorization header'}, status=status.HTTP_401_UNAUTHORIZED)
-
-            jwt_token = auth_header.split('Bearer ')[1]
-            try:
-                decoded_payload = jwt.decode(jwt_token, JWT_SECRET, algorithms=['HS256'])
-            except:
-                return Response({'error: invalid auth cookie'}, status=status.HTTP_401_UNAUTHORIZED)
-            
-            user_data = User.objects.get(user_id=decoded_payload["user_id"])
-
-            serializer = ProfileSerializer(user_data) # TODO no se si es user_data o user_data.user_id
-            return Response(serializer.data, status=200)
+            serializer = ProfileSerializer(request.user)
+            response = {
+                'status': 'success',
+                'message': 'User profile data retrieved successfully.',
+                'data': serializer.data
+            }
+            return Response(response, status=status.HTTP_200_OK)
         except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'status':'error', 'message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
 class SearchUsersView(APIView):
     """

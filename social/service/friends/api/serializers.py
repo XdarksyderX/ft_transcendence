@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from friends.models import User, Status, InvitationRequest
+from core.models import User, Status, PendingInvitationRequest
 
 
 class UserInfoSerializer(serializers.ModelSerializer):
@@ -22,19 +22,6 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = User
         fields = ['username', 'avatar', 'status']
 
-    def get_status(self, obj):
-        """
-        Retrieves the status of the user (online, missing, or disconnected).
-        """
-        try:
-            user_status = Status.objects.get(user_id=obj)
-            if user_status.online:
-                return "Online"
-            else:
-                return "Disconnected"
-        except Status.DoesNotExist:
-            return "No status available"
-
 
 # FRIENDS LIST SERIALIZER
 class InvitationRequestSerializer(serializers.ModelSerializer):
@@ -42,7 +29,7 @@ class InvitationRequestSerializer(serializers.ModelSerializer):
     receiver_username = serializers.CharField(source='receiver.username', read_only=True)
 
     class Meta:
-        model = InvitationRequest
+        model = PendingInvitationRequest
         fields = ['user_id', 'sender', 'receiver', 'sender_username', 'receiver_username', 'status', 'timestamp']
 
 

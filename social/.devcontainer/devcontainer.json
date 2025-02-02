@@ -19,7 +19,7 @@
   	],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	 "postCreateCommand": ". service/.venv/bin/activate && pip3 install --user -r service/requirements.txt && bash entrypoint.sh",
+	 "postCreateCommand": "python3 -m venv service/.venv && . service/.venv/bin/activate && pip3 install -r service/requirements.txt && bash entrypoint.sh",
 
 	// Configure tool-specific properties.
 	// "customizations": {},

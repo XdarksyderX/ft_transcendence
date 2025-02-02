@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -20,11 +21,25 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-72l+tfkx8-5nh!1l-m&jsa@kzfd&-zi_gz-@fwyhsd)&jvrtb4'
+
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+JWT_SECRET = os.getenv('JWT_SECRET')
+APPEND_SLASH = True
+FRONTEND_URL = os.getenv('FRONTEND_URL')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+AMQP_ENABLED = False
+ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1']
+
+#Rabbitmq Config
+RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "rabbitmq")
+RABBITMQ_PORT = int(os.getenv("RABBITMQ_PORT", 5672))
+RABBITMQ_USER = os.getenv("RABBITMQ_USER", "guest")
+RABBITMQ_PASSWORD = os.getenv("RABBITMQ_PASSWORD", "guest")
+RABBITMQ_VHOST = os.getenv("RABBITMQ_VHOST", "/")
+
+AUTH_USER_MODEL = 'core.User'
 
 ALLOWED_HOSTS = []
 
@@ -42,6 +57,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'chat',
     'friends',
+    'core'
 ]
 
 MIDDLEWARE = [
@@ -101,7 +117,6 @@ DATABASES = {
     }
 }
 
-JWT_SECRET = os.getenv("JWT_SECRET")
 
 
 # Password validation

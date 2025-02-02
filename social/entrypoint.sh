@@ -9,8 +9,8 @@ su postgres -c "psql -c \"ALTER USER $SOCIALDB_USER CREATEDB;\""
 
 # redis-server &  # Run redis-server in the background # TODO Ver si asi se ejecuta bien redis
 
-python3 /var/www/servicemanage.py makemigrations core
-python3 /var/www/servicemanage.py makemigrations
-python3 /var/www/servicemanage.py migrate
+python3 service/manage.py makemigrations core
+python3 service/manage.py makemigrations
+python3 service/manage.py migrate
 
-exec python /var/www/servicemanage.py runserver 0.0.0.0:5000
+exec python service/manage.py runserver 0.0.0.0:5051
