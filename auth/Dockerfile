@@ -12,11 +12,13 @@
 
 FROM python:3.11-bookworm
 
+RUN apt-get update && apt-get install -y postgresql postgresql-contrib
+
 COPY service /service
 
-RUN pip install --no-cache-dir -r /service/requirements.txt
+RUN python3 -m venv /service/.venv && source /service/.venv/bin/activate
 
-RUN apt-get update && apt-get install -y postgresql postgresql-contrib
+RUN pip install --no-cache-dir -r /service/requirements.txt
 
 EXPOSE 5000
 
