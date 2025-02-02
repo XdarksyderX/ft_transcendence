@@ -1,24 +1,34 @@
-import pika
 import json
+import pika
 from django.conf import settings
 
 class RabbitMQClient:
-    def __init__(self):
-        self.mock_enabled = not settings.AMQP_ENABLED
+    _instance = None
 
-        if not self.mock_enabled:
-            credentials = pika.PlainCredentials(settings.RABBITMQ_USER, settings.RABBITMQ_PASSWORD)
-            parameters = pika.ConnectionParameters(
-                host=settings.RABBITMQ_HOST,
-                port=settings.RABBITMQ_PORT,
-                virtual_host=settings.RABBITMQ_VHOST,
-                credentials=credentials
-            )
-            self.connection = pika.BlockingConnection(parameters)
-            self.channel = self.connection.channel()
-        else:
-            self.connection = None
-            self.channel = None
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(RabbitMQClient, cls).__new__(cls, *args, **kwargs)
+        return cls._instance
+
+    def __init__(self):
+        if not hasattr(self, 'initialized'):
+            self.mock_enabled = not settings.AMQP_ENABLED
+
+            if not self.mock_enabled:
+                credentials = pika.PlainCredentials(settings.RABBITMQ_USER, settings.RABBITMQ_PASSWORD)
+                parameters = pika.ConnectionParameters(
+                    host=settings.RABBITMQ_HOST,
+                    port=settings.RABBITMQ_PORT,
+                    virtual_host=settings.RABBITMQ_VHOST,
+                    credentials=credentials
+                )
+                self.connection = pika.BlockingConnection(parameters)
+                self.channel = self.connection.channel()
+            else:
+                self.connection = None
+                self.channel = None
+
+            self.initialized = True
 
     def publish(self, exchange, routing_key, message):
         if self.mock_enabled:
