@@ -6,6 +6,13 @@ import { renderHordePieces } from "../Variants/horde.js";
 const globalPiece = new Object();
 const chessVariantTmp = sessionStorage.getItem('chessVariant'); //borrar -> solucion temporal para asegurar la persistencia de la variable hasta que tengamos backend
 
+const backgroundMusic = new Audio('components/chess/Assets/music/wiiChess.mp3')
+backgroundMusic.loop = true;
+
+function startBackgroundMusic() {
+  backgroundMusic.play();
+}
+
 /**
  * funciton globlaStateRender is usefull to render pieces from globalStateData,
  * when updating globalState
@@ -110,6 +117,7 @@ const piecePositions = {
  */
 function initGameRender(data)
 {
+  startBackgroundMusic();
   globalPiece.black_pawns = [];
   globalPiece.white_pawns = [];
 
@@ -207,4 +215,4 @@ function circleHighlightRender(highlightSquareIds, keySquareMapper) {
   });
 }
 
-export { initGameRender, renderHighlight, clearHighlight, selfHighlight, globalStateRender, globalPiece, circleHighlightRender, piecePositions };
+export { initGameRender, renderHighlight, clearHighlight, selfHighlight, globalStateRender, globalPiece, circleHighlightRender, piecePositions, startBackgroundMusic };
