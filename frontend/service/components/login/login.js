@@ -1,16 +1,16 @@
 import { navigateTo } from '../../app/router.js';
 import { loadChat, loadSidebar, throwAlert } from '../../app/render.js';
-import { getUsername, refreshAccessToken } from '../../app/auth.js';
+import { getUsername, refreshAccessToken, login } from '../../app/auth.js';
 
-export function initializeLoginEvents() {
+export async function initializeLoginEvents() {
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
         loginForm.addEventListener('submit', async function(event) {
             event.preventDefault();
-            const username = document.getElementById('username').value || 'eli';
-            const password = document.getElementById('password').value || 'Octubre10';
-            const otpCode = document.getElementById('otp')?.value || null;
-            await login({ username, password, two_fa_code: otpCode });
+            const username = document.getElementById('username').value.trim() || 'eli';
+            const password = document.getElementById('password').value.trim() || 'Octubre10';
+            const otpCode = document.getElementById('otp')?.value.trim() || null;
+            await authenticateUser({ username, password, two_fa_code: otpCode });
         });
     }
     
@@ -20,28 +20,23 @@ export function initializeLoginEvents() {
     }
 }
 
-async function login(userCredentials) {
+async function authenticateUser(userCredentials) {
     try {
-        const response = await fetch('http://localhost:5050/login/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(userCredentials)
-        });
-        
-        const data = await handleServerError(response);
+        const loginData = await login(userCredentials);
 
-        if (data.status === 'success' && data.access_token) {
-            console.log('Login successful:', data.access_token);
-            await refreshAccessToken();
+        if (loginData.status === "success") {
+            console.log("Login successful:", loginData.access_token);
             loadLogin();
-        } else if (data.status === 'error' && data.message === 'OTP required.') {
-            showOTPForm(userCredentials.username);
-        } else {
-            throwAlert(data.message || 'Authentication error');
+        } 
+        else if (loginData.status === "otp_required") {
+            showOTPForm(userCredentials);
+        } 
+        else {
+            throwAlert(loginData.message);
         }
     } catch (error) {
-        console.error('Authentication error:', error);
-        throwAlert('An error occurred during login. Please try again later.');
+        console.error("Authentication error:", error);
+        throwAlert("An error occurred during login. Please try again later.");
     }
 }
 
@@ -56,11 +51,11 @@ function updateNavbar(username) {
     document.getElementById('navbar-content').innerHTML = `<div>Welcome ${username}</div>`;
 }
 
-function showOTPForm(username) {
+async function showOTPForm(userCredentials) {
     document.getElementById('app').innerHTML = `
         <div class="ctm-card">
             <h2 class="text-center ctm-text-title">Enter OTP</h2>
-            <form id="login-form">
+            <form id="otp-form">
                 <div class="mb-3">
                     <label for="otp" class="form-label ctm-text-light">One-Time Password (OTP)</label>
                     <input type="text" class="form-control ctm-text-dark" id="otp" required>
@@ -71,12 +66,23 @@ function showOTPForm(username) {
             </form>
         </div>
     `;
-    initializeLoginEvents();
+
+    document.getElementById('otp-form').addEventListener('submit', async function(event) {
+        event.preventDefault();
+        const otpCode = document.getElementById('otp').value.trim();
+        if (!otpCode) {
+            throwAlert('Please enter the OTP code.');
+            return;
+        }
+
+        await authenticateUser({ ...userCredentials, two_fa_code: otpCode });
+    });
 }
 
 async function handleServerError(response) {
-    if (response.status >= 500) {
-        throw new Error(`Server error! Status: ${response.status}`);
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: "Unknown error" }));
+        throw new Error(errorData.message || `Server error! Status: ${response.status}`);
     }
     return response.json();
 }

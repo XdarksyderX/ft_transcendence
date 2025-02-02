@@ -61,6 +61,7 @@ class LoginView(APIView):
         refresh["user_id"] = user.id
         refresh["username"] = user.username
         refresh["two_fa_enabled"] = user.two_fa_enabled
+        refresh["oauth_registered"] = user.oauth_registered
         access_token = str(refresh.access_token)
 
         response = Response(
@@ -72,17 +73,17 @@ class LoginView(APIView):
         response.set_cookie(
             key='refresh_token',
             value=str(refresh),
-            httponly=False,  # Bloquea el acceso desde JavaScript para evitar XSS
-            secure=False,  # Solo se envía por HTTPS
+            httponly=True,
+            secure=True,
             expires=http_date(expiration.timestamp()),
-            samesite='None'  # Permite el uso en diferentes dominios (frontend/backend separados)
+            samesite='None'
         )
 
         response.set_cookie(
             key='access_token',
             value=str(access_token),
-            httponly=False,  # Protege contra XSS
-            secure=False,  # Obliga a usar HTTPS
+            httponly=True,
+            secure=True,
             expires=http_date(expiration.timestamp()),
             samesite='None'
         )

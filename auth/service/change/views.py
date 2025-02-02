@@ -4,7 +4,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from .serializers import ChangeUsernameSerializer, ChangeEmailSerializer, ResetPasswordRequestSerializer, ResetPasswordSerializer
+from .serializers import (ChangeUsernameSerializer, 
+                          ChangeEmailSerializer, ResetPasswordRequestSerializer, 
+                          ResetPasswordSerializer, 
+                          ChangePasswordSerializer)
 from django.core.mail import send_mail
 from django.conf import settings
 from datetime import timedelta
@@ -14,6 +17,16 @@ from django.utils import timezone
 from core.utils.rabbitmq_client import RabbitMQClient
 from core.utils.event_domain import wrap_event_data
 import secrets
+
+class ChangePasswordView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = ChangePasswordSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"status": "success", "message": "Password changed successfully"}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ChangeUsernameView(APIView):
     permission_classes = [IsAuthenticated]
