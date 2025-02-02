@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from .serializers import DeleteAccountSerializer
+from ..serializers import DeleteAccountSerializer
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -22,12 +22,12 @@ class DeleteAccountView(APIView):
                 user = request.user
                 user.delete()
                 return Response(
-                    {"message": "Account deleted successfully"},
+                    {"status": "sucess", "message": "Account deleted successfully"},
                     status=status.HTTP_204_NO_CONTENT
                 )
             except Exception as e:
                 return Response(
-                    {"error": "Failed to delete account"},
+                    {"status":"error", "message": "Failed to delete account"},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
         

@@ -20,7 +20,7 @@ RUN python3 -m venv /service/.venv && source /service/.venv/bin/activate
 
 RUN pip install --no-cache-dir -r /service/requirements.txt
 
-EXPOSE 5000
+EXPOSE 5050
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh

@@ -12,7 +12,7 @@
 
 FROM alpine:3.18
 
-RUN apk update && apk add --no-cache lighttpd
+RUN apk update && apk add --no-cache lighttpd bash
 
 RUN mkdir -p /var/www/service
 

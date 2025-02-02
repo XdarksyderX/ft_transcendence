@@ -29,14 +29,3 @@ class VerifyEmailSerializer(serializers.Serializer):
         verification.user.is_email_verified = True
         verification.user.save()
         return verification.user
-
-class Activate2FASerializer(serializers.Serializer):
-    enable = serializers.BooleanField(
-        error_messages={'required': 'This field is required: enable'}
-    )
-
-    def validate(self, data):
-        user = self.context['request'].user
-        if not user.is_authenticated:
-            raise serializers.ValidationError({"error": "User must be authenticated to activate 2FA."})
-        return data

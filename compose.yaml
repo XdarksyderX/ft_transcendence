@@ -34,7 +34,7 @@ services:
       context: auth
       dockerfile: Dockerfile
     ports:
-      - 5050:5000
+      - 5050:5050
     env_file:
       - .env
       - auth/service/.env

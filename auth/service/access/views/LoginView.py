@@ -61,6 +61,7 @@ class LoginView(APIView):
         refresh["user_id"] = user.id
         refresh["username"] = user.username
         refresh["two_fa_enabled"] = user.two_fa_enabled
+        refresh["oauth_registered"] = user.oauth_registered
         access_token = str(refresh.access_token)
 
         response = Response(
@@ -73,9 +74,20 @@ class LoginView(APIView):
             key='refresh_token',
             value=str(refresh),
             httponly=True,
+            secure=True,
             expires=http_date(expiration.timestamp()),
-            samesite='Strict'
+            samesite='None'
         )
+
+        response.set_cookie(
+            key='access_token',
+            value=str(access_token),
+            httponly=True,
+            secure=True,
+            expires=http_date(expiration.timestamp()),
+            samesite='None'
+        )
+
 
         rabbit_client = RabbitMQClient()
         try:
