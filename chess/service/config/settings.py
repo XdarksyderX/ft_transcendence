@@ -21,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-72l+tfkx8-5nh!1l-m&jsa@kzfd&-zi_gz-@fwyhsd)&jvrtb4'
+SECRET_KEY = 'django-insecure-jt&sp48ekitf!ma97)j!0o*2beu_q5@3%4sq+*hpx-+zge2mwn'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -40,8 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
-    'chat',
-    'friends',
+    'core',
+    'game',
 ]
 
 MIDDLEWARE = [
@@ -52,7 +52,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'middlewares.jwt_auth.JWTAuthenticationMiddleware', # TODO middleware: comprobar si el path está bien
+    'middlewares.jwt_auth.JWTAuthenticationMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -76,30 +76,31 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 # ASGI Config
-ASGI_APPLICATION = 'backend.asgi.application'
+ASGI_APPLICATION = 'config.asgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# CHANNEL_LAYERS = { # TODO descomentar
-#     "default": {
-#         "BACKEND": "channels_redis.core.RedisChannelLayer",
-#         "CONFIG": {
-#             "hosts": [("redis", 6379)], #redis_cont es la dirección del contenedor de redis
-#         },
-#     },
-# }
+CHANNEL_LAYERS = { # CHANGE TO RABBITMQ
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)], #redis_cont es la dirección del contenedor de redis
+        },
+    },
+}
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('SOCIALDB_NAME'),
-        'USER': os.getenv('SOCIALDB_USER'),
-        'PASSWORD': os.getenv('SOCIALDB_PASSWORD'),
-        'HOST': os.getenv('SOCIALDB_HOST', 'localhost'),
-        'PORT': os.getenv('SOCIALDB_PORT', '5432'),
+        'NAME': os.getenv('AUTHDB_NAME'),
+        'USER': os.getenv('AUTHDB_USER'),
+        'PASSWORD': os.getenv('AUTHDB_PASSWORD'),
+        'HOST': os.getenv('AUTHDB_HOST', 'localhost'),
+        'PORT': os.getenv('AUTHDB_PORT', '5432'),
     }
 }
+
 
 JWT_SECRET = os.getenv("JWT_SECRET")
 
