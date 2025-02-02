@@ -18,7 +18,7 @@ RUN pip install --no-cache-dir -r /service/requirements.txt
 
 RUN apt-get update && apt-get install -y postgresql postgresql-contrib
 
-EXPOSE 5000
+EXPOSE 5050
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh

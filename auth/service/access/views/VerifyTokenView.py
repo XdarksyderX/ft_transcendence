@@ -9,6 +9,7 @@ class VerifyTokenView(APIView):
 
     def post(self, request):
         access_token = request.COOKIES.get("access_token")
+        print("Como esta: ", access_token)
         if not access_token:
             return Response(
                 {"status": "error", "message": "Access token not found in cookies."},
@@ -17,7 +18,8 @@ class VerifyTokenView(APIView):
         try:
             AccessToken(access_token)
             return Response({"status": "success", "message": "Token is valid."}, status=status.HTTP_200_OK)
-        except Exception:
+        except Exception as e:
+            print(e)
             return Response(
                 {"status": "error", "message": "Invalid or expired access token."},
                 status=status.HTTP_401_UNAUTHORIZED

@@ -42,7 +42,7 @@ class RegisterUserView(APIView):
         )
         
         if has_required_error:
-            return Response({"status": "error", "message": "This username or email is already registered."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"status": "error", "message": "The fields username, email and password are required."}, status=status.HTTP_400_BAD_REQUEST)
         
         first_error = next(iter(serializer.errors.values()))[0] if serializer.errors else "An error occurred."
         return Response({"status": "error", "message": first_error}, status=status.HTTP_400_BAD_REQUEST)

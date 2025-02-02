@@ -72,10 +72,21 @@ class LoginView(APIView):
         response.set_cookie(
             key='refresh_token',
             value=str(refresh),
-            httponly=True,
+            httponly=False,  # Bloquea el acceso desde JavaScript para evitar XSS
+            secure=False,  # Solo se envía por HTTPS
             expires=http_date(expiration.timestamp()),
-            samesite='Strict'
+            samesite='None'  # Permite el uso en diferentes dominios (frontend/backend separados)
         )
+
+        response.set_cookie(
+            key='access_token',
+            value=str(access_token),
+            httponly=False,  # Protege contra XSS
+            secure=False,  # Obliga a usar HTTPS
+            expires=http_date(expiration.timestamp()),
+            samesite='None'
+        )
+
 
         rabbit_client = RabbitMQClient()
         try:

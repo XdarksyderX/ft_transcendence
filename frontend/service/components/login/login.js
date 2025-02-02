@@ -1,57 +1,25 @@
 import { navigateTo } from '../../app/router.js';
-import {loadChat, loadSidebar, throwAlert} from '../../app/render.js';
-import jwtDecode from 'https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.esm.js';
-import { getCookie } from '../../app/auth.js'
+import { loadChat, loadSidebar, throwAlert } from '../../app/render.js';
+import { getUsername, refreshAccessToken } from '../../app/auth.js';
 
 export function initializeLoginEvents() {
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
-        loginForm.addEventListener('submit', function(event) {
+        loginForm.addEventListener('submit', async function(event) {
             event.preventDefault();
-            let username = document.getElementById('username').value;
-            let password = document.getElementById('password').value;
-
-            if (username === '' || password === '') {
-                //throwAlert('Please fill in all fields');
-                //hardcodedLogin();
-                //return;
-                username = "eli";
-                password = "Octubre10";
-            }
-            const userCredentials = { username, password };
-            login(userCredentials);
+            const username = document.getElementById('username').value || 'eli';
+            const password = document.getElementById('password').value || 'Octubre10';
+            const otpCode = document.getElementById('otp')?.value || null;
+            await login({ username, password, two_fa_code: otpCode });
         });
     }
+    
     const cancelLogin = document.getElementById('cancel-login');
     if (cancelLogin) {
-        cancelLogin.addEventListener('click', () => {
-            navigateTo('/');
-        });
+        cancelLogin.addEventListener('click', () => navigateTo('/'));
     }
 }
 
-function updateNavbar(username) {
-    const navbarContent = document.getElementById('navbar-content');
-    navbarContent.innerHTML = `<div>Welcome ${username}</div>`
-}
-
-function hardcodedLogin() { //sorry
-    localStorage.setItem("hardcoded", true);
-    loadChat();
-    loadSidebar();
-    updateNavbar('erivero-');
-    navigateTo('/start-game');
-}
-
-export function loadLogin(move = true) {
-    const { username } = jwtDecode(getCookie('authToken'));
-    loadChat();
-    loadSidebar();
-    updateNavbar(username);
-    if (move) {
-        navigateTo('/start-game');
-    }
-}
 async function login(userCredentials) {
     try {
         const response = await fetch('http://localhost:5050/login/', {
@@ -59,20 +27,16 @@ async function login(userCredentials) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(userCredentials)
         });
-
+        
         const data = await handleServerError(response);
 
         if (data.status === 'success' && data.access_token) {
-            console.log('Login successful, received access token:', data.access_token);
-            //localStorage.setItem('authToken', data.access_token);
-            document.cookie = `authToken=${data.access_token}; path=/; secure; SameSite=Strict`;
-            console.log('Cookie set:', document.cookie);
+            console.log('Login successful:', data.access_token);
+            await refreshAccessToken();
             loadLogin();
         } else if (data.status === 'error' && data.message === 'OTP required.') {
-            await showOTPForm(data.temp_token, userCredentials.username);
-            // Only call loadLogin after successful OTP verification
-        } else if (data.status === 'error' && data.message !== 'OTP required.') {
-            console.log(data.message);
+            showOTPForm(userCredentials.username);
+        } else {
             throwAlert(data.message || 'Authentication error');
         }
     } catch (error) {
@@ -81,82 +45,40 @@ async function login(userCredentials) {
     }
 }
 
-function showOTPForm(tempToken, username) {
-    return new Promise((resolve, reject) => {
-        const appContainer = document.getElementById('app');
-        appContainer.innerHTML = `
-            <div class="ctm-card">
-                <h2 class="text-center ctm-text-title">Enter OTP</h2>
-                <form id="otp-form">
-                    <div class="mb-3">
-                        <label for="otp" class="form-label ctm-text-light">One-Time Password (OTP)</label>
-                        <input type="text" class="form-control ctm-text-dark" id="otp" required>
-                    </div>
-                    <div class="d-flex justify-content-center">
-                        <button type="submit" class="btn ctm-btn" id="submit-otp">Submit</button>
-                    </div>
-                </form>
-            </div>
-        `;
-
-        const otpForm = document.getElementById('otp-form');
-        otpForm.addEventListener('submit', async function(event) {
-            event.preventDefault();
-            const otpCode = document.getElementById('otp').value;
-            if (otpCode === '') {
-                throwAlert('Please enter the OTP');
-                return;
-            }
-
-            try {
-                await verifyOTP(tempToken, otpCode, username);
-                resolve();
-                loadLogin(); // Call loadLogin after successful OTP verification
-            } catch (error) {
-                reject(error);
-            }
-        });
-    });
+export function loadLogin(move = true) {
+    loadChat();
+    loadSidebar();
+    updateNavbar(getUsername());
+    if (move) navigateTo('/start-game');
 }
 
-async function verifyOTP(tempToken, otpCode, username) {
-    console.log({ temp_token: tempToken, two_fa_code: otpCode });
-    try {
-        const response = await fetch('http://localhost:5050/verify-otp/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ temp_token: tempToken, two_fa_code: otpCode })
-        });
-
-        if (response.status >= 500 && response.status < 600) {
-            throw new Error(`Server error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        console.log(data);
-
-        if (data.status === 'success' && data.access_token) {
-            console.log('OTP verified, received JWT:', data.access_token);
-//          localStorage.setItem('authToken', data.access_token);
-            document.cookie = `authToken=${data.access_token}; path=/; secure; SameSite=Strict`;
-            loadLogin();
-
-           // navigateTo('/start-game');
-        } else {
-            throwAlert(data.message || 'OTP verification failed');
-            throw new Error('OTP verification failed');
-        }
-    } catch (error) {
-        console.error('OTP verification error:', error);
-        throwAlert('An error occurred during OTP verification. Please try again later.');
-        throw error;
-    }
+function updateNavbar(username) {
+    document.getElementById('navbar-content').innerHTML = `<div>Welcome ${username}</div>`;
 }
-function handleServerError(response) {
-    if (response.status >= 500 && response.status < 600) {
-        throw new Error(`Server error! status: ${response.status}`);
+
+function showOTPForm(username) {
+    document.getElementById('app').innerHTML = `
+        <div class="ctm-card">
+            <h2 class="text-center ctm-text-title">Enter OTP</h2>
+            <form id="login-form">
+                <div class="mb-3">
+                    <label for="otp" class="form-label ctm-text-light">One-Time Password (OTP)</label>
+                    <input type="text" class="form-control ctm-text-dark" id="otp" required>
+                </div>
+                <div class="d-flex justify-content-center">
+                    <button type="submit" class="btn ctm-btn">Submit</button>
+                </div>
+            </form>
+        </div>
+    `;
+    initializeLoginEvents();
+}
+
+async function handleServerError(response) {
+    if (response.status >= 500) {
+        throw new Error(`Server error! Status: ${response.status}`);
     }
     return response.json();
 }
 
-export { handleServerError}
+export { handleServerError };

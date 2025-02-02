@@ -55,11 +55,6 @@ class PongGame(models.Model):
     def __str__(self):
         return f"Game {self.id}: {self.player1} vs {self.player2}"
 
-
-from django.db import models
-from core.models import User, PongGame
-
-
 class Tournament(models.Model):
     name = models.CharField(max_length=100)
     organizer = models.ForeignKey(
