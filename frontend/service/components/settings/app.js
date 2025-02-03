@@ -81,15 +81,15 @@ async function handleChangePassword() {
     success ? throwAlert("Password changed successfully") : throwAlert("Failed to change password.");
 }
 
-export function initializeSettingsEvents() {
-	init2FAEvents();
-	document.getElementById('edit-profile-pencil').addEventListener('click', () => {
-		navigateTo("/profile");
-        //we create a temporal flag to toggle the edit mode directly
-        sessionStorage.setItem("editMode", "true");
-    } )
-	initChangePasswordEvents();
-}
+// export function initializeSettingsEvents() {
+// 	init2FAEvents();
+// 	document.getElementById('edit-profile-pencil').addEventListener('click', () => {
+// 		navigateTo("/profile");
+//         //we create a temporal flag to toggle the edit mode directly
+//         sessionStorage.setItem("editMode", "true");
+//     } )
+// 	initChangePasswordEvents();
+// }
 /** Delete Account (only requires password) */
 async function handleDeleteAccount() {
     const password = document.getElementById("delete-password").value;
