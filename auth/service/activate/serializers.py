@@ -11,13 +11,13 @@ class VerifyEmailSerializer(serializers.Serializer):
         try:
             verification = EmailVerification.objects.get(verification_code=value)
         except EmailVerification.DoesNotExist:
-            raise serializers.ValidationError("Invalid verification code.")
+            raise serializers.ValidationError({"error": "Invalid verification code."})
 
         if verification.expires_at < timezone.now():
-            raise serializers.ValidationError("Verification code has expired.")
+            raise serializers.ValidationError({"error": "Verification code has expired."})
 
         if verification.verified:
-            raise serializers.ValidationError("This email is already verified.")
+            raise serializers.ValidationError({"error": "This email is already verified."})
 
         return value
 
@@ -29,14 +29,3 @@ class VerifyEmailSerializer(serializers.Serializer):
         verification.user.is_email_verified = True
         verification.user.save()
         return verification.user
-
-class Activate2FASerializer(serializers.Serializer):
-    enable = serializers.BooleanField(
-        error_messages={'required': 'This field is required: enable'}
-    )
-
-    def validate(self, data):
-        user = self.context['request'].user
-        if not user.is_authenticated:
-            raise serializers.ValidationError("User must be authenticated to activate 2FA.")
-        return data

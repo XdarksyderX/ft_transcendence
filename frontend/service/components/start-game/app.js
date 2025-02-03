@@ -1,6 +1,8 @@
 let chessVariant = null;
 import { throwAlert } from "../../app/render.js";
-//import { navigateTo } from "../../app/router.js";
+import { navigateTo } from "../../app/router.js";
+import { startBackgroundMusic } from "../chess/Render/main.js";
+
 export function initializeStartGameEvents() {
     const elements = {
         pong: {
@@ -11,7 +13,7 @@ export function initializeStartGameEvents() {
                 btn: document.getElementById('quick-play'),
                 options: document.getElementById('quick-play-options'),
                 playFriend: document.getElementById('play-friend'),
-                playAnyFriend: document.getElementById('play-any-friend'),
+                playRandom: document.getElementById('play-any-friend'),
                 playMachine: document.getElementById('play-machine'),
                 friendList: document.getElementById('friend-list'),
                 friendsContainer: document.getElementById('friends-container'),
@@ -38,7 +40,7 @@ export function initializeStartGameEvents() {
             },
             friendsOptions: document.getElementById('chess-friend-options'),
             playFriend: document.getElementById('chess-friend'),
-            playAnyFriend: document.getElementById('chess-random'),
+            playRandom: document.getElementById('chess-random'),
             friendList: document.getElementById('chess-friend-list'),
             friendsContainer: document.getElementById('chess-friends-container'),
             startGameWithFriendButton: document.getElementById('start-chess-with-friend'),
@@ -85,8 +87,18 @@ export function initializeStartGameEvents() {
     }
     // hides the overlay restoring the original z-index
     function hideOverlay() {
-        elements.overlay.lay.style.display = 'none';
-       elements.overlay.chat.style.zIndex = 'auto';
+        const overlay = elements.overlay.lay;
+        overlay.style.transition = 'opacity 0.3s ease-out';
+        overlay.style.opacity = '0';
+    
+        overlay.addEventListener('transitionend', function handleTransitionEnd() {
+            overlay.style.display = 'none';
+            overlay.style.opacity = '';
+            overlay.style.transition = '';
+            overlay.removeEventListener('transitionend', handleTransitionEnd);
+        });
+    
+        elements.overlay.chat.style.zIndex = 'auto';
         elements.pong.btn.style.zIndex = 'auto';
         elements.chess.btn.style.zIndex = 'auto';
         toggleView(currentView, null);
@@ -114,11 +126,11 @@ export function initializeStartGameEvents() {
     }
     elements.pong.quickPlay.playFriend.addEventListener('click', playPongWithFriend);
 
-    function playWithAnyFriend() {
+    function playPongWithRandom() {
         console.log("Play with any friend option selected");
         throwAlert("this eventually will take you to waiting room");
     }
-    elements.pong.quickPlay.playAnyFriend.addEventListener('click', playWithAnyFriend);
+    elements.pong.quickPlay.playRandom.addEventListener('click', playPongWithRandom);
 
     function playAgainstMachine() {
         console.log("Play against the machine option selected");
@@ -243,6 +255,13 @@ export function initializeStartGameEvents() {
     }
     elements.chess.playFriend.addEventListener('click', playChessWithFriend);
 
+    function playChessWithRandom() {
+        throwAlert("this eventually will take you to waiting room");
+        navigateTo("/chess");
+        //startBackgroundMusic();
+    }
+    elements.chess.playRandom.addEventListener("click", playChessWithRandom);
+
     function showChessVariants() {
         toggleView(currentView, elements.chess.variants.container);
     
@@ -269,4 +288,5 @@ export function initializeStartGameEvents() {
 
     elements.pong.quickPlay.startGameWithFriendButton.addEventListener('click', () => launchWaitModal('pong'));
     elements.chess.startGameWithFriendButton.addEventListener('click', () => launchWaitModal('chess'));
+    elements.pong.tournament.ongoing.addEventListener('click', () => navigateTo("/ongoing-tournaments"));
 }

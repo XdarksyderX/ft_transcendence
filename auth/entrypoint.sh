@@ -11,4 +11,4 @@ python3 service/manage.py makemigrations core
 python3 service/manage.py makemigrations
 python3 service/manage.py migrate
 
-exec python service/manage.py runserver 0.0.0.0:5000
+exec python service/manage.py runserver 0.0.0.0:5050

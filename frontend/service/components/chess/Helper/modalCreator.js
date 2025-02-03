@@ -24,13 +24,13 @@ class ModalCreator {
   show() {
     this.open = true;
     document.body.appendChild(this.body);
-    document.getElementById("root").classList.add("blur");
+    document.getElementById("app-container").classList.add("blur");
   }
   
   hide(){
     this.open = false;
     document.body.removeChild(this.body);
-    document.getElementById("root").classList.remove("blur");
+    document.getElementById("app-container").classList.remove("blur");
   }
 }
 
@@ -72,12 +72,14 @@ function pawnPromotion(color, callback, id) {
   };
 
   const imageContainer = document.createElement("div");
+  imageContainer.classList.add("image-container");
   ["rook", "knight", "bishop", "queen"].forEach((pieceName) => {
     imageContainer.appendChild(createPieceImage(pieceName));
   });
 
   const msg = document.createElement("p");
   msg.textContent = "Your Pawn has been promoted";
+  msg.classList.add('ctm-text-title')
 
   const finalContainer = document.createElement("div");
   finalContainer.appendChild(msg);
@@ -88,47 +90,44 @@ function pawnPromotion(color, callback, id) {
   modal.show();
 }
 
-//aqui habria que conectar los distintos botones a distintas paginas del front -> ver con Eli
 function winGame(winBool) {
   if(!winBool)
     return;
-  const msg = document.createElement("p");
-  msg.textContent = `${winBool} Wins!`;
+  const modalBody = document.createElement("div");
+  modalBody.innerHTML = `
 
-  const retryButton = document.createElement("button");
-  retryButton.textContent = "Retry";
-  retryButton.classList.add("retry-button");
-  retryButton.onclick = () => {
-    alert("oh shit here I go again");
-    location.reload(); //esto simplemente recarga la pagina, no es definitivo -> aqui guardariamos la victoria y/o derrota en el historial
-    modal.hide();
-  }
-  
+    <div class="tv mx-4 position-relative mb-3">
+       <p class="ctm-text-title">${winBool} Wins! </p>
+        <img src="../../resources/win.gif">
+       </div>
+       
+       `;
+      //  <img src="https://media.tenor.com/3ruuMQDaetoAAAAj/rolling-rainbow-cat.gif">
+
   const homeButton = document.createElement("button");
-  homeButton.textContent = "Home";
-  homeButton.classList.add("home-button");
+  homeButton.textContent = "Got it!";
+  homeButton.classList.add("btn");
+  homeButton.classList.add("ctm-btn-secondary");
+  // homeButton.classList.add("mt-5");
   homeButton.onclick = () => {
-    alert("jaja no ka pasao");
-    //location.reload(); //esto simplemente recarga la pagina, no es definitivo -> aqui guardariamos la victoria y/o derrota en el historial
+    //aqui guardariamos la victoria y/o derrota en el historial
     navigateTo('/start-game');
     modal.hide();
   }
   
   const buttonContainer = document.createElement("div");
-  buttonContainer.appendChild(retryButton);
   buttonContainer.appendChild(homeButton);
   
   const finalContainer = document.createElement("div");
-  finalContainer.appendChild(msg);
+  finalContainer.appendChild(modalBody);
   finalContainer.appendChild(buttonContainer);
   finalContainer.classList.add("chess-modal");
   const modal = new ModalCreator(finalContainer);
   modal.show();
 }
 
-//aqui habria que conectar los distintos botones a distintas paginas del front -> ver con Eli
 function resingOption() {
-  const msg = document.createElement("p");
+/*   const msg = document.createElement("p");
   msg.textContent = `You are about to resign the game\nAre you sure?`;
 
   const cancelButton = document.createElement("button");
@@ -137,13 +136,12 @@ function resingOption() {
   cancelButton.onclick = () => {
     modal.hide();
   }
-  
-  const resignButton = document.createElement("button");
-  resignButton.textContent = "Resign";
-  resignButton.classList.add("resign-button");
+   */
+  const resignButton = document.getElementById("resign-button");
+/*   resignButton.textContent = "Resign";
+  resignButton.classList.add("resign-button"); */
   resignButton.onclick = () => {
-    alert("Tenemos muuuuucho miero\nSon la 3 de la banana!");
-    //location.reload(); //esto simplemente recarga la pagina, no es definitivo -> aqui guardariamos la victorio y/o derrota en el historial
+    //aqui guardariamos la victoria y/o derrota en el historial
     navigateTo('/start-game');
     modal.hide();
   }

@@ -26,7 +26,7 @@ APPEND_SLASH = True
 FRONTEND_URL = os.getenv('FRONTEND_URL')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG", "True") == "True"
 AMQP_ENABLED = False
 
 ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1']
@@ -74,7 +74,7 @@ INSTALLED_APPS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'core.utils.CookieJWTAuthentication.CookieJWTAuthentication',
     ),
 }
 
@@ -85,11 +85,22 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+	'corsheaders.middleware.CorsMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware'
 ]
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:44519",
+	"http://localhost:8000",
+	"http://localhost:5080",
+	"http://localhost:80",
+]
+
+CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = True 
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
 
 ROOT_URLCONF = 'config.urls'
 

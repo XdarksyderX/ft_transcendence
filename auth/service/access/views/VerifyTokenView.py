@@ -1,11 +1,26 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from ..serializers import AccessTokenSerializer
+from rest_framework.permissions import AllowAny
+from rest_framework_simplejwt.tokens import AccessToken
 
 class VerifyTokenView(APIView):
+    permission_classes = [AllowAny]
+
     def post(self, request):
-        serializer = AccessTokenSerializer(data=request.data)
-        if serializer.is_valid():
-            return Response(serializer.validated_data["access_token"], status=status.HTTP_200_OK)
-        return Response({"status": "error", "message": serializer.errors}, status=status.HTTP_401_UNAUTHORIZED)
+        access_token = request.COOKIES.get("access_token")
+        print("Como esta: ", access_token)
+        if not access_token:
+            return Response(
+                {"status": "error", "message": "Access token not found in cookies."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        try:
+            AccessToken(access_token)
+            return Response({"status": "success", "message": "Token is valid."}, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(e)
+            return Response(
+                {"status": "error", "message": "Invalid or expired access token."},
+                status=status.HTTP_401_UNAUTHORIZED
+            )

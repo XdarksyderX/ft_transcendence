@@ -2,8 +2,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .serializers import VerifyEmailSerializer, Activate2FASerializer
-from core.models import User, TwoFA
+from .serializers import VerifyEmailSerializer
+from core.models import TwoFA
 from core.utils.rabbitmq_client import RabbitMQClient
 from core.utils.event_domain import wrap_event_data
 import pyotp
@@ -35,90 +35,80 @@ class VerifyEmailView(APIView):
                 "message": "Email verified successfully."
             }, status=status.HTTP_200_OK)
         
-        # Handle invalid serializer response with specific field error
-        errors = serializer.errors
-        field_name, field_errors = next(iter(errors.items()))
-        error_message = field_errors[0] if isinstance(field_errors, list) else field_errors
-        return Response({
-            "status": "error",
-            "message": error_message
-        }, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"status": "error", "message": serializer.errors.get('error', 'Invalid request.')}, status=status.HTTP_400_BAD_REQUEST)
 
 class Activate2FAView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        if request.user.is_anonymous:
-            return Response({
-                "status": "error",
-                "message": "User must be authenticated to activate 2FA."
-            }, status=status.HTTP_401_UNAUTHORIZED)
-
         if request.user.oauth_registered:
             return Response({
                 "status": "error",
                 "message": "2FA cannot be activated or deactivated for users registered with OAuth."
             }, status=status.HTTP_403_FORBIDDEN)
 
-        serializer = Activate2FASerializer(data=request.data, context={'request': request})
-        if serializer.is_valid():
-            enable_2fa = serializer.validated_data['enable']
-            user = request.user
+        user = request.user
+        if user.two_fa_enabled:
+            return Response({"status": "error", "message": "2FA is already activated."}, status=status.HTTP_400_BAD_REQUEST)
 
-            two_fa_instance, created = TwoFA.objects.get_or_create(user=user)
+        secret = pyotp.random_base32()
+        TwoFA.objects.update_or_create(user=user, defaults={"secret": secret})
+        user.two_fa_enabled = True
+        user.save()
 
-            if enable_2fa:
-                if two_fa_instance.is_active:
-                    return Response({
-                        "status": "error",
-                        "message": "2FA is already activated."
-                    }, status=status.HTTP_400_BAD_REQUEST)
+        rabbit_client = RabbitMQClient()
+        try:
+            event_data = wrap_event_data(
+                data={"user_id": user.id, "username": user.username},
+                event_type="auth.2fa_enabled",
+                aggregate_id=str(user.id)
+            )
+            rabbit_client.publish(exchange='auth', routing_key="auth.2fa_enabled", message=event_data)
+        finally:
+            rabbit_client.close()
 
-                secret = pyotp.random_base32()
-                TwoFA.objects.update_or_create(user=user, defaults={"secret": secret, "is_active": True})
+        return Response({"status": "success", "message": "2FA enabled successfully.", "secret": secret}, status=status.HTTP_200_OK)
 
-            else:
-                if not two_fa_instance.is_active:
-                    return Response({
-                        "status": "error",
-                        "message": "2FA is already deactivated."
-                    }, status=status.HTTP_400_BAD_REQUEST)
 
-                TwoFA.objects.filter(user=user).update(is_active=False)
+class Deactivate2FAView(APIView):
+    permission_classes = [IsAuthenticated]
 
-            user.two_fa_enabled = enable_2fa
-            user.save()
+    def post(self, request):
+        if request.user.oauth_registered:
+            return Response({
+                "status": "error",
+                "message": "2FA cannot be activated or deactivated for users registered with OAuth."
+            }, status=status.HTTP_403_FORBIDDEN)
 
-            rabbit_client = RabbitMQClient()
-            try:
-                event_type = "auth.2fa_enabled" if enable_2fa else "auth.2fa_disabled"
-                event_data = wrap_event_data(
-                    data={
-                        "user_id": user.id,
-                        "username": user.username,
-                    },
-                    event_type=event_type,
-                    aggregate_id=str(user.id)
-                )
-                rabbit_client.publish(exchange='auth', routing_key=event_type, message=event_data)
-            finally:
-                rabbit_client.close()
+        user = request.user
+        password = request.data.get("password")
+        two_fa_code = request.data.get("two_fa_code")
 
-            response_data = {
-                "status": "success",
-                "message": "2FA {} successfully.".format("enabled" if enable_2fa else "disabled")
-            }
+        if not password or not two_fa_code:
+            return Response({"status": "error", "message": "Password and OTP code are required."}, status=status.HTTP_400_BAD_REQUEST)
 
-            if enable_2fa:
-                response_data["secret"] = secret
+        if not user.check_password(password):
+            return Response({"status": "error", "message": "Invalid password."}, status=status.HTTP_401_UNAUTHORIZED)
 
-            return Response(response_data, status=status.HTTP_200_OK)
+        try:
+            two_fa_instance = user.two_fa
+            if not pyotp.TOTP(two_fa_instance.secret).verify(two_fa_code):
+                return Response({"status": "error", "message": "Invalid 2FA code."}, status=status.HTTP_401_UNAUTHORIZED)
+        except TwoFA.DoesNotExist:
+            return Response({"status": "error", "message": "2FA configuration not found."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Handle invalid serializer response with specific field error
-        errors = serializer.errors
-        field_name, field_errors = next(iter(errors.items()))
-        error_message = field_errors[0] if isinstance(field_errors, list) else field_errors
-        return Response({
-            "status": "error",
-            "message": error_message
-        }, status=status.HTTP_400_BAD_REQUEST)
+        TwoFA.objects.filter(user=user).delete()
+        user.two_fa_enabled = False
+        user.save()
+        rabbit_client = RabbitMQClient()
+        try:
+            event_data = wrap_event_data(
+                data={"user_id": user.id, "username": user.username},
+                event_type="auth.2fa_disabled",
+                aggregate_id=str(user.id)
+            )
+            rabbit_client.publish(exchange='auth', routing_key="auth.2fa_disabled", message=event_data)
+        finally:
+            rabbit_client.close()
+
+        return Response({"status": "success", "message": "2FA disabled successfully."}, status=status.HTTP_200_OK)

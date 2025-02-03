@@ -5,7 +5,7 @@
 	--darkish: #462A56;
 	--medium: #5C3973;
 	--accent: #00F56A;
-	--light: rgb(132, 204, 163);
+	--light: #84cca3;
 	--title: #F59C00;
 	--lorange: #f1c478;
     --transition: #a90808;
@@ -186,10 +186,11 @@ body::before {
 }
 
 
-input:focus, select:focus, .ctm-btn:focus, .ctm-btn-dark:focus {
+input:focus, select:focus, .ctm-btn:focus, .ctm-btn-secondary:focus, 
+.ctm-btn-danger:focus, .ctm-btn-dark:focus {
     border-color: var(--light) !important; 
     box-shadow: 0 0 5px var(--light) !important;
-    outline: none !important
+    outline: 1px solid var(--light) !important;
 }
 
 #app {
@@ -202,6 +203,23 @@ input:focus, select:focus, .ctm-btn:focus, .ctm-btn-dark:focus {
     overflow-y: auto;
     height: calc(100vh - 50px); /* navbar is 50px */
     position: relative;
+}
+
+/* Define the keyframe animation */
+@keyframes fadeInSliceUp {
+  from {
+    transform: translateY(5%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0%);
+    opacity: 1;
+  }
+}
+
+/* Apply the animation to all child elements of #app */
+#app > * {
+  animation: fadeInSliceUp 0.4s ease-out;
 }
 
 @media (max-height: 900px) {

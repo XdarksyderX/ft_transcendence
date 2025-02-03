@@ -1,0 +1,78 @@
+<div id="settings-container" class="blinking-neon-frame">
+    <div class="card ctm-card p-4">
+        <h2 class="text-center ctm-text-title">Settings</h2>
+        <div class="list-group list-group-flush">
+            <!-- 2FA -->
+            <div class="list-group-item">
+                <div class="d-flex justify-content-between align-items-center ctm-text-light" data-bs-toggle="collapse" data-bs-target="#twoFA-settings">
+                    <span>Two-Factor Authentication (2FA)</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div id="twoFA-settings" class="collapse mt-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="ctm-text-light">Enable 2FA</span>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="2fa-toggle">
+                        </div>
+                    </div>
+                    <div id="otp-section" class="mt-2" style="display: none;">
+                        <input type="password" id="2fa-password" class="form-control ctm-text-dark mb-2" placeholder="Enter password">
+                        <button class="btn ctm-btn" id="2fa-submit">Submit</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Change Username -->
+            <div class="list-group-item">
+                <div class="d-flex justify-content-between align-items-center ctm-text-light" data-bs-toggle="collapse" data-bs-target="#username-settings">
+                    <span>Change Username</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div id="username-settings" class="collapse mt-2">
+                    <input type="text" id="new-username" class="form-control ctm-text-dark mb-2" placeholder="New username">
+                    <input type="password" id="username-password" class="form-control ctm-text-dark mb-2" placeholder="Enter password">
+                    <button class="btn ctm-btn" id="change-username-btn">Change Username</button>
+                </div>
+            </div>
+
+            <!-- Change Email -->
+            <div class="list-group-item">
+                <div class="d-flex justify-content-between align-items-center ctm-text-light" data-bs-toggle="collapse" data-bs-target="#email-settings">
+                    <span>Change Email</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div id="email-settings" class="collapse mt-2">
+                    <input type="email" id="new-email" class="form-control ctm-text-dark mb-2" placeholder="New email">
+                    <input type="password" id="email-password" class="form-control ctm-text-dark mb-2" placeholder="Enter password">
+                    <button class="btn ctm-btn" id="change-email-btn">Change Email</button>
+                </div>
+            </div>
+
+            <!-- Change Password -->
+            <div class="list-group-item">
+                <div class="d-flex justify-content-between align-items-center ctm-text-light" data-bs-toggle="collapse" data-bs-target="#password-settings">
+                    <span>Change Password</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div id="password-settings" class="collapse mt-2">
+                    <input type="password" id="current-password" class="form-control ctm-text-dark mb-2" placeholder="Current password">
+                    <input type="password" id="new-password" class="form-control ctm-text-dark mb-2" placeholder="New password">
+                    <input type="password" id="confirm-password" class="form-control ctm-text-dark mb-2" placeholder="Confirm new password">
+                    <button class="btn ctm-btn" id="change-password-btn">Change Password</button>
+                </div>
+            </div>
+
+            <!-- Delete Account -->
+            <div class="list-group-item">
+                <div class="d-flex justify-content-between align-items-center text-danger" data-bs-toggle="collapse" data-bs-target="#delete-account-settings">
+                    <span>Delete Account</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div id="delete-account-settings" class="collapse mt-2">
+                    <input type="password" id="delete-password" class="form-control ctm-text-dark mb-2" placeholder="Enter password">
+                    <button class="btn ctm-btn-danger" id="delete-account-btn">Delete Account</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

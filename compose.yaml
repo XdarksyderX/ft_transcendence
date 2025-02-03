@@ -34,7 +34,7 @@ services:
       context: auth
       dockerfile: Dockerfile
     ports:
-      - 5050:5000
+      - 5050:5050
     env_file:
       - .env
       - auth/service/.env
@@ -47,6 +47,42 @@ services:
       - 5080:80
     volumes:
       - ./frontend/service:/var/www/service
+
+  #social:
+  #  build:
+  #    context: social
+  #    dockerfile: Dockerfile
+  #  ports:
+  #    - 5051:5001
+  #  env_file:
+  #    - .env
+  #    - social/service/.env
+  #  # depends_on:
+  #  #   - redis
+  #  volumes:
+  #    - social-data:/var/www/service
+
+    # redis:
+    #   container_name: redis_cont
+    #   image: redis:7.4-alpine
+    #   expose:
+    #     - "6379"
+    #   networks:
+    #     - red
+    #   restart: always
+    #   command: redis-server
+
+  #chess:
+  #  build:
+  #    context: chess
+  #    dockerfile: Dockerfile
+  #  ports:
+  #    - 5052:5002
+  #  env_file:
+  #    - .env
+  #    - chess/service/.env
+  #  volumes:
+  #    - chess-data:/var/www/service
 
 networks:
   ft_transcendence-network:
