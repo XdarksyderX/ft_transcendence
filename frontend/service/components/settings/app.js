@@ -2,6 +2,7 @@ import { throwAlert } from "../../app/render.js";
 import { navigateTo } from "../../app/router.js";
 import jwtDecode from 'https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.esm.js';
 import { getCookie } from '../../app/auth.js'
+import { toggleEditMode } from "../profile/app.js";
 
 const apiUrl = 'http://localhost:5050'
 
@@ -165,7 +166,9 @@ function initChangePasswordEvents() {
 export function initializeSettingsEvents() {
 	init2FAEvents();
 	document.getElementById('edit-profile-pencil').addEventListener('click', () => {
-		navigateTo("/profile"); //eventually ill trigger the edit mode but not today
-	} )
+		navigateTo("/profile");
+        //we create a temporal flag to toggle the edit mode directly
+        sessionStorage.setItem("editMode", "true");
+    } )
 	initChangePasswordEvents();
 }
