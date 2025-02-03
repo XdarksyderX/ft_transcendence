@@ -34,6 +34,17 @@ class GameConsumer(AsyncWebsocketConsumer):
             self.channel_name
         )
 
+    """ .json recieved from frontend through websocket
+    {
+        "action": "move",       // Action type (e.g., 'move', 'register', 'power-up'), register is registering for the game (connecting)
+        "player": "player1",    // Identifies the player (e.g., 'player1', 'player2') 1: left, 2: right
+        "position": {           // Position object (only for 'move' actions)
+        "x": 100,               // X-coordinate, maybe REDUNDANT (move is vertical) but could be important x_pos is configurable in game settings
+        "y": 200                // Y-coordinate
+        },
+        "game_key": "unique_game_key"    // A unique key to verify the player belongs to the game
+    }
+    """
     async def receive(self, text_data):
         try:
             # Parse incoming data
@@ -87,6 +98,21 @@ class GameConsumer(AsyncWebsocketConsumer):
         except Exception as e:
             await self.send(json.dumps({"error": "An unexpected error occurred"}))
 
+    """ .json example sent to websocket for frontend to render
+    {
+        "players": {
+            "player1": {"x": 50, "y": 200, "score": 2},
+            "player2": {"x": 650, "y": 250, "score": 3}
+        },
+        "ball": {
+            "x": 350,
+            "y": 250,
+            "xVel": 7, // velocities could be removed depending speed of updates
+            "yVel": -4
+            },
+        "status": "in_progress"
+    }
+    On the frontend, JavaScript should listen for incoming WebSocket messages, parse & then render based on the info"""
     async def game_update(self, event):
         # Send the updated game state to WebSocket
         await self.send(text_data=json.dumps(event['state']))
