@@ -16,10 +16,7 @@ COPY service /service
 
 RUN apt-get update && apt-get install -y postgresql postgresql-contrib redis-server
 
-RUN python3 -m venv /service/.venv && source /service/.venv/bin/activate
-
 RUN pip install --no-cache-dir -r /service/requirements.txt
-
 
 EXPOSE 5051
 EXPOSE 6379

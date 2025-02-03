@@ -16,8 +16,6 @@ RUN apt-get update && apt-get install -y postgresql postgresql-contrib
 
 COPY service /service
 
-RUN python3 -m venv /service/.venv && source /service/.venv/bin/activate
-
 RUN pip install --no-cache-dir -r /service/requirements.txt
 
 EXPOSE 5050
