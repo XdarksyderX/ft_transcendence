@@ -23,238 +23,159 @@ export function isTwoFAEnabled() {
 
 /**
  * Verifica la sesión del usuario y lo redirige según corresponda.
- * Retorna `true` si el usuario sigue autenticado, `false` si no.
  */
 export async function isLoggedIn() {
     const isValid = await verifyAccessToken();
-    if (isValid) {
-        return true;
-    } else {
-        return await refreshAccessToken();
-    }
+    return isValid ? true : await refreshAccessToken();
 }
 
 /**
- * Cierra sesión en el backend y redirige al usuario a la página de login.
+ * Cierra sesión en el backend y borra los datos de localStorage.
  */
 export async function logout() {
     try {
-        const response = await fetch('http://localhost:5050/logout/', {
+        await fetch('http://localhost:5050/logout/', {
             method: 'POST',
-            credentials: 'include'
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' }
         });
-        await response.json();
-        localStorage.clear();
     } catch (error) {
         console.error('Logout error:', error);
+    } finally {
         localStorage.clear();
     }
 }
 
 /**
- * Registra un nuevo usuario en la API.
+ * Registra un nuevo usuario.
  */
 export async function register(userCredentials) {
-    try {
-        const response = await fetch('http://localhost:5050/register/', {
-            method: 'POST',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(userCredentials)
-        });
-        return response.ok;
-    } catch (error) {
-        return false;
-    }
+    return await sendRequest('POST', 'register/', userCredentials);
 }
-
 
 /**
- * Inicia sesión en la API y almacena los datos del usuario en localStorage.
+ * Inicia sesión y almacena los datos del usuario en localStorage.
  */
 export async function login(userCredentials) {
-    try {
-        const response = await fetch('http://localhost:5050/login/', {
-            method: 'POST',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(userCredentials)
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.access_token) {
-            const decoded = jwtDecode(data.access_token);
-            localStorage.setItem('username', decoded.username);
-            localStorage.setItem('user_id', decoded.user_id);
-            localStorage.setItem('two_fa_enabled', decoded.two_fa_enabled);
-            return { status: "success", access_token: data.access_token };
-        } 
-        
-        if (data.message === "OTP required.") {
-            return { status: "otp_required", message: data.message };
-        }
-
-        return { status: "error", message: data.message || "Authentication failed." };
-        
-    } catch (error) {
-        console.error("Login error:", error);
-        return { status: "error", message: "An error occurred during login. Please try again later." };
+    const data = await sendRequest('POST', 'login/', userCredentials);
+    
+    if (data?.status === "success" && data.access_token) {
+        const decoded = jwtDecode(data.access_token);
+        localStorage.setItem('username', decoded.username);
+        localStorage.setItem('user_id', decoded.user_id);
+        localStorage.setItem('two_fa_enabled', decoded.two_fa_enabled);
+        return { status: "success", access_token: data.access_token };
     }
-}
 
+    if (data?.message === "OTP required.") {
+        return { status: "otp_required", message: data.message };
+    }
+
+    return { status: "error", message: data?.message || "Authentication failed." };
+}
 
 /**
  * Verifica si el `access_token` en las cookies es válido.
  */
 async function verifyAccessToken() {
-    try {
-        const response = await fetch('http://localhost:5050/verify-token/', {
-            method: 'POST',
-            credentials: 'include'
-        });
-        return response.ok;
-    } catch (error) {
-        return false;
-    }
+    const response = await fetch('http://localhost:5050/verify-token/', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' }
+    });
+    return response.ok;
 }
 
 /**
- * Refresca el `access_token` utilizando el `refresh_token` en cookies.
+ * Refresca el `access_token` con el `refresh_token`.
  */
 export async function refreshAccessToken() {
-    try {
-        const response = await fetch('http://localhost:5050/refresh/', {
-            method: 'POST',
-            credentials: 'include'
-        });
-        const data = await response.json();
-        if (data.status === 'success' && data.access_token) {
-            const decoded = jwtDecode(data.access_token);
-            localStorage.setItem('username', decoded.username);
-            localStorage.setItem('user_id', decoded.user_id);
-            localStorage.setItem('two_fa_enabled', decoded.two_fa_enabled);
-            return true;
-        }
-        return false;
-    } catch (error) {
-        return false;
+    const data = await sendRequest('POST', 'refresh/');
+
+    if (data?.status === 'success' && data.access_token) {
+        const decoded = jwtDecode(data.access_token);
+        localStorage.setItem('username', decoded.username);
+        localStorage.setItem('user_id', decoded.user_id);
+        localStorage.setItem('two_fa_enabled', decoded.two_fa_enabled);
+        return true;
     }
+    return false;
 }
 
 /**
- * Activa o desactiva la autenticación en dos pasos (2FA).
+ * Activa o desactiva 2FA.
  */
 export async function toggleTwoFA(enable, password, otpCode = null) {
-
-    try {
-        const response = await fetch(`http://localhost:5050/${enable ? 'activate-2fa' : 'deactivate-2fa'}/`, {
-            method: 'POST',
-            credentials: 'include',
-            body: JSON.stringify({ password, two_fa_code: otpCode }),
-        });
-        return response.ok;
-    } catch (error) {
-        return false;
-    }
+    return await sendRequest('POST', `${enable ? 'activate-2fa' : 'deactivate-2fa'}/`, { password, two_fa_code: otpCode });
 }
 
 /**
  * Cambia el nombre de usuario.
  */
 export async function changeUsername(newUsername, password) {
-    try {
-        const response = await fetch('http://localhost:5050/change-username/', {
-            method: 'POST',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ password, username: newUsername })
-        });
-        return response.ok;
-    } catch (error) {
-        return false;
-    }
+    return await sendRequest('POST', 'change-username/', { password, username: newUsername });
 }
 
 /**
  * Cambia la dirección de correo electrónico.
  */
-export async function changeEmail(newEmail) {
-    try {
-        const response = await fetch('http://localhost:5050/change-email/', {
-            method: 'POST',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: newEmail })
-        });
-        return response.ok;
-    } catch (error) {
-        return false;
-    }
+export async function changeEmail(newEmail, password) {
+    return await sendRequest('POST', 'change-email/', { password, email: newEmail });
 }
 
 /**
  * Cambia la contraseña del usuario.
  */
-export async function changeEmail(newPassword, oldPassword) {
-    try {
-        const response = await fetch('http://localhost:5050/change-password/', {
-            method: 'POST',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ new_password: newPassword, old_password: oldPassword })
-        });
-        return response.ok;
-    } catch (error) {
-        return false;
-    }
+export async function changePassword(newPassword, oldPassword) {
+    return await sendRequest('POST', 'change-password/', { new_password: newPassword, old_password: oldPassword });
 }
 
 /**
- * Envía una solicitud para resetear la contraseña.
+ * Solicita el reseteo de contraseña.
  */
 export async function requestPasswordReset(email) {
-    try {
-        const response = await fetch('http://localhost:5050/reset-password-request/', {
-            method: 'POST',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email })
-        });
-        return response.ok;
-    } catch (error) {
-        return false;
-    }
+    return await sendRequest('POST', 'reset-password-request/', { email });
 }
 
 /**
  * Resetea la contraseña con el token de recuperación.
  */
 export async function resetPassword(token, newPassword) {
-    try {
-        const response = await fetch('http://localhost:5050/reset-password/', {
-            method: 'POST',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token, new_password: newPassword })
-        });
-        return response.ok;
-    } catch (error) {
-        return false;
-    }
+    return await sendRequest('POST', 'reset-password/', { token, new_password: newPassword });
 }
 
 /**
  * Verifica el correo electrónico con un token de verificación.
  */
 export async function verifyEmail(token) {
+    return await sendRequest('GET', `verify-email/?token=${token}`);
+}
+
+/**
+ * Elimina la cuenta del usuario.
+ */
+export async function deleteAccount(password) {
+    return await sendRequest('POST', 'delete-account/', { password });
+}
+
+/**
+ * Enviar una solicitud `fetch` con `Content-Type: application/json`.
+ * @param {string} method - Método HTTP (`GET`, `POST`, `PUT`, `DELETE`).
+ * @param {string} endpoint - Endpoint de la API.
+ * @param {Object} [body=null] - Datos opcionales a enviar en el body.
+ */
+async function sendRequest(method, endpoint, body = null) {
     try {
-        const response = await fetch(`http://localhost:5050/verify-email/?token=${token}`, {
-            method: 'GET',
-            credentials: 'include'
+        const response = await fetch(`http://localhost:5050/${endpoint}`, {
+            method,
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: body ? JSON.stringify(body) : null
         });
-        return response.ok;
+
+        return await response.json();
     } catch (error) {
+        console.error(`Error en ${method} ${endpoint}:`, error);
         return false;
     }
 }

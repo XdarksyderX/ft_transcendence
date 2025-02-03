@@ -52,7 +52,7 @@ class Activate2FAView(APIView):
             return Response({"status": "error", "message": "2FA is already activated."}, status=status.HTTP_400_BAD_REQUEST)
 
         secret = pyotp.random_base32()
-        TwoFA.objects.update_or_create(user=user, defaults={"secret": secret, "is_active": True})
+        TwoFA.objects.update_or_create(user=user, defaults={"secret": secret})
         user.two_fa_enabled = True
         user.save()
 
