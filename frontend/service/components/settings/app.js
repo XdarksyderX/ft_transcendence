@@ -1,3 +1,7 @@
+import { navigateTo } from "../../app/router.js";
+// import jwtDecode from 'https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.esm.js';
+//import { getCookie } from '../../app/auth.js'
+import { toggleEditMode } from "../profile/app.js";
 import { isTwoFAEnabled, toggleTwoFA, changeUsername, changeEmail, changePassword, deleteAccount, refreshAccessToken,  } from '../../app/auth.js';
 import { throwAlert } from '../../app/render.js';
 import { loadLogin } from '../login/login.js';
@@ -77,6 +81,15 @@ async function handleChangePassword() {
     success ? throwAlert("Password changed successfully") : throwAlert("Failed to change password.");
 }
 
+export function initializeSettingsEvents() {
+	init2FAEvents();
+	document.getElementById('edit-profile-pencil').addEventListener('click', () => {
+		navigateTo("/profile");
+        //we create a temporal flag to toggle the edit mode directly
+        sessionStorage.setItem("editMode", "true");
+    } )
+	initChangePasswordEvents();
+}
 /** Delete Account (only requires password) */
 async function handleDeleteAccount() {
     const password = document.getElementById("delete-password").value;
