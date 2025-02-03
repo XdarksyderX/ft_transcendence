@@ -51,6 +51,9 @@ body::before {
 .ctm-text-light { color: var(--light); }
 .ctm-text-accent { color: var(--accent); }
 .ctm-text-dark { color: var(--medium) }
+.ctm-text-danger { 
+    color: var(--title);
+}
 .ctm-text-title {
     color: var(--title);
     font-family: 'ROG LyonsType Regular';
@@ -187,7 +190,7 @@ body::before {
 
 
 input:focus, select:focus, .ctm-btn:focus, .ctm-btn-secondary:focus, 
-.ctm-btn-danger:focus, .ctm-btn-dark:focus {
+.ctm-btn-danger:focus, .ctm-btn-dark:focus, .accordion-button, .cancel-btn:focus {
     border-color: var(--light) !important; 
     box-shadow: 0 0 5px var(--light) !important;
     outline: 1px solid var(--light) !important;
