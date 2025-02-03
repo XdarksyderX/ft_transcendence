@@ -12,8 +12,9 @@ import { initializeChessEvents } from '../components/chess/index.js';
 import { loadChat, loadSidebar } from './render.js'; // temporal
 import { loadLogin } from '../components/login/login.js';
 import { initializeIndexEvents } from '../components/index/app.js';
-import { verifyAndRedirect } from './auth.js';
+import { isLoggedIn } from './auth.js';
 import { initializeSettingsEvents } from '../components/settings/app.js';
+import { startBackgroundMusic } from '../components/chess/Render/main.js';
 
 const routes = [
     { url: "/404", file: "./components/error/404.html" },
@@ -79,6 +80,7 @@ async function router() {
         case "/chess":
         //    console.log('Initializing chess events');
             initializeChessEvents();
+            //startBackgroundMusic()
             break;
         case "/settings":
             initializeNeonFrames();
@@ -100,7 +102,7 @@ async function navigateTo(fullUrl) {
     // console.log('navigating: ', url);
     
     try {
-        const verify = await verifyAndRedirect();
+        const verify = await isLoggedIn();
         console.log("verify:", verify);
         
         if (!(url !== "/login" && url !== "/signup" && !verify)) {
@@ -127,7 +129,7 @@ window.addEventListener("popstate", router);
 
 // Initialize the application
 document.addEventListener("DOMContentLoaded", async () => {
-    const verify = await verifyAndRedirect();
+    const verify = await isLoggedIn();
     if (verify) {
         loadLogin(false);
     } 

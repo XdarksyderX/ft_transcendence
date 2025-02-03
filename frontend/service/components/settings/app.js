@@ -1,166 +1,84 @@
-import { throwAlert } from "../../app/render.js";
 import { navigateTo } from "../../app/router.js";
-import jwtDecode from 'https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.esm.js';
-import { getCookie } from '../../app/auth.js'
+// import jwtDecode from 'https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.esm.js';
+//import { getCookie } from '../../app/auth.js'
 import { toggleEditMode } from "../profile/app.js";
+import { isTwoFAEnabled, toggleTwoFA, changeUsername, changeEmail, changePassword, deleteAccount, refreshAccessToken,  } from '../../app/auth.js';
+import { throwAlert } from '../../app/render.js';
+import { loadLogin } from '../login/login.js';
 
-const apiUrl = 'http://localhost:5050'
-
-function get2FAstatus() {
-	const { two_fa_enabled } = jwtDecode(getCookie('authToken'));
-	console.log("2fa is: ", two_fa_enabled);
-	return (two_fa_enabled);
+export function initializeSettingsEvents() {
+    setup2FA();
+    document.getElementById("change-username-btn").addEventListener("click", handleChangeUsername);
+    document.getElementById("change-email-btn").addEventListener("click", handleChangeEmail);
+    document.getElementById("change-password-btn").addEventListener("click", handleChangePassword);
+    document.getElementById("delete-account-btn").addEventListener("click", handleDeleteAccount);
 }
 
-function handle2FAmodal(status) {
-    const modalElement = document.getElementById('2fa-qr-modal');
-    const modal = new bootstrap.Modal(modalElement, {
-        backdrop: 'static', // Disables closing the modal by clicking outside of it
-        keyboard: false     // Disables closing the modal with the escape key
-    });
-	console.log('status: ', status);
-    if (!status) {
-        throwAlert(`2FA is now disabled`);
-    } else {
-        modal.show();
-    }
+/** 2FA Setup */
+function setup2FA() {
+    const twoFAToggle = document.getElementById("2fa-toggle");
+    const otpSection = document.getElementById("otp-section");
+    const otpSubmit = document.getElementById("2fa-submit");
 
-    // Disable the close buttons
-    const closeButtons = modalElement.querySelectorAll('.close-qr-modal');
-    closeButtons.forEach(button => {
-        button.disabled = true;
+    twoFAToggle.checked = isTwoFAEnabled();
+    twoFAToggle.addEventListener("change", () => {
+        otpSection.style.display = "block";
     });
 
-    setTimeout(() => {
-        closeButtons.forEach(button => {
-            button.disabled = false;
-        });
-    }, 5000); // 5 seconds
-}
-function toggle2FA(event) {
+    otpSubmit.addEventListener("click", async () => {
+        const password = document.getElementById("2fa-password").value;
+        const enable = twoFAToggle.checked;
+        const success = await toggleTwoFA(enable, password);
 
-	const status = document.getElementById('2fa-status');
-    
-	let isChecked;
-	if (event) {
-		isChecked = event.target.checked;
-		set2FAstatus(isChecked);
-	} else {
-		isChecked = get2FAstatus();
-		if (isChecked) {
-			document.getElementById('2fa-toggle').checked = true;
-		}
-	}
-	status.innerText = (isChecked ? 'Disable 2FA' : 'Enable 2FA');
-}
-//checks the actual status of 2FA and adds an event listener to the switch
-function init2FAEvents() {
-	toggle2FA();
-	document.getElementById("2fa-toggle").addEventListener('change', toggle2FA);
-}
-
-async function set2FAstatus(status) {
-    try {
-        const response = await fetch(`${apiUrl}/activate-2fa` , {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${getCookie('authToken')}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ enable: status })
-        });
-        const responseText = await response.text();
-        console.log('Response text:', responseText);
-        
-        const data = JSON.parse(responseText);
-        if (response.ok) {
-			handle2FAmodal(status);
+        if (success) {
+            throwAlert(`2FA ${enable ? "activated" : "deactivated"} successfully`);
+            otpSection.style.display = "none";
         } else {
-            console.error('Failed to update 2FA status:', data.message);
-            throwAlert('Failed to update 2FA status.');
+            throwAlert("Failed to update 2FA");
+            twoFAToggle.checked = !enable;
         }
-    } catch (error) {
-        console.error('Error setting 2FA status:', error);
-        throwAlert('Failed to update 2FA status.');
-    }
-}
-
-
-/* async function changePassword(currentPw, newPw) {
-    try {
-        const response = await fetch(apiUrl + '/change-password', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${getCookie('authToken')}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ current_password: currentPw, new_password: newPw })
-        });
-
-        const contentType = response.headers.get('Content-Type');
-        const responseText = await response.text();
-        console.log("on changePassword(), response: ", responseText);
-
-        let data;
-        if (contentType && contentType.includes('application/json')) {
-            data = JSON.parse(responseText);
-        } else {
-            console.error('Response is not JSON:', responseText);
-            throwAlert('Failed to change password.');
-            return;
-        }
-
-        if (response.ok) {
-            throwAlert('Password changed successfully');
-        } else {
-            console.error('Failed to change password:', data.message);
-            throwAlert('Failed to change password.');
-        }
-    } catch (error) {
-        console.error('Failed to change password:', error.message);
-        throwAlert('Failed to change password.');
-    }
-}
- */
-function parsePasswords(currentPw, newPw, confirmPw) {
-	if (currentPw === '' || newPw === '' || confirmPw === '') {
-		throwAlert('Please fill in all fields');
-	} else if (currentPw.length < 8) {
-		throwAlert('Incorrect password');
-	} else if (newPw !== confirmPw) {
-		throwAlert('Passwords do not match');
-	} else if (currentPw === newPw) {
-		throwAlert('New password must be different to the current one, you need a bit more of imagination, pls');
-	} else if (newPw.length < 8) {
-		throwAlert('Passwords must have at least 8 characters');
-	} else {
-		return (true);
-	}
-	return (false);
-}
-
-function changePassword() {
-	throwAlert('perdón no doy a basto esto todavía no está hecho');
-}
-
-function initChangePasswordEvents() {
-    const passwordForm = document.getElementById('change-password-form');
-    passwordForm.addEventListener('submit', (event) => {
-        event.preventDefault();
-        
-        const currentPw = document.getElementById('current-password').value;
-        const newPw = document.getElementById('new-password').value;
-        const confirmPw = document.getElementById('confirm-new-password').value;
-        
-        console.log('Current Password:', currentPw);
-        console.log('New Password:', newPw);
-        console.log('Confirm Password:', confirmPw);
-        
-        const newPassword = parsePasswords(currentPw, newPw, confirmPw);
-        if (newPassword) {
-            changePassword(currentPw, newPw);
-        }
+        refreshAccessToken();
+        setup2FA();
     });
+}
+
+/** Change Username */
+async function handleChangeUsername() {
+    const newUsername = document.getElementById("new-username").value;
+    const password = document.getElementById("username-password").value;
+
+    if (!newUsername || !password) return throwAlert("Please fill in all fields.");
+
+    const success = await changeUsername(newUsername, password);
+    await refreshAccessToken();
+    loadLogin();
+    success ? throwAlert("Username changed successfully") : throwAlert("Failed to change username.");
+}
+
+/** Change Email */
+async function handleChangeEmail() {
+    const newEmail = document.getElementById("new-email").value;
+    const password = document.getElementById("email-password").value;
+
+    if (!newEmail || !password) return throwAlert("Please fill in all fields.");
+
+    const success = await changeEmail(newEmail, password);
+    await refreshAccessToken();
+    success ? throwAlert("Email changed successfully") : throwAlert("Failed to change email.");
+}
+
+/** Change Password */
+async function handleChangePassword() {
+    const currentPassword = document.getElementById("current-password").value;
+    const newPassword = document.getElementById("new-password").value;
+    const confirmPassword = document.getElementById("confirm-password").value;
+
+    if (!currentPassword || !newPassword || !confirmPassword) return throwAlert("Please fill in all fields.");
+    if (newPassword !== confirmPassword) return throwAlert("Passwords do not match.");
+
+    const success = await changePassword(newPassword, currentPassword);
+    await refreshAccessToken();
+    success ? throwAlert("Password changed successfully") : throwAlert("Failed to change password.");
 }
 
 export function initializeSettingsEvents() {
@@ -171,4 +89,14 @@ export function initializeSettingsEvents() {
         sessionStorage.setItem("editMode", "true");
     } )
 	initChangePasswordEvents();
+}
+/** Delete Account (only requires password) */
+async function handleDeleteAccount() {
+    const password = document.getElementById("delete-password").value;
+
+    if (!password) return throwAlert("Password is required.");
+    
+    const success = await deleteAccount(password);
+    refreshAccessToken();
+    success ? throwAlert("Account deleted successfully") : throwAlert("Failed to delete account.");
 }

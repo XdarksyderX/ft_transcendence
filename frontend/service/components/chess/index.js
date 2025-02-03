@@ -22,7 +22,7 @@ globalState.flat().forEach((square) => {
 let highlightColor = 'rgba(0, 0, 0, 0.15)';
 
 function updateHighlightYellowColor(whiteTileColor, blackTileColor) {
-    const styleSheet = document.styleSheets[12]; // 12 is the  index of chess/styles.css
+    const styleSheet = document.styleSheets[14]; // 14 is the  index of chess/styles.css
     
     const whiteTileRule = `.highlightYellow { background-color: ${whiteTileColor} !important; }`;
     const blackTileRule = `.black.square.highlightYellow { background-color: ${blackTileColor} !important; }`;
