@@ -43,13 +43,13 @@ async function authenticateUser(userCredentials) {
 export function loadLogin(move = true) {
     loadChat();
     loadSidebar();
-    updateNavbar(getUsername());
+   // updateNavbar(getUsername());
     if (move) navigateTo('/start-game');
 }
 
-function updateNavbar(username) {
-    document.getElementById('navbar-content').innerHTML = `<div>Welcome ${username}</div>`;
-}
+// function updateNavbar(username) {
+//     document.getElementById('navbar-content').innerHTML = `<div>Welcome ${username}</div>`;
+// }
 
 async function showOTPForm(userCredentials) {
     document.getElementById('app').innerHTML = `

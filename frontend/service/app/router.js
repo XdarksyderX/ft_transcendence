@@ -15,6 +15,7 @@ import { initializeIndexEvents } from '../components/index/app.js';
 import { isLoggedIn } from './auth.js';
 import { initializeSettingsEvents } from '../components/settings/app.js';
 import { startBackgroundMusic } from '../components/chess/Render/main.js';
+import { getUsername } from './auth.js';
 
 const routes = [
     { url: "/404", file: "./components/error/404.html" },
@@ -97,15 +98,34 @@ function parseUrl(fullUrl) {
     return ("/" + url);
 }
 
-async function navigateTo(fullUrl) {
+function redirectURL(isLogged, fullUrl) {
     const url = parseUrl(fullUrl);
+    console.log("is logged?", isLogged)
+    if (url === "/login" || url === "/signup" || url === "/") {
+        if (isLogged) {
+            return ("/start-game");
+        } else {
+            return (url);
+        }
+    } else {
+        if (isLogged) {
+            return (url);
+        } else {
+            return ("/");
+        }
+    }
+
+}
+async function navigateTo(fullUrl) {
     // console.log('navigating: ', url);
     
     try {
         const verify = await isLoggedIn();
+        const url = redirectURL(verify, fullUrl);
         console.log("verify:", verify);
         
-        if (!(url !== "/login" && url !== "/signup" && !verify)) {
+       // if (!(url !== "/login" && url !== "/signup" && !verify)) 
+        if (url !== window.location.pathname) {
             history.pushState(null, null, url);
             router();
             updateNavbar(window.location.pathname);
@@ -116,11 +136,13 @@ async function navigateTo(fullUrl) {
 }
 
 function updateNavbar(url) {
-    if (url !== "/start-game" && url !== "/login" && url !== "/signup") {
+    const navbarContent = document.getElementById('navbar-content');
+    if (url !== "/" && url !== "/start-game" && url !== "/login" && url !== "/signup") {
         console.log('url: ', url);
         console.log('pathname: ', window.location.pathname);
-        const navbarContent = document.getElementById('navbar-content');
         navbarContent.innerHTML = `<a href="/start-game" class="nav-link ctm-link" data-link>Home</a>`
+    } if (url === "/start-game") {
+        navbarContent.innerHTML = `<div>Welcome ${getUsername()}</div>`;
     }
 }
 
@@ -132,7 +154,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     const verify = await isLoggedIn();
     if (verify) {
         loadLogin(false);
-    } 
+    } else {
+        navigateTo("/");
+    }
     router();
     // replaces links default behavior for our routing system
     document.body.addEventListener("click", (e) => {
