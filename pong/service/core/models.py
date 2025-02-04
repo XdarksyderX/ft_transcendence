@@ -1,4 +1,6 @@
 from django.db import models
+import uuid
+from django.contrib.postgres.fields import JSONField  # if PostgreSQL otherwise, use models.JSONField
 
 class User(models.Model):
     user_id = models.IntegerField(unique=True)
@@ -6,7 +8,6 @@ class User(models.Model):
 
     def __str__(self):
         return self.username
-
 
 class PongGame(models.Model):
     player1 = models.ForeignKey(
@@ -44,16 +45,33 @@ class PongGame(models.Model):
         blank=True,
         related_name='games'
     )
+    
+    game_key = models.UUIDField(default=uuid.uuid4, unique=True)  # Generates a unique key for WebSocket validation
+    player_positions = models.JSONField(default=dict)  # Stores {'player1': {'x': 0, 'y': 0}, 'player2': {'x': 0, 'y': 0}}
+    ball_position = models.JSONField(default=dict)  # Stores {'x': 350, 'y': 250} 
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def get_opponent(self, user):
-        if self.player1 == user:
-            return self.player2
-        return self.player1
+        return self.player2 if self.player1 == user else self.player1
+
+    def update_position(self, player, position):
+        """Updates player position from received WebSocket data"""
+        if player == self.player1.username:
+            self.player_positions["player1"] = position
+        elif player == self.player2.username:
+            self.player_positions["player2"] = position
+        self.save()
+
+    def update_ball_position(self, position):
+        """Updates the ball position from the game logic"""
+        self.ball_position = position
+        self.save()
 
     def __str__(self):
-        return f"Game {self.id}: {self.player1} vs {self.player2}"
+        return f"Game {self.id}: {self.player1} vs {self.player2} (Key: {self.game_key})"
+
 
 class Tournament(models.Model):
     name = models.CharField(max_length=100)
