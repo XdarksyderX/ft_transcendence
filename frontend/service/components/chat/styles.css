@@ -99,7 +99,7 @@
 	box-shadow: none !important;
 }
 
-#send-btn {
+.send-btn {
 	background-color: var(--title);
 	color: var(--dark);
 	border: none;
