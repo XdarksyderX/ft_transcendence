@@ -89,8 +89,8 @@ CHANNEL_LAYERS = {
 }
 
 
-ASGI_APPLICATION = 'config.asgi.application'
-WSGI_APPLICATION = 'config.wsgi.application'
+ASGI_APPLICATION = 'pong.service.config.asgi.application'
+WSGI_APPLICATION = 'pong.service.config.wsgi.application' 
 
 
 # Database
