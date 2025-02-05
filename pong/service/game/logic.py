@@ -6,7 +6,7 @@ class Game:
     def __init__(self, game_instance: PongGame):
         """Initialize the game using an existing PongGame instance."""
         self.game = game_instance
-        self.board_width = 700
+        self.board_width = 700  # This will be configurable in the future
         self.board_height = 500
         self.player_height = 50
         self.player_speed = 5
@@ -15,10 +15,10 @@ class Game:
         self.speed_up_multiple = 1.02
         self.points_to_win = 3
 
-        # Load player positions from the database or set defaults
+        # Ensure database has correct defaults for players
         self.players = self.game.player_positions or {
-            "player1": {"y": self.board_height / 2 - self.player_height / 2, "score": 0},
-            "player2": {"y": self.board_height / 2 - self.player_height / 2, "score": 0}
+            "player1": {"x": 20, "y": 225, "score": 0},
+            "player2": {"x": 670, "y": 225, "score": 0}
         }
 
         # Load ball position or reset if missing
@@ -51,8 +51,12 @@ class Game:
         else:  # STOP case
             new_y = current_y
 
+        # Ensure player X-position is preserved
+        current_x = self.players[player].get("x", 20 if player == "player1" else 670)
+
         # Persist movement update to the database
-        self.game.update_position(player, {"y": new_y})
+        self.players[player]["y"] = new_y
+        self.game.update_position(player, {"x": current_x, "y": new_y})
         self.game.save()
 
     def update_ball_position(self):
@@ -87,11 +91,20 @@ class Game:
 
     def _check_paddle_collision(self, player):
         """Check if the ball collides with a paddle."""
-        paddle = self.players[player]
-        if player == "player1" and self.ball["x"] <= paddle.get("x", 0) + self.ball_side:
-            return paddle["y"] <= self.ball["y"] <= paddle["y"] + self.player_height
-        elif player == "player2" and self.ball["x"] + self.ball_side >= paddle.get("x", self.board_width):
-            return paddle["y"] <= self.ball["y"] <= paddle["y"] + self.player_height
+        paddle = self.players.get(player)
+        if not paddle:
+            return False
+
+        paddle_x = paddle["x"]
+        paddle_y = paddle["y"]
+
+        if player == "player1":
+            return (self.ball["x"] <= paddle_x + self.ball_side and 
+                    paddle_y <= self.ball["y"] <= paddle_y + self.player_height)
+        elif player == "player2":
+            return (self.ball["x"] + self.ball_side >= paddle_x and 
+                    paddle_y <= self.ball["y"] <= paddle_y + self.player_height)
+
         return False
 
     def _check_game_over(self):
@@ -108,8 +121,11 @@ class Game:
     def get_game_state(self):
         """Return the current game state as a dictionary (fetching latest DB values)."""
         return {
-            "ball": self.game.ball_position,
-            "players": self.game.player_positions,
+            "ball": self.ball,
+            "players": {
+                "player1": {**self.players["player1"], "score": self.players["player1"].get("score", 0)},
+                "player2": {**self.players["player2"], "score": self.players["player2"].get("score", 0)}
+            },
             "status": "in_progress" if not self.winner else "game_over",
             "winner": self.winner
         }

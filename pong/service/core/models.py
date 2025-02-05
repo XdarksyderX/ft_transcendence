@@ -3,13 +3,16 @@ import uuid
 from django.contrib.postgres.fields import JSONField  # if PostgreSQL otherwise, use models.JSONField
 
 class User(models.Model):
-    user_id = models.IntegerField(unique=True)
-    username = models.CharField(max_length=150)
+    """Model representing a user in the game."""
+    user_id = models.AutoField(primary_key=True)  # Ensures auto-generated unique IDs
+    username = models.CharField(max_length=150, unique=True)
 
     def __str__(self):
         return self.username
 
+
 class PongGame(models.Model):
+    """Model representing a single Pong game instance."""
     player1 = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -27,6 +30,7 @@ class PongGame(models.Model):
         blank=True,
         related_name='won_games'
     )
+
     status = models.CharField(
         max_length=20,
         choices=[
@@ -36,8 +40,10 @@ class PongGame(models.Model):
         ],
         default='pending'
     )
-    available = models.BooleanField(default=False)
+    
+    available = models.BooleanField(default=False)  # If game can be joined
     is_tournament = models.BooleanField(default=False)
+    
     tournament = models.ForeignKey(
         'Tournament',
         on_delete=models.SET_NULL,
@@ -45,27 +51,42 @@ class PongGame(models.Model):
         blank=True,
         related_name='games'
     )
-    
-    game_key = models.UUIDField(default=uuid.uuid4, unique=True)  # Generates a unique key for WebSocket validation
-    player_positions = models.JSONField(default=dict)  # Stores {'player1': {'x': 0, 'y': 0}, 'player2': {'x': 0, 'y': 0}}
-    ball_position = models.JSONField(default=dict)  # Stores {'x': 350, 'y': 250} 
+
+    game_key = models.UUIDField(default=uuid.uuid4, unique=True)  # Unique game session key
+
+    player_positions = models.JSONField(
+        default=lambda: {
+            "player1": {"x": 20, "y": 225},
+            "player2": {"x": 670, "y": 225}
+        }
+    )  # Removed redundant "score" field
+
+    # Ball starts in the correct place with initial velocity
+    ball_position = models.JSONField(
+        default=lambda: {"x": 350, "y": 250, "xVel": 0, "yVel": 0}
+    )
+
+    # Explicit fields for scores (easier querying)
+    player1_score = models.IntegerField(default=0)
+    player2_score = models.IntegerField(default=0)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def get_opponent(self, user):
+        """Returns the opponent of the given user."""
         return self.player2 if self.player1 == user else self.player1
 
     def update_position(self, player, position):
-        """Updates player position from received WebSocket data"""
+        """Updates a player's position and saves it to the database."""
         if player == self.player1.username:
-            self.player_positions["player1"] = position
+            self.player_positions["player1"]["y"] = position["y"]
         elif player == self.player2.username:
-            self.player_positions["player2"] = position
+            self.player_positions["player2"]["y"] = position["y"]
         self.save()
 
     def update_ball_position(self, position):
-        """Updates the ball position from the game logic"""
+        """Updates the ball position in the database."""
         self.ball_position = position
         self.save()
 
