@@ -9,12 +9,12 @@ import { initializeFriendsEvents } from '../components/friends/app.js';
 import { initializeStatsEvents } from '../components/stats/app.js';
 import { initializeOngoingTournaments } from '../components/tournament/app.js';
 import { initializeChessEvents } from '../components/chess/index.js';
-import { loadChat, loadSidebar } from './render.js'; // temporal
-import { loadLogin } from '../components/login/login.js';
+import { loadChat, loadSidebar } from './render.js';
 import { initializeIndexEvents } from '../components/index/app.js';
 import { isLoggedIn } from './auth.js';
 import { initializeSettingsEvents } from '../components/settings/app.js';
 import { startBackgroundMusic } from '../components/chess/Render/main.js';
+import { getUsername } from './auth.js';
 
 const routes = [
     { url: "/404", file: "./components/error/404.html" },
@@ -32,9 +32,9 @@ const routes = [
 ];
 
 async function router() {
-    console.log('Router function called');
+//    console.log('Router function called');
     const path = location.pathname;
-    console.log('Current path:', path);
+//    console.log('Current path:', path);
     const match = routes.find(route => route.url === path) || routes[0];
 
     const html = await fetch(match.file).then(res => res.text());
@@ -55,7 +55,7 @@ async function router() {
             initializeNeonFrames();
             break;
         case "/start-game":
-            initializeStartGameEvents(); // i guess
+            initializeStartGameEvents();
             initializeNeonFrames();
             break;
         case "/ongoing-tournaments":
@@ -97,52 +97,81 @@ function parseUrl(fullUrl) {
     return ("/" + url);
 }
 
-async function navigateTo(fullUrl) {
+function redirectURL(isLogged, fullUrl) {
     const url = parseUrl(fullUrl);
-    // console.log('navigating: ', url);
+//    console.log("is logged?", isLogged)
+    if (url === "/login" || url === "/signup" || url === "/") {
+        if (isLogged) {
+            return ("/start-game");
+        } else {
+            return (url);
+        }
+    } else {
+        if (isLogged) {
+            return (url);
+        } else {
+            return ("/");
+        }
+    }
+
+}
+
+function loadLoggedContent(isLogged) {
+    if (isLogged) {
+        loadChat();
+        loadSidebar();
+    }
+    updateNavbar(window.location.pathname);
+}
+
+async function navigateTo(fullUrl) {
+     console.log('navigate function called, url: ', fullUrl);
     
     try {
         const verify = await isLoggedIn();
-        console.log("verify:", verify);
+        const url = redirectURL(verify, fullUrl);
+    //    console.log("verify:", verify);
         
-        if (!(url !== "/login" && url !== "/signup" && !verify)) {
+       // if (!(url !== "/login" && url !== "/signup" && !verify)) 
+        if (url !== window.location.pathname) {
             history.pushState(null, null, url);
             router();
-            updateNavbar(window.location.pathname);
+           
         }
+        loadLoggedContent(verify);
     } catch (error) {
         console.error('Error during verification:', error);
     }
 }
 
 function updateNavbar(url) {
-    if (url !== "/start-game" && url !== "/login" && url !== "/signup") {
-        console.log('url: ', url);
-        console.log('pathname: ', window.location.pathname);
-        const navbarContent = document.getElementById('navbar-content');
+    const navbarContent = document.getElementById('navbar-content');
+    if (url !== "/" && url !== "/start-game" && url !== "/login" && url !== "/signup") {
+    //    console.log('url: ', url);
+    //    console.log('pathname: ', window.location.pathname);
         navbarContent.innerHTML = `<a href="/start-game" class="nav-link ctm-link" data-link>Home</a>`
+    } if (url === "/start-game") {
+        navbarContent.innerHTML = `<div>Welcome ${getUsername()}</div>`;
     }
 }
 
 // Handle browser back/forward buttons
-window.addEventListener("popstate", router);
+window.addEventListener("popstate", initRouteEvents);
 
-// Initialize the application
-document.addEventListener("DOMContentLoaded", async () => {
-    const verify = await isLoggedIn();
-    if (verify) {
-        loadLogin(false);
-    } 
+function initRouteEvents() {
+    console.log("initRouteEvents function called");
+    navigateTo(window.location.pathname);
     router();
-    // replaces links default behavior for our routing system
     document.body.addEventListener("click", (e) => {
         if (e.target.matches("[data-link]") || e.target.tagName === 'A') {
             e.preventDefault();
             navigateTo(e.target.href);
         }
     });
-});
+}
 
+// Initialize the application
+document.addEventListener("DOMContentLoaded", initRouteEvents);
 
 
 export { navigateTo };
