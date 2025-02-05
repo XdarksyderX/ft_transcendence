@@ -37,7 +37,6 @@ export async function logout() {
         await fetch('http://localhost:5050/logout/', {
             method: 'POST',
             credentials: 'include',
-            headers: { 'Content-Type': 'application/json' }
         });
     } catch (error) {
         console.error('Logout error:', error);

@@ -1,16 +1,17 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from core.utils.rabbitmq_client import RabbitMQClient
 from core.utils.event_domain import wrap_event_data
 
 class LogoutView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         refresh_token = request.COOKIES.get('refresh_token')
+        print(request.COOKIES)
         if not refresh_token:
             return Response(
                 {"status": "error", "message": "Refresh token not found in cookies."},
@@ -20,12 +21,13 @@ class LogoutView(APIView):
         try:
             refresh = RefreshToken(refresh_token)
             refresh.blacklist()
-
             response = Response(
                 {"status": "success", "message": "Logged out successfully."},
                 status=status.HTTP_200_OK
             )
             response.delete_cookie('refresh_token')
+            response.delete_cookie('access_token')
+
 
             rabbit_client = RabbitMQClient()
             try:
@@ -39,7 +41,8 @@ class LogoutView(APIView):
                 rabbit_client.close()
 
             return response
-        except Exception:
+        except Exception as e:
+            print(e)
             return Response(
                 {"status": "error", "message": "Invalid or expired refresh token."},
                 status=status.HTTP_401_UNAUTHORIZED

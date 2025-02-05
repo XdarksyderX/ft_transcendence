@@ -9,7 +9,6 @@ class VerifyTokenView(APIView):
 
     def post(self, request):
         access_token = request.COOKIES.get("access_token")
-        print("Como esta: ", access_token)
         if not access_token:
             return Response(
                 {"status": "error", "message": "Access token not found in cookies."},
