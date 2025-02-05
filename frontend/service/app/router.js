@@ -162,7 +162,7 @@ function updateNavbar(url) {
     //    console.log('url: ', url);
     //    console.log('pathname: ', window.location.pathname);
         navbarContent.innerHTML = `<a href="/start-game" class="nav-link ctm-link" data-link>Home</a>`
-    } if (url === "/start-game") {
+    } else if (url === "/start-game") {
         navbarContent.innerHTML = `<div>Welcome ${getUsername()}</div>`;
     } else {
         navbarContent.innerHTML = `                <a href="/login" class="nav-link ctm-link" data-link="true">Log in</a>

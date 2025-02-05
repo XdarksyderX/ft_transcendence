@@ -1,19 +1,19 @@
 // import { navigateTo } from "../../app/router.js";
 import { logout } from "../../app/auth.js";
+import { getUsername } from "../../app/auth.js";
 
 export function initializeSidebarEvents() {
     const sidebar = document.getElementById('sidebar');
     const sidebarToggle = document.getElementById('sidebar-toggle');
     const mainContent = document.querySelector('main');
 	const logoutBtn = document.getElementById('logout-btn');
-	const userNames = document.querySelectorAll('.username');
+	const username = document.getElementById('sidebar-username');
 
 	const loggedInUser = 'erivero-';
 
 	// Render the username in the sidebar and the navbar
-	userNames.forEach(userName => {
-		userName.textContent += `${loggedInUser}`;
-	});
+	username.textContent = `${getUsername()}`;
+
     // Function to toggle the sidebar
     function toggleSidebar(event) {
         event.stopPropagation(); // Prevent event from bubbling up
