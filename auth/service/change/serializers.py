@@ -2,39 +2,70 @@ from rest_framework import serializers
 from core.models import User
 
 class ChangeUsernameSerializer(serializers.Serializer):
-    username = serializers.CharField(
+    new_username = serializers.CharField(
         error_messages={'required': 'This field is required: username'}
     )
-
-    def validate_username(self, value):
-        if User.objects.filter(username=value).exists():
-            raise serializers.ValidationError({"error": "This username is already registered."})
-        return value
-
-    def save(self):
-        user = self.context['request'].user
-        user.username = self.validated_data['username']
-        user.save()
-        return user
-
-class ChangeEmailSerializer(serializers.Serializer):
-    email = serializers.EmailField(
-        error_messages={'required': 'This field is required: email'}
+    password = serializers.CharField(
+        write_only=True,
+        error_messages={'required': 'This field is required: password'}
     )
 
-    def validate_email(self, value):
-        if User.objects.filter(email=value).exists():
-            raise serializers.ValidationError({"error": "This email is already registered."})
-        return value
+    def validate(self, data):
+        user = self.context['request'].user
+        
+        if not user.check_password(data['password']):
+            raise serializers.ValidationError({"error": "Invalid password."})
+
+        if user.username == data['new_username']:
+            raise serializers.ValidationError({"error": "New username cannot be the same as the current username."})
+
+        if User.objects.filter(username=data['new_username']).exists():
+            raise serializers.ValidationError({"error": "This username is already registered."})
+        
+        return data
 
     def save(self):
         user = self.context['request'].user
-        user.email = self.validated_data['email']
+        user.username = self.validated_data['new_username']
         user.save()
         return user
 
+
+class ChangeEmailSerializer(serializers.Serializer):
+    new_email = serializers.EmailField(
+        error_messages={'required': 'This field is required: email'}
+    )
+    password = serializers.CharField(
+        write_only=True,
+        error_messages={'required': 'This field is required: password'}
+    )
+
+    def validate(self, data):
+        user = self.context['request'].user
+
+        if not user.check_password(data['password']):
+            raise serializers.ValidationError({"error": "Invalid password."})
+
+        if user.email == data['new_email']:
+            raise serializers.ValidationError({"error": "New email cannot be the same as the current email."})
+
+        if user.oauth_registered:
+            raise serializers.ValidationError({"error": "Email cannot be changed for users registered with OAuth."})
+
+        if User.objects.filter(email=data['new_email']).exists():
+            raise serializers.ValidationError({"error": "This email is already registered."})
+        
+        return data
+
+    def save(self):
+        user = self.context['request'].user
+        user.email = self.validated_data['new_email']
+        user.save()
+        return user
+
+
 class ChangePasswordSerializer(serializers.Serializer):
-    current_password = serializers.CharField(
+    password = serializers.CharField(
         write_only=True,
         error_messages={'required': 'This field is required: current_password'}
     )
@@ -45,8 +76,8 @@ class ChangePasswordSerializer(serializers.Serializer):
 
     def validate(self, data):
         user = self.context['request'].user
-
-        if not user.check_password(data['current_password']):
+        print("pepe")
+        if not user.check_password(data['password']):
             raise serializers.ValidationError({"error": "Invalid current password."})
 
         if len(data['new_password']) < 8:
@@ -60,6 +91,7 @@ class ChangePasswordSerializer(serializers.Serializer):
         user.save()
         return user
 
+
 class ResetPasswordRequestSerializer(serializers.Serializer):
     email = serializers.EmailField(
         error_messages={'required': 'This field is required: email'}
@@ -69,6 +101,7 @@ class ResetPasswordRequestSerializer(serializers.Serializer):
         if not User.objects.filter(email=value).exists():
             raise serializers.ValidationError({"error": "Email not registered."})
         return value
+
 
 class ResetPasswordSerializer(serializers.Serializer):
     reset_token = serializers.CharField(
