@@ -5,11 +5,11 @@
 		<form id="login-form">
 			<div class="mb-3">
 				<label for="user" class="form-label ctm-text-light">User</label>
-				<input type="text" class="form-control ctm-text-dark" id="username">
+				<input type="text" class="form-control ctm-form" id="username">
 			</div>
 			<div class="mb-3">
 				<label for="exampleInputPassword1" class="form-label ctm-text-light">Password</label>
-				<input type="password" class="form-control ctm-text-dark" id="password">
+				<input type="password" class="form-control ctm-form" id="password">
 			</div>
 			<div class="d-flex justify-content-center flex-column">
 				<div class="d-flex justify-content-center w-100">
@@ -29,18 +29,18 @@
 		</div>
 	</div> <!-- this closes the login card -->
 	<div id="reset-password-card" class="card ctm-card p-5" style="display: none;" >
-		<button id="cancel-reset-password" class="btn cancel-btn position-absolute top-0 end-0 m-2">x</button>
+		<button id="cancel-reset-pw-request" class="btn cancel-btn position-absolute top-0 end-0 m-2">x</button>
 		<h2 class="text-center ctm-text-title">Reset password</h2>
-		<form id="reset-password-form">
+		<form id="request-reset-pw-form">
 			<div class="mb-3">
 				<label for="email" class="form-label ctm-text-light">Enter the email associated to your account</label>
-				<input type="email" class="form-control ctm-text-dark" id="reset-password-email" required>
+				<input type="email" class="form-control ctm-form" id="reset-pw-email" required placeholder="vicenta@inventmail.com">
 			</div>
 			<div class="d-flex justify-content-center">
-				<button type="submit" class="btn ctm-btn">Reset password</button>
+				<button type="submit" class="btn ctm-btn">Request password reset</button>
 			</div>
 		</form>
-	</div> <!-- this closes the login card -->
+	</div> <!-- this closes the reset card -->
 </div>
 
 

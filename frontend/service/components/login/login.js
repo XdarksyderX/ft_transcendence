@@ -89,8 +89,8 @@ function toggleLoginReset() {
 
 function initResetPasswordEvents() {
     const forgotPw = document.getElementById('forgot-pw');
-    const cancelReset = document.getElementById('cancel-reset-password');
-    const resetPwForm = document.getElementById('reset-password-form');
+    const cancelReset = document.getElementById('cancel-reset-pw-request');
+    const resetPwForm = document.getElementById('request-reset-pw-form');
     forgotPw.addEventListener('click', toggleLoginReset);
     cancelReset.addEventListener('click', toggleLoginReset);
     resetPwForm.addEventListener('submit', handlePasswordResetRequest);
@@ -98,7 +98,7 @@ function initResetPasswordEvents() {
 
 async function handlePasswordResetRequest(event) {
     event.preventDefault();
-    const email = document.getElementById('reset-password-email').value;
+    const email = document.getElementById('reset-pw-email').value;
     try {
         const response = await requestPasswordReset(email);
         if (response.status === "success") {
