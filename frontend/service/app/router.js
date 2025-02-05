@@ -116,10 +116,22 @@ function redirectURL(isLogged, fullUrl) {
 
 }
 
+function unloadChatAndSidebar() {
+    const chatContainer = document.getElementById('chat-container');
+    const sidebarContainer = document.getElementById('sidebar-container');
+    const sidebarToggle = document.getElementById('sidebar-toggle-container');
+
+    chatContainer.innerHTML = '';
+    sidebarContainer.innerHTML = '';
+    sidebarToggle.style.display = 'none';
+}
+
 function loadLoggedContent(isLogged) {
     if (isLogged) {
         loadChat();
         loadSidebar();
+    } else {
+        unloadChatAndSidebar();
     }
     updateNavbar(window.location.pathname);
 }
@@ -152,6 +164,10 @@ function updateNavbar(url) {
         navbarContent.innerHTML = `<a href="/start-game" class="nav-link ctm-link" data-link>Home</a>`
     } if (url === "/start-game") {
         navbarContent.innerHTML = `<div>Welcome ${getUsername()}</div>`;
+    } else {
+        navbarContent.innerHTML = `                <a href="/login" class="nav-link ctm-link" data-link="true">Log in</a>
+                <span class="divider mx-2 ctm-text-light">|</span>
+                <a href="/signup" class="nav-link ctm-link" data-link>Sign up</a>`
     }
 }
 
