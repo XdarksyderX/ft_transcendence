@@ -130,6 +130,9 @@ async function navigateTo(fullUrl) {
             router();
             updateNavbar(window.location.pathname);
         }
+        if (verify) {
+            loadLogin(false);
+        }
     } catch (error) {
         console.error('Error during verification:', error);
     }
@@ -150,13 +153,13 @@ function updateNavbar(url) {
 window.addEventListener("popstate", router);
 
 // Initialize the application
-document.addEventListener("DOMContentLoaded", async () => {
-    const verify = await isLoggedIn();
-    if (verify) {
-        loadLogin(false);
-    } else {
-        navigateTo("/");
-    }
+document.addEventListener("DOMContentLoaded", () => {
+    // const verify = await isLoggedIn();
+    // if (verify) {
+    //     loadLogin(false);
+    // } else {
+    navigateTo(window.location.pathname); // with this we check is is a forbidden path
+    // }
     router();
     // replaces links default behavior for our routing system
     document.body.addEventListener("click", (e) => {
