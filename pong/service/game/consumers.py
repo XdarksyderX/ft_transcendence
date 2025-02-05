@@ -8,11 +8,14 @@ from asgiref.sync import sync_to_async
 
 class GameConsumer(AsyncWebsocketConsumer):
     async def connect(self):
+        """Handles new WebSocket connections"""
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = f'game_{self.room_name}'
-        self.game = None  # Initialize game object
 
-        # Add the WebSocket connection to the group
+        # Load existing game session or create a new one
+        self.game = await sync_to_async(self.get_or_create_game)()
+
+        # Join WebSocket group
         await self.channel_layer.group_add(
             self.room_group_name,
             self.channel_name
@@ -20,11 +23,12 @@ class GameConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
     async def disconnect(self, close_code):
-        """Handles disconnection of a player. If both players leave, the game is reset."""
+        """Handles disconnection of a player."""
         if self.game:
-            await sync_to_async(self.game.delete)()  # Clean up game if both players leave
+            self.game.status = 'finished'  # Mark game as finished
+            await sync_to_async(self.game.save)()  # Persist changes
 
-        # Remove from WebSocket group
+        # Leave WebSocket group
         await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name
@@ -32,43 +36,35 @@ class GameConsumer(AsyncWebsocketConsumer):
 
     """ .json received from frontend through WebSocket
     {
-        "action": "move",       // Action type (e.g., 'move', 'register', 'power-up'), register is registering for the game (connecting)
-        "player": "player1",    // Identifies the player (e.g., 'player1', 'player2') 1: left, 2: right
-        "position": {           // Position object (only for 'move' actions)
-        "x": 100,               // X-coordinate, maybe REDUNDANT (move is vertical) but could be important x_pos is configurable in game settings
-        "y": 200                // Y-coordinate
-        },
-        "game_key": "unique_game_key"    // A unique key to verify the player belongs to the game
+        "action": "move",       // Action type (e.g., 'move', 'register')
+        "player": "player1",    // Identifies the player ('player1', 'player2')
+        "direction": "UP",      // Movement direction: "UP", "DOWN", "STOP"
+        "game_key": "valid_key_here"
     }
     """
     async def receive(self, text_data):
         """Handles incoming WebSocket messages from clients."""
         try:
-            # Parse incoming data
             data = json.loads(text_data)
             action = data.get('action')
             player_name = data.get('player')
-            position = data.get('position')
+            direction = data.get('direction')
             game_key = data.get('game_key')
-
-            # Validate game existence
-            if not self.game:
-                self.game = await sync_to_async(self.get_or_create_game)(game_key)
 
             # Validate game key
             if game_key != str(self.game.game_key):
                 await self.send(json.dumps({"error": "Invalid game key"}))
                 return
 
-            # Handle different actions
+            # Handle actions
             if action == 'register':
                 await self.register_player(player_name)
             elif action == 'move':
-                if not position:
-                    raise ValueError("Position data is required for movement")
-                await self.update_positions(player_name, position)
+                if not direction:
+                    raise ValueError("Direction is required for movement")
+                await self.update_player_movement(player_name, direction)
 
-            # Send updated game state to all players
+            # Update and broadcast game state
             await self.broadcast_game_state()
 
         except ValueError as e:
@@ -77,17 +73,14 @@ class GameConsumer(AsyncWebsocketConsumer):
             await self.send(json.dumps({"error": "An unexpected error occurred"}))
 
     @sync_to_async
-    def get_or_create_game(self, game_key):
-        """Fetches or creates a game instance with the given game_key."""
-        game, created = PongGame.objects.get_or_create(
-            game_key=uuid.UUID(game_key),
-            defaults={'status': 'pending'}
-        )
+    def get_or_create_game(self):
+        """Fetches or creates a game instance using the game_key."""
+        game, _ = PongGame.objects.get_or_create(status="in_progress")
         return game
 
     @sync_to_async
     def register_player(self, player_name):
-        """Registers a player in the game session and updates the database."""
+        """Registers a player in the game session."""
         if not player_name:
             raise ValueError("Player name is required")
 
@@ -98,24 +91,41 @@ class GameConsumer(AsyncWebsocketConsumer):
         elif not self.game.player2:
             self.game.player2 = player
         else:
-            raise ValueError("Game is already full")
+            raise ValueError("Game is full")
 
         # Start game when both players are registered
         if self.game.player1 and self.game.player2:
-            self.game.status = 'in_progress'
+            self.game.status = "in_progress"
+
         self.game.save()
 
     @sync_to_async
-    def update_positions(self, player_name, position):
-        """Updates player or ball positions based on received movement data."""
+    def update_player_movement(self, player_name, direction):
+        """Updates player movement and persists changes."""
         if player_name == self.game.player1.username:
-            self.game.player_positions["player1"] = position
+            player_key = "player1"
         elif player_name == self.game.player2.username:
-            self.game.player_positions["player2"] = position
+            player_key = "player2"
+        else:
+            return
+
+        current_y = self.game.player_positions.get(player_key, {}).get("y", self.game.board_height // 2)
+
+        if direction == "UP":
+            new_y = max(0, current_y - 5)
+        elif direction == "DOWN":
+            new_y = min(self.game.board_height - self.game.player_height, current_y + 5)
+        else:  # STOP case
+            new_y = current_y
+
+        self.game.update_position(player_key, {"y": new_y})  # Save new position in JSONField
         self.game.save()
 
     async def broadcast_game_state(self):
-        """Sends the latest game state to all connected players."""
+        """Updates ball position and broadcasts game state."""
+        await sync_to_async(self.game.update_ball_position)(self.game.ball_position)  # Move ball
+        self.game.save()
+
         await self.channel_layer.group_send(
             self.room_group_name,
             {
@@ -133,15 +143,15 @@ class GameConsumer(AsyncWebsocketConsumer):
         "ball": {
             "x": 350,
             "y": 250,
-            "xVel": 7, // velocities could be removed depending speed of updates
+            "xVel": 7,
             "yVel": -4
-            },
+        },
         "status": "in_progress"
     }
-    On the frontend, JavaScript should listen for incoming WebSocket messages, parse & then render based on the info"""
+    """
     @sync_to_async
     def get_game_state(self):
-        """Returns the current game state as a JSON object."""
+        """Returns the current game state from the database."""
         return {
             "players": self.game.player_positions,
             "ball": self.game.ball_position,
