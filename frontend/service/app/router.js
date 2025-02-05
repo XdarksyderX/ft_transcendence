@@ -9,8 +9,7 @@ import { initializeFriendsEvents } from '../components/friends/app.js';
 import { initializeStatsEvents } from '../components/stats/app.js';
 import { initializeOngoingTournaments } from '../components/tournament/app.js';
 import { initializeChessEvents } from '../components/chess/index.js';
-import { loadChat, loadSidebar } from './render.js'; // temporal
-import { loadLogin } from '../components/login/login.js';
+import { loadChat, loadSidebar } from './render.js';
 import { initializeIndexEvents } from '../components/index/app.js';
 import { isLoggedIn } from './auth.js';
 import { initializeSettingsEvents } from '../components/settings/app.js';
@@ -33,9 +32,9 @@ const routes = [
 ];
 
 async function router() {
-    console.log('Router function called');
+//    console.log('Router function called');
     const path = location.pathname;
-    console.log('Current path:', path);
+//    console.log('Current path:', path);
     const match = routes.find(route => route.url === path) || routes[0];
 
     const html = await fetch(match.file).then(res => res.text());
@@ -56,7 +55,7 @@ async function router() {
             initializeNeonFrames();
             break;
         case "/start-game":
-            initializeStartGameEvents(); // i guess
+            initializeStartGameEvents();
             initializeNeonFrames();
             break;
         case "/ongoing-tournaments":
@@ -100,7 +99,7 @@ function parseUrl(fullUrl) {
 
 function redirectURL(isLogged, fullUrl) {
     const url = parseUrl(fullUrl);
-    console.log("is logged?", isLogged)
+//    console.log("is logged?", isLogged)
     if (url === "/login" || url === "/signup" || url === "/") {
         if (isLogged) {
             return ("/start-game");
@@ -116,23 +115,30 @@ function redirectURL(isLogged, fullUrl) {
     }
 
 }
+
+function loadLoggedContent(isLogged) {
+    if (isLogged) {
+        loadChat();
+        loadSidebar();
+    }
+    updateNavbar(window.location.pathname);
+}
+
 async function navigateTo(fullUrl) {
-    // console.log('navigating: ', url);
+     console.log('navigate function called, url: ', fullUrl);
     
     try {
         const verify = await isLoggedIn();
         const url = redirectURL(verify, fullUrl);
-        console.log("verify:", verify);
+    //    console.log("verify:", verify);
         
        // if (!(url !== "/login" && url !== "/signup" && !verify)) 
         if (url !== window.location.pathname) {
             history.pushState(null, null, url);
             router();
-            updateNavbar(window.location.pathname);
+           
         }
-        if (verify) {
-            loadLogin(false);
-        }
+        loadLoggedContent(verify);
     } catch (error) {
         console.error('Error during verification:', error);
     }
@@ -141,8 +147,8 @@ async function navigateTo(fullUrl) {
 function updateNavbar(url) {
     const navbarContent = document.getElementById('navbar-content');
     if (url !== "/" && url !== "/start-game" && url !== "/login" && url !== "/signup") {
-        console.log('url: ', url);
-        console.log('pathname: ', window.location.pathname);
+    //    console.log('url: ', url);
+    //    console.log('pathname: ', window.location.pathname);
         navbarContent.innerHTML = `<a href="/start-game" class="nav-link ctm-link" data-link>Home</a>`
     } if (url === "/start-game") {
         navbarContent.innerHTML = `<div>Welcome ${getUsername()}</div>`;
@@ -150,26 +156,22 @@ function updateNavbar(url) {
 }
 
 // Handle browser back/forward buttons
-window.addEventListener("popstate", router);
+window.addEventListener("popstate", initRouteEvents);
 
-// Initialize the application
-document.addEventListener("DOMContentLoaded", () => {
-    // const verify = await isLoggedIn();
-    // if (verify) {
-    //     loadLogin(false);
-    // } else {
-    navigateTo(window.location.pathname); // with this we check is is a forbidden path
-    // }
+function initRouteEvents() {
+    console.log("initRouteEvents function called");
+    navigateTo(window.location.pathname);
     router();
-    // replaces links default behavior for our routing system
     document.body.addEventListener("click", (e) => {
         if (e.target.matches("[data-link]") || e.target.tagName === 'A') {
             e.preventDefault();
             navigateTo(e.target.href);
         }
     });
-});
+}
 
+// Initialize the application
+document.addEventListener("DOMContentLoaded", initRouteEvents);
 
 
 export { navigateTo };
