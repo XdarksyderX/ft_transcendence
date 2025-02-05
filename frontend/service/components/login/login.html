@@ -1,5 +1,5 @@
 <div class="blinking-neon-frame">
-	<div class="card ctm-card p-5">
+	<div id="login-card" class="card ctm-card p-5">
 		<button id="cancel-login" class="btn cancel-btn position-absolute top-0 end-0 m-2">x</button>
 		<h2 class="text-center ctm-text-title">Log in</h2>
 		<form id="login-form">
@@ -11,21 +11,42 @@
 				<label for="exampleInputPassword1" class="form-label ctm-text-light">Password</label>
 				<input type="password" class="form-control ctm-text-dark" id="password">
 			</div>
-			<div class="d-flex justify-content-center">
-				<button type="submit" class="btn ctm-btn" id="submit">Submit</button>
-				<div class="text-center ctm-text-light p-1">or</div>
-				<button type="submit" class="btn ctm-btn">Login with 42</button>
+			<div class="d-flex justify-content-center flex-column">
+				<div class="d-flex justify-content-center w-100">
+					<button type="submit" class="btn ctm-btn w-50 flex-grow-1" id="submit">Submit</button>
+					<div class="text-center ctm-text-light p-1">or</div>
+					<button type="submit" class="btn ctm-btn w-50 flex-grow-1">Login with 42</button>
+				</div>
+				<div class="d-flex justify-content-center mt-3 w-100">
+					<div id="forgot-pw" class="btn ctm-btn-secondary flex-grow-1">Forgot your password?</div>
+				</div>
+				<div class="d-flex justify-content-center mt-2">
+					<a href="/signup" class="ctm-text-light ctm-link">Don't have an account? Register here</a>
+				</div>
 			</div>
 		</form>
-		<div class="d-flex justify-content-center mt-3">
-			<a href="#" class="ctm-text-light ctm-link">Forgot your password?</a>
+		<div class="d-flex flex-column 2-50">
 		</div>
-		<div class="d-flex justify-content-center mt-2">
-			<a href="/signup" class="ctm-text-light ctm-link">Don't have an account? Register here</a>
-		</div>
-	</div> <!-- this closes the card -->
+	</div> <!-- this closes the login card -->
+	<div id="reset-password-card" class="card ctm-card p-5" style="display: none;" >
+		<button id="cancel-reset-password" class="btn cancel-btn position-absolute top-0 end-0 m-2">x</button>
+		<h2 class="text-center ctm-text-title">Reset password</h2>
+		<form id="reset-password-form">
+			<div class="mb-3">
+				<label for="email" class="form-label ctm-text-light">Enter the email associated to your account</label>
+				<input type="email" class="form-control ctm-text-dark" id="reset-password-email" required>
+			</div>
+			<div class="d-flex justify-content-center">
+				<button type="submit" class="btn ctm-btn">Reset password</button>
+			</div>
+		</form>
+	</div> <!-- this closes the login card -->
 </div>
-<div class="modal fade" id="user-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+
+
+
+<!-- we dont use this modal now -->
+<!-- <div class="modal fade" id="user-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -41,4 +62,4 @@
 			</div>
 		</div>
 	</div>
-</div>
+</div> -->

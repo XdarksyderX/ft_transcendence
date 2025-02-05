@@ -1,6 +1,7 @@
 import { navigateTo } from '../../app/router.js';
 import { loadChat, loadSidebar, throwAlert } from '../../app/render.js';
-import { getUsername, refreshAccessToken, login } from '../../app/auth.js';
+import { getUsername, refreshAccessToken, login, resetPassword } from '../../app/auth.js';
+import { requestPasswordReset } from '../../app/auth.js';
 
 export async function initializeLoginEvents() {
     const loginForm = document.getElementById('login-form');
@@ -18,6 +19,7 @@ export async function initializeLoginEvents() {
     if (cancelLogin) {
         cancelLogin.addEventListener('click', () => navigateTo('/'));
     }
+    initResetPasswordEvents();
 }
 
 async function authenticateUser(userCredentials) {
@@ -40,10 +42,6 @@ async function authenticateUser(userCredentials) {
     }
 }
 
-
-// function updateNavbar(username) {
-//     document.getElementById('navbar-content').innerHTML = `<div>Welcome ${username}</div>`;
-// }
 
 async function showOTPForm(userCredentials) {
     document.getElementById('app').innerHTML = `
@@ -81,4 +79,37 @@ async function handleServerError(response) {
     return response.json();
 }
 
+function toggleLoginReset() {
+    const loginCard = document.getElementById('login-card');
+    const resetCard = document.getElementById('reset-password-card');
+
+    loginCard.style.display = loginCard.style.display === 'block' ? 'none' : 'block';
+    resetCard.style.display = loginCard.style.display === 'block' ? 'none' : 'block';
+}
+
+function initResetPasswordEvents() {
+    const forgotPw = document.getElementById('forgot-pw');
+    const cancelReset = document.getElementById('cancel-reset-password');
+    const resetPwForm = document.getElementById('reset-password-form');
+    forgotPw.addEventListener('click', toggleLoginReset);
+    cancelReset.addEventListener('click', toggleLoginReset);
+    resetPwForm.addEventListener('submit', handlePasswordResetRequest);
+}
+
+async function handlePasswordResetRequest(event) {
+    event.preventDefault();
+    const email = document.getElementById('reset-password-email').value;
+    try {
+        const response = await requestPasswordReset(email);
+        if (response.status === "success") {
+            throwAlert("Please, check your email");
+        } else {
+            throwAlert(response.message);
+        }
+    } catch (error) {
+        throwAlert("An error ocurred during the reset password request");
+    }
+}
+
 export { handleServerError };
+ 
