@@ -34,7 +34,10 @@ class RefreshTokenView(APIView):
             old_refresh.blacklist()
             new_refresh = RefreshToken.for_user(user)
             access_token = str(new_refresh.access_token)
-
+            new_refresh["user_id"] = user.id
+            new_refresh["username"] = user.username
+            new_refresh["two_fa_enabled"] = user.two_fa_enabled
+            new_refresh["oauth_registered"] = user.oauth_registered
             expiration = datetime.now(timezone.utc) + timedelta(days=7)
 
             response = Response(
