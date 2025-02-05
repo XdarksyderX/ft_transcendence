@@ -7,7 +7,7 @@ const avatarImages = [
 function getElements() { 
     return (
         {
-			test: document.getElementById('settings-container'),
+		//	test: document.getElementById('settings-container'),
             username: document.getElementById('username'),
             registration: document.getElementById('registration'),
             totalFriends: document.getElementById('total-friends'),
@@ -235,7 +235,7 @@ function loadCanvases() {
 
 export function initializeProfileEvents() {
     const elements = getElements();
-    console.log(elements);
+ //   console.log(elements);
     fillUserData(elements);
     loadCanvases();
     btnHandler(elements);

@@ -5,6 +5,11 @@ import { initializeNeonChat } from "./neon.js";
 async function loadChat() {
     const chatContainer = document.getElementById('chat-container');
 
+    if (chatContainer.innerHTML != '') {
+      console.log("chat already loaded");
+      return ;
+    }
+
     try {
         const response = await fetch('/components/chat/chat.html'); // Ensure the path is correct
         if (!response.ok) throw new Error('Error while loading chat');
@@ -23,6 +28,11 @@ async function loadChat() {
 async function loadSidebar() {
     const sidebarContainer = document.getElementById('sidebar-container');
     const sidebarToggle = document.getElementById('sidebar-toggle-container');
+
+    if (sidebarContainer.innerHTML != '') {
+      console.log("sidebar already loaded");
+      return ;
+    }
 
     try {
         const response = await fetch('./components/sidebar/sidebar.html'); // Ensure the path is correct

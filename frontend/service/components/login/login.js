@@ -7,7 +7,7 @@ export async function initializeLoginEvents() {
     if (loginForm) {
         loginForm.addEventListener('submit', async function(event) {
             event.preventDefault();
-            const username = document.getElementById('username').value.trim() || 'eli';
+            const username = document.getElementById('username').value.trim() || 'Vicenta';
             const password = document.getElementById('password').value.trim() || 'Octubre10';
             const otpCode = document.getElementById('otp')?.value.trim() || null;
             await authenticateUser({ username, password, two_fa_code: otpCode });
@@ -26,7 +26,7 @@ async function authenticateUser(userCredentials) {
 
         if (loginData.status === "success") {
             console.log("Login successful:", loginData.access_token);
-            loadLogin();
+            navigateTo('/start-game');
         } 
         else if (loginData.status === "otp_required") {
             showOTPForm(userCredentials);
@@ -40,16 +40,10 @@ async function authenticateUser(userCredentials) {
     }
 }
 
-export function loadLogin(move = true) {
-    loadChat();
-    loadSidebar();
-    updateNavbar(getUsername());
-    if (move) navigateTo('/start-game');
-}
 
-function updateNavbar(username) {
-    document.getElementById('navbar-content').innerHTML = `<div>Welcome ${username}</div>`;
-}
+// function updateNavbar(username) {
+//     document.getElementById('navbar-content').innerHTML = `<div>Welcome ${username}</div>`;
+// }
 
 async function showOTPForm(userCredentials) {
     document.getElementById('app').innerHTML = `
