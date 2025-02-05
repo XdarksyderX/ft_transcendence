@@ -36,10 +36,10 @@ export function initializeChatEvents() {
     ];
 
     let chats = [
-        { id: 1, name: "Alice", messages: [
-            { id: 1, text: "Hey there!", sender: "in", read: true },
-            { id: 2, text: "Hi Alice! How are you?", sender: "out", read: true },
-            { id: 3, text: "I'm good, thanks!", sender: "in", read: false },
+        { id: 1, name: "Vicenta", messages: [
+            { id: 1, text: "Policía?! Me llamo Vicenta, estoy muy nerviosa", sender: "in", read: true },
+            { id: 2, text: "...", sender: "out", read: true },
+            { id: 3, text: "Ya vienen para acá", sender: "in", read: false },
         ]},
         { id: 2, name: "Bob", messages: [
             { id: 1, text: "Did you see the game last night?", sender: "in", read: true },
