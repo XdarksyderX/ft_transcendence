@@ -41,8 +41,8 @@ export async function logout() {
     } catch (error) {
         console.error('Logout error:', error);
     } finally {
-        localStorage.clear();
         navigateTo('/');
+        localStorage.clear();
     }
 }
 
