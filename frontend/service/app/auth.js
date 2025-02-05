@@ -1,5 +1,5 @@
 import jwtDecode from 'https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.esm.js';
-
+import { navigateTo } from './router.js';
 /**
  * Obtiene el username almacenado en localStorage.
  */
@@ -41,6 +41,7 @@ export async function logout() {
     } catch (error) {
         console.error('Logout error:', error);
     } finally {
+        navigateTo('/');
         localStorage.clear();
     }
 }
