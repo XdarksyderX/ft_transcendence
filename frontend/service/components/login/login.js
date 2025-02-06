@@ -79,11 +79,12 @@ async function handleServerError(response) {
     return response.json();
 }
 
-function toggleLoginReset() {
+function toggleLoginReset(event) {
+
     const loginCard = document.getElementById('login-card');
     const resetCard = document.getElementById('reset-password-card');
 
-    loginCard.style.display = loginCard.style.display === 'block' ? 'none' : 'block';
+    loginCard.style.display = loginCard.style.display === 'none' ? 'block' : 'none';
     resetCard.style.display = loginCard.style.display === 'block' ? 'none' : 'block';
 }
 
