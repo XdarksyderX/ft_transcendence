@@ -20,13 +20,18 @@ class Game:
         self.game.player_positions.setdefault("player2", {"x": 670, "y": 225}) # in future configurable
 
         # Load ball position or reset if missing
-        self.ball = self.game.ball_position or self._reset_ball()
+        self.ball = self.game.ball_position or self._reset_ball(0) # param is the who scored, 0 means no one scored (game start)
         self.winner = None
 
-    def _reset_ball(self):
+    def _reset_ball(self, scored):
         """Reset the ball to the center of the board with a random initial velocity."""
         angle = math.radians(random.uniform(-30, 30))  # Randomized initial angle
-        direction = random.choice([-1, 1])  # Randomly left (-1) or right (1)
+        if scored == 1:
+            direction = 1 #right
+        elif scored == 2:
+            direction = -1 #left
+        else:
+            direction = random.choice([-1, 1])  # Randomly left (-1) or right (1)
         ball_state = {
             "x": self.board_width / 2 - self.ball_side / 2,
             "y": self.board_height / 2 - self.ball_side / 2,
@@ -81,11 +86,11 @@ class Game:
         if ball["x"] <= 0:  # Player 2 scores
             self.game.player2_score += 1
             self._check_game_over()
-            self.ball = self._reset_ball()
+            self.ball = self._reset_ball(2)
         elif ball["x"] + self.ball_side >= self.board_width:  # Player 1 scores
             self.game.player1_score += 1
             self._check_game_over()
-            self.ball = self._reset_ball()
+            self.ball = self._reset_ball(1)
 
         # Persist ball position update to the database
         self.game.update_ball_position(self.ball)

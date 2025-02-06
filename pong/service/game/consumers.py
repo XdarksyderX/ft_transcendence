@@ -167,7 +167,7 @@ class GameConsumer(AsyncWebsocketConsumer):
             "xVel": 7, // velocities are sent in case communication to frontend is slow, so front can move the ball without waiting for the information
             "yVel": -4 // Will be removed if communication is quick
         },
-        "status": "in_progress"
+        "status": "in_progress" // other possible statuses: pending (waiting for players to join), finished
     }
     """
     @sync_to_async
