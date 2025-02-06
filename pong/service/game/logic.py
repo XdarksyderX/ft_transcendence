@@ -6,8 +6,8 @@ class Game:
     def __init__(self, game_instance: PongGame):
         """Initialize the game using an existing PongGame instance."""
         self.game = game_instance
-        self.board_width = 700  # This will be configurable in the future
-        self.board_height = 500
+        self.board_width = 700  # This will all be configurable in the future
+        self.board_height = 500 # For now hardcoded
         self.player_height = 50
         self.player_speed = 5
         self.ball_side = 10
@@ -16,8 +16,8 @@ class Game:
         self.points_to_win = 3
 
         # Ensure database has correct defaults for players
-        self.game.player_positions.setdefault("player1", {"x": 20, "y": 225})
-        self.game.player_positions.setdefault("player2", {"x": 670, "y": 225})
+        self.game.player_positions.setdefault("player1", {"x": 20, "y": 225}) # for now hardcoded
+        self.game.player_positions.setdefault("player2", {"x": 670, "y": 225}) # in future configurable
 
         # Load ball position or reset if missing
         self.ball = self.game.ball_position or self._reset_ball()
@@ -126,11 +126,11 @@ class Game:
             "ball": self.ball,
             "players": {
                 "player1": {
-                    **self.game.player_positions.get("player1", {"x": 20, "y": 225}),
+                    **self.game.player_positions.get("player1", {"x": 20, "y": 225}), #positions hardcoded for now, in future configurable
                     "score": self.game.player1_score
                 },
                 "player2": {
-                    **self.game.player_positions.get("player2", {"x": 670, "y": 225}),
+                    **self.game.player_positions.get("player2", {"x": 670, "y": 225}), #positions hardcoded for now, in future configurable
                     "score": self.game.player2_score
                 }
             },

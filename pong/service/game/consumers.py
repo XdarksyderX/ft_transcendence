@@ -119,15 +119,15 @@ class GameConsumer(AsyncWebsocketConsumer):
 
         # Ensure player data exists in the dictionary
         if player_key not in self.game.player_positions:
-            self.game.player_positions[player_key] = {"x": 20 if player_key == "player1" else 670, "y": 225}  # Default position
+            self.game.player_positions[player_key] = {"x": 20 if player_key == "player1" else 670, "y": 225}  # Default position, for now hardcoded, in future configurable
 
         current_y = self.game.player_positions[player_key]["y"]
 
         # Update position based on direction
         if direction == "UP":
-            new_y = max(0, current_y - 5)
+            new_y = max(0, current_y - 5) # 5 hardcoded, in future configurable
         elif direction == "DOWN":
-            new_y = min(500 - 50, current_y + 5)  # Ensure within board bounds
+            new_y = min(500 - 50, current_y + 5)  # Ensure within board bounds (5 hardcoded)
         else:  # STOP case
             new_y = current_y
 
@@ -175,8 +175,8 @@ class GameConsumer(AsyncWebsocketConsumer):
         """Returns the current game state from the database."""
         return {
             "players": {
-                "player1": {**self.game.player_positions.get("player1", {"x": 20, "y": 225}), "score": self.game.player1_score},
-                "player2": {**self.game.player_positions.get("player2", {"x": 670, "y": 225}), "score": self.game.player2_score}
+                "player1": {**self.game.player_positions.get("player1", {"x": 20, "y": 225}), "score": self.game.player1_score}, #positions hardcoded
+                "player2": {**self.game.player_positions.get("player2", {"x": 670, "y": 225}), "score": self.game.player2_score} #in future configurable
             },
             "ball": self.game.ball_position,
             "status": self.game.status

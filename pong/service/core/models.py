@@ -1,7 +1,7 @@
 from django.db import models
 import uuid
 import random
-from django.contrib.postgres.fields import JSONField  # If using PostgreSQL, otherwise use models.JSONField
+from django.contrib.postgres.fields import JSONField  # for PostgreSQL, otherwise would be models.JSONField
 
 class User(models.Model):
     """Model representing a user in the game."""
@@ -57,8 +57,8 @@ class PongGame(models.Model):
 
     player_positions = models.JSONField(
         default=lambda: {
-            "player1": {"x": 20, "y": 225},  # Default paddle positions
-            "player2": {"x": 670, "y": 225}
+            "player1": {"x": 20, "y": 225},  # Default paddle positions, for now hardcoded
+            "player2": {"x": 670, "y": 225}  # In future configurable
         }
     )
 
