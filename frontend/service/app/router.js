@@ -1,4 +1,4 @@
-// import { initializeLoginEvents, initializeSignupEvents, initializeChatEvents } from './events.js';
+//import { initializeLoginEvents, initializeSignupEvents, initializeChatEvents } from './events.js';
 import { initializeNeonFrames, initializeNeonChat } from './neon.js';
 import { initializeLoginEvents } from '../components/login/login.js';
 import { initializeSignupEvents } from '../components/signup/signup.js';
@@ -15,6 +15,7 @@ import { isLoggedIn } from './auth.js';
 import { initializeSettingsEvents } from '../components/settings/app.js';
 import { startBackgroundMusic } from '../components/chess/Render/main.js';
 import { getUsername } from './auth.js';
+import { initializeResetPasswordEvents } from '../components/login/reset-pw.js';
 
 const routes = [
     { url: "/404", file: "./components/error/404.html" },
@@ -28,6 +29,7 @@ const routes = [
     { url: "/settings", file: "./components/settings/settings.html" },
     { url: "/ongoing-tournaments", file: "./components/tournament/tournament.html" },
     { url: "/chess", file: "./components/chess/chess.html" },
+    { url: "/reset-password", file: "./components/login/reset-password.html" },
 
 ];
 
@@ -40,41 +42,43 @@ async function router() {
     const html = await fetch(match.file).then(res => res.text());
     document.getElementById('app').innerHTML = html;
 
+    initializeNeonFrames();
+
+
     //initializes the proper events depending on the view
     switch (path) {
         case "/":
-            initializeNeonFrames();
             initializeIndexEvents();
             break;
         case "/login":
             initializeLoginEvents();
-            initializeNeonFrames();
+            //initializeNeonFrames();
             break;
         case "/signup":
             initializeSignupEvents();
-            initializeNeonFrames();
+            //initializeNeonFrames();
             break;
         case "/start-game":
             initializeStartGameEvents();
-            initializeNeonFrames();
+            //initializeNeonFrames();
             break;
         case "/ongoing-tournaments":
             initializeOngoingTournaments();
             break;
         case "/profile":
-            initializeNeonFrames();
+            //initializeNeonFrames();
             initializeProfileEvents();
             break;
         case "/friends":
  /*            loadChat();
             loadSidebar(); */
-            initializeNeonFrames();
+            //initializeNeonFrames();
             initializeFriendsEvents();
             break;
         case "/game-stats":
 /*             loadChat();
             loadSidebar(); */
-            initializeNeonFrames();
+            //initializeNeonFrames();
             initializeStatsEvents();
             break;
         case "/chess":
@@ -83,8 +87,10 @@ async function router() {
             //startBackgroundMusic()
             break;
         case "/settings":
-            initializeNeonFrames();
             initializeSettingsEvents();
+            break ;
+        case "reset-password":
+            initializeResetPasswordEvents();
             break ;
         default:
             initialize404();

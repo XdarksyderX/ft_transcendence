@@ -1,5 +1,5 @@
 import { navigateTo } from '../../app/router.js';
-import { loadChat, loadSidebar, throwAlert } from '../../app/render.js';
+import { /* loadChat, loadSidebar,  */throwAlert } from '../../app/render.js';
 import { getUsername, refreshAccessToken, login, resetPassword } from '../../app/auth.js';
 import { requestPasswordReset } from '../../app/auth.js';
 
@@ -19,7 +19,7 @@ export async function initializeLoginEvents() {
     if (cancelLogin) {
         cancelLogin.addEventListener('click', () => navigateTo('/'));
     }
-    initResetPasswordEvents();
+    initRequestResetPasswordEvents();
 }
 
 async function authenticateUser(userCredentials) {
@@ -87,7 +87,7 @@ function toggleLoginReset() {
     resetCard.style.display = loginCard.style.display === 'block' ? 'none' : 'block';
 }
 
-function initResetPasswordEvents() {
+function initRequestResetPasswordEvents() {
     const forgotPw = document.getElementById('forgot-pw');
     const cancelReset = document.getElementById('cancel-reset-pw-request');
     const resetPwForm = document.getElementById('request-reset-pw-form');
