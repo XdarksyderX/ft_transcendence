@@ -13,6 +13,7 @@ class Game:
         self.ball_side = 10
         self.start_speed = 7.5
         self.speed_up_multiple = 1.02
+        self.max_speed = 20  # Prevents ball from going through paddle glitch
         self.points_to_win = 3
 
         # Ensure database has correct defaults for players
@@ -25,7 +26,7 @@ class Game:
 
     def _reset_ball(self, scored):
         """Reset the ball to the center of the board with a random initial velocity."""
-        angle = math.radians(random.uniform(-30, 30))  # Randomized initial angle
+        angle = math.radians(random.uniform(-45, 45))  # Randomized initial angle
         if scored == 1:
             direction = 1 #right
         elif scored == 2:
@@ -52,7 +53,7 @@ class Game:
 
         # Update position based on direction
         if direction == "UP":
-            new_y = max(0, current_y - self.player_speed)
+            new_y = max(0, current_y - self.player_speed) # returns max value between 0 & the calculated new_y
         elif direction == "DOWN":
             new_y = min(self.board_height - self.player_height, current_y + self.player_speed)
         else:  # STOP case
@@ -77,10 +78,10 @@ class Game:
             ball["yVel"] *= -1  # Reverse Y direction
 
         # Ball collision with paddles
-        if self._check_paddle_collision("player1"):
-            ball["xVel"] = abs(ball["xVel"]) * self.speed_up_multiple  # Bounce right
-        elif self._check_paddle_collision("player2"):
-            ball["xVel"] = -abs(ball["xVel"]) * self.speed_up_multiple  # Bounce left
+        if self._handle_paddle_hit("player1"):
+            ball["xVel"] = abs(ball["xVel"])  # Bounce right
+        elif self._handle_paddle_hit("player2"):
+            ball["xVel"] = -abs(ball["xVel"])  # Bounce left
 
         # Check if a player scored
         if ball["x"] <= 0:  # Player 2 scores
@@ -96,8 +97,8 @@ class Game:
         self.game.update_ball_position(self.ball)
         self.game.save()
 
-    def _check_paddle_collision(self, player):
-        """Check if the ball collides with a paddle."""
+    def _handle_paddle_hit(self, player):
+        """Handles ball collision with paddles, calculating rebound angles."""
         paddle = self.game.player_positions.get(player)
         if not paddle:
             return False
@@ -105,14 +106,37 @@ class Game:
         paddle_x = paddle["x"]
         paddle_y = paddle["y"]
 
-        if player == "player1":
-            return (self.ball["x"] <= paddle_x + self.ball_side and 
-                    paddle_y <= self.ball["y"] <= paddle_y + self.player_height)
-        elif player == "player2":
-            return (self.ball["x"] + self.ball_side >= paddle_x and 
-                    paddle_y <= self.ball["y"] <= paddle_y + self.player_height)
+        ball = self.ball  # Get ball position
 
-        return False
+        # Check if the ball is colliding with the paddle
+        if ((ball["x"] < paddle_x + self.player_width) and  # Ball doesn't pass right side
+            (ball["x"] + self.ball_side > paddle_x) and      # Ball passes left side
+            (ball["y"] < paddle_y + self.player_height) and  # Ball doesn't pass bottom
+            (ball["y"] + self.ball_side > paddle_y)):        # Ball passes top
+            
+            # Calculate relative collision position
+            collision_point = ball["y"] - paddle_y - self.player_height / 2 + self.ball_side / 2
+            
+            # Clamp the collision point to prevent extreme angles
+            collision_point = max(-self.player_height / 2, min(self.player_height / 2, collision_point))
+            
+            # Normalize the collision point between -1 and 1
+            collision_point /= (self.player_height / 2)
+
+            # Compute rebound angle (max ±45 degrees)
+            rebound_angle = (math.pi / 4) * collision_point
+
+            # Increase speed slightly with each hit
+            if ball["speed"] < self.max_speed:
+                ball["speed"] *= self.speed_up_multiple
+
+            # Calculate new velocity components
+            ball["xVel"] = ball["speed"] * math.cos(rebound_angle)
+            ball["yVel"] = ball["speed"] * math.sin(rebound_angle)
+
+            return True  # Collision occurred
+
+        return False  # No collision
 
     def _check_game_over(self):
         """Check if a player has won the game and persist scores."""
