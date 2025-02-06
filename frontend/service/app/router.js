@@ -89,7 +89,7 @@ async function router() {
         case "/settings":
             initializeSettingsEvents();
             break ;
-        case "reset-password":
+        case "/reset-password":
             initializeResetPasswordEvents();
             break ;
         default:
