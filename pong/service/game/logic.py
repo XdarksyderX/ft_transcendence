@@ -30,8 +30,8 @@ class Game:
         ball_state = {
             "x": self.board_width / 2 - self.ball_side / 2,
             "y": self.board_height / 2 - self.ball_side / 2,
-            "x_vel": self.start_speed * math.cos(angle) * direction,
-            "y_vel": self.start_speed * math.sin(angle),
+            "xVel": self.start_speed * math.cos(angle) * direction,
+            "yVel": self.start_speed * math.sin(angle),
             "speed": self.start_speed
         }
         self.game.update_ball_position(ball_state)  # Persist new ball state
@@ -45,6 +45,7 @@ class Game:
 
         current_y = self.game.player_positions[player]["y"]
 
+        # Update position based on direction
         if direction == "UP":
             new_y = max(0, current_y - self.player_speed)
         elif direction == "DOWN":
@@ -63,18 +64,18 @@ class Game:
     def update_ball_position(self):
         """Updates the ball's position, handles collisions, and persists it."""
         ball = self.ball
-        ball["x"] += ball["x_vel"]
-        ball["y"] += ball["y_vel"]
+        ball["x"] += ball["xVel"]
+        ball["y"] += ball["yVel"]
 
         # Ball collision with top/bottom walls
         if ball["y"] <= 0 or ball["y"] + self.ball_side >= self.board_height:
-            ball["y_vel"] *= -1  # Reverse Y direction
+            ball["yVel"] *= -1  # Reverse Y direction
 
         # Ball collision with paddles
         if self._check_paddle_collision("player1"):
-            ball["x_vel"] = abs(ball["x_vel"]) * self.speed_up_multiple  # Bounce right
+            ball["xVel"] = abs(ball["xVel"]) * self.speed_up_multiple  # Bounce right
         elif self._check_paddle_collision("player2"):
-            ball["x_vel"] = -abs(ball["x_vel"]) * self.speed_up_multiple  # Bounce left
+            ball["xVel"] = -abs(ball["xVel"]) * self.speed_up_multiple  # Bounce left
 
         # Check if a player scored
         if ball["x"] <= 0:  # Player 2 scores
