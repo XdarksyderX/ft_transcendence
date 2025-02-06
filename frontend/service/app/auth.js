@@ -127,7 +127,7 @@ export async function changeEmail(newEmail, password) {
  * Cambia la contraseña del usuario.
  */
 export async function changePassword(newPassword, oldPassword) {
-    return await sendRequest('POST', 'change-password/', { new_password: newPassword, old_password: oldPassword });
+    return await sendRequest('POST', 'change-password/', { new_password: newPassword, password: oldPassword });
 }
 
 /**

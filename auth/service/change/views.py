@@ -35,7 +35,7 @@ class ChangeUsernameView(APIView):
         if request.user.oauth_registered:
             return Response({"status": "error", "message": "Username cannot be changed for users registered with OAuth."}, status=status.HTTP_403_FORBIDDEN)
 
-        serializer = ChangeUsernameSerializer(data=request.data)
+        serializer = ChangeUsernameSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             user = serializer.save()
             
@@ -66,10 +66,10 @@ class ChangeEmailView(APIView):
         if request.user.oauth_registered:
             return Response({"status": "error", "message": "Email cannot be changed for users registered with OAuth."}, status=status.HTTP_403_FORBIDDEN)
 
-        serializer = ChangeEmailSerializer(data=request.data)
+        serializer = ChangeEmailSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             user = request.user
-            serializer.save(user)
+            serializer.save()
 
             verification_code = str(uuid.uuid4())[:6]
             expires_at = timezone.now() + datetime.timedelta(hours=1)
