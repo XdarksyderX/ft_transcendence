@@ -78,10 +78,8 @@ class Game:
             ball["yVel"] *= -1  # Reverse Y direction
 
         # Ball collision with paddles
-        if self._handle_paddle_hit("player1"):
-            ball["xVel"] = abs(ball["xVel"])  # Bounce right
-        elif self._handle_paddle_hit("player2"):
-            ball["xVel"] = -abs(ball["xVel"])  # Bounce left
+        self._handle_paddle_hit("player1")
+        self._handle_paddle_hit("player2")
 
         # Check if a player scored
         if ball["x"] <= 0:  # Player 2 scores
@@ -101,7 +99,7 @@ class Game:
         """Handles ball collision with paddles, calculating rebound angles."""
         paddle = self.game.player_positions.get(player)
         if not paddle:
-            return False
+            return
 
         paddle_x = paddle["x"]
         paddle_y = paddle["y"]
@@ -134,9 +132,11 @@ class Game:
             ball["xVel"] = ball["speed"] * math.cos(rebound_angle)
             ball["yVel"] = ball["speed"] * math.sin(rebound_angle)
 
-            return True  # Collision occurred
-
-        return False  # No collision
+            # Ensure the ball moves in the correct direction after bouncing
+            if player == "player1":  
+                ball["xVel"] = abs(ball["xVel"])  # Bounce right
+            else:  
+                ball["xVel"] = -abs(ball["xVel"])  # Bounce left
 
     def _check_game_over(self):
         """Check if a player has won the game and persist scores."""
