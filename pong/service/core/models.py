@@ -1,10 +1,10 @@
 from django.db import models
 import uuid
-from django.contrib.postgres.fields import JSONField  # if PostgreSQL otherwise, use models.JSONField
+from django.contrib.postgres.fields import JSONField  # If using PostgreSQL, otherwise use models.JSONField
 
 class User(models.Model):
     """Model representing a user in the game."""
-    user_id = models.AutoField(primary_key=True)  # Ensures auto-generated unique IDs
+    user_id = models.AutoField(primary_key=True)  # Auto-incremented unique ID
     username = models.CharField(max_length=150, unique=True)
 
     def __str__(self):
@@ -63,7 +63,7 @@ class PongGame(models.Model):
 
     # Ball starts in the correct place with initial velocity
     ball_position = models.JSONField(
-        default=lambda: {"x": 350, "y": 250, "xVel": 0, "yVel": 0}
+        default=lambda: {"x": 350, "y": 250, "xVel": 5, "yVel": -3}  # Ensure ball starts moving, change later for RANDOMIZED direction
     )
 
     # Explicit fields for scores (easier querying)
@@ -79,10 +79,10 @@ class PongGame(models.Model):
 
     def update_position(self, player, position):
         """Updates a player's position and saves it to the database."""
-        if player == self.player1.username:
-            self.player_positions["player1"]["y"] = position["y"]
-        elif player == self.player2.username:
-            self.player_positions["player2"]["y"] = position["y"]
+        if player not in ["player1", "player2"]:
+            return  # Ignore invalid players
+        
+        self.player_positions[player]["y"] = position["y"]
         self.save()
 
     def update_ball_position(self, position):

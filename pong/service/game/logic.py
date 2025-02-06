@@ -16,9 +16,9 @@ class Game:
         self.points_to_win = 3
 
         # Ensure database has correct defaults for players
-        self.players = self.game.player_positions or {
-            "player1": {"x": 20, "y": 225, "score": 0},
-            "player2": {"x": 670, "y": 225, "score": 0}
+        self.game.player_positions = self.game.player_positions or {
+            "player1": {"x": 20, "y": 225},
+            "player2": {"x": 670, "y": 225}
         }
 
         # Load ball position or reset if missing
@@ -39,10 +39,10 @@ class Game:
 
     def update_player_movement(self, player, direction):
         """Updates player movement & persists it in the database."""
-        if player not in self.players:
+        if player not in self.game.player_positions:
             return
 
-        current_y = self.players[player]["y"]
+        current_y = self.game.player_positions[player]["y"]
 
         if direction == "UP":
             new_y = max(0, current_y - self.player_speed)
@@ -52,10 +52,10 @@ class Game:
             new_y = current_y
 
         # Ensure player X-position is preserved
-        current_x = self.players[player].get("x", 20 if player == "player1" else 670)
+        current_x = self.game.player_positions[player].get("x", 20 if player == "player1" else 670)
 
         # Persist movement update to the database
-        self.players[player]["y"] = new_y
+        self.game.player_positions[player]["y"] = new_y
         self.game.update_position(player, {"x": current_x, "y": new_y})
         self.game.save()
 
@@ -77,11 +77,11 @@ class Game:
 
         # Check if a player scored
         if ball["x"] <= 0:  # Player 2 scores
-            self.players["player2"]["score"] += 1
+            self.game.player2_score += 1
             self._check_game_over()
             self.ball = self._reset_ball()
         elif ball["x"] + self.ball_side >= self.board_width:  # Player 1 scores
-            self.players["player1"]["score"] += 1
+            self.game.player1_score += 1
             self._check_game_over()
             self.ball = self._reset_ball()
 
@@ -91,7 +91,7 @@ class Game:
 
     def _check_paddle_collision(self, player):
         """Check if the ball collides with a paddle."""
-        paddle = self.players.get(player)
+        paddle = self.game.player_positions.get(player)
         if not paddle:
             return False
 
@@ -108,10 +108,10 @@ class Game:
         return False
 
     def _check_game_over(self):
-        """Check if a player has won the game."""
-        if self.players["player1"]["score"] >= self.points_to_win:
+        """Check if a player has won the game and persist scores."""
+        if self.game.player1_score >= self.points_to_win:
             self.winner = "player1"
-        elif self.players["player2"]["score"] >= self.points_to_win:
+        elif self.game.player2_score >= self.points_to_win:
             self.winner = "player2"
 
         if self.winner:
@@ -123,8 +123,14 @@ class Game:
         return {
             "ball": self.ball,
             "players": {
-                "player1": {**self.players["player1"], "score": self.players["player1"].get("score", 0)},
-                "player2": {**self.players["player2"], "score": self.players["player2"].get("score", 0)}
+                "player1": {
+                    **self.game.player_positions.get("player1", {"x": 20, "y": 225}),
+                    "score": self.game.player1_score
+                },
+                "player2": {
+                    **self.game.player_positions.get("player2", {"x": 670, "y": 225}),
+                    "score": self.game.player2_score
+                }
             },
             "status": "in_progress" if not self.winner else "game_over",
             "winner": self.winner

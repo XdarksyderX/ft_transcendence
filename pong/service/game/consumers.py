@@ -4,7 +4,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from django.db.models import Q
 from core.models import PongGame, User  # Import the database models
 from asgiref.sync import sync_to_async
-
+from logic import Game  # Import game logic
 
 class GameConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -70,8 +70,8 @@ class GameConsumer(AsyncWebsocketConsumer):
 
             # Update ball position & broadcast updated game state
             new_ball_position = await sync_to_async(self.calculate_ball_position)()  # Get new ball position
-            await sync_to_async(self.game.update_ball_position)(new_ball_position)  
-            await self.broadcast_game_state()  # Pass ball position to avoid redundant calls
+            await sync_to_async(self.game.update_ball_position)(new_ball_position)
+            await self.broadcast_game_state()
 
         except ValueError as e:
             await self.send(json.dumps({"error": str(e)}))
@@ -135,6 +135,13 @@ class GameConsumer(AsyncWebsocketConsumer):
         # Save updated position in database
         self.game.player_positions[player_key]["y"] = new_y
         self.game.save()
+
+    @sync_to_async
+    def calculate_ball_position(self):
+        """Updates ball movement based on game logic and returns new ball position."""
+        game_logic = Game(self.game)  # Instantiate game logic with the current game
+        game_logic.update_ball_position()  # Move ball according to game logic
+        return game_logic.ball  # Return updated ball state
 
     async def broadcast_game_state(self):
         """Updates ball position and broadcasts game state."""
