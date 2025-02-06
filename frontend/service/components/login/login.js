@@ -2,6 +2,7 @@ import { navigateTo } from '../../app/router.js';
 import { /* loadChat, loadSidebar,  */throwAlert } from '../../app/render.js';
 import { getUsername, refreshAccessToken, login, resetPassword } from '../../app/auth.js';
 import { requestPasswordReset } from '../../app/auth.js';
+import { parseEmail } from '../signup/signup.js';
 
 export async function initializeLoginEvents() {
     const loginForm = document.getElementById('login-form');
@@ -100,6 +101,9 @@ function initRequestResetPasswordEvents() {
 async function handlePasswordResetRequest(event) {
     event.preventDefault();
     const email = document.getElementById('reset-pw-email').value;
+    if (!parseEmail(email)) {
+        return 
+    }
     try {
         const response = await requestPasswordReset(email);
         if (response.status === "success") {
