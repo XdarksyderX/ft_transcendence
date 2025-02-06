@@ -8,17 +8,24 @@ class Game:
         self.game = game_instance
         self.board_width = 700  # This will all be configurable in the future
         self.board_height = 500 # For now hardcoded
-        self.player_height = 50
+        self.player_height = 50 # Paddle height
         self.player_speed = 5
-        self.ball_side = 10
+        self.ball_side = 10 # ball dimensions (a square)
         self.start_speed = 7.5
         self.speed_up_multiple = 1.02
         self.max_speed = 20  # Prevents ball from going through paddle glitch
         self.points_to_win = 3
+        self.x_margin = self.ball_side * 1.2 # margin from board to paddle, player 1 x pos
+        self.player_width = self.ball_side * 1.2 # * 1.2 to avoid ball going through paddle
+        self.p2_xpos = self.board_width - self.player_width - self.x_margin # player 2 x position
+        self.p_y_mid = self.board_height/2 - self.player_height / 2 # player y centered coordinate
+        self.b_x_mid = self.board_width / 2 - self.ball_side / 2 # ball x centered coordinate
+        self.b_y_mid = self.board_height / 2 - self.ball_side / 2 # ball y centered coordinate
+
 
         # Ensure database has correct defaults for players
-        self.game.player_positions.setdefault("player1", {"x": 20, "y": 225}) # for now hardcoded
-        self.game.player_positions.setdefault("player2", {"x": 670, "y": 225}) # in future configurable
+        self.game.player_positions.setdefault("player1", {"x": self.x_margin, "y": self.p_y_mid}) #initialize at the middle of the board
+        self.game.player_positions.setdefault("player2", {"x": self.p2_xpos, "y": self.p_y_mid}) 
 
         # Load ball position or reset if missing
         self.ball = self.game.ball_position or self._reset_ball(0) # param is the who scored, 0 means no one scored (game start)
@@ -26,7 +33,7 @@ class Game:
 
     def _reset_ball(self, scored):
         """Reset the ball to the center of the board with a random initial velocity."""
-        angle = math.radians(random.uniform(-45, 45))  # Randomized initial angle
+        angle = math.radians(random.uniform(-45, 45))  # Randomized initial angle max 45 degress
         if scored == 1:
             direction = 1 #right
         elif scored == 2:
@@ -34,13 +41,13 @@ class Game:
         else:
             direction = random.choice([-1, 1])  # Randomly left (-1) or right (1)
         ball_state = {
-            "x": self.board_width / 2 - self.ball_side / 2,
-            "y": self.board_height / 2 - self.ball_side / 2,
+            "x": self.b_x_mid,
+            "y": self.b_y_mid,
             "xVel": self.start_speed * math.cos(angle) * direction,
             "yVel": self.start_speed * math.sin(angle),
             "speed": self.start_speed
         }
-        self.game.update_ball_position(ball_state)  # Persist new ball state
+        self.game.update_ball_position(ball_state) # Persist new ball state
         self.game.save()
         return ball_state
 
@@ -60,7 +67,7 @@ class Game:
             new_y = current_y
 
         # Ensure player X-position is preserved
-        current_x = self.game.player_positions[player].get("x", 20 if player == "player1" else 670)
+        current_x = self.game.player_positions[player].get("x", self.x_margin if player == "player1" else self.p2_xpos)
 
         # Persist movement update to the database
         self.game.player_positions[player]["y"] = new_y
@@ -155,11 +162,11 @@ class Game:
             "ball": self.ball,
             "players": {
                 "player1": {
-                    **self.game.player_positions.get("player1", {"x": 20, "y": 225}), #positions hardcoded for now, in future configurable
+                    **self.game.player_positions.get("player1", {"x": self.x_margin, "y": self.p_y_mid}), 
                     "score": self.game.player1_score
                 },
                 "player2": {
-                    **self.game.player_positions.get("player2", {"x": 670, "y": 225}), #positions hardcoded for now, in future configurable
+                    **self.game.player_positions.get("player2", {"x": self.p2_xpos, "y": self.p_y_mid}), 
                     "score": self.game.player2_score
                 }
             },
