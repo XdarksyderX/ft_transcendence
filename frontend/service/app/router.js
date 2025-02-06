@@ -1,7 +1,7 @@
 //import { initializeLoginEvents, initializeSignupEvents, initializeChatEvents } from './events.js';
 import { initializeNeonFrames, initializeNeonChat } from './neon.js';
 import { initializeLoginEvents } from '../components/login/login.js';
-import { initializeSignupEvents } from '../components/signup/signup.js';
+import { initializeSignupEvents, initializeVerifyEmailEvents } from '../components/signup/signup.js';
 import { initializeHomeEvents } from '../components/home/app.js';
 import { initializeProfileEvents } from '../components/profile/app.js';
 import { initialize404 } from '../components/error/app.js';
@@ -30,6 +30,7 @@ const routes = [
     { url: "/ongoing-tournaments", file: "./components/tournament/tournament.html", allowed: false },
     { url: "/chess", file: "./components/chess/chess.html", allowed: false },
     { url: "/reset-password", file: "./components/login/reset-password.html", allowed: true },
+    { url: "/verify-email", file: "./components/signup/verify-email.html", allowed: true },
 ];
 
 async function router() {
@@ -91,6 +92,9 @@ async function router() {
         case "/reset-password":
             initializeResetPasswordEvents();
             break ;
+        case "/verify-email":
+            initializeVerifyEmailEvents();
+            break ;
         default:
             initialize404();
     }
@@ -131,6 +135,7 @@ function unloadChatAndSidebar() {
     sidebarContainer.innerHTML = '';
     sidebarContainer.style.display = 'none';
     sidebarToggle.style.display = 'none';
+    document.getElementById('app').style.marginLeft = 'auto';
 }
 
 function loadLoggedContent(isLogged) {
