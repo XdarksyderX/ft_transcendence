@@ -28,7 +28,7 @@ async function authenticateUser(userCredentials) {
 
         if (loginData.status === "success") {
             console.log("Login successful:", loginData.access_token);
-            navigateTo('/start-game');
+            navigateTo('/home');
         } 
         else if (loginData.status === "otp_required") {
             showOTPForm(userCredentials);

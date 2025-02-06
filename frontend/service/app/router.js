@@ -2,7 +2,7 @@
 import { initializeNeonFrames, initializeNeonChat } from './neon.js';
 import { initializeLoginEvents } from '../components/login/login.js';
 import { initializeSignupEvents } from '../components/signup/signup.js';
-import { initializeStartGameEvents } from '../components/start-game/app.js';
+import { initializeHomeEvents } from '../components/home/app.js';
 import { initializeProfileEvents } from '../components/profile/app.js';
 import { initialize404 } from '../components/error/app.js';
 import { initializeFriendsEvents } from '../components/friends/app.js';
@@ -22,7 +22,7 @@ const routes = [
     { url: "/", file: "./components/index/index.html", allowed: true },
     { url: "/login", file: "./components/login/login.html", allowed: true },
     { url: "/signup", file: "./components/signup/signup.html", allowed: true },
-    { url: "/start-game", file: "./components/start-game/start-game.html", allowed: false },
+    { url: "/home", file: "./components/home/home.html", allowed: false },
     { url: "/profile", file: "./components/profile/profile.html", allowed: false },
     { url: "/friends", file: "./components/friends/friends.html", allowed: false },
     { url: "/game-stats", file: "./components/stats/stats.html", allowed: false },
@@ -57,8 +57,8 @@ async function router() {
             initializeSignupEvents();
             //initializeNeonFrames();
             break;
-        case "/start-game":
-            initializeStartGameEvents();
+        case "/home":
+            initializeHomeEvents();
             //initializeNeonFrames();
             break;
         case "/ongoing-tournaments":
@@ -108,7 +108,7 @@ function redirectURL(isLogged, fullUrl) {
     //    console.log("is logged?", isLogged)
     if (allowed) {
         if (isLogged) {
-            return ("/start-game");
+            return ("/home");
         } else {
             return (url);
         }
@@ -167,12 +167,12 @@ function updateNavbar(url) {
     const navbarContent = document.getElementById('navbar-content');;
     const allowed = routes.find(route => route.url === url).allowed;
 
-    if (url === "/start-game") {
+    if (url === "/home") {
      navbarContent.innerHTML = `<div>Welcome ${getUsername()}</div>`;
     } else if (!allowed) {
     //    console.log('url: ', url);
     //    console.log('pathname: ', window.location.pathname);
-        navbarContent.innerHTML = `<a href="/start-game" class="nav-link ctm-link" data-link>Home</a>`
+        navbarContent.innerHTML = `<a href="/home" class="nav-link ctm-link" data-link>Home</a>`
     } else {
         navbarContent.innerHTML = `                <a href="/login" class="nav-link ctm-link" data-link="true">Log in</a>
                 <span class="divider mx-2 ctm-text-light">|</span>
