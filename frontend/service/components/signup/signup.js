@@ -52,17 +52,20 @@ export function initializeSignupEvents() {
 
 export function initializeVerifyEmailEvents() {
     document.getElementById('verify-btn').addEventListener('click', async () => {
-       
-    const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get('token');
-
-    try {
-        const response = await verifyEmail(token);
-        if (response.status === "succes") {
-            throwAlert("Email verification succesful");
-            navigateTo('/login');
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        
+        try {
+            const response = await verifyEmail(token);
+            if (response.status === "success") {
+                navigateTo('/login');
+               // throwAlert("Email verification succesful");
+               alert("ole c:");
+                console.log("navigating?")
         } else {
-            throwAlert(response.message);
+            //throwAlert(response.message);
+            throwAlert("todo mal, reina");
         }
     } catch (error) {
         throwAlert("An error occurred during the email verification");
