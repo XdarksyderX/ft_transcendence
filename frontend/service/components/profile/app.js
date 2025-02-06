@@ -1,3 +1,5 @@
+import { getUsername } from "../../app/auth.js";
+
 const avatarImages = [
     './resources/avatar/avatar_1.png',
     './resources/avatar/avatar_2.png',
@@ -36,7 +38,7 @@ const user = getUserData();
 function getUserData() {
   //  alert("no amiga esto no está implementado");
     return ({ // provisional obvsly
-        username: 'erivero-',
+        username: getUsername(),
         registration: '3/11/24',
         totalFriends: 3,
         totalMatches: 42,

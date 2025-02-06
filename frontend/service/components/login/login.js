@@ -21,6 +21,13 @@ export async function initializeLoginEvents() {
         cancelLogin.addEventListener('click', () => navigateTo('/'));
     }
     initRequestResetPasswordEvents();
+    init42cosa();
+}
+
+function init42cosa() { // socorro esto es súper provisional
+    document.getElementById('login42-button').addEventListener('click', () => {
+        window.location.href = 'http://localhost:5050/oauth/42/';
+    });
 }
 
 async function authenticateUser(userCredentials) {
