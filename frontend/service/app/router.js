@@ -18,19 +18,18 @@ import { getUsername } from './auth.js';
 import { initializeResetPasswordEvents } from '../components/login/reset-pw.js';
 
 const routes = [
-    { url: "/404", file: "./components/error/404.html" },
-    { url: "/", file: "./components/index/index.html" },
-    { url: "/login", file: "./components/login/login.html" },
-    { url: "/signup", file: "./components/signup/signup.html" },
-    { url: "/start-game", file: "./components/start-game/start-game.html" },
-    { url: "/profile", file: "./components/profile/profile.html" },
-    { url: "/friends", file: "./components/friends/friends.html" },
-    { url: "/game-stats", file: "./components/stats/stats.html" },
-    { url: "/settings", file: "./components/settings/settings.html" },
-    { url: "/ongoing-tournaments", file: "./components/tournament/tournament.html" },
-    { url: "/chess", file: "./components/chess/chess.html" },
-    { url: "/reset-password", file: "./components/login/reset-password.html" },
-
+    { url: "/404", file: "./components/error/404.html", allowed: true },
+    { url: "/", file: "./components/index/index.html", allowed: true },
+    { url: "/login", file: "./components/login/login.html", allowed: true },
+    { url: "/signup", file: "./components/signup/signup.html", allowed: true },
+    { url: "/start-game", file: "./components/start-game/start-game.html", allowed: false },
+    { url: "/profile", file: "./components/profile/profile.html", allowed: false },
+    { url: "/friends", file: "./components/friends/friends.html", allowed: false },
+    { url: "/game-stats", file: "./components/stats/stats.html", allowed: false },
+    { url: "/settings", file: "./components/settings/settings.html", allowed: false },
+    { url: "/ongoing-tournaments", file: "./components/tournament/tournament.html", allowed: false },
+    { url: "/chess", file: "./components/chess/chess.html", allowed: false },
+    { url: "/reset-password", file: "./components/login/reset-password.html", allowed: true },
 ];
 
 async function router() {
@@ -105,8 +104,9 @@ function parseUrl(fullUrl) {
 
 function redirectURL(isLogged, fullUrl) {
     const url = parseUrl(fullUrl);
-//    console.log("is logged?", isLogged)
-    if (url === "/login" || url === "/signup" || url === "/") {
+    const allowed = routes.find(route => route.url === url).allowed;
+    //    console.log("is logged?", isLogged)
+    if (allowed) {
         if (isLogged) {
             return ("/start-game");
         } else {
@@ -129,6 +129,7 @@ function unloadChatAndSidebar() {
 
     chatContainer.innerHTML = '';
     sidebarContainer.innerHTML = '';
+    sidebarContainer.style.display = 'none';
     sidebarToggle.style.display = 'none';
 }
 
@@ -163,13 +164,15 @@ async function navigateTo(fullUrl) {
 }
 
 function updateNavbar(url) {
-    const navbarContent = document.getElementById('navbar-content');
-    if (url !== "/" && url !== "/start-game" && url !== "/login" && url !== "/signup") {
+    const navbarContent = document.getElementById('navbar-content');;
+    const allowed = routes.find(route => route.url === url).allowed;
+
+    if (url === "/start-game") {
+     navbarContent.innerHTML = `<div>Welcome ${getUsername()}</div>`;
+    } else if (!allowed) {
     //    console.log('url: ', url);
     //    console.log('pathname: ', window.location.pathname);
         navbarContent.innerHTML = `<a href="/start-game" class="nav-link ctm-link" data-link>Home</a>`
-    } else if (url === "/start-game") {
-        navbarContent.innerHTML = `<div>Welcome ${getUsername()}</div>`;
     } else {
         navbarContent.innerHTML = `                <a href="/login" class="nav-link ctm-link" data-link="true">Log in</a>
                 <span class="divider mx-2 ctm-text-light">|</span>
