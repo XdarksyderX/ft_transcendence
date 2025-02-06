@@ -16,10 +16,8 @@ class Game:
         self.points_to_win = 3
 
         # Ensure database has correct defaults for players
-        self.game.player_positions = self.game.player_positions or {
-            "player1": {"x": 20, "y": 225},
-            "player2": {"x": 670, "y": 225}
-        }
+        self.game.player_positions.setdefault("player1", {"x": 20, "y": 225})
+        self.game.player_positions.setdefault("player2", {"x": 670, "y": 225})
 
         # Load ball position or reset if missing
         self.ball = self.game.ball_position or self._reset_ball()
@@ -29,13 +27,16 @@ class Game:
         """Reset the ball to the center of the board with a random initial velocity."""
         angle = math.radians(random.uniform(-30, 30))  # Randomized initial angle
         direction = random.choice([-1, 1])  # Randomly left (-1) or right (1)
-        return {
+        ball_state = {
             "x": self.board_width / 2 - self.ball_side / 2,
             "y": self.board_height / 2 - self.ball_side / 2,
             "x_vel": self.start_speed * math.cos(angle) * direction,
             "y_vel": self.start_speed * math.sin(angle),
             "speed": self.start_speed
         }
+        self.game.update_ball_position(ball_state)  # Persist new ball state
+        self.game.save()
+        return ball_state
 
     def update_player_movement(self, player, direction):
         """Updates player movement & persists it in the database."""

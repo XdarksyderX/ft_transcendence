@@ -24,8 +24,8 @@ class GameConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         """Handles disconnection of a player."""
-        if self.game:
-            self.game.status = 'finished'  # Mark game as finished
+        if self.game and self.game.status == "in_progress":
+            self.game.status = 'finished'  # Mark game as finished only if necessary
             await sync_to_async(self.game.save)()  # Persist changes
 
         # Leave WebSocket group
@@ -69,8 +69,7 @@ class GameConsumer(AsyncWebsocketConsumer):
                 await self.update_player_movement(player_name, direction)
 
             # Update ball position & broadcast updated game state
-            new_ball_position = await sync_to_async(self.calculate_ball_position)()  # Get new ball position
-            await sync_to_async(self.game.update_ball_position)(new_ball_position)
+            await self.calculate_ball_position()
             await self.broadcast_game_state()
 
         except ValueError as e:
@@ -106,7 +105,7 @@ class GameConsumer(AsyncWebsocketConsumer):
         if self.game.player1 and self.game.player2:
             self.game.status = "in_progress"
 
-        self.game.save()
+        self.game.save()  # Ensure game state is persisted
 
     @sync_to_async
     def update_player_movement(self, player_name, direction):
@@ -136,18 +135,16 @@ class GameConsumer(AsyncWebsocketConsumer):
         self.game.player_positions[player_key]["y"] = new_y
         self.game.save()
 
-    @sync_to_async
-    def calculate_ball_position(self):
+    async def calculate_ball_position(self):
         """Updates ball movement based on game logic and returns new ball position."""
         game_logic = Game(self.game)  # Instantiate game logic with the current game
         game_logic.update_ball_position()  # Move ball according to game logic
-        return game_logic.ball  # Return updated ball state
+        self.game.ball_position = await sync_to_async(lambda: game_logic.ball)()
+        await sync_to_async(self.game.save)()
 
     async def broadcast_game_state(self):
         """Updates ball position and broadcasts game state."""
-        new_ball_position = await sync_to_async(self.calculate_ball_position)()  # Compute new ball position
-        await sync_to_async(self.game.update_ball_position)(new_ball_position)
-        self.game.save()
+        await self.calculate_ball_position()  # Ensure ball position is calculated first
 
         # Send updated game state to all connected players
         await self.channel_layer.group_send(

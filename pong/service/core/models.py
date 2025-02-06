@@ -1,5 +1,6 @@
 from django.db import models
 import uuid
+import random
 from django.contrib.postgres.fields import JSONField  # If using PostgreSQL, otherwise use models.JSONField
 
 class User(models.Model):
@@ -56,15 +57,23 @@ class PongGame(models.Model):
 
     player_positions = models.JSONField(
         default=lambda: {
-            "player1": {"x": 20, "y": 225},
+            "player1": {"x": 20, "y": 225}, #in future change hardcoding
             "player2": {"x": 670, "y": 225}
         }
-    )  # Removed redundant "score" field
-
-    # Ball starts in the correct place with initial velocity
-    ball_position = models.JSONField(
-        default=lambda: {"x": 350, "y": 250, "xVel": 5, "yVel": -3}  # Ensure ball starts moving, change later for RANDOMIZED direction
     )
+
+    # Randomized initial ball velocity for fairness
+    def random_ball_start():
+        angle = random.uniform(-30, 30)  # Random angle
+        direction = random.choice([-1, 1])  # Random left or right
+        speed = 5  # Initial speed
+        return {
+            "x": 350, "y": 250,
+            "xVel": speed * direction,
+            "yVel": speed * random.choice([-1, 1]) 
+        }
+
+    ball_position = models.JSONField(default=random_ball_start)
 
     # Explicit fields for scores (easier querying)
     player1_score = models.IntegerField(default=0)
@@ -83,11 +92,15 @@ class PongGame(models.Model):
             return  # Ignore invalid players
         
         self.player_positions[player]["y"] = position["y"]
+        self.player_positions[player]["x"] = position.get("x", self.player_positions[player]["x"])  # Preserve x value
         self.save()
 
     def update_ball_position(self, position):
         """Updates the ball position in the database."""
-        self.ball_position = position
+        self.ball_position["x"] = position.get("x", self.ball_position["x"])
+        self.ball_position["y"] = position.get("y", self.ball_position["y"])
+        self.ball_position["xVel"] = position.get("xVel", self.ball_position["xVel"])
+        self.ball_position["yVel"] = position.get("yVel", self.ball_position["yVel"])
         self.save()
 
     def __str__(self):
