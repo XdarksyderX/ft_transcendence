@@ -111,7 +111,7 @@ function winGame(winBool) {
   // homeButton.classList.add("mt-5");
   homeButton.onclick = () => {
     //aqui guardariamos la victoria y/o derrota en el historial
-    navigateTo('/start-game');
+    navigateTo('/home');
     modal.hide();
   }
   
@@ -142,7 +142,7 @@ function resingOption() {
   resignButton.classList.add("resign-button"); */
   resignButton.onclick = () => {
     //aqui guardariamos la victoria y/o derrota en el historial
-    navigateTo('/start-game');
+    navigateTo('/home');
     modal.hide();
   }
   

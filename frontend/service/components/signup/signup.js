@@ -1,6 +1,7 @@
 import { navigateTo } from '../../app/router.js';
 import { throwAlert } from '../../app/render.js';
 import { register } from '../../app/auth.js';
+import { verifyEmail } from '../../app/auth.js';
 
 async function hardcodedSingup() {
     const hardCredentials = { username : "Vicenta" , email : "vicenta@invent.com", password: "Octubre10"}
@@ -47,4 +48,26 @@ export function initializeSignupEvents() {
             }
         });
     }
+}
+
+export function initializeVerifyEmailEvents() {
+    document.getElementById('verify-btn').addEventListener('click', async () => {
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        
+        try {
+            const response = await verifyEmail(token);
+            if (response.status === "success") {
+                navigateTo('/login');
+               // throwAlert("Email verification succesful");
+               alert("ole c:");
+                console.log("navigating?")
+        } else {
+            //throwAlert(response.message);
+            throwAlert("todo mal, reina");
+        }
+    } catch (error) {
+        throwAlert("An error occurred during the email verification");
+    }});
 }

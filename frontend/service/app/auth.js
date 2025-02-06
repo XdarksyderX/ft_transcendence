@@ -141,7 +141,7 @@ export async function requestPasswordReset(email) {
  * Resetea la contraseña con el token de recuperación.
  */
 export async function resetPassword(token, newPassword) {
-    return await sendRequest('POST', 'reset-password/', { token, new_password: newPassword });
+    return await sendRequest('POST', 'reset-password/', { reset_token: token, new_password: newPassword });
 }
 
 /**

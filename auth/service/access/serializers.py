@@ -59,7 +59,7 @@ class RegisterUserSerializer(serializers.ModelSerializer):
             expires_at=expires_at
         )
 
-        verification_link = f"{settings.FRONTEND_URL}/verify-email/?token={verification_code}"
+        verification_link = f"{settings.FRONTEND_URL}/verify-email?token={verification_code}"
         send_mail(
             subject="Verify your email address",
             message=f"Please verify your email address by clicking on the following link: {verification_link}",

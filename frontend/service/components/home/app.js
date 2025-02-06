@@ -3,7 +3,7 @@ import { throwAlert } from "../../app/render.js";
 import { navigateTo } from "../../app/router.js";
 import { startBackgroundMusic } from "../chess/Render/main.js";
 
-export function initializeStartGameEvents() {
+export function initializeHomeEvents() {
     const elements = {
         pong: {
             btn: document.getElementById('pong-btn'),
