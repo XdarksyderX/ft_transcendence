@@ -79,3 +79,41 @@ box-shadow: 0 0 5px transparent;
 border-top: 1px solid var(--light);
 width: 75%;
 }
+
+.switch {
+	background-color: var(--light);
+	padding: 10px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	border-radius: 5px;
+}
+.switch-btn {
+	height: auto;
+	aspect-ratio: 3/2;
+	background-color: var(--light);
+	border: 1px solid var(--dark);
+	transition: perspective 0.3s ease;
+}
+.switch-btn.active {
+	background-color: var(--accent);
+	transform: scale(105%);
+}
+.switch .btn:focus {
+	outline: none !important;
+}
+.switch-btn-left.active {
+	box-shadow: -4px 4px 4px rgba(0, 0, 0, 0.6);
+}
+.switch-btn-right.active {
+	box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.6);
+}
+.collapsible {
+	overflow: hidden;
+	max-height: 0;
+	transition: max-height 0.3s ease-out;
+}
+.collapsible.show {
+	max-height: 1000px; /* Adjust this value based on your content */
+	transition: max-height 0.3s ease-in;
+}

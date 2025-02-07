@@ -7,7 +7,8 @@ import { initializeProfileEvents } from '../components/profile/app.js';
 import { initialize404 } from '../components/error/app.js';
 import { initializeFriendsEvents } from '../components/friends/app.js';
 import { initializeStatsEvents } from '../components/stats/app.js';
-import { initializeOngoingTournaments } from '../components/tournament/app.js';
+import { initializeOngoingTournaments } from '../components/tournament/ongoing.js';
+import { initializeNewTournament } from '../components/tournament/new.js';
 import { initializeChessEvents } from '../components/chess/index.js';
 import { loadChat, loadSidebar } from './render.js';
 import { initializeIndexEvents } from '../components/index/app.js';
@@ -28,6 +29,7 @@ const routes = [
     { url: "/game-stats", file: "./components/stats/stats.html", allowed: false },
     { url: "/settings", file: "./components/settings/settings.html", allowed: false },
     { url: "/ongoing-tournaments", file: "./components/tournament/tournament.html", allowed: false },
+    { url: "/new-tournament", file: "./components/tournament/new-tournament.html", allowed: false },
     { url: "/chess", file: "./components/chess/chess.html", allowed: false },
     { url: "/reset-password", file: "./components/login/reset-password.html", allowed: true },
     { url: "/verify-email", file: "./components/signup/verify-email.html", allowed: true },
@@ -64,6 +66,9 @@ async function router() {
             break;
         case "/ongoing-tournaments":
             initializeOngoingTournaments();
+            break;
+        case "/new-tournament":
+            initializeNewTournament();
             break;
         case "/profile":
             //initializeNeonFrames();

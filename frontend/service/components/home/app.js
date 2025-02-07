@@ -289,4 +289,5 @@ export function initializeHomeEvents() {
     elements.pong.quickPlay.startGameWithFriendButton.addEventListener('click', () => launchWaitModal('pong'));
     elements.chess.startGameWithFriendButton.addEventListener('click', () => launchWaitModal('chess'));
     elements.pong.tournament.ongoing.addEventListener('click', () => navigateTo("/ongoing-tournaments"));
+    elements.pong.tournament.new.addEventListener('click', () => navigateTo("/new-tournament"));
 }
