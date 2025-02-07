@@ -41,11 +41,7 @@ export function initializeSignupEvents() {
     const cancelSignup = document.getElementById('cancel-signup');
     const registerForm = document.getElementById('register');
 
-    //if (cancelSignup) {
-    //    cancelSignup.addEventListener('click', () => {
-    //        navigateTo('/');
-    //    });
-    //}
+    cancelSignup.addEventListener('click',() => navigateTo('/'));
     
     if (registerForm) {
         registerForm.addEventListener('click', async function(event) {
@@ -60,15 +56,21 @@ export function initializeSignupEvents() {
                 hardcodedSingup();
                 return;
             }
-
             if (!parseNewPasswords(password, confirmPassword) || !parseEmail(email)) {
                 return ;
             }
             const userCredentials = { username, email, password };
-            if (await register(userCredentials))
-            {
-                throwAlert('Account created successfully. Verify your email to login!');
-                navigateTo('/login');
+            try {
+
+                const response = await register(userCredentials);
+                if (response.status === "success") {
+                    throwAlert('Account created successfully. Verify your email to login!');
+                    navigateTo('/login');
+                } else {
+                    throwAlert("fatal, gracias");
+                }
+            } catch (error) {
+                throwAlert("An error occurred during the sing up process");
             }
         });
     }
@@ -84,9 +86,7 @@ export function initializeVerifyEmailEvents() {
             const response = await verifyEmail(token);
             if (response.status === "success") {
                 navigateTo('/login');
-               // throwAlert("Email verification succesful");
-               alert("ole c:");
-                console.log("navigating?")
+                throwAlert("Email verification succesful");
         } else {
             //throwAlert(response.message);
             throwAlert("todo mal, reina");
