@@ -5,11 +5,9 @@ import { getUsername } from "../../app/auth.js";
 export function initializeSidebarEvents() {
     const sidebar = document.getElementById('sidebar');
     const sidebarToggle = document.getElementById('sidebar-toggle');
-    const mainContent = document.querySelector('main');
+    const mainContent = document.getElementById('app');
 	const logoutBtn = document.getElementById('logout-btn');
 	const username = document.getElementById('sidebar-username');
-
-	const loggedInUser = 'erivero-';
 
 	// Render the username in the sidebar and the navbar
 	username.textContent = `${getUsername()}`;
@@ -38,6 +36,10 @@ export function initializeSidebarEvents() {
 
     // Function to handle window resize to show/hide sidebar
     function handleResize() {
+        const sidebarContainer = document.getElementById('sidebar-container');
+        if (sidebarContainer.innerHTML === '') {
+            return ;
+        }
         if (window.innerWidth >= 992) {
             sidebar.classList.add('show');
             mainContent.style.marginLeft = '250px';
