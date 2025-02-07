@@ -128,13 +128,13 @@ export function initializeHomeEvents() {
 
     function playPongWithRandom() {
         throwAlert("this eventually will take you to waiting room");
-        navigateTo('/pong');
     }
     elements.pong.quickPlay.playRandom.addEventListener('click', playPongWithRandom);
-
+    
     function playAgainstMachine() {
         console.log("Play against the machine option selected");
-        throwAlert("this eventually will take you to pong directly");
+        navigateTo('/pong');
+      //  throwAlert("this eventually will take you to pong directly");
     }
     elements.pong.quickPlay.playMachine.addEventListener('click', playAgainstMachine);
 

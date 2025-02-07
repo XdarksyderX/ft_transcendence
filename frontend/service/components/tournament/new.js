@@ -12,10 +12,10 @@ export function initializeNewTournament() {
 		  switchButtons.forEach((btn) => btn.classList.remove("active"));
 		  button.classList.add("active");
 		  updateRequiredParticipants(button.getAttribute("data-participants"));
-		  document.getElementById('friends-list').classList.add('show');
-		  renderFriendList();
+		  document.getElementById('tournament-friends-list').classList.add('show');
 		});
-	  });
+  });
+  renderFriendList();
 }
 
 function updateRequiredParticipants(total) {
@@ -25,6 +25,10 @@ function updateRequiredParticipants(total) {
       startBtn.disabled = false
     } else {
       startBtn.disabled = true
+      if (selectedFriends.length > requiredParticipants) {
+        const excedent = selectedFriends.length - requiredParticipants;
+        throwAlert(`You'll have to unselect ${excedent} friend${excedent === 1 ? '' : 's'}`);
+      }
     }
   }
 
@@ -35,6 +39,7 @@ function updateRequiredParticipants(total) {
       { id: 3, name: "Valentín", status: "online" },
       { id: 4, name: "Belén", status: "online" },
       { id: 5, name: "Emilio", status: "online" },
+      { id: 5, name: "Juan", status: "online" },
     ]
   }
 
