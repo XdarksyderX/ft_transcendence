@@ -13,7 +13,7 @@ export function initializeHomeEvents() {
                 btn: document.getElementById('quick-play'),
                 options: document.getElementById('quick-play-options'),
                 playFriend: document.getElementById('play-friend'),
-                playRandom: document.getElementById('play-any-friend'),
+                playRandom: document.getElementById('pong-random'),
                 playMachine: document.getElementById('play-machine'),
                 friendList: document.getElementById('friend-list'),
                 friendsContainer: document.getElementById('friends-container'),
@@ -127,8 +127,8 @@ export function initializeHomeEvents() {
     elements.pong.quickPlay.playFriend.addEventListener('click', playPongWithFriend);
 
     function playPongWithRandom() {
-        console.log("Play with any friend option selected");
         throwAlert("this eventually will take you to waiting room");
+        navigateTo('/pong');
     }
     elements.pong.quickPlay.playRandom.addEventListener('click', playPongWithRandom);
 

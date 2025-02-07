@@ -31,6 +31,7 @@ const routes = [
     { url: "/ongoing-tournaments", file: "./components/tournament/tournament.html", allowed: false },
     { url: "/new-tournament", file: "./components/tournament/new-tournament.html", allowed: false },
     { url: "/chess", file: "./components/chess/chess.html", allowed: false },
+    { url: "/pong", file: "./components/pong/pong.html", allowed: false },
     { url: "/reset-password", file: "./components/login/reset-password.html", allowed: true },
     { url: "/verify-email", file: "./components/signup/verify-email.html", allowed: true },
 ];
@@ -87,9 +88,10 @@ async function router() {
             initializeStatsEvents();
             break;
         case "/chess":
-        //    console.log('Initializing chess events');
             initializeChessEvents();
             //startBackgroundMusic()
+        case "/pong":
+        //    initializePongEvents();
             break;
         case "/settings":
             initializeSettingsEvents();
