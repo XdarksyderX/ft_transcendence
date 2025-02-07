@@ -6,41 +6,48 @@
     <title>Document</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">    
     <link rel="stylesheet" href="./../../styles.css">
-	<style>
-		.switch {
-			background-color: var(--light);
-			padding: 10px;
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			border-radius: 5px;
-		}
-		.switch-btn {
-			height: auto;
-			aspect-ratio: 3/2;
-			background-color: var(--light);
-			border: 1px solid var(--dark);
-			transition: perspective 0.3s ease;
-		}
-		.switch-btn.active {
-			background-color: var(--accent);
-			transform: scale(105%);
-
-		}
-		.switch .btn:focus {
-			outline: none !important;
-			/* box-shadow: none !important; */
-		}
-		
-		.switch-btn-left.active {
-			box-shadow: -4px 4px 4px rgba(0, 0, 0, 0.6);
-			/* transform: perspective(500px) rotateY(5deg) ; */
-		}
-		.switch-btn-right.active {
-			box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.6);
-			/* transform: perspective(500px) rotateY(-5deg) scale(102%); */
-		}
-	</style>
+    <link rel="stylesheet" href="./../home/styles.css">
+    <style>
+        .switch {
+            background-color: var(--light);
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 5px;
+        }
+        .switch-btn {
+            height: auto;
+            aspect-ratio: 3/2;
+            background-color: var(--light);
+            border: 1px solid var(--dark);
+            transition: perspective 0.3s ease;
+        }
+        .switch-btn.active {
+            background-color: var(--accent);
+            transform: scale(105%);
+        }
+        .switch .btn:focus {
+            outline: none !important;
+        }
+        .switch-btn-left.active {
+            box-shadow: -4px 4px 4px rgba(0, 0, 0, 0.6);
+        }
+        .switch-btn-right.active {
+            box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.6);
+        }
+        .collapse {
+            transition: height 0.3s ease;
+        }
+        .collapsing {
+            height: 0;
+            overflow: hidden;
+            transition: height 0.3s ease;
+        }
+        .collapse.show {
+            height: auto;
+        }
+    </style>
 </head>
 <body>
     <div id="app">
@@ -57,27 +64,103 @@
                 <form id="tournament-form">
                     <div class="mb-3 d-flex flex-column align-items-center">
                         <label for="tournament-participants" class="form-label ctm-text-title">Participants</label>
-						<div class="switch w-100">
-							<button class="switch-btn switch-btn-left w-50 mx-1">4</button>
-							<button class="switch-btn switch-btn-right w-50 mx-1">8</button>
-						</div>
+                        <div class="switch w-100">
+                            <button class="switch-btn switch-btn-left w-50 mx-1">4</button>
+                            <button class="switch-btn switch-btn-right w-50 mx-1">8</button>
+                        </div>
                     </div>
                 </form>
-            </div> <!-- this closes the card -->
+                <section id="friends-list" class="collapse">
+					<div class="d-flex flex-column  text-center">
+						<div id="friends-container" class="mb-3 friends-container w-100"></div>
+						<button id="start-tournament-btn" class="btn ctm-btn mb-3 w-100" disabled>Start tournament</button>
+					</div>
+                </section>
+            </div>
         </div>
-    </div>
+    </div>      
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             const buttons = document.querySelectorAll(".switch-btn");
-
+			let requiredParticipants = 0;
             buttons.forEach(button => {
-                button.addEventListener("click", () => {
-					event.preventDefault();
+                button.addEventListener("click", (event) => {
+                    event.preventDefault();
                     buttons.forEach(btn => btn.classList.remove("active"));
                     button.classList.add("active");
+                    const friendsList = document.getElementById("friends-list");
+/*                     if (friendsList.classList.contains("show")) {
+                        friendsList.classList.remove("show");
+                        friendsList.style.height = '0';
+                    } else { */
+					 	updateRequiredParticipants(button.innerText);
+						console.log('requiredParticipants are: ', requiredParticipants)
+                        friendsList.classList.add("show");
+                        friendsList.style.height = friendsList.scrollHeight + 'px';
+                    // }
                 });
             });
+
+			function updateRequiredParticipants(total) {
+				requiredParticipants = parseInt(total, 10);
+				const startBtn = document.getElementById('start-tournament-btn');
+				if (selectedFriends.length === requiredParticipants) {
+					startBtn.disabled = false;
+				} else {
+					startBtn.disabled = true;
+				}
+			}
+
+            function getFriends() {
+                return [
+                    { id: 1, name: 'Concha', status: 'online' },
+                    { id: 2, name: 'Marisa', status: 'offline' },
+                    { id: 3, name: 'Valentín', status: 'online' },
+                    { id: 4, name: 'Belén', status: 'online' }, 
+                    { id: 4, name: 'Emilio', status: 'online' }, 
+                ];
+            }
+
+			let selectedFriends = [];
+			function toggleFriendSelection(friend, btn) {
+				if (btn.classList.contains('selected')) {
+					//unselectFriend(friend, btn);
+					btn.classList.remove('selected');
+					selectedFriends = selectedFriends.filter(f => f.id !== friend.id);
+				} else {
+					if (selectedFriends.length === requiredParticipants) {
+						return alert(`You already have ${requiredParticipants} selected friends`);
+					}
+					btn.classList.add('selected');
+					selectedFriends.push(friend);
+					console.log("selected friends are:\n", selectedFriends);
+				}
+				if (selectedFriends.length === requiredParticipants) {
+					console.log(selectedFriends.length);
+					const startBtn = document.getElementById('start-tournament-btn');
+					startBtn.disabled = false;
+				}  else {
+				const startBtn = document.getElementById('start-tournament-btn');
+				startBtn.disabled = true;
+			}
+			}
+
+            function renderFriendList() {
+                const container = document.getElementById('friends-container');
+                const friends = getFriends();
+
+                friends.forEach(friend => {
+                    const friendBtn = document.createElement('div');
+                    friendBtn.className = 'friend-btn';
+                    friendBtn.setAttribute('data-friend-id', friend.id);
+                    friendBtn.innerHTML = `<p class="mb-0">${friend.name}</p>`;
+                    container.appendChild(friendBtn);
+					friendBtn.addEventListener('click', () => toggleFriendSelection(friend, friendBtn));
+                });
+            }
+
+            renderFriendList();
         });
     </script>
 </body>
