@@ -27,7 +27,10 @@
     .sidebar {
         left: 0;
     }
-    .main-content {
+    .sidebar + .main-content {
+        margin-left: 0;
+    }
+    .sidebar.show + .main-content {
         margin-left: 250px;
     }
     #sidebar-toggle {
