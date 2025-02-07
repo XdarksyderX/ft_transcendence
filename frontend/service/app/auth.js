@@ -21,6 +21,9 @@ export function isTwoFAEnabled() {
     return localStorage.getItem('two_fa_enabled') === 'true';
 }
 
+export function deleteCookie(name) {
+    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+}
 /**
  * Verifica la sesión del usuario y lo redirige según corresponda.
  */
@@ -78,21 +81,33 @@ export async function login(userCredentials) {
  * Verifica si el `access_token` en las cookies es válido.
  */
 async function verifyAccessToken() {
-    const response = await fetch('http://localhost:5050/verify-token/', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' }
-    });
-    return response.ok;
+    try {
+        const response = await fetch('http://localhost:5050/verify-token/', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (!response.ok) {
+            console.error('Token verification failed:', response.status);
+            return false;
+        }
+
+        return true;
+    } catch (error) {
+        console.error('Token verification error:', error);
+        return false;
+    }
 }
+
 
 /**
  * Refresca el `access_token` con el `refresh_token`.
  */
 export async function refreshAccessToken() {
     const data = await sendRequest('POST', 'refresh/');
-
     if (data?.status === 'success' && data.access_token) {
+        console.log(data.access_token);
         const decoded = jwtDecode(data.access_token);
         localStorage.setItem('username', decoded.username);
         localStorage.setItem('user_id', decoded.user_id);

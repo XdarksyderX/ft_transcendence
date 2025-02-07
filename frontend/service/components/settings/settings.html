@@ -159,3 +159,24 @@
         </div>
     </div>
 </div>
+
+<!-- 2FA qr modal -->
+<div class="modal fade" id="2fa-qr-modal" tabindex="-1" aria-labelledby="2faQrModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title ctm-text-title" id="delete-modal-label">2FA Activation</h5>
+                <button type="button" class="close-modal close-qr-modal" data-bs-dismiss="modal" aria-label="Close">x</button>
+            </div>
+            <div class="modal-body">
+                <div>Haz el favor de leer el QR antes de cerrar el modal que si no vamos a tener un problema</div>
+                <div class="d-flex align-items-center justify-content-center">
+                    <div class="qr" id="qr-place"></div>
+                </div>
+            </div>
+            <div class="modal-footer d-flex align-items-center justify-content-center">
+                <button type="button" id="done-button" class="btn ctm-btn close-qr-modal" data-bs-dismiss="modal" disabled>Done!</button>
+            </div>
+        </div>
+    </div>
+</div>

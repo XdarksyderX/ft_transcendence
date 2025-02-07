@@ -38,8 +38,8 @@
 
 .qr {
     margin-top: 20px;
-    height: 300px;
-    width: 300px;
+    height: auto;
+    width: auto;
     background-color: white;
 }
 
