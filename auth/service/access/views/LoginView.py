@@ -57,37 +57,37 @@ class LoginView(APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-        refresh = RefreshToken.for_user(user)
-        refresh["user_id"] = user.id
-        refresh["username"] = user.username
-        refresh["two_fa_enabled"] = user.two_fa_enabled
-        refresh["oauth_registered"] = user.oauth_registered
-        access_token = str(refresh.access_token)
+        refresh_token = RefreshToken.for_user(user)
+        refresh_token["user_id"] = user.id
+        refresh_token["username"] = user.username
+        refresh_token["two_fa_enabled"] = user.two_fa_enabled
+        refresh_token["oauth_registered"] = user.oauth_registered
+        access_token = refresh_token.access_token
 
         response = Response(
-            {"status": "success", "access_token": access_token},
+            {"status": "success", "access_token": str(access_token)},
             status=status.HTTP_200_OK
         )
 
-        expiration = datetime.now(timezone.utc) + timedelta(days=7)
-        response.set_cookie(
-            key='refresh_token',
-            value=str(refresh),
-            httponly=True,
-            secure=True,
-            expires=http_date(expiration.timestamp()),
-            samesite='None'
-        )
+        access_exp = datetime.fromtimestamp(access_token["exp"], tz=timezone.utc)
+        refresh_exp = datetime.fromtimestamp(refresh_token["exp"], tz=timezone.utc)
 
         response.set_cookie(
             key='access_token',
             value=str(access_token),
             httponly=True,
             secure=True,
-            expires=http_date(expiration.timestamp()),
+            expires=http_date(access_exp.timestamp()),
             samesite='None'
         )
-
+        response.set_cookie(
+            key='refresh_token',
+            value=str(refresh_token),
+            httponly=True,
+            secure=True,
+            expires=http_date(refresh_exp.timestamp()),
+            samesite='None'
+        )
 
         rabbit_client = RabbitMQClient()
         try:

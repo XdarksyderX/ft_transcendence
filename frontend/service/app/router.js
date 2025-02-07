@@ -7,15 +7,17 @@ import { initializeProfileEvents } from '../components/profile/app.js';
 import { initialize404 } from '../components/error/app.js';
 import { initializeFriendsEvents } from '../components/friends/app.js';
 import { initializeStatsEvents } from '../components/stats/app.js';
-import { initializeOngoingTournaments } from '../components/tournament/app.js';
+import { initializeOngoingTournaments } from '../components/tournament/ongoing.js';
+import { initializeNewTournament } from '../components/tournament/new.js';
 import { initializeChessEvents } from '../components/chess/index.js';
 import { loadChat, loadSidebar } from './render.js';
 import { initializeIndexEvents } from '../components/index/app.js';
-import { isLoggedIn } from './auth.js';
+import { isLoggedIn, logout } from './auth.js';
 import { initializeSettingsEvents } from '../components/settings/app.js';
 import { startBackgroundMusic } from '../components/chess/Render/main.js';
 import { getUsername } from './auth.js';
 import { initializeResetPasswordEvents } from '../components/login/reset-pw.js';
+import { initializePongEvents } from '../components/pong/app.js';
 
 const routes = [
     { url: "/404", file: "./components/error/404.html", allowed: true },
@@ -28,7 +30,9 @@ const routes = [
     { url: "/game-stats", file: "./components/stats/stats.html", allowed: false },
     { url: "/settings", file: "./components/settings/settings.html", allowed: false },
     { url: "/ongoing-tournaments", file: "./components/tournament/tournament.html", allowed: false },
+    { url: "/new-tournament", file: "./components/tournament/new-tournament.html", allowed: false },
     { url: "/chess", file: "./components/chess/chess.html", allowed: false },
+    { url: "/pong", file: "./components/pong/pong.html", allowed: false },
     { url: "/reset-password", file: "./components/login/reset-password.html", allowed: true },
     { url: "/verify-email", file: "./components/signup/verify-email.html", allowed: true },
 ];
@@ -65,6 +69,9 @@ async function router() {
         case "/ongoing-tournaments":
             initializeOngoingTournaments();
             break;
+        case "/new-tournament":
+            initializeNewTournament();
+            break;
         case "/profile":
             //initializeNeonFrames();
             initializeProfileEvents();
@@ -82,9 +89,10 @@ async function router() {
             initializeStatsEvents();
             break;
         case "/chess":
-        //    console.log('Initializing chess events');
             initializeChessEvents();
             //startBackgroundMusic()
+        case "/pong":
+            initializePongEvents();
             break;
         case "/settings":
             initializeSettingsEvents();
@@ -154,7 +162,7 @@ async function navigateTo(fullUrl) {
     try {
         const verify = await isLoggedIn();
         const url = redirectURL(verify, fullUrl);
-    //    console.log("verify:", verify);
+        console.log("verify:", verify);
         
        // if (!(url !== "/login" && url !== "/signup" && !verify)) 
         if (url !== window.location.pathname) {

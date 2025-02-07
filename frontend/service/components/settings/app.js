@@ -2,8 +2,9 @@
 // import jwtDecode from 'https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.esm.js';
 //import { getCookie } from '../../app/auth.js'
 //import { toggleEditMode } from "../profile/app.js";
-import { isTwoFAEnabled, toggleTwoFA, changeUsername, changeEmail, changePassword, deleteAccount, refreshAccessToken,  } from '../../app/auth.js';
+import { isTwoFAEnabled, toggleTwoFA, changeUsername, changeEmail, changePassword, deleteAccount, refreshAccessToken, getUsername,  } from '../../app/auth.js';
 import { throwAlert } from '../../app/render.js';
+import { parseNewPasswords } from '../signup/signup.js';
 //import { loadLogin } from '../login/login.js';
   
   let changes = {
@@ -39,16 +40,17 @@ import { throwAlert } from '../../app/render.js';
   }
   
   async function handle2FAChange(enable, password) {
-    const success = await toggleTwoFA(enable, password)
-    if (success) {
+    const data = await toggleTwoFA(enable, password)
+    if (data) {
       throwAlert(`2FA ${enable ? "activated" : "deactivated"} successfully`)
-      await refreshAccessToken()
+      handle2FAmodal(enable, data.secret);
       toggle2FASwitch()
     } else {
       throwAlert("Failed to update 2FA")
     }
   }
   
+
   async function handlePasswordChange(event) {
     event.preventDefault();
     const currentPassword = document.getElementById("current-password").value
@@ -59,13 +61,11 @@ import { throwAlert } from '../../app/render.js';
       throwAlert("Please fill in all fields.")
       return
     }
-    if (newPassword !== confirmPassword) {
-      throwAlert("Passwords do not match.")
+    if (!parseNewPasswords(newPassword, confirmPassword)) {
       return
     }
   
-    const success = await changePassword(newPassword, currentPassword)
-    await refreshAccessToken()
+    const success = await changePassword(newPassword, currentPassword);
     throwAlert(success ? "Password changed successfully" : "Failed to change password.")
   }
   
@@ -84,7 +84,6 @@ import { throwAlert } from '../../app/render.js';
   
   async function handleUsernameChange(newUsername, password) {
     const success = await changeUsername(newUsername, password)
-    await refreshAccessToken()
     throwAlert(success ? "Username changed successfully" : "Failed to change username.")
   }
   
@@ -103,7 +102,6 @@ import { throwAlert } from '../../app/render.js';
   
   async function handleEmailChange(newEmail, password) {
     const success = await changeEmail(newEmail, password)
-    await refreshAccessToken()
     throwAlert(success ? "Email changed successfully" : "Failed to change email.")
   }
   
@@ -124,18 +122,95 @@ import { throwAlert } from '../../app/render.js';
   }
   
   async function handleSaveChanges(password) {
+    let changesMade = false;
+
     if (changes.enable2FA !== null) {
-      await handle2FAChange(changes.enable2FA, password)
+        await handle2FAChange(changes.enable2FA, password);
+        changesMade = true;
     }
     if (changes.username) {
-      await handleUsernameChange(changes.username, password)
+        await handleUsernameChange(changes.username, password);
+        changesMade = true;
     }
     if (changes.email) {
-      await handleEmailChange(changes.email, password)
+        await handleEmailChange(changes.email, password);
+        changesMade = true;
     }
-    changes = { enable2FA: null, username: null, email: null }
+
+    changes = { enable2FA: null, username: null, email: null };
+
+    if (changesMade) {
+        refreshAccessToken();
+    }
   }
   
+  function handle2FAmodal(status, secret = null) {
+    const modalElement = document.getElementById('2fa-qr-modal');
+    const modal = new bootstrap.Modal(modalElement, {
+        backdrop: 'static', // Evita cerrar la modal al hacer clic fuera
+        keyboard: false     // Evita cerrar la modal con la tecla escape
+    });
+
+    console.log('status: ', status);
+    
+    if (!status) {
+        throwAlert(`2FA is now disabled`);
+        return;
+    }
+
+    if (!secret) {
+        throwAlert(`Error: No secret key provided for 2FA.`);
+        return;
+    }
+
+    modal.show();
+
+    // Generar el QR en el contenedor de la modal
+    generate2FAQrCode("qr-place", "ft_transcendence", getUsername(), secret);
+
+    // Deshabilitar los botones de cierre por 5 segundos
+    const closeButtons = modalElement.querySelectorAll('.close-qr-modal');
+    closeButtons.forEach(button => {
+        button.disabled = true;
+    });
+
+    setTimeout(() => {
+        closeButtons.forEach(button => {
+            button.disabled = false;
+        });
+    }, 5000); // 5 segundos
+    refreshAccessToken();
+  }
+
+  function generate2FAQrCode(containerId, service, user, secret) {
+    if (!containerId || !service || !user || !secret) {
+        console.error("Missing parameters: containerId, service, user, or secret.");
+        return;
+    }
+
+    // Construir la URL en formato otpauth
+    const otpUrl = `otpauth://totp/${encodeURIComponent(service)}:${encodeURIComponent(user)}?secret=${secret}&issuer=${encodeURIComponent(service)}`;
+
+    // Obtener el contenedor donde se insertará el QR
+    const qrContainer = document.getElementById(containerId);
+    if (!qrContainer) {
+        console.error(`Container with ID '${containerId}' not found.`);
+        return;
+    }
+
+    qrContainer.innerHTML = ''; // Limpiar contenido previo
+
+    // Generar el código QR usando qrcode.js
+    new QRCode(qrContainer, {
+        text: otpUrl,
+        width: 300,
+        height: 300
+    });
+
+    console.log(`QR Code generated in container: #${containerId}`);
+}
+
+
   function initSaveChangesEvents() {
     const saveBtn = document.getElementById("confirm-save-changes")
     saveBtn.addEventListener("click", async () => {

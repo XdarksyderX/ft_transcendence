@@ -13,7 +13,7 @@ export function initializeHomeEvents() {
                 btn: document.getElementById('quick-play'),
                 options: document.getElementById('quick-play-options'),
                 playFriend: document.getElementById('play-friend'),
-                playRandom: document.getElementById('play-any-friend'),
+                playRandom: document.getElementById('pong-random'),
                 playMachine: document.getElementById('play-machine'),
                 friendList: document.getElementById('friend-list'),
                 friendsContainer: document.getElementById('friends-container'),
@@ -127,14 +127,14 @@ export function initializeHomeEvents() {
     elements.pong.quickPlay.playFriend.addEventListener('click', playPongWithFriend);
 
     function playPongWithRandom() {
-        console.log("Play with any friend option selected");
         throwAlert("this eventually will take you to waiting room");
     }
     elements.pong.quickPlay.playRandom.addEventListener('click', playPongWithRandom);
-
+    
     function playAgainstMachine() {
         console.log("Play against the machine option selected");
-        throwAlert("this eventually will take you to pong directly");
+        navigateTo('/pong');
+      //  throwAlert("this eventually will take you to pong directly");
     }
     elements.pong.quickPlay.playMachine.addEventListener('click', playAgainstMachine);
 
@@ -289,4 +289,5 @@ export function initializeHomeEvents() {
     elements.pong.quickPlay.startGameWithFriendButton.addEventListener('click', () => launchWaitModal('pong'));
     elements.chess.startGameWithFriendButton.addEventListener('click', () => launchWaitModal('chess'));
     elements.pong.tournament.ongoing.addEventListener('click', () => navigateTo("/ongoing-tournaments"));
+    elements.pong.tournament.new.addEventListener('click', () => navigateTo("/new-tournament"));
 }
