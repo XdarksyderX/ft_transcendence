@@ -17,6 +17,7 @@ import { initializeSettingsEvents } from '../components/settings/app.js';
 import { startBackgroundMusic } from '../components/chess/Render/main.js';
 import { getUsername } from './auth.js';
 import { initializeResetPasswordEvents } from '../components/login/reset-pw.js';
+import { initializePongEvents } from '../components/pong/app.js';
 
 const routes = [
     { url: "/404", file: "./components/error/404.html", allowed: true },
@@ -91,7 +92,7 @@ async function router() {
             initializeChessEvents();
             //startBackgroundMusic()
         case "/pong":
-        //    initializePongEvents();
+            initializePongEvents();
             break;
         case "/settings":
             initializeSettingsEvents();
