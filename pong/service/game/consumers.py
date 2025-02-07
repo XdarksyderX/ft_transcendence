@@ -117,22 +117,20 @@ class GameConsumer(AsyncWebsocketConsumer):
         else:
             return
 
-        # Ensure player data exists in the dictionary
-        if player_key not in self.game.player_positions:
-            self.game.player_positions[player_key] = {"x": 20 if player_key == "player1" else 670, "y": 225}  # Default position, for now hardcoded, in future configurable
-
+        player_positions = self.game.player_positions
         current_y = self.game.player_positions[player_key]["y"]
 
         # Update position based on direction
         if direction == "UP":
-            new_y = max(0, current_y - 5) # 5 hardcoded, in future configurable
+            new_y = max(0, current_y - self.game.player_speed)
         elif direction == "DOWN":
-            new_y = min(500 - 50, current_y + 5)  # Ensure within board bounds (5 hardcoded)
+            new_y = min(self.game.board_height - self.game.player_height, current_y + self.game.player_speed)
         else:  # STOP case
             new_y = current_y
 
         # Save updated position in database
-        self.game.player_positions[player_key]["y"] = new_y
+        player_positions[player_key]["y"] = new_y
+        self.game.player_positions = player_positions
         self.game.save()
 
     async def calculate_ball_position(self):
@@ -167,7 +165,7 @@ class GameConsumer(AsyncWebsocketConsumer):
             "xVel": 7, // velocities are sent in case communication to frontend is slow, so front can move the ball without waiting for the information
             "yVel": -4 // Will be removed if communication is quick
         },
-        "status": "in_progress" // other possible statuses: pending (waiting for players to join), finished
+        "status": "in_progress" // other possible statuses: pending(waiting for players to join), finished
     }
     """
     @sync_to_async
@@ -175,8 +173,8 @@ class GameConsumer(AsyncWebsocketConsumer):
         """Returns the current game state from the database."""
         return {
             "players": {
-                "player1": {**self.game.player_positions.get("player1", {"x": 20, "y": 225}), "score": self.game.player1_score}, #positions hardcoded
-                "player2": {**self.game.player_positions.get("player2", {"x": 670, "y": 225}), "score": self.game.player2_score} #in future configurable
+                "player1": {**self.game.player_positions.get("player1", {"x": self.game.x_margin, "y": self.game.p_y_mid}), "score": self.game.player1_score}, 
+                "player2": {**self.game.player_positions.get("player2", {"x": self.game.p2_xpos, "y": self.game.p_y_mid}), "score": self.game.player2_score} #in future configurable
             },
             "ball": self.game.ball_position,
             "status": self.game.status

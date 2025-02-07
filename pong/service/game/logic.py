@@ -6,22 +6,22 @@ class Game:
     def __init__(self, game_instance: PongGame):
         """Initialize the game using an existing PongGame instance."""
         self.game = game_instance
-        self.board_width = 700  # This will all be configurable in the future
-        self.board_height = 500 # For now hardcoded
-        self.player_height = 50 # Paddle height
-        self.player_speed = 5
-        self.ball_side = 10 # ball dimensions (a square)
-        self.start_speed = 7.5
-        self.speed_up_multiple = 1.02
-        self.max_speed = 20  # Prevents ball from going through paddle glitch
-        self.points_to_win = 3
-        self.x_margin = self.ball_side * 1.2 # margin from board to paddle, player 1 x pos
-        self.player_width = self.ball_side * 1.2 # * 1.2 to avoid ball going through paddle
-        self.p2_xpos = self.board_width - self.player_width - self.x_margin # player 2 x position
-        self.p_y_mid = self.board_height/2 - self.player_height / 2 # player y centered coordinate
-        self.b_x_mid = self.board_width / 2 - self.ball_side / 2 # ball x centered coordinate
-        self.b_y_mid = self.board_height / 2 - self.ball_side / 2 # ball y centered coordinate
-
+        # load stored game attributes
+        self.board_width = game_instance.board_width
+        self.board_height = game_instance.board_height
+        self.player_height = game_instance.player_height
+        self.player_width = game_instance.player_width
+        self.player_speed = game_instance.player_speed
+        self.ball_side = game_instance.ball_side
+        self.start_speed = game_instance.start_speed
+        self.speed_up_multiple = game_instance.speed_up_multiple
+        self.max_speed = game_instance.max_speed
+        self.points_to_win = game_instance.points_to_win
+        self.x_margin = game_instance.x_margin
+        self.p2_xpos = game_instance.p2_xpos
+        self.p_y_mid = game_instance.p_y_mid
+        self.b_x_mid = game_instance.b_x_mid
+        self.b_y_mid = game_instance.b_y_mid
 
         # Ensure database has correct defaults for players
         self.game.player_positions.setdefault("player1", {"x": self.x_margin, "y": self.p_y_mid}) #initialize at the middle of the board

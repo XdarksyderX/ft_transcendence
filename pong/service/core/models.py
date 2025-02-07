@@ -32,6 +32,7 @@ class PongGame(models.Model):
         related_name='won_games'
     )
 
+    # Game status
     status = models.CharField(
         max_length=20,
         choices=[
@@ -41,10 +42,10 @@ class PongGame(models.Model):
         ],
         default='pending'
     )
-    
+
     available = models.BooleanField(default=False)  # If game can be joined
     is_tournament = models.BooleanField(default=False)
-    
+
     tournament = models.ForeignKey(
         'Tournament',
         on_delete=models.SET_NULL,
@@ -55,37 +56,69 @@ class PongGame(models.Model):
 
     game_key = models.UUIDField(default=uuid.uuid4, unique=True)  # Unique game session key
 
-    player_positions = models.JSONField(
-        default=lambda: {
-            "player1": {"x": 20, "y": 225},  # Default paddle positions, for now hardcoded
-            "player2": {"x": 670, "y": 225}  # In future configurable
-        }
-    )
+    # In future configurable game parameters (now stored in the database)
+    board_width = models.IntegerField(default=700)  
+    board_height = models.IntegerField(default=500)  
+    player_height = models.IntegerField(default=50)  # Paddle height
+    player_speed = models.IntegerField(default=5)
+    ball_side = models.IntegerField(default=10)  # Ball dimensions (square)
+    start_speed = models.FloatField(default=7.5)
+    speed_up_multiple = models.FloatField(default=1.02)
+    max_speed = models.IntegerField(default=20)
+    points_to_win = models.IntegerField(default=3)
 
-    def initialize_ball(self):
-        """Initialize ball position with a randomized velocity for fairness."""
-        angle = random.uniform(-30, 30)  # Random angle
-        direction = random.choice([-1, 1])  # Random left or right
-        speed = 5  # Initial speed
-        return {
-            "x": 350, "y": 250,
-            "xVel": speed * direction * math.cos(math.radians(angle)),
-            "yVel": speed * math.sin(math.radians(angle))
-        }
+    # Computed game constants (calculated dynamically in `save()`)
+    x_margin = models.FloatField(default=0)  # Margin from board to player1 paddle
+    player_width = models.FloatField(default=0)  # Paddle width (scaled)
+    p2_xpos = models.FloatField(default=0)  # Player 2 x-position
+    p_y_mid = models.FloatField(default=0)  # Center y-position for paddles
+    b_x_mid = models.FloatField(default=0)  # Center x-position for ball
+    b_y_mid = models.FloatField(default=0)  # Center y-position for ball
 
-    ball_position = models.JSONField(default=dict)  # Removed static default to avoid Django treating it as a fixed value
+    # Default player positions (set dynamically)
+    player_positions = models.JSONField(default=dict)
+    ball_position = models.JSONField(default=dict)  # Ball position, dynamically initialized
 
-    # Explicit fields for scores (easier querying)
+    # Explicit fields for scores
     player1_score = models.IntegerField(default=0)
     player2_score = models.IntegerField(default=0)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def initialize_ball(self):
+        """Initialize ball position with a randomized velocity for fairness."""
+        angle = random.uniform(-45, 45)  # Random angle
+        direction = random.choice([-1, 1])  # Random left or right
+        return {
+            "x": self.b_x_mid,
+            "y": self.b_y_mid,
+            "xVel": self.start_speed * direction * math.cos(math.radians(angle)),
+            "yVel": self.start_speed * math.sin(math.radians(angle))
+        }
+
     def save(self, *args, **kwargs):
-        """Ensure ball is properly initialized when creating a new game."""
+        """Ensure all game parameters are correctly computed before saving."""
+        
+        # Compute derived values before saving
+        self.x_margin = self.ball_side * 1.2  # Margin from the board to player1's paddle
+        self.player_width = self.ball_side * 1.2  # Paddle width (scaled)
+        self.p2_xpos = self.board_width - self.x_margin - self.player_width  # Player 2 x-position
+        self.p_y_mid = (self.board_height / 2) - (self.player_height / 2)  # Center y-position for paddles
+        self.b_x_mid = (self.board_width / 2) - (self.ball_side / 2)  # Center x-position for ball
+        self.b_y_mid = (self.board_height / 2) - (self.ball_side / 2)  # Center y-position for ball
+
+        # Initialize ball position if not set
         if not self.ball_position:
             self.ball_position = self.initialize_ball()
+
+        # Initialize player positions if not set
+        if not self.player_positions:
+            self.player_positions = {
+                "player1": {"x": self.x_margin, "y": self.p_y_mid},
+                "player2": {"x": self.p2_xpos, "y": self.p_y_mid}
+            }
+
         super().save(*args, **kwargs)
 
     def get_opponent(self, user):
