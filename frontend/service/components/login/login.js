@@ -4,6 +4,7 @@ import { getUsername, refreshAccessToken, login, resetPassword } from '../../app
 import { requestPasswordReset } from '../../app/auth.js';
 import { parseEmail } from '../signup/signup.js';
 
+
 export async function initializeLoginEvents() {
     const loginForm = document.getElementById('login-form');
     if (loginForm) {

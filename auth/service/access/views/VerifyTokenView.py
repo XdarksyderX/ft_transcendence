@@ -18,8 +18,8 @@ class VerifyTokenView(APIView):
             AccessToken(access_token)
             return Response({"status": "success", "message": "Token is valid."}, status=status.HTTP_200_OK)
         except Exception as e:
-            print(e)
-            return Response(
-                {"status": "error", "message": "Invalid or expired access token."},
+            response = Response({"status": "error", "message": "Invalid or expired access token."},
                 status=status.HTTP_401_UNAUTHORIZED
             )
+            response.delete_cookie("access_token")
+            return response

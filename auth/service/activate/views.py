@@ -47,12 +47,19 @@ class Activate2FAView(APIView):
                 "message": "2FA cannot be activated or deactivated for users registered with OAuth."
             }, status=status.HTTP_403_FORBIDDEN)
 
+        password = request.data.get("password")
+        if not password:
+            return Response({"status": "error", "message": "Password is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not request.user.check_password(password):
+            return Response({"status": "error", "message": "Invalid password."}, status=status.HTTP_401_UNAUTHORIZED)
+
         user = request.user
         if user.two_fa_enabled:
             return Response({"status": "error", "message": "2FA is already activated."}, status=status.HTTP_400_BAD_REQUEST)
 
         secret = pyotp.random_base32()
-        TwoFA.objects.update_or_create(user=user, defaults={"secret": secret})
+        user.two_fa = TwoFA.objects.create(secret=secret)
         user.two_fa_enabled = True
         user.save()
 
@@ -97,7 +104,8 @@ class Deactivate2FAView(APIView):
         except TwoFA.DoesNotExist:
             return Response({"status": "error", "message": "2FA configuration not found."}, status=status.HTTP_400_BAD_REQUEST)
 
-        TwoFA.objects.filter(user=user).delete()
+        user.two_fa.delete()
+        user.two_fa = None
         user.two_fa_enabled = False
         user.save()
         rabbit_client = RabbitMQClient()

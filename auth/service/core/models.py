@@ -9,6 +9,7 @@ class User(AbstractUser):
     oauth_registered = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    two_fa = models.OneToOneField('TwoFA', on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return self.username
@@ -35,7 +36,6 @@ class PasswordReset(models.Model):
 
 
 class TwoFA(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
     secret = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

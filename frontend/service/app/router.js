@@ -12,7 +12,7 @@ import { initializeNewTournament } from '../components/tournament/new.js';
 import { initializeChessEvents } from '../components/chess/index.js';
 import { loadChat, loadSidebar } from './render.js';
 import { initializeIndexEvents } from '../components/index/app.js';
-import { isLoggedIn } from './auth.js';
+import { isLoggedIn, logout } from './auth.js';
 import { initializeSettingsEvents } from '../components/settings/app.js';
 import { startBackgroundMusic } from '../components/chess/Render/main.js';
 import { getUsername } from './auth.js';
@@ -162,7 +162,7 @@ async function navigateTo(fullUrl) {
     try {
         const verify = await isLoggedIn();
         const url = redirectURL(verify, fullUrl);
-    //    console.log("verify:", verify);
+        console.log("verify:", verify);
         
        // if (!(url !== "/login" && url !== "/signup" && !verify)) 
         if (url !== window.location.pathname) {
