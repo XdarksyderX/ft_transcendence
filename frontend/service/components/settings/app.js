@@ -4,6 +4,7 @@
 //import { toggleEditMode } from "../profile/app.js";
 import { isTwoFAEnabled, toggleTwoFA, changeUsername, changeEmail, changePassword, deleteAccount, refreshAccessToken,  } from '../../app/auth.js';
 import { throwAlert } from '../../app/render.js';
+import { parseNewPasswords } from '../signup/signup.js';
 //import { loadLogin } from '../login/login.js';
   
   let changes = {
@@ -49,6 +50,7 @@ import { throwAlert } from '../../app/render.js';
     }
   }
   
+
   async function handlePasswordChange(event) {
     event.preventDefault();
     const currentPassword = document.getElementById("current-password").value
@@ -59,11 +61,10 @@ import { throwAlert } from '../../app/render.js';
       throwAlert("Please fill in all fields.")
       return
     }
-    if (newPassword !== confirmPassword) {
-      throwAlert("Passwords do not match.")
+    if (!parseNewPasswords(newPassword, confirmPassword)) {
       return
     }
-  
+
     const success = await changePassword(newPassword, currentPassword)
     await refreshAccessToken()
     throwAlert(success ? "Password changed successfully" : "Failed to change password.")

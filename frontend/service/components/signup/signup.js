@@ -12,6 +12,31 @@ async function hardcodedSingup() {
         }
 }
 
+export function parseNewPasswords(password, confirmPassword) {
+
+    if (!password || !confirmPassword) {
+        throwAlert('Please, fill in all fields.');
+        return false;
+    }
+    if (password !== confirmPassword) {
+        throwAlert('Passwords do not match.');
+        return false;
+    }
+    if (password.length < 8) {
+        throwAlert('Passwords must have more than 8 characters');
+        return false 
+    }
+    return true
+}
+
+export function parseEmail(email) {
+    if (!(email.includes('@') && email.includes('.'))) {
+        throwAlert('Please, enter a valid email address.');
+        return false 
+    }
+    return true
+}
+
 export function initializeSignupEvents() {
     const cancelSignup = document.getElementById('cancel-signup');
     const registerForm = document.getElementById('register');
@@ -36,9 +61,8 @@ export function initializeSignupEvents() {
                 return;
             }
 
-            if (password !== confirmPassword) {
-                throwAlert('Passwords do not match');
-                return;
+            if (!parseNewPasswords(password, confirmPassword) || !parseEmail(email)) {
+                return ;
             }
             const userCredentials = { username, email, password };
             if (await register(userCredentials))

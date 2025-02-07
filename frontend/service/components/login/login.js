@@ -2,6 +2,7 @@ import { navigateTo } from '../../app/router.js';
 import { /* loadChat, loadSidebar,  */throwAlert } from '../../app/render.js';
 import { getUsername, refreshAccessToken, login, resetPassword } from '../../app/auth.js';
 import { requestPasswordReset } from '../../app/auth.js';
+import { parseEmail } from '../signup/signup.js';
 
 export async function initializeLoginEvents() {
     const loginForm = document.getElementById('login-form');
@@ -20,6 +21,13 @@ export async function initializeLoginEvents() {
         cancelLogin.addEventListener('click', () => navigateTo('/'));
     }
     initRequestResetPasswordEvents();
+    init42cosa();
+}
+
+function init42cosa() { // socorro esto es súper provisional
+    document.getElementById('login42-button').addEventListener('click', () => {
+        window.location.href = 'http://localhost:5050/oauth/42/';
+    });
 }
 
 async function authenticateUser(userCredentials) {
@@ -100,6 +108,9 @@ function initRequestResetPasswordEvents() {
 async function handlePasswordResetRequest(event) {
     event.preventDefault();
     const email = document.getElementById('reset-pw-email').value;
+    if (!parseEmail(email)) {
+        return 
+    }
     try {
         const response = await requestPasswordReset(email);
         if (response.status === "success") {
