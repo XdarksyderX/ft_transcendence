@@ -142,6 +142,7 @@ export async function changeEmail(newEmail, password) {
  * Cambia la contraseña del usuario.
  */
 export async function changePassword(newPassword, oldPassword) {
+    console.log("current password:", oldPassword);
     return await sendRequest('POST', 'change-password/', { new_password: newPassword, password: oldPassword });
 }
 
@@ -209,13 +210,15 @@ async function sendRequest(method, endpoint, body = null) {
             body: body ? JSON.stringify(body) : null
         });
 
-        let responseData;
+        let responseData = null;
 
-        try {
-            responseData = await response.json();
-        } catch (parseError) {
-            console.error('Error parsing response JSON:', parseError);
-            responseData = null;
+        // Manejar respuestas sin cuerpo (como 204 No Content)
+        if (response.status !== 204) {
+            try {
+                responseData = await response.json();
+            } catch (parseError) {
+                console.error('Error parsing response JSON:', parseError);
+            }
         }
 
         if (!response.ok) {
@@ -225,7 +228,7 @@ async function sendRequest(method, endpoint, body = null) {
         }
 
         console.log('Response:', response.status, responseData);
-        return responseData;
+        return responseData || { status: "success", message: "No content" };
     } catch (error) {
         console.error(`Error en ${method} ${endpoint}:`, error);
         return { status: "error", message: "An unexpected error occurred" };

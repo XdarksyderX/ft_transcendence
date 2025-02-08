@@ -4,6 +4,7 @@ import { throwAlert } from '../../app/render.js';
 import { parseNewPasswords } from '../signup/signup.js';
 import { parseEmail } from '../signup/signup.js';
 import { handle2FAmodal } from './QRhandler.js';
+import { logout } from '../../app/auth.js';
 
 
 function getEmail() {
@@ -78,8 +79,14 @@ async function handlePasswordChange(event) {
 		return
 	}
 
-	const success = await changePassword(newPassword, currentPassword);
-	throwAlert(success ? "Password changed successfully" : "Failed to change password.")
+	const response = await changePassword(newPassword, currentPassword);
+	let message;
+	if (response.status === "success") {
+		message = "Password changed succesfully";
+	} else {
+		message = response.message || "Failed to change password.";
+	}
+	throwAlert(message);
 }
 
 					/******* username change *******/
@@ -158,24 +165,37 @@ async function handleEmailChange(newEmail, password) {
 					/****** delete account *********/
 /* inits the event on confirm-delete-account btn */
 function initDeleteAccountEvents() {
-	const deleteBtn = document.getElementById("confirm-delete-account");
-	deleteBtn.addEventListener("click", handleDeleteAccount);
+    const deleteForm = document.getElementById('delete-account-form');
+    deleteForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const password = document.getElementById("delete-password").value;
+        if (!password) {
+            throwAlert("Password is required.");
+            return;
+        }
+        const deleteProfileModal = new bootstrap.Modal(document.getElementById('delete-profile-modal'));
+        deleteProfileModal.show();
+
+        const confirmDeleteBtn = document.getElementById("confirm-delete-account");
+        confirmDeleteBtn.addEventListener("click", async () => {
+            await handleDeleteAccount(password);
+            deleteProfileModal.hide(); // Hide the modal after account deletion
+        });
+    });
 }
 /* handles account delete with back */
-async function handleDeleteAccount() {
-    const password = document.getElementById("delete-password").value
-    if (!password) {
-      throwAlert("Password is required.")
-      return
-    }
-  
-    const success = await deleteAccount(password)
-    if (success) {
-      throwAlert("Account deleted successfully")
-      // Redirect to login page or perform any necessary cleanup
+async function handleDeleteAccount(password) {
+
+    const response = await deleteAccount(password);
+	let message;
+
+    if (response.status === "success") {
+      message = "Account deleted successfully";
     } else {
-      throwAlert("Failed to delete account.")
+      message = response.message || "Failed to delete account.";
     }
+	throwAlert(message);
+	logout();
 }
 					/************ save changes utils ************/
 /* gets the user data before any changes made */
