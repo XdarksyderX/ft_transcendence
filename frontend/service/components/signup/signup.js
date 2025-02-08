@@ -67,7 +67,7 @@ export function initializeSignupEvents() {
                     throwAlert('Account created successfully. Verify your email to login!');
                     navigateTo('/login');
                 } else {
-                    throwAlert("fatal, gracias");
+                    throwAlert("Email or username already registered, I guess(?)");
                 }
             } catch (error) {
                 throwAlert("An error occurred during the sing up process");

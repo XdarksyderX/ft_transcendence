@@ -5,6 +5,7 @@
 import { isTwoFAEnabled, toggleTwoFA, changeUsername, changeEmail, changePassword, deleteAccount, refreshAccessToken, getUsername,  } from '../../app/auth.js';
 import { throwAlert } from '../../app/render.js';
 import { parseNewPasswords } from '../signup/signup.js';
+import { parseEmail } from '../signup/signup.js';
 //import { loadLogin } from '../login/login.js';
   
   let changes = {
@@ -23,15 +24,24 @@ import { parseNewPasswords } from '../signup/signup.js';
   }
   
   function toggle2FASwitch(event) {
-    const status = document.getElementById("2fa-status")
-    const isChecked = event ? event.target.checked : isTwoFAEnabled()
+    const statusElement = document.getElementById("2fa-status");
+    const currentStatus = isTwoFAEnabled();
+    const isChecked = event ? event.target.checked : currentStatus
   
     if (!event) {
       document.getElementById("2fa-toggle").checked = isChecked
     }
   
-    status.innerText = isChecked ? "Disable 2FA" : "Enable 2FA"
-    changes.enable2FA = isChecked
+    statusElement.innerText = isChecked ? "Disable 2FA" : "Enable 2FA"
+    if (event) { //only when the toggle comes from an event there's a change
+      const saveChangesBtn = document.getElementById("save-changes-btn");
+      changes.enable2FA = isChecked;
+      if (isChecked !== currentStatus) {
+        saveChangesBtn.disabled = false;
+      } else {
+        saveChangesBtn.disabled = true;
+      }
+    }
   }
   
   function init2FAEvents() {
@@ -61,6 +71,9 @@ import { parseNewPasswords } from '../signup/signup.js';
       throwAlert("Please fill in all fields.")
       return
     }
+    if (currentPassword === newPassword) {
+      return throwAlert("New password must be different")
+    }
     if (!parseNewPasswords(newPassword, confirmPassword)) {
       return
     }
@@ -70,39 +83,57 @@ import { parseNewPasswords } from '../signup/signup.js';
   }
   
   function initUsernameChangeEvents() {
-    const usernameForm = document.getElementById("new-username-form")
-    usernameForm.addEventListener("submit", (event) => {
-      event.preventDefault()
-      const newUsername = document.getElementById("new-username").value
-      if (!newUsername) {
-        throwAlert("Please, fill in username field")
-        return
-      }
-      changes.username = newUsername
-    })
+      const usernameForm = document.getElementById("new-username-form");
+      const usernameInput = document.getElementById("new-username");
+  
+      usernameForm.addEventListener("submit", (event) => {
+          event.preventDefault();
+          const newUsername = usernameInput.value;
+          if (!newUsername) {
+              throwAlert("Please, fill in username field");
+              return;
+          }
+          usernameInput.classList.add('selected');
+          changes.username = newUsername;
+          document.getElementById("save-changes-btn").disabled = false;
+      });
+  
+      usernameInput.addEventListener("focus", () => {
+          usernameInput.classList.remove('selected');
+      });
   }
   
   async function handleUsernameChange(newUsername, password) {
-    const success = await changeUsername(newUsername, password)
-    throwAlert(success ? "Username changed successfully" : "Failed to change username.")
+    const response = await changeUsername(newUsername, password)
+    throwAlert(response.status === "success" ? "Username changed successfully" : "Failed to change username.")
   }
   
   function initEmailChangeEvents() {
-    const emailForm = document.getElementById("new-email-form")
+    const emailForm = document.getElementById("new-email-form");
+    const emailInput = document.getElementById("new-email");
     emailForm.addEventListener("submit", (event) => {
-      event.preventDefault()
-      const newEmail = document.getElementById("new-email").value
+      event.preventDefault();
+      const newEmail = emailInput.value;
       if (!newEmail) {
         throwAlert("Please, fill in email field")
         return
       }
+      if (!parseEmail(newEmail)) {
+        return
+      }
+      emailInput.classList.add('selected');
       changes.email = newEmail
+      document.getElementById("save-changes-btn").disabled = false;
     })
+
+    emailInput.addEventListener("focus", () => {
+      emailInput.classList.remove('selected');
+    });
   }
   
   async function handleEmailChange(newEmail, password) {
-    const success = await changeEmail(newEmail, password)
-    throwAlert(success ? "Email changed successfully" : "Failed to change email.")
+    const response = await changeEmail(newEmail, password)
+    throwAlert(response.status === "success" ? "Email changed successfully" : "Failed to change email.")
   }
   
   async function handleDeleteAccount() {
@@ -125,6 +156,7 @@ import { parseNewPasswords } from '../signup/signup.js';
     let changesMade = false;
 
     if (changes.enable2FA !== null) {
+      console.log('changes.enable2FA: ', changes.enable2FA);
         await handle2FAChange(changes.enable2FA, password);
         changesMade = true;
     }
@@ -211,16 +243,23 @@ import { parseNewPasswords } from '../signup/signup.js';
 }
 
 
+  
   function initSaveChangesEvents() {
-    const saveBtn = document.getElementById("confirm-save-changes")
-    saveBtn.addEventListener("click", async () => {
-      const password = document.getElementById("confirm-changes-password").value
-      if (!password) {
-        throwAlert("Password required")
-        return
-      }
-      await handleSaveChanges(password)
-    })
+      const saveBtn = document.getElementById("confirm-save-changes");
+      saveBtn.addEventListener("click", async () => {
+          const password = document.getElementById("confirm-changes-password").value;
+          if (!password) {
+              throwAlert("Password required");
+              return;
+          }
+          await handleSaveChanges(password);
+  
+          // Hide the modal after saving changes
+          const modalElement = document.getElementById('save-changes-modal');
+          const modal = bootstrap.Modal.getInstance(modalElement);
+          if (modal) {
+              modal.hide();
+          }
+      });
   }
-  
-  
+    

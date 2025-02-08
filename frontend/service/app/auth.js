@@ -128,14 +128,14 @@ export async function toggleTwoFA(enable, password, otpCode = null) {
  * Cambia el nombre de usuario.
  */
 export async function changeUsername(newUsername, password) {
-    return await sendRequest('POST', 'change-username/', { password, username: newUsername });
+    return await sendRequest('POST', 'change-username/', { current_password: password, new_username: newUsername });
 }
 
 /**
  * Cambia la dirección de correo electrónico.
  */
 export async function changeEmail(newEmail, password) {
-    return await sendRequest('POST', 'change-email/', { password, email: newEmail });
+    return await sendRequest('POST', 'change-email/', { password: password, email: newEmail });
 }
 
 /**
