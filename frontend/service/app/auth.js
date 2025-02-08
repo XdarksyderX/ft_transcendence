@@ -128,14 +128,14 @@ export async function toggleTwoFA(enable, password, otpCode = null) {
  * Cambia el nombre de usuario.
  */
 export async function changeUsername(newUsername, password) {
-    return await sendRequest('POST', 'change-username/', { current_password: password, new_username: newUsername });
+    return await sendRequest('POST', 'change-username/', { password: password, new_username: newUsername });
 }
 
 /**
  * Cambia la dirección de correo electrónico.
  */
 export async function changeEmail(newEmail, password) {
-    return await sendRequest('POST', 'change-email/', { password: password, email: newEmail });
+    return await sendRequest('POST', 'change-email/', { password: password, new_email: newEmail });
 }
 
 /**
@@ -179,7 +179,9 @@ export async function deleteAccount(password) {
  * @param {string} endpoint - Endpoint de la API.
  * @param {Object} [body=null] - Datos opcionales a enviar en el body.
  */
-async function sendRequest(method, endpoint, body = null) {
+/* async function sendRequest(method, endpoint, body = null) {
+
+//    console.log("body:", JSON.stringify(body));
     try {
         const response = await fetch(`http://localhost:5050/${endpoint}`, {
             method,
@@ -192,5 +194,40 @@ async function sendRequest(method, endpoint, body = null) {
     } catch (error) {
         console.error(`Error en ${method} ${endpoint}:`, error);
         return false;
+    }
+}
+ */
+//versión de debug
+async function sendRequest(method, endpoint, body = null) {
+    try {
+        if (body) console.log('Payload:', JSON.stringify(body));
+        
+        const response = await fetch(`http://localhost:5050/${endpoint}`, {
+            method,
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: body ? JSON.stringify(body) : null
+        });
+
+        let responseData;
+
+        try {
+            responseData = await response.json();
+        } catch (parseError) {
+            console.error('Error parsing response JSON:', parseError);
+            responseData = null;
+        }
+
+        if (!response.ok) {
+            console.error('Request failed with status:', response.status);
+            console.error('Error details:', responseData); // Imprime detalles del error si los hay.
+            return { status: "error", message: responseData?.message || "Request failed" };
+        }
+
+        console.log('Response:', response.status, responseData);
+        return responseData;
+    } catch (error) {
+        console.error(`Error en ${method} ${endpoint}:`, error);
+        return { status: "error", message: "An unexpected error occurred" };
     }
 }

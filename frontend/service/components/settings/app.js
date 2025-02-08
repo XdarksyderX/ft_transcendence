@@ -105,9 +105,17 @@ function initUsernameChangeEvents(currentData, changedData) {
 }
 /* handles username changes with backend */
 async function handleUsernameChange(newUsername, password) {
-    const response = await changeUsername(newUsername, password)
-    throwAlert(response.status === "success" ? "Username changed successfully" : "Failed to change username.")
+
+	const response = await changeUsername(newUsername, password);
+	let message;
+	if (response.status === "success") {
+		message = "Username changed successfully";
+	} else {
+		message = response.message || "Failed to change username.";
+	}
+	throwAlert(message);
 }
+
 
 					/******** email change *********/
 /* listents the submit event on the new email form, storing the changes if they exist */
@@ -134,8 +142,16 @@ function initEmailChangeEvents(currentData, changedData) {
 }
 /* handles email changes with backend */
 async function handleEmailChange(newEmail, password) {
-    const response = await changeEmail(newEmail, password)
-    throwAlert(response.status === "success" ? "Email changed successfully" : "Failed to change email.")
+
+    const response = await changeEmail(newEmail, password);
+	let message;
+
+	if (response.status === "success") {
+		message = "Email changed succesfully";
+	} else {
+		message = response.message || "Failed to change email.";
+	}
+	throwAlert(message);
 }
 
 					/****** delete account *********/
@@ -219,7 +235,6 @@ function initSaveChangesEvents(currentData, changedData) {
 		await handleEmailChange(changedData.email, password);
 		changesMade = true;
 	}
-
 	if (changesMade) {
 		refreshAccessToken();
 	}
