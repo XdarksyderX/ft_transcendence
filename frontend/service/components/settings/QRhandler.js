@@ -1,4 +1,5 @@
 import { throwAlert } from "../../app/render.js";
+import { getUsername } from "../../app/auth.js";
 
 export function handle2FAmodal(status, secret = null) {
     const modalElement = document.getElementById('2fa-qr-modal');
