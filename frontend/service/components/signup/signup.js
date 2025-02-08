@@ -30,6 +30,9 @@ export function parseNewPasswords(password, confirmPassword) {
 }
 
 export function parseEmail(email) {
+    if (!email) {
+        throwAlert("Please, fill in email field") 
+    }
     if (!(email.includes('@') && email.includes('.'))) {
         throwAlert('Please, enter a valid email address.');
         return false 
