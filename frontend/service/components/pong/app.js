@@ -40,14 +40,32 @@ let predictedY;
 
 export function initializePongEvents() {
     console.log("Pong AI game initialized!");
-    
-    // Ensure the game starts only when the DOM is loaded
-    document.addEventListener("DOMContentLoaded", () => {
-        start();  // Start the AI Pong game
-    });
+
+    // Ensure the DOM is fully loaded before starting
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", () => startGame());
+    } else {
+        startGame();
+    }
 }
 
-function start(gameConfig)
+function startGame() {
+    console.log("Starting Pong AI Game...");
+    
+    board = document.getElementById("board");
+    if (!board) {
+        console.error("Canvas element #board not found!");
+        return;
+    }
+
+    board.width = boardWidth;
+    board.height = boardHeight;
+    context = board.getContext("2d");
+
+    start(); // Now, start the game after initializing the board
+}
+
+function start()
 {
     initGame(); // To restart all values that are changed in previous games & apply settings changes
 
