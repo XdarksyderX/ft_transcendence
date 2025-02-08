@@ -1,6 +1,18 @@
-#board
-{
-	background-color: black;
-	border-top: 5px solid turquoise;
-	border-bottom: 5px solid turquoise;
+/* Isnt beig applied */
+
+#board {
+    background-color: black;
+    border: 5px solid turquoise; 
+    box-shadow: 0px 0px 15px cyan; /* Glowing effect */
+}
+
+.instructions {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 5px 10px;
+    color: rgb(0, 0, 0);
+    font-size: 18px;
+    font-family: Arial, sans-serif;
+    border-radius: 5px;
 }

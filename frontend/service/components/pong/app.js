@@ -238,15 +238,38 @@ function update()
     }
 }
 
-function stop() {
+function endMatch(playerScore, AIscore) // Adapted for AI pong
+{
+    // Clear the canvas
+    context.clearRect(0, 0, board.width, board.height);
+
+	let message;
+    // Set message based on the outcome
+	if (playerScore > AIscore)
+		message = "You won!";
+	else
+		message = "You lost :("
+
+    // Display the message on the board
+    context.fillStyle = "white";
+    context.font = "50px Arial";
+    context.textAlign = "center";
+    context.fillText(message, board.width / 2, board.height / 2);
+
+    // Wait 3 seconds before redirecting to /home
+    setTimeout(() => {
+        window.location.href = "/home";
+    }, 3000);
+}
+
+function stop() 
+{
 
 	if (id)
 		cancelAnimationFrame(id);
     if (aiIntervalId) 
         clearInterval(aiIntervalId);
 }
-
-window.stop = stop; // Dont know how this applies now 
 
 function fixOutOfBounds(player, yMax)
 {
