@@ -85,14 +85,14 @@
                                         </div>
                                     </form>
                                 </div>
-                                <!-- Delete Account -->
-                                <div class="list-group-item ">
-                                    <h5 class="ctm-text-danger">Delete Account</h5>
-                                    <form id="delete-account-form" class="mt-3 text-center">
-                                        <input type="password" id="delete-password" class="form-control ctm-form mb-2" placeholder="Enter password">
-                                        <button class="btn ctm-btn-danger" id="delete-account-btn" data-bs-toggle="modal" data-bs-target="#delete-profile-modal">Delete Account</button>
-                                    </form>
-                                </div>
+                            <!-- Delete Account -->
+                            <div class="list-group-item ">
+                                <h5 class="ctm-text-danger">Delete Account</h5>
+                                <form id="delete-account-form" class="mt-3 text-center">
+                                    <input type="password" id="delete-password" class="form-control ctm-form mb-2" placeholder="Enter password">
+                                    <button type="submit" class="btn ctm-btn-danger" id="delete-account-btn" >Delete Account</button>
+                                </form>
+                            </div>
                             </div>
                         </div>
                     </div>
@@ -115,7 +115,7 @@
             </div>
             <!-- Save Changes Button -->
             <div class="mt-4 text-center">
-                <button class="btn ctm-btn" id="save-changes-btn" data-bs-toggle="modal" data-bs-target="#save-changes-modal">Save Changes</button>            </div>
+                <button class="btn ctm-btn" id="save-changes-btn" data-bs-toggle="modal" data-bs-target="#save-changes-modal" disabled>Save Changes</button>            </div>
             </div>
     </div>
 </div>
@@ -125,8 +125,8 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="delete-modal-label">Delete Profile</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title ctm-text-title" id="delete-profile-modal-label">Delete Profile</h5>
+                <button type="button" class="close-modal close-qr-modal" data-bs-dismiss="modal" aria-label="Close">x</button>
             </div>
             <div class="modal-body">
                 <h5>Are you sure you want to delete your profile?</h5>
@@ -134,7 +134,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button id="confirm-delete-account"type="button" class="btn btn-danger">Delete</button>
+                <button id="confirm-delete-account" type="button" class="btn btn-danger">Delete</button>
             </div>
         </div>
     </div>
@@ -146,11 +146,11 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="save-changes-modal-label">Confirm Changes</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="close-modal close-qr-modal" data-bs-dismiss="modal" aria-label="Close">x</button>
             </div>
             <div class="modal-body">
                 <p>Please enter your password to save changes:</p>
-                <input type="password" id="confirm-changes-password" class="form-control" placeholder="Enter your password">
+                <input type="password" id="confirm-changes-password" class="form-control ctm-form" placeholder="Enter your password">
             </div>
             <div class="modal-footer text-center">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>

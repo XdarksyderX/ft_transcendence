@@ -58,7 +58,7 @@ function throwAlert(text) {
 
     // Crear el HTML del modal
     const alert = `
-    <div class="modal fade" id="alert-modal" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="alert-modal" tabindex="-1" inert>
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
@@ -79,12 +79,20 @@ function throwAlert(text) {
     </div>
     `;
 
-    // Insertar el modal en el cuerpo del documento
+    // insert the modal on the dom
     document.body.insertAdjacentHTML("beforeend", alert);
 
-    // Inicializar el modal y mostrarlo
-    const modal = new bootstrap.Modal(document.getElementById('alert-modal'));
+    // Init and show the modal
+    const modalElement = document.getElementById('alert-modal');
+    const modal = new bootstrap.Modal(modalElement);
+    modalElement.removeAttribute('inert');
     modal.show();
+
+    // Add event listener to re-add inert attribute when modal is hidden
+    modalElement.addEventListener('hidden.bs.modal', () => {
+        modalElement.setAttribute('inert', '');
+        modalElement.remove();
+    });
 }
 
 export { loadChat, loadSidebar, throwAlert }

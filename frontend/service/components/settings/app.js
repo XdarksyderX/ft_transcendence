@@ -1,226 +1,264 @@
-//import { navigateTo } from "../../app/router.js";
-// import jwtDecode from 'https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.esm.js';
-//import { getCookie } from '../../app/auth.js'
-//import { toggleEditMode } from "../profile/app.js";
+
 import { isTwoFAEnabled, toggleTwoFA, changeUsername, changeEmail, changePassword, deleteAccount, refreshAccessToken, getUsername,  } from '../../app/auth.js';
 import { throwAlert } from '../../app/render.js';
 import { parseNewPasswords } from '../signup/signup.js';
-//import { loadLogin } from '../login/login.js';
-  
-  let changes = {
-    enable2FA: null,
-    username: null,
-    email: null,
-  }
-  
-  export function initializeSettingsEvents() {
-    init2FAEvents()
-    initEmailChangeEvents()
-    initUsernameChangeEvents()
-    initSaveChangesEvents()
-    document.getElementById("change-password-form").addEventListener("submit", handlePasswordChange)
-    document.getElementById("confirm-delete-account").addEventListener("click", handleDeleteAccount)
-  }
-  
-  function toggle2FASwitch(event) {
-    const status = document.getElementById("2fa-status")
-    const isChecked = event ? event.target.checked : isTwoFAEnabled()
-  
-    if (!event) {
-      document.getElementById("2fa-toggle").checked = isChecked
-    }
-  
-    status.innerText = isChecked ? "Disable 2FA" : "Enable 2FA"
-    changes.enable2FA = isChecked
-  }
-  
-  function init2FAEvents() {
-    toggle2FASwitch()
-    document.getElementById("2fa-toggle").addEventListener("change", toggle2FASwitch)
-  }
-  
-  async function handle2FAChange(enable, password) {
-    const data = await toggleTwoFA(enable, password)
-    if (data) {
-      throwAlert(`2FA ${enable ? "activated" : "deactivated"} successfully`)
-      handle2FAmodal(enable, data.secret);
-      toggle2FASwitch()
-    } else {
-      throwAlert("Failed to update 2FA")
-    }
-  }
-  
+import { parseEmail } from '../signup/signup.js';
+import { handle2FAmodal } from './QRhandler.js';
+import { logout } from '../../app/auth.js';
 
-  async function handlePasswordChange(event) {
-    event.preventDefault();
-    const currentPassword = document.getElementById("current-password").value
-    const newPassword = document.getElementById("new-password").value
-    const confirmPassword = document.getElementById("confirm-new-password").value
-  
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      throwAlert("Please fill in all fields.")
-      return
-    }
-    if (!parseNewPasswords(newPassword, confirmPassword)) {
-      return
-    }
-  
-    const success = await changePassword(newPassword, currentPassword);
-    throwAlert(success ? "Password changed successfully" : "Failed to change password.")
-  }
-  
-  function initUsernameChangeEvents() {
-    const usernameForm = document.getElementById("new-username-form")
-    usernameForm.addEventListener("submit", (event) => {
-      event.preventDefault()
-      const newUsername = document.getElementById("new-username").value
-      if (!newUsername) {
-        throwAlert("Please, fill in username field")
-        return
-      }
-      changes.username = newUsername
-    })
-  }
-  
-  async function handleUsernameChange(newUsername, password) {
-    const success = await changeUsername(newUsername, password)
-    throwAlert(success ? "Username changed successfully" : "Failed to change username.")
-  }
-  
-  function initEmailChangeEvents() {
-    const emailForm = document.getElementById("new-email-form")
-    emailForm.addEventListener("submit", (event) => {
-      event.preventDefault()
-      const newEmail = document.getElementById("new-email").value
-      if (!newEmail) {
-        throwAlert("Please, fill in email field")
-        return
-      }
-      changes.email = newEmail
-    })
-  }
-  
-  async function handleEmailChange(newEmail, password) {
-    const success = await changeEmail(newEmail, password)
-    throwAlert(success ? "Email changed successfully" : "Failed to change email.")
-  }
-  
-  async function handleDeleteAccount() {
-    const password = document.getElementById("delete-password").value
-    if (!password) {
-      throwAlert("Password is required.")
-      return
-    }
-  
-    const success = await deleteAccount(password)
-    if (success) {
-      throwAlert("Account deleted successfully")
-      // Redirect to login page or perform any necessary cleanup
-    } else {
-      throwAlert("Failed to delete account.")
-    }
-  }
-  
-  async function handleSaveChanges(password) {
-    let changesMade = false;
 
-    if (changes.enable2FA !== null) {
-        await handle2FAChange(changes.enable2FA, password);
-        changesMade = true;
-    }
-    if (changes.username) {
-        await handleUsernameChange(changes.username, password);
-        changesMade = true;
-    }
-    if (changes.email) {
-        await handleEmailChange(changes.email, password);
-        changesMade = true;
-    }
+function getEmail() {
+	//just for testing
+	return ('vicenta@invent.com')
+}
 
-    changes = { enable2FA: null, username: null, email: null };
+export function initializeSettingsEvents() {
+	const currentData = getCurrentData();
+	const changedData = { ...currentData}; // this makes a copy of
+	// security settings events
+	init2FAEvents(currentData, changedData);
+	initChangePasswordEvent();
+	//account settings events
+	initUsernameChangeEvents(currentData, changedData);
+	initEmailChangeEvents(currentData, changedData);
+	initDeleteAccountEvents();
+	//save settings
+	initSaveChangesEvents(currentData, changedData);
+}
 
-    if (changesMade) {
-        refreshAccessToken();
-    }
-  }
-  
-  function handle2FAmodal(status, secret = null) {
-    const modalElement = document.getElementById('2fa-qr-modal');
-    const modal = new bootstrap.Modal(modalElement, {
-        backdrop: 'static', // Evita cerrar la modal al hacer clic fuera
-        keyboard: false     // Evita cerrar la modal con la tecla escape
-    });
+						/********* 2FA change **********/
+/* toggles the switch if needed at loading /settings and adds the event listener to the 2FA switch btn */
+function init2FAEvents(currentData, changedData) {
+    toggle2FASwitch(null, currentData, changedData);
+    document.getElementById("2fa-toggle").addEventListener("change", (event) => toggle2FASwitch(event, currentData, changedData));
+}
+/* toggles the switch on and off updating the changes */
+function toggle2FASwitch(event, currentData, changedData) {
+	const statusElement = document.getElementById("2fa-status");
+	const currentStatus = currentData.enable2FA;
+	const isChecked = event ? event.target.checked : currentStatus;
 
-    console.log('status: ', status);
-    
-    if (!status) {
-        throwAlert(`2FA is now disabled`);
-        return;
-    }
+	document.getElementById("2fa-toggle").checked = isChecked;
+	statusElement.innerText = isChecked ? "Disable 2FA" : "Enable 2FA"
+	changedData.enable2FA = isChecked;
+	toggleChanges(currentData, changedData);
+}
+/* handles the 2FA change with backend */
+ async function handle2FAChange(enable, password) {
+	const data = await toggleTwoFA(enable, password)
+	if (data) {
+	  throwAlert(`2FA ${enable ? "activated" : "deactivated"} successfully`)
+	  handle2FAmodal(enable, data.secret);
+	  toggle2FASwitch()
+	} else {
+	  throwAlert("Failed to update 2FA")
+	}
+}
 
-    if (!secret) {
-        throwAlert(`Error: No secret key provided for 2FA.`);
-        return;
-    }
+					/******* password change *******/
+/* initializes the events on the change password form */
+function initChangePasswordEvent() {
+	const changePasswordForm = document.getElementById("change-password-form");
+	changePasswordForm.addEventListener("submit", handlePasswordChange);
+}
+/* parses the passwords and handles the password change with the backend */
+async function handlePasswordChange(event) {
+	event.preventDefault();
+	const currentPassword = document.getElementById("current-password").value
+	const newPassword = document.getElementById("new-password").value
+	const confirmPassword = document.getElementById("confirm-new-password").value
+	
+	if (!currentPassword || !newPassword || !confirmPassword) {
+		throwAlert("Please fill in all fields.")
+		return
+	}
+	if (currentPassword === newPassword) {
+		return throwAlert("New password must be different")
+	}
+	if (!parseNewPasswords(newPassword, confirmPassword)) {
+		return
+	}
 
-    modal.show();
+	const response = await changePassword(newPassword, currentPassword);
+	let message;
+	if (response.status === "success") {
+		message = "Password changed succesfully";
+	} else {
+		message = response.message || "Failed to change password.";
+	}
+	throwAlert(message);
+}
 
-    // Generar el QR en el contenedor de la modal
-    generate2FAQrCode("qr-place", "ft_transcendence", getUsername(), secret);
+					/******* username change *******/
+/* listents the submit event on the new username form, storing the changes if they exist */
+function initUsernameChangeEvents(currentData, changedData) {
+	const usernameForm = document.getElementById("new-username-form");
+	const usernameInput = document.getElementById("new-username");
 
-    // Deshabilitar los botones de cierre por 5 segundos
-    const closeButtons = modalElement.querySelectorAll('.close-qr-modal');
-    closeButtons.forEach(button => {
-        button.disabled = true;
-    });
+	usernameForm.addEventListener("submit", (event) => {
+		event.preventDefault();
+		const newUsername = usernameInput.value;
+		if (!newUsername || newUsername === getUsername()) {
+			changedData.username = currentData.username;
+			throwAlert(!newUsername ? "Please, fill in username field" : "New username must be different");
+		} else {
+			usernameInput.classList.add('selected');
+			changedData.username = newUsername;
+		}
+		toggleChanges(currentData, changedData);
+	});
+	usernameInput.addEventListener("focus", () => {
+		usernameInput.classList.remove('selected');
+	});
+}
+/* handles username changes with backend */
+async function handleUsernameChange(newUsername, password) {
 
-    setTimeout(() => {
-        closeButtons.forEach(button => {
-            button.disabled = false;
-        });
-    }, 5000); // 5 segundos
-    refreshAccessToken();
-  }
-
-  function generate2FAQrCode(containerId, service, user, secret) {
-    if (!containerId || !service || !user || !secret) {
-        console.error("Missing parameters: containerId, service, user, or secret.");
-        return;
-    }
-
-    // Construir la URL en formato otpauth
-    const otpUrl = `otpauth://totp/${encodeURIComponent(service)}:${encodeURIComponent(user)}?secret=${secret}&issuer=${encodeURIComponent(service)}`;
-
-    // Obtener el contenedor donde se insertará el QR
-    const qrContainer = document.getElementById(containerId);
-    if (!qrContainer) {
-        console.error(`Container with ID '${containerId}' not found.`);
-        return;
-    }
-
-    qrContainer.innerHTML = ''; // Limpiar contenido previo
-
-    // Generar el código QR usando qrcode.js
-    new QRCode(qrContainer, {
-        text: otpUrl,
-        width: 300,
-        height: 300
-    });
-
-    console.log(`QR Code generated in container: #${containerId}`);
+	const response = await changeUsername(newUsername, password);
+	let message;
+	if (response.status === "success") {
+		message = "Username changed successfully";
+	} else {
+		message = response.message || "Failed to change username.";
+	}
+	throwAlert(message);
 }
 
 
-  function initSaveChangesEvents() {
-    const saveBtn = document.getElementById("confirm-save-changes")
-    saveBtn.addEventListener("click", async () => {
-      const password = document.getElementById("confirm-changes-password").value
-      if (!password) {
-        throwAlert("Password required")
-        return
-      }
-      await handleSaveChanges(password)
-    })
-  }
-  
-  
+					/******** email change *********/
+/* listents the submit event on the new email form, storing the changes if they exist */
+function initEmailChangeEvents(currentData, changedData) {
+	const emailForm = document.getElementById("new-email-form");
+    const emailInput = document.getElementById("new-email");
+
+	emailForm.addEventListener("submit", (event) => {
+	  event.preventDefault();
+	  const newEmail = emailInput.value;
+
+	  if (parseEmail(newEmail)) {
+		emailInput.classList.add('selected');
+		changedData.email = newEmail;
+	  } else {
+		changedData.email = currentData.email;
+	  }
+	  toggleChanges(currentData, changedData);
+	});
+
+	emailInput.addEventListener("focus", () => {
+	  emailInput.classList.remove('selected');
+	});
+}
+/* handles email changes with backend */
+async function handleEmailChange(newEmail, password) {
+
+    const response = await changeEmail(newEmail, password);
+	let message;
+
+	if (response.status === "success") {
+		message = "Email changed succesfully";
+	} else {
+		message = response.message || "Failed to change email.";
+	}
+	throwAlert(message);
+}
+
+					/****** delete account *********/
+/* inits the event on confirm-delete-account btn */
+function initDeleteAccountEvents() {
+    const deleteForm = document.getElementById('delete-account-form');
+    deleteForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const password = document.getElementById("delete-password").value;
+        if (!password) {
+            throwAlert("Password is required.");
+            return;
+        }
+        const deleteProfileModal = new bootstrap.Modal(document.getElementById('delete-profile-modal'));
+        deleteProfileModal.show();
+
+        const confirmDeleteBtn = document.getElementById("confirm-delete-account");
+        confirmDeleteBtn.addEventListener("click", async () => {
+            await handleDeleteAccount(password);
+            deleteProfileModal.hide(); // Hide the modal after account deletion
+        });
+    });
+}
+/* handles account delete with back */
+async function handleDeleteAccount(password) {
+
+    const response = await deleteAccount(password);
+	let message;
+
+    if (response.status === "success") {
+      message = "Account deleted successfully";
+    } else {
+      message = response.message || "Failed to delete account.";
+    }
+	throwAlert(message);
+	logout();
+}
+					/************ save changes utils ************/
+/* gets the user data before any changes made */
+function getCurrentData() {
+	return {
+		enable2FA: isTwoFAEnabled(),
+		username: getUsername(),
+		email: getEmail()
+	};
+}
+
+/* search for any changes made so enable the save changes btn */
+function toggleChanges(currentData, changedData) {
+    const saveChangesBtn = document.getElementById("save-changes-btn");
+    let changesDetected = false;
+
+    for (const key in currentData) {
+        if (currentData[key] !== changedData[key]) {
+            changesDetected = true;
+            break;
+        }
+    }
+    saveChangesBtn.disabled = !changesDetected;
+}
+
+function initSaveChangesEvents(currentData, changedData) {
+	const saveBtn = document.getElementById("confirm-save-changes");
+	saveBtn.addEventListener("click", async () => {
+		const password = document.getElementById("confirm-changes-password").value;
+		if (!password) {
+			throwAlert("Password required");
+			return;
+		}
+		await handleSaveChanges(password, currentData, changedData);
+
+		// Hide the modal after saving changes
+		const modalElement = document.getElementById('save-changes-modal');
+		const modal = bootstrap.Modal.getInstance(modalElement);
+		if (modal) {
+			modal.hide();
+		}
+	});
+}
+
+  async function handleSaveChanges(password, currentData, changedData) {
+	let changesMade = false;
+
+	if (currentData.enable2FA !== changedData.enable2FA) {
+	  console.log('changes.enable2FA: ', changedData.enable2FA);
+		await handle2FAChange(changedData.enable2FA, password);
+		changesMade = true;
+	}
+	if (currentData.username !== changedData.username) {
+		await handleUsernameChange(changedData.username, password);
+		changesMade = true;
+	}
+	if (currentData.email !== changedData.email) {
+		await handleEmailChange(changedData.email, password);
+		changesMade = true;
+	}
+	if (changesMade) {
+		refreshAccessToken();
+	}
+}	
+
+					/****** blocked users **********/
