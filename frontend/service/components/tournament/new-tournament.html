@@ -1,14 +1,12 @@
 <div class="blinking-neon-frame">
 	<div class="card ctm-card p-5 ctm-text-light">
-		<button id="cancel-login" class="btn cancel-btn position-absolute top-0 end-0 m-2">x</button>
+		<!-- <button id="" class="btn cancel-btn position-absolute top-0 end-0 m-2">x</button> -->
 		<h2 class="text-center ctm-text-title">New Tournament</h2>
 		<form id="tournament-form">
 			<div class="mb-3">
 				<label for="tournament-name-input" class="form-label">Tournament's name</label>
 				<input type="text" class="form-control ctm-form" id="tournament-name-input" name="tournament-name" placeholder="Where the hell have you been loca" required>
 			</div>
-		</form>
-		<form id="tournament-form">
 			<div class="mb-3 d-flex flex-column align-items-center">
 				<label for="tournament-participants" class="form-label ctm-text-title">Participants</label>
 				<div class="switch w-100">
@@ -16,15 +14,15 @@
 					<button class="switch-btn switch-btn-right w-50 mx-1" data-participants="8">8</button>
 				</div>
 			</div>
+			<section id="tournament-friends-list" class="collapsible">
+				<div class="d-flex flex-column text-center">
+					<div id="friends-container" class="mb-3 friends-container w-100"></div>
+					<button type="submit" id="start-tournament-btn" class="btn ctm-btn mb-3 w-100" disabled>
+						Start tournament
+					</button>
+				</div>
+			</section>
 		</form>
-		<section id="tournament-friends-list" class="collapsible">
-			<div class="d-flex flex-column text-center">
-				<div id="friends-container" class="mb-3 friends-container w-100"></div>
-				<button id="start-tournament-btn" class="btn ctm-btn mb-3 w-100" disabled>
-					Start tournament
-				</button>
-			</div>
-		</section>
 	</div>
 </div>
 </div>    
