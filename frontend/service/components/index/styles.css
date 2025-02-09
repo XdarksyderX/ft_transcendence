@@ -105,8 +105,6 @@
     margin-bottom: 3rem;
     border-radius: 15px;
     width: 100%;
-    --transparent-dark: #190a23c4;
-    --transparent-medium: #5c39731f;
   }
   
   .resume-card--right {
