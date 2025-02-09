@@ -121,6 +121,7 @@ export async function refreshAccessToken() {
  * Activa o desactiva 2FA.
  */
 export async function toggleTwoFA(enable, password, otpCode = null) {
+    console.log("on toggleTwoFA, enable, password, otpCode: ", enable, password, otpCode);
     return await sendRequest('POST', `${enable ? 'activate-2fa' : 'deactivate-2fa'}/`, { password, two_fa_code: otpCode });
 }
 
