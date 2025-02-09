@@ -12,19 +12,20 @@ let context;
 let xMargin; // Margin from paddle to side of board
 let playerWidth;
 
-// Variables provided by user (initialized to standard values)
+// Variables provided by user (initialized to standard values) (in future game customization)
 let playAI = true;
-let msAIcalcRefresh = 1000;
 
-let startSpeed = 7.5;
-let speedUpMultiple = 1.02;
-let playerHeight = 50;
-let playerSpeed = 5;
+// comment: low, high (middle is the value already initialized)
+let msAIcalcRefresh = 1000; // 1200 : 750 : 100
+let startSpeed = 7.5; // 6 : 10
+let speedUpMultiple = 1.02; // 1 : 1.05
+let playerHeight = 50; // 30 : 70
+let playerSpeed = 5; // 3 : 7
 let allowPowerUp = true;
-let boardWidth = 700;
-let boardHeight = 500;
-let pointsToWin = 3;
-let ballSide = 10;
+let boardWidth = 700; // 500 : 900
+let boardHeight = 500; // 400 : 700
+let pointsToWin = 3; // 1 : 3 : 5 : 10
+let ballSide = 10; // 8 : 10 : 13
 
 let     yMax = boardHeight - playerHeight;   
 const   serveSpeedMultiple = 0.3;
