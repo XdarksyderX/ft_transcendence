@@ -42,21 +42,17 @@ export function initializePongEvents() {
     console.log("Pong AI game initialized!");
 
     // Ensure the DOM is fully loaded before starting
-    if (document.readyState === "loading") {
+    if (document.readyState === "loading")
         document.addEventListener("DOMContentLoaded", () => startGame());
-    } else {
+    else
         startGame();
-    }
 }
 
-function startGame() {
+function startGame()
+{
     console.log("Starting Pong AI Game...");
     
     board = document.getElementById("board");
-    if (!board) {
-        console.error("Canvas element #board not found!");
-        return;
-    }
 
     board.width = boardWidth;
     board.height = boardHeight;
@@ -85,6 +81,9 @@ function start()
     requestAnimationFrame(update);
     document.addEventListener("keydown", keyDownHandler);
     document.addEventListener("keyup", keyUpHandler);
+	
+	// Stop the game when the back/forward button is clicked
+	window.addEventListener("popstate", () => {stop()});
 }
 
 function initGame()
@@ -264,7 +263,6 @@ function endMatch(playerScore, AIscore) // Adapted for AI pong
 
 function stop() 
 {
-
 	if (id)
 		cancelAnimationFrame(id);
     if (aiIntervalId) 
