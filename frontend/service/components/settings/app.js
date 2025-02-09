@@ -37,22 +37,26 @@ function toggle2FASwitch(event, currentData, changedData) {
 	const statusElement = document.getElementById("2fa-status");
 	const currentStatus = currentData.enable2FA;
 	const isChecked = event ? event.target.checked : currentStatus;
-
+//	console.log("current 2fa status is: ", currentStatus);
 	document.getElementById("2fa-toggle").checked = isChecked;
 	statusElement.innerText = isChecked ? "Disable 2FA" : "Enable 2FA"
 	changedData.enable2FA = isChecked;
 	toggleChanges(currentData, changedData);
+	// console.log("on toggle: ", changedData.enable2FA );
+	// if (event) {
+	// 	console.log("event target: ", event.target.checked)
+	// }
 }
 /* handles the 2FA change with backend */
- async function handle2FAChange(enable, password) {
-	const data = await toggleTwoFA(enable, password)
-	if (data) {
-	  throwAlert(`2FA ${enable ? "activated" : "deactivated"} successfully`)
-	  handle2FAmodal(enable, data.secret);
-	  toggle2FASwitch()
+ async function handle2FAChange(currentData, changedData, password, otp) {
+	const enable = changedData.enable2FA;
+	const response = await toggleTwoFA(enable, password, otp);
+	if (response.status === "success") {
+		handle2FAmodal(enable, response.secret);
 	} else {
-	  throwAlert("Failed to update 2FA")
+		throwAlert(`Failed to ${enable ? "enable" : "disable"} 2FA`);
 	}
+	toggle2FASwitch(null, currentData, changedData);
 }
 
 					/******* password change *******/
@@ -221,31 +225,56 @@ function toggleChanges(currentData, changedData) {
     saveChangesBtn.disabled = !changesDetected;
 }
 
+function showSaveChangesModal(currentData, changedData) {
+	const modalElement = document.getElementById('save-changes-modal');
+	const modal = new bootstrap.Modal(modalElement);
+	const otpForm = document.getElementById('otp-form');
+	const otpRequired = currentData.enable2FA && !changedData.enable2FA;
+
+	if (otpRequired) {
+		otpForm.style.display = 'block';
+	} else {
+		otpForm.style.display = 'none';
+	}
+	modal.show();
+	console.log(currentData.enable2FA, changedData.enable2FA, "otp required:", otpRequired);
+}
+
 function initSaveChangesEvents(currentData, changedData) {
-	const saveBtn = document.getElementById("confirm-save-changes");
-	saveBtn.addEventListener("click", async () => {
+	const saveBtn = document.getElementById("save-changes-btn");
+	
+	saveBtn.addEventListener("click", () => showSaveChangesModal(currentData, changedData));
+	
+	const confirmSaveBtn = document.getElementById('confirm-save-changes');
+	confirmSaveBtn.addEventListener('click', async () => {
+		
 		const password = document.getElementById("confirm-changes-password").value;
 		if (!password) {
 			throwAlert("Password required");
 			return;
 		}
-		await handleSaveChanges(password, currentData, changedData);
-
-		// Hide the modal after saving changes
-		const modalElement = document.getElementById('save-changes-modal');
-		const modal = bootstrap.Modal.getInstance(modalElement);
+		const otpRequired = currentData.enable2FA && !changedData.enable2FA;
+		const otp = document.getElementById('otp-input').value;
+		if (otpRequired && !otp) {
+			throwAlert("OTP required");
+			return;
+		}
+		await handleSaveChanges(password, currentData, changedData, otp);
+		//Hide the modal after saving changes
+		const modal = bootstrap.Modal.getInstance(document.getElementById('save-changes-modal'));
 		if (modal) {
 			modal.hide();
 		}
-	});
+	})
+	
 }
 
-  async function handleSaveChanges(password, currentData, changedData) {
+  async function handleSaveChanges(password, currentData, changedData, otp) {
 	let changesMade = false;
 
 	if (currentData.enable2FA !== changedData.enable2FA) {
 	  console.log('changes.enable2FA: ', changedData.enable2FA);
-		await handle2FAChange(changedData.enable2FA, password);
+		await handle2FAChange(currentData, changedData, password, otp);
 		changesMade = true;
 	}
 	if (currentData.username !== changedData.username) {
@@ -258,6 +287,8 @@ function initSaveChangesEvents(currentData, changedData) {
 	}
 	if (changesMade) {
 		refreshAccessToken();
+	//	currentData = getCurrentData();
+	//	changedData = {...currentData};
 	}
 }	
 

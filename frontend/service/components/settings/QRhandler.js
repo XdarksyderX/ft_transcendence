@@ -11,7 +11,7 @@ export function handle2FAmodal(status, secret = null) {
     console.log('status: ', status);
     
     if (!status) {
-        throwAlert(`2FA is now disabled`);
+        throwAlert(`2FA disabled succesfully`);
         return;
     }
 
