@@ -38,6 +38,11 @@ let keyState = {};
 let AImargin;
 let predictedY;
 
+const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--lorange').trim();
+const lightColor = getComputedStyle(document.documentElement).getPropertyValue('--light').trim();
+const dangerColor = getComputedStyle(document.documentElement).getPropertyValue('--danger').trim();
+
+
 export function initializePongEvents() {
     console.log("Pong AI game initialized!");
 
@@ -157,7 +162,7 @@ function initGame()
     context = board.getContext("2d");
 
     // draw players
-    context.fillStyle = "turquoise";
+    context.fillStyle = lightColor;
     context.fillRect(Lplayer.x, Lplayer.y, Lplayer.width, Lplayer.height);
     context.fillRect(Rplayer.x, Rplayer.y, Rplayer.width, Rplayer.height);
 }
@@ -166,7 +171,7 @@ function update()
 {
     id = requestAnimationFrame(update);
     context.clearRect(0, 0, board.width, board.height);
-    context.fillStyle = "turquoise";
+    context.fillStyle = lightColor;
     
     Lplayer.y += Lplayer.speed;
     Rplayer.y += Rplayer.speed;
@@ -179,9 +184,9 @@ function update()
 
     // ball
     if (keyState.powerUpInUse)
-        context.fillStyle = "red";
+        context.fillStyle = dangerColor;
     else
-        context.fillStyle = "white";
+        context.fillStyle = accentColor;
 
     if (ball.serve && !keyState.powerUpInUse)
     {
@@ -225,8 +230,8 @@ function update()
     for (let i = 10; i < board.height; i+=25)
         context.fillRect(board.width/2 - 10, i, 5, 5);
 
-    context.fillStyle = "white";
-    context.font = "45px sans-serif";
+    context.fillStyle = lightColor; // score
+    context.font = "45px 'ROG LyonsType Regular'";
     context.fillText(Lplayer.score, board.width/5, 45);
     context.fillText(Rplayer.score, board.width/5 * 4 -45, 45);
 
@@ -251,8 +256,8 @@ function endMatch(playerScore, AIscore) // Adapted for AI pong
 		message = "You lost :("
 
     // Display the message on the board
-    context.fillStyle = "white";
-    context.font = "50px Arial";
+    context.fillStyle = accentColor;
+    context.font = "45px 'ROG LyonsType Regular'";
     context.textAlign = "center";
     context.fillText(message, board.width / 2, board.height / 2);
 
