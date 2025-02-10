@@ -5,6 +5,7 @@ import { parseNewPasswords } from '../signup/signup.js';
 import { parseEmail } from '../signup/signup.js';
 import { handle2FAmodal } from './QRhandler.js';
 import { logout } from '../../app/auth.js';
+import {getBlockedUsers} from '../../app/social.js'
 
 
 export function initializeSettingsEvents() {
@@ -21,6 +22,8 @@ export function initializeSettingsEvents() {
 	initDeleteAccountEvents();
 	//save settings
 	initSaveChangesEvents(changedData);
+	// render blocked users
+	renderBlockedUsers();
 }
 
 						/********* 2FA change **********/
@@ -34,16 +37,11 @@ function toggle2FASwitch(event, changedData) {
 	const statusElement = document.getElementById("2fa-status");
 	const currentStatus = isTwoFAEnabled();
 	const isChecked = event ? event.target.checked : currentStatus;
-//	console.log("current 2fa status is: ", currentStatus);
 	document.getElementById("2fa-toggle").checked = isChecked;
 	statusElement.innerText = isChecked ? "Disable 2FA" : "Enable 2FA"
 	changedData.enable2FA = isChecked;
-	//changes.enable2FA = isChecked;
 	toggleChanges(changedData);
-	// console.log("on toggle: ", changedData.enable2FA );
-	// if (event) {
-	// 	console.log("event target: ", event.target.checked)
-	// }
+
 }
 /* handles the 2FA change with backend */
  async function handle2FAChange(changedData, password, otp) {
@@ -259,12 +257,10 @@ function initSaveChangesEvents(changedData) {
 			return;
 		}
 		const modal = bootstrap.Modal.getInstance(document.getElementById('save-changes-modal'));
-		if (modal) {
-		//	console.log("escondiendo modal????");
+		if (modal) { //Hide the modal after saving changes
 			modal.hide();
 		}
 		await handleSaveChanges(password, changedData, otp);
-		//Hide the modal after saving changes
 	})
 	
 }
@@ -300,8 +296,50 @@ async function handleSaveChanges(password, changedData, otp) {
     if (changesMade) {
         await refreshAccessToken();
 		cleanAfterChanges(changedData);
-        //initializeSettingsEvents();
-    //	currentData = getCurrentData();
-    //	changedData = {...currentData};
     }
 }	
+
+					/******** blocked users* *******/
+
+
+async function handleGetBlockedUsers() {
+	const response = await getBlockedUsers();
+	if (response.status === "success") {
+		return (response.data);
+	} else {
+		throwAlert(response.message || "An error ocurred while getting blocked users data");
+		return (null);
+	}
+}
+
+async function renderBlockedUsers() {
+	const list = document.getElementById('blocked-users-list');
+	try {
+		const blockedUsers = await handleGetBlockedUsers(); // Asegúrate de esperar la resolución
+		if (!blockedUsers) {
+			return;
+		}
+		blockedUsers.forEach(user => {
+			const card = createBlockedUserCard(user); // Asume que esta función crea un elemento DOM para el usuario
+			list.appendChild(card);
+		});
+	} catch (error) {
+		console.error("Error al renderizar usuarios bloqueados:", error);
+	}
+}
+
+function createBlockedUserCard(user) {
+    const card = document.createElement('div');
+    card.className = "friend-btn d-flex flex-column flex-md-row justify-content-between align-items-center";
+    card.setAttribute('data-blocked-user-id', user.id);
+    card.innerHTML = `
+    <div class="d-flex align-items-center mb-2 mb-md-0">
+        <img src="${user.avatar}" alt="${user.username}" class="friend-picture">
+            <p class="mb-0 ms-2">${user.username}</p>
+    </div>
+        <button class="btn ctm-btn-danger">
+            <i class="fas fa-user-minus"></i> Unblock
+        </button>
+    `;
+    return card;
+}
