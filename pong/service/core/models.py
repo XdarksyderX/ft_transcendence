@@ -67,15 +67,32 @@ class PongGame(models.Model):
     max_speed = models.IntegerField(default=20)
     points_to_win = models.IntegerField(default=3)
 
-    # Computed game constants (calculated dynamically in `save()`)
-    x_margin = models.FloatField(default=0)  # Margin from board to player1 paddle
-    player_width = models.FloatField(default=0)  # Paddle width (scaled)
-    p2_xpos = models.FloatField(default=0)  # Player 2 x-position
-    p_y_mid = models.FloatField(default=0)  # Center y-position for paddles
-    b_x_mid = models.FloatField(default=0)  # Center x-position for ball
-    b_y_mid = models.FloatField(default=0)  # Center y-position for ball
+    # Computed game constants (dynamic)
+    @property
+    def x_margin(self):
+        return self.ball_side * 1.2  # Margin from board to player1 paddle
 
-    # Default player positions (set dynamically)
+    @property
+    def player_width(self):
+        return self.ball_side * 1.2  # Paddle width (scaled)
+
+    @property
+    def p2_xpos(self):
+        return self.board_width - self.x_margin - self.player_width  # Player 2 x-position
+
+    @property
+    def p_y_mid(self):
+        return (self.board_height / 2) - (self.player_height / 2)  # Center y-position for paddles
+
+    @property
+    def b_x_mid(self):
+        return (self.board_width / 2) - (self.ball_side / 2)  # Center x-position for ball
+
+    @property
+    def b_y_mid(self):
+        return (self.board_height / 2) - (self.ball_side / 2)  # Center y-position for ball
+
+    # Default player positions (dynamically assigned)
     player_positions = models.JSONField(default=dict)
     ball_position = models.JSONField(default=dict)  # Ball position, dynamically initialized
 
@@ -86,10 +103,10 @@ class PongGame(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def initialize_ball(self):
+    def initialize_ball(self, direction=None):
         """Initialize ball position with a randomized velocity for fairness."""
         angle = random.uniform(-45, 45)  # Random angle
-        direction = random.choice([-1, 1])  # Random left or right
+        direction = direction if direction is not None else random.choice([-1, 1])  
         return {
             "x": self.b_x_mid,
             "y": self.b_y_mid,
@@ -99,25 +116,14 @@ class PongGame(models.Model):
 
     def save(self, *args, **kwargs):
         """Ensure all game parameters are correctly computed before saving."""
-        
-        # Compute derived values before saving
-        self.x_margin = self.ball_side * 1.2  # Margin from the board to player1's paddle
-        self.player_width = self.ball_side * 1.2  # Paddle width (scaled)
-        self.p2_xpos = self.board_width - self.x_margin - self.player_width  # Player 2 x-position
-        self.p_y_mid = (self.board_height / 2) - (self.player_height / 2)  # Center y-position for paddles
-        self.b_x_mid = (self.board_width / 2) - (self.ball_side / 2)  # Center x-position for ball
-        self.b_y_mid = (self.board_height / 2) - (self.ball_side / 2)  # Center y-position for ball
+        # Ensure player positions are initialized
+        self.player_positions = {
+            "player1": {"x": self.x_margin, "y": self.p_y_mid},
+            "player2": {"x": self.p2_xpos, "y": self.p_y_mid}
+        }
 
-        # Initialize ball position if not set
-        if not self.ball_position:
-            self.ball_position = self.initialize_ball()
-
-        # Initialize player positions if not set
-        if not self.player_positions:
-            self.player_positions = {
-                "player1": {"x": self.x_margin, "y": self.p_y_mid},
-                "player2": {"x": self.p2_xpos, "y": self.p_y_mid}
-            }
+        # Ensure ball position is initialized
+        self.ball_position = self.initialize_ball()
 
         super().save(*args, **kwargs)
 
@@ -128,19 +134,27 @@ class PongGame(models.Model):
     def update_position(self, player, position):
         """Updates a player's position and saves it to the database."""
         if player not in ["player1", "player2"]:
-            return  # Ignore invalid players
-        
-        # Preserve X position if not explicitly updated
-        self.player_positions[player]["y"] = position["y"]
-        self.player_positions[player]["x"] = position.get("x", self.player_positions[player]["x"])
+            return  
+
+        # Modify player position
+        updated_positions = self.player_positions.copy()
+        updated_positions[player]["y"] = position["y"]
+        updated_positions[player]["x"] = position.get("x", updated_positions[player]["x"])
+
+        # Force Django to recognize update
+        self.player_positions = updated_positions  
         self.save()
 
     def update_ball_position(self, position):
-        """Updates the ball position in the database while preserving velocity changes."""
-        self.ball_position["x"] = position.get("x", self.ball_position["x"])
-        self.ball_position["y"] = position.get("y", self.ball_position["y"])
-        self.ball_position["xVel"] = position.get("xVel", self.ball_position["xVel"])
-        self.ball_position["yVel"] = position.get("yVel", self.ball_position["yVel"])
+        """Updates the ball position while preserving velocity changes."""
+        updated_ball = self.ball_position.copy()
+        updated_ball["x"] = position.get("x", updated_ball["x"])
+        updated_ball["y"] = position.get("y", updated_ball["y"])
+        updated_ball["xVel"] = position.get("xVel", updated_ball["xVel"])
+        updated_ball["yVel"] = position.get("yVel", updated_ball["yVel"])
+
+        # Force Django to recognize update
+        self.ball_position = updated_ball  
         self.save()
 
     def __str__(self):

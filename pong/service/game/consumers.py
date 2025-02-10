@@ -25,8 +25,8 @@ class GameConsumer(AsyncWebsocketConsumer):
     async def disconnect(self, close_code):
         """Handles disconnection of a player."""
         if self.game and self.game.status == "in_progress":
-            self.game.status = 'finished'  # Mark game as finished only if necessary
-            await sync_to_async(self.game.save)()  # Persist changes
+            self.game.status = 'finished'  # Mark game as finished
+            await sync_to_async(self.game.save)()
 
         # Leave WebSocket group
         await self.channel_layer.group_discard(
@@ -42,6 +42,7 @@ class GameConsumer(AsyncWebsocketConsumer):
         "game_key": "valid_key_here"
     }
     """
+
     async def receive(self, text_data):
         """Handles incoming WebSocket messages from clients."""
         try:
@@ -65,8 +66,11 @@ class GameConsumer(AsyncWebsocketConsumer):
                 await self.register_player(player_name)
             elif action == 'move':
                 if not direction:
-                    raise ValueError("Direction is required for movement")
+                    await self.send(json.dumps({"error": "Direction is required for movement"}))
+                    return
                 await self.update_player_movement(player_name, direction)
+            else:
+                await self.send(json.dumps({"error": f"Unknown action: {action}"}))  # Handle invalid actions
 
             # Update ball position & broadcast updated game state
             await self.calculate_ball_position()
@@ -84,6 +88,10 @@ class GameConsumer(AsyncWebsocketConsumer):
             game_key=uuid.UUID(game_key),  # Uses game_key to persist the game
             defaults={"status": "in_progress"}
         )
+        
+        # Ensure computed attributes are initialized
+        game.save()  # Triggers the `save()` method in models.py to compute missing fields
+        
         return game
 
     @sync_to_async
@@ -115,10 +123,16 @@ class GameConsumer(AsyncWebsocketConsumer):
         elif player_name == self.game.player2.username:
             player_key = "player2"
         else:
-            return
+            return  # Ignore invalid players
 
         player_positions = self.game.player_positions
-        current_y = self.game.player_positions[player_key]["y"]
+        if player_key not in player_positions:
+            player_positions[player_key] = {
+                "x": self.game.x_margin if player_key == "player1" else self.game.p2_xpos,
+                "y": self.game.p_y_mid
+            }
+
+        current_y = player_positions[player_key]["y"]
 
         # Update position based on direction
         if direction == "UP":
@@ -134,11 +148,10 @@ class GameConsumer(AsyncWebsocketConsumer):
         self.game.save()
 
     async def calculate_ball_position(self):
-        """Updates ball movement based on game logic and returns new ball position."""
-        game_logic = Game(self.game)  # Instantiate game logic with the current game
-        game_logic.update_ball_position()  # Move ball according to game logic
-        self.game.ball_position = await sync_to_async(lambda: game_logic.ball)()
-        await sync_to_async(self.game.save)()
+        """Updates ball movement based on game logic and saves the updated state."""
+        game_logic = Game(self.game)  
+        game_logic.update_ball_position()  
+        await sync_to_async(self.game.save)()  # Save updated ball state
 
     async def broadcast_game_state(self):
         """Updates ball position and broadcasts game state."""
@@ -168,13 +181,26 @@ class GameConsumer(AsyncWebsocketConsumer):
         "status": "in_progress" // other possible statuses: pending(waiting for players to join), finished
     }
     """
+
     @sync_to_async
     def get_game_state(self):
         """Returns the current game state from the database."""
         return {
             "players": {
-                "player1": {**self.game.player_positions.get("player1", {"x": self.game.x_margin, "y": self.game.p_y_mid}), "score": self.game.player1_score}, 
-                "player2": {**self.game.player_positions.get("player2", {"x": self.game.p2_xpos, "y": self.game.p_y_mid}), "score": self.game.player2_score} #in future configurable
+                "player1": {
+                    **self.game.player_positions.get(
+                        "player1",
+                        {"x": self.game.x_margin, "y": self.game.p_y_mid}
+                    ),
+                    "score": self.game.player1_score
+                }, 
+                "player2": {
+                    **self.game.player_positions.get(
+                        "player2",
+                        {"x": self.game.p2_xpos, "y": self.game.p_y_mid}
+                    ),
+                    "score": self.game.player2_score
+                }
             },
             "ball": self.game.ball_position,
             "status": self.game.status

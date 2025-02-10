@@ -6,7 +6,8 @@ class Game:
     def __init__(self, game_instance: PongGame):
         """Initialize the game using an existing PongGame instance."""
         self.game = game_instance
-        # load stored game attributes
+
+        # Load stored game attributes
         self.board_width = game_instance.board_width
         self.board_height = game_instance.board_height
         self.player_height = game_instance.player_height
@@ -23,33 +24,36 @@ class Game:
         self.b_x_mid = game_instance.b_x_mid
         self.b_y_mid = game_instance.b_y_mid
 
-        # Ensure database has correct defaults for players
-        self.game.player_positions.setdefault("player1", {"x": self.x_margin, "y": self.p_y_mid}) #initialize at the middle of the board
+        # Ensure database has correct defaults for players, probably redundant
+        if self.game.player_positions is None:
+            self.game.player_positions = {}
+
+        self.game.player_positions.setdefault("player1", {"x": self.x_margin, "y": self.p_y_mid})  # Initialize at the middle of the board
         self.game.player_positions.setdefault("player2", {"x": self.p2_xpos, "y": self.p_y_mid}) 
 
         # Load ball position or reset if missing
-        self.ball = self.game.ball_position or self._reset_ball(0) # param is the who scored, 0 means no one scored (game start)
+        self.ball = self.game.ball_position or self._reset_ball(0)  # param is the who scored, 0 means no one scored (game start)
         self.winner = None
 
     def _reset_ball(self, scored):
         """Reset the ball to the center of the board with a random initial velocity."""
-        angle = math.radians(random.uniform(-45, 45))  # Randomized initial angle max 45 degress
+        angle = math.radians(random.uniform(-45, 45))  # Randomized initial angle max 45 degrees
         if scored == 1:
-            direction = 1 #right
+            direction = 1  # Ball moves right
         elif scored == 2:
-            direction = -1 #left
+            direction = -1  # Ball moves left
         else:
             direction = random.choice([-1, 1])  # Randomly left (-1) or right (1)
-        ball_state = {
+
+        # Store the ball state but persist later
+        self.ball = {
             "x": self.b_x_mid,
             "y": self.b_y_mid,
             "xVel": self.start_speed * math.cos(angle) * direction,
             "yVel": self.start_speed * math.sin(angle),
             "speed": self.start_speed
         }
-        self.game.update_ball_position(ball_state) # Persist new ball state
-        self.game.save()
-        return ball_state
+        return self.ball  
 
     def update_player_movement(self, player, direction):
         """Updates player movement & persists it in the database."""
@@ -60,7 +64,7 @@ class Game:
 
         # Update position based on direction
         if direction == "UP":
-            new_y = max(0, current_y - self.player_speed) # returns max value between 0 & the calculated new_y
+            new_y = max(0, current_y - self.player_speed) # Returns max value between 0 & the calculated new_y
         elif direction == "DOWN":
             new_y = min(self.board_height - self.player_height, current_y + self.player_speed)
         else:  # STOP case
@@ -70,7 +74,6 @@ class Game:
         current_x = self.game.player_positions[player].get("x", self.x_margin if player == "player1" else self.p2_xpos)
 
         # Persist movement update to the database
-        self.game.player_positions[player]["y"] = new_y
         self.game.update_position(player, {"x": current_x, "y": new_y})
         self.game.save()
 
@@ -110,15 +113,14 @@ class Game:
 
         paddle_x = paddle["x"]
         paddle_y = paddle["y"]
-
-        ball = self.ball  # Get ball position
+        ball = self.ball  
 
         # Check if the ball is colliding with the paddle
-        if ((ball["x"] < paddle_x + self.player_width) and  # Ball doesn't pass right side
+        if ((ball["x"] < paddle_x + self.player_width) and   # Ball doesn't pass right side
             (ball["x"] + self.ball_side > paddle_x) and      # Ball passes left side
             (ball["y"] < paddle_y + self.player_height) and  # Ball doesn't pass bottom
             (ball["y"] + self.ball_side > paddle_y)):        # Ball passes top
-            
+
             # Calculate relative collision position
             collision_point = ball["y"] - paddle_y - self.player_height / 2 + self.ball_side / 2
             
