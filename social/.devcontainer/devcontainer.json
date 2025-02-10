@@ -1,13 +1,27 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/python
 {
-	"name": "Social Dev Container con Auth y RabbitMQ",
-	"dockerComposeFile": [
-	  "docker-compose.yaml"
-	],
-	"service": "social",
-	"workspaceFolder": "/workspace",
-	"shutdownAction": "stopCompose",
-	"remoteUser": "root",
-	"forwardPorts": [5000, 5050, 5672, 15672],
-	"postCreateCommand": "python3 -m venv service/.venv && . service/.venv/bin/activate && pip3 install -r service/requirements.txt && bash entrypoint.sh"
-  }
-  
+    "name": "Python 3",
+    // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+    "image": "mcr.microsoft.com/devcontainers/python:1-3.11-bookworm",
+    "features": {
+        "ghcr.io/itsmechlark/features/postgresql:1": {}
+    },
+    // Features to add to the dev container. More info: https://containers.dev/features.
+    // "features": {},
+    // Use 'forwardPorts' to make a list of ports inside the container available locally.
+    "forwardPorts": [
+        5051
+    ],
+    "runArgs": [
+        "--env-file", "service/.env",
+        "--env-file", "../.env",
+        "--network=dev_network"
+    ],
+    // Use 'postCreateCommand' to run commands after the container is created.
+    "postCreateCommand": "pip3 install --user -r service/requirements.txt && bash entrypoint.sh",
+    // Configure tool-specific properties.
+    // "customizations": {},
+    // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+    "remoteUser": "root"
+}
