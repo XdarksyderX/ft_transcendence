@@ -79,6 +79,21 @@
                     <input type="checkbox" id="allowFreezeFlip" />
                 </div>
             </div>
+            <div class="row py-3">
+                <div class="col-sm text-start">
+                    <label for="AIopponent">Play against AI:</label>
+                    <input type="checkbox" id="AIopponent" />
+                </div>
+                <div class="col-sm text-start">
+                    <label for="AIdifficulty">AI Difficulty:</label>
+                    <select id="AIdifficulty">
+                        <option value="easy">Easy</option>
+                        <option value="normal" selected>Normal</option>
+                        <option value="hard">Hard</option>
+                        <option value="impossible">Impossible</option>
+                    </select>
+                </div>
+            </div>
         </div>
     </form>
     <button id="startGameButton">Start Game</button>

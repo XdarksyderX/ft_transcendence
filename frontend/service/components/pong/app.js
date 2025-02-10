@@ -1,5 +1,3 @@
-import { throwAlert } from "../../app/render.js";
-
 //frame id
 let id;
 let aiIntervalId;
@@ -11,25 +9,11 @@ let context;
 // Change both if the ball is wider
 let xMargin; // Margin from paddle to side of board
 let playerWidth;
+let yMax;
 
-// Variables provided by user (initialized to standard values) (in future game customization)
-let playAI = true;
-
-// Game settings object
-let gameConfig = {
-    playerHeight: 50,
-    startSpeed: 7.5,
-    playerSpeed: 5,
-    speedUpMultiple: 1.02,
-    pointsToWin: 3,
-    ballSide: 10,
-    boardWidth: 700,
-    boardHeight: 500,
-    allowPowerUp: false
-};
-
-
-// comment: low, high (middle is the value already initialized)
+// Variables provided by user (initialized to standard values)
+let playAI = false;
+// comment: low, high (middle is the value already initialized) 
 let msAIcalcRefresh = 1000; // 1200 : 750 : 100
 let startSpeed = 7.5; // 6 : 10
 let speedUpMultiple = 1.02; // 1 : 1.05
@@ -40,8 +24,7 @@ let boardWidth = 700; // 500 : 900
 let boardHeight = 500; // 400 : 700
 let pointsToWin = 3; // 1 : 3 : 5 : 10
 let ballSide = 10; // 8 : 10 : 13
-
-let     yMax = boardHeight - playerHeight;   
+ 
 const   serveSpeedMultiple = 0.3;
 
 // To set in the global scope
@@ -58,21 +41,39 @@ const lightColor = getComputedStyle(document.documentElement).getPropertyValue('
 const dangerColor = getComputedStyle(document.documentElement).getPropertyValue('--danger').trim();
 
 
-export function initializePongEvents() {
+export function initializePongEvents()
+{
     console.log("Pong AI game initialized!");
 
     // Show customization menu
     document.getElementById("dCustomizationOptions").hidden = false;
     document.getElementById("board").hidden = true; // Hide board until game starts
 
+	let gameConfig = 
+	{
+    	playerHeight: 50,
+    	startSpeed: 7.5,
+    	playerSpeed: 5,
+    	speedUpMultiple: 1.02,
+    	pointsToWin: 3,
+    	ballSide: 10,
+    	boardWidth: 700,
+    	boardHeight: 500,
+    	allowPowerUp: false,
+		playAI: false,
+		msAIcalcRefresh: 1000
+	};
+
     // Add event listener to start game when button is clicked
-    document.getElementById("startGameButton").addEventListener("click", () => {
-        applySettings();
+    document.getElementById("startGameButton").addEventListener("click", () => 
+	{
+        applySettings(gameConfig);
         startGame(gameConfig);
     });
 }
 
-function applySettings() {
+function applySettings(gameConfig)
+{
     gameConfig.playerHeight = parseFloat(document.getElementById("playerSize").value);
     gameConfig.startSpeed = parseFloat(document.getElementById("ballSpeed").value);
     gameConfig.playerSpeed = parseFloat(document.getElementById("playerSpeed").value);
@@ -80,9 +81,11 @@ function applySettings() {
     gameConfig.pointsToWin = parseInt(document.getElementById("pointsToWin").value);
     gameConfig.ballSide = parseFloat(document.getElementById("ballSize").value);
     gameConfig.allowPowerUp = document.getElementById("allowFreezeFlip").checked;
+	gameConfig.playAI = document.getElementById("AIopponent").checked;
 
     let boardSize = document.getElementById("boardSize").value;
-    switch (boardSize) {
+    switch (boardSize)
+	{
         case "small":
             gameConfig.boardWidth = 500;
             gameConfig.boardHeight = 400;
@@ -100,6 +103,26 @@ function applySettings() {
             gameConfig.boardHeight = 500;
             break;
     }
+
+	let AIdifficulty = document.getElementById("AIdifficulty").value;
+	switch (AIdifficulty)
+	{
+		case "easy":
+			gameConfig.msAIcalcRefresh = 1200;
+			break;
+		case "normal":
+			gameConfig.msAIcalcRefresh = 1000;
+			break;
+		case "hard":
+			gameConfig.msAIcalcRefresh = 750;	
+			break;
+		case "impossible":
+			gameConfig.msAIcalcRefresh = 100;
+			break;
+		default:
+			gameConfig.msAIcalcRefresh = 1000;
+			break;
+	}
 }
 
 function startGame(gameConfig)
@@ -111,7 +134,7 @@ function startGame(gameConfig)
     start(gameConfig); // Now, start the game after initializing the board
 }
 
-function start()
+function start(gameConfig)
 {
     initGame(gameConfig); // To restart all values that are changed in previous games & apply settings changes
 
@@ -136,7 +159,7 @@ function start()
 	window.addEventListener("popstate", () => {stop()});
 }
 
-function initGame()
+function initGame(gameConfig)
 {
 	playerHeight = gameConfig.playerHeight;
     startSpeed = gameConfig.startSpeed;
@@ -147,6 +170,8 @@ function initGame()
     boardWidth = gameConfig.boardWidth;
     boardHeight = gameConfig.boardHeight;
     allowPowerUp = gameConfig.allowPowerUp;
+	playAI = gameConfig.playAI;
+	msAIcalcRefresh = gameConfig.msAIcalcRefresh;
 
     // Set up game elements
     board = document.getElementById("board");
