@@ -5,7 +5,6 @@ User = get_user_model()
 
 @shared_task(name="auth.user_registered")
 def handle_user_registered(event):
-    print(event)
     event_data = event["data"]["attributes"]
     user, created = User.objects.get_or_create(id=event_data["id"], defaults={"username": event_data["username"]})
     return f"User {event_data['username']} {'created' if created else 'already exists'} in social service."

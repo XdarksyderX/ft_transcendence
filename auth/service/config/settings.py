@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 import os
 from pathlib import Path
-
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,9 +20,23 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
-JWT_SECRET = os.getenv('JWT_SECRET')
+with open(os.path.join(BASE_DIR, 'config/keys/private.pem'), 'r') as f:
+    PRIVATE_KEY = f.read()
+
+with open(os.path.join(BASE_DIR, 'config/keys/public.pem'), 'r') as f:
+    PUBLIC_KEY = f.read()
+
+SIMPLE_JWT = {
+    "ALGORITHM": "RS256",
+    "SIGNING_KEY": PRIVATE_KEY,
+    "VERIFYING_KEY": PUBLIC_KEY,
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "AUTH_HEADER_TYPES": ("Bearer",),
+}
+
 APPEND_SLASH = True
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 FRONTEND_URL = os.getenv('FRONTEND_URL')
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -36,12 +50,6 @@ RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "rabbitmq")
 RABBITMQ_PORT = int(os.getenv("RABBITMQ_PORT", 5672))
 RABBITMQ_DEFAULT_USER = os.getenv("RABBITMQ_DEFAULT_USER", "admin")
 RABBITMQ_DEFAULT_PASS = os.getenv("RABBITMQ_DEFAULT_PASS", "admin")
-RABBITMQ_VHOST = os.getenv("RABBITMQ_VHOST", "/")
-
-RABBITMQ_HOST = "rabbitmq"
-RABBITMQ_PORT = int(os.getenv("RABBITMQ_PORT", 5672))
-RABBITMQ_DEFAULT_USER = "admin"
-RABBITMQ_DEFAULT_PASS = "admin"
 RABBITMQ_VHOST = os.getenv("RABBITMQ_VHOST", "/")
 
 AUTH_USER_MODEL = 'core.User'

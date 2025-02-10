@@ -4,7 +4,7 @@ import { parseNewPasswords } from '../signup/signup.js';
 import { parseEmail } from '../signup/signup.js';
 import { handle2FAmodal } from './QRhandler.js';
 import { logout } from '../../app/auth.js';
-import {getBlockedUsers} from '../../app/social.js'
+import { getBlockedList } from '../../app/social.js'
 
 
 export function initializeSettingsEvents() {
@@ -302,7 +302,7 @@ async function handleSaveChanges(password, changedData, otp) {
 
 
 async function handleGetBlockedUsers() {
-	const response = await getBlockedUsers();
+	const response = await getBlockedList();
 	if (response.status === "success") {
 		return (response.data);
 	} else {
