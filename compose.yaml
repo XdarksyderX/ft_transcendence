@@ -38,6 +38,8 @@ services:
     env_file:
       - .env
       - auth/service/.env
+    depends_on:
+      - rabbitmq
 
   frontend:
     build:
@@ -48,19 +50,21 @@ services:
     volumes:
       - ./frontend/service:/var/www/service
 
-  #social:
-  #  build:
-  #    context: social
-  #    dockerfile: Dockerfile
-  #  ports:
-  #    - 5051:5001
-  #  env_file:
-  #    - .env
-  #    - social/service/.env
-  #  # depends_on:
-  #  #   - redis
-  #  volumes:
-  #    - social-data:/var/www/service
+  social:
+    build:
+      context: social
+      dockerfile: Dockerfile
+    ports:
+      - 5051:5001
+    env_file:
+      - .env
+      - social/service/.env
+    # depends_on:
+    #   - redis
+    volumes:
+      - social-data:/var/www/service
+    depends_on:
+      - auth
 
     # redis:
     #   container_name: redis_cont

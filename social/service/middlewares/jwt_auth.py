@@ -4,10 +4,6 @@ from django.utils.deprecation import MiddlewareMixin
 from core.models import User # TODO middleware: de que modelo importo ver si esta bien
 
 class JWTAuthenticationMiddleware(MiddlewareMixin):
-    """
-    Middleware para verificar JWT en el encabezado de autorización y
-    asociar al usuario autenticado con la solicitud.
-    """
     def process_request(self, request):
         auth_header = request.META.get('HTTP_AUTHORIZATION')
         if not auth_header or not auth_header.startswith('Bearer '):

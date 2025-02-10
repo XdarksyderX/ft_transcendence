@@ -8,7 +8,6 @@ class User(AbstractUser):
         'self',
         blank=True,
         symmetrical=True,
-        related_name='user_friends'
     )
     blocked = models.ManyToManyField(
         'self',
@@ -34,7 +33,7 @@ class User(AbstractUser):
         return self.username
 
 class PendingInvitationRequest(models.Model):
-    invitation_id = models.AutoField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_requests')
     receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_requests')
     timestamp = models.DateTimeField(auto_now_add=True)

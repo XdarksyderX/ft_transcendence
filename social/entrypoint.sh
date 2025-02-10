@@ -7,10 +7,18 @@ su postgres -c "psql -c \"CREATE USER $SOCIALDB_USER WITH PASSWORD '$SOCIALDB_PA
 su postgres -c "psql -c \"CREATE DATABASE $SOCIALDB_NAME OWNER $SOCIALDB_USER;\""
 su postgres -c "psql -c \"ALTER USER $SOCIALDB_USER CREATEDB;\""
 
-# redis-server &  # Run redis-server in the background # TODO Ver si asi se ejecuta bien redis
+redis-server &
+
 
 python3 service/manage.py makemigrations core
-python3 service/manage.py makemigrations
 python3 service/manage.py migrate
 
-exec python service/manage.py runserver 0.0.0.0:5051
+export DJANGO_SETTINGS_MODULE=config.settings
+export PYTHONPATH=/service
+export DJANGO_SETTINGS_MODULE=config.settings
+
+cd service
+
+celery -A config worker --loglevel=info --queues=social.user_registered,social.user_deleted,social.username_changed &
+celery -A config flower --port=5555 &
+exec python manage.py runserver 0.0.0.0:5051

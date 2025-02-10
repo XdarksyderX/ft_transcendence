@@ -1,6 +1,7 @@
 import socket
 import datetime
 import uuid
+import json
 
 def wrap_event_data(data: dict, event_type: str, aggregate_id: str, meta: dict = None) -> dict:
     event_id = str(uuid.uuid4())
@@ -23,3 +24,10 @@ def wrap_event_data(data: dict, event_type: str, aggregate_id: str, meta: dict =
         }
     }
     return wrapped_event
+
+def extract_event_data(serialized_event: str) -> dict:
+    try:
+        event = json.loads(serialized_event)
+        return event["data"]["attributes"]
+    except (KeyError, json.JSONDecodeError) as e:
+        raise ValueError(f"Invalid event format: {e}")

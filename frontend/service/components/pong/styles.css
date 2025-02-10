@@ -1,0 +1,27 @@
+#board-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+#board {
+    background-color: var(--transparent-dark);
+    border: 5px solid var(--light);
+ /*    box-shadow: 0px 0px 15px cyan; */ /* Glowing effect */
+    display: block;
+    border-radius: 6px;
+}
+
+.instructions {
+    margin-top: 40px; /* Space between the board and instructions */
+    padding: 10px 15px;
+    background-color: var(--transparent-dark); /* Black background behind text */
+    color: var(--light);
+    border: 1px dashed var(--light); /* Change to dashed border */
+    font-size: 18px;
+    font-family: Arial, sans-serif;
+    border-radius: 5px;
+    text-align: center;
+}

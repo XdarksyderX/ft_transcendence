@@ -10,6 +10,9 @@
 	--lorange: #f1c478;
     --transition: #a90808;
     --danger: #c10505;
+
+    --transparent-dark: #190a23c4;
+    --transparent-medium: #5c39731f;
 }
 
 @font-face {

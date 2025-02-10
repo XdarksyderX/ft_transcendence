@@ -36,6 +36,11 @@
 
 }
 
+.ctm-form.selected {
+    background-color: var(--light) !important;
+    color: var(--dark) !important;
+}
+
 .qr {
     margin-top: 20px;
     height: auto;

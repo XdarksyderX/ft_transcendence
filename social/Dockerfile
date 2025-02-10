@@ -18,9 +18,9 @@ RUN apt-get update && apt-get install -y postgresql postgresql-contrib redis-ser
 
 RUN pip install --no-cache-dir -r /service/requirements.txt
 
-EXPOSE 5051
-EXPOSE 6379
+EXPOSE 5051 6379 5672 15672
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
+
 CMD ["/bin/bash", "/entrypoint.sh"]
