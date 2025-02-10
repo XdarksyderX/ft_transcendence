@@ -1,5 +1,6 @@
 import { throwAlert } from "../../app/render.js";
 import { getUsername } from "../../app/auth.js";
+import { refreshAccessToken } from "../../app/auth.js";
 
 export function handle2FAmodal(status, secret = null) {
     const modalElement = document.getElementById('2fa-qr-modal');
@@ -11,7 +12,7 @@ export function handle2FAmodal(status, secret = null) {
     console.log('status: ', status);
     
     if (!status) {
-        throwAlert(`2FA is now disabled`);
+        throwAlert(`2FA disabled succesfully`);
         return;
     }
 

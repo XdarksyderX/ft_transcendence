@@ -7,51 +7,53 @@ import { handle2FAmodal } from './QRhandler.js';
 import { logout } from '../../app/auth.js';
 
 
-function getEmail() {
-	//just for testing
-	return ('vicenta@invent.com')
-}
-
 export function initializeSettingsEvents() {
-	const currentData = getCurrentData();
-	const changedData = { ...currentData}; // this makes a copy of
+
+	console.log("initialize function called");
+	let currentData = getCurrentData();
+	let changedData = getCurrentData(); // this makes a copy of
 	// security settings events
-	init2FAEvents(currentData, changedData);
+	init2FAEvents(changedData);
 	initChangePasswordEvent();
 	//account settings events
-	initUsernameChangeEvents(currentData, changedData);
-	initEmailChangeEvents(currentData, changedData);
+	initUsernameChangeEvents(changedData);
+	initEmailChangeEvents(changedData);
 	initDeleteAccountEvents();
 	//save settings
-	initSaveChangesEvents(currentData, changedData);
+	initSaveChangesEvents(changedData);
 }
 
 						/********* 2FA change **********/
 /* toggles the switch if needed at loading /settings and adds the event listener to the 2FA switch btn */
-function init2FAEvents(currentData, changedData) {
-    toggle2FASwitch(null, currentData, changedData);
-    document.getElementById("2fa-toggle").addEventListener("change", (event) => toggle2FASwitch(event, currentData, changedData));
+function init2FAEvents(changedData) {
+    toggle2FASwitch(null, changedData);
+    document.getElementById("2fa-toggle").addEventListener("change", (event) => toggle2FASwitch(event, changedData));
 }
 /* toggles the switch on and off updating the changes */
-function toggle2FASwitch(event, currentData, changedData) {
+function toggle2FASwitch(event, changedData) {
 	const statusElement = document.getElementById("2fa-status");
-	const currentStatus = currentData.enable2FA;
+	const currentStatus = isTwoFAEnabled();
 	const isChecked = event ? event.target.checked : currentStatus;
-
+//	console.log("current 2fa status is: ", currentStatus);
 	document.getElementById("2fa-toggle").checked = isChecked;
 	statusElement.innerText = isChecked ? "Disable 2FA" : "Enable 2FA"
 	changedData.enable2FA = isChecked;
-	toggleChanges(currentData, changedData);
+	//changes.enable2FA = isChecked;
+	toggleChanges(changedData);
+	// console.log("on toggle: ", changedData.enable2FA );
+	// if (event) {
+	// 	console.log("event target: ", event.target.checked)
+	// }
 }
 /* handles the 2FA change with backend */
- async function handle2FAChange(enable, password) {
-	const data = await toggleTwoFA(enable, password)
-	if (data) {
-	  throwAlert(`2FA ${enable ? "activated" : "deactivated"} successfully`)
-	  handle2FAmodal(enable, data.secret);
-	  toggle2FASwitch()
+ async function handle2FAChange(changedData, password, otp) {
+	const enable = changedData.enable2FA;
+	const response = await toggleTwoFA(enable, password, otp);
+	if (response.status === "success") {
+		handle2FAmodal(enable, response.secret);
 	} else {
-	  throwAlert("Failed to update 2FA")
+		throwAlert(`Failed to ${enable ? "enable" : "disable"} 2FA`);
+		toggle2FASwitch(null, changedData);
 	}
 }
 
@@ -91,21 +93,21 @@ async function handlePasswordChange(event) {
 
 					/******* username change *******/
 /* listents the submit event on the new username form, storing the changes if they exist */
-function initUsernameChangeEvents(currentData, changedData) {
+function initUsernameChangeEvents(changedData) {
 	const usernameForm = document.getElementById("new-username-form");
 	const usernameInput = document.getElementById("new-username");
-
 	usernameForm.addEventListener("submit", (event) => {
+		const currentUsername =  getUsername();
 		event.preventDefault();
 		const newUsername = usernameInput.value;
-		if (!newUsername || newUsername === getUsername()) {
-			changedData.username = currentData.username;
+		if (!newUsername || newUsername === currentUsername) {
+			changedData.username = currentUsername
 			throwAlert(!newUsername ? "Please, fill in username field" : "New username must be different");
 		} else {
 			usernameInput.classList.add('selected');
 			changedData.username = newUsername;
 		}
-		toggleChanges(currentData, changedData);
+		toggleChanges(changedData);
 	});
 	usernameInput.addEventListener("focus", () => {
 		usernameInput.classList.remove('selected');
@@ -127,7 +129,7 @@ async function handleUsernameChange(newUsername, password) {
 
 					/******** email change *********/
 /* listents the submit event on the new email form, storing the changes if they exist */
-function initEmailChangeEvents(currentData, changedData) {
+function initEmailChangeEvents(changedData) {
 	const emailForm = document.getElementById("new-email-form");
     const emailInput = document.getElementById("new-email");
 
@@ -139,9 +141,9 @@ function initEmailChangeEvents(currentData, changedData) {
 		emailInput.classList.add('selected');
 		changedData.email = newEmail;
 	  } else {
-		changedData.email = currentData.email;
+		changedData.email = null;
 	  }
-	  toggleChanges(currentData, changedData);
+	  toggleChanges(changedData);
 	});
 
 	emailInput.addEventListener("focus", () => {
@@ -203,14 +205,16 @@ function getCurrentData() {
 	return {
 		enable2FA: isTwoFAEnabled(),
 		username: getUsername(),
-		email: getEmail()
+		email: null
 	};
 }
 
 /* search for any changes made so enable the save changes btn */
-function toggleChanges(currentData, changedData) {
+function toggleChanges(changedData) {
     const saveChangesBtn = document.getElementById("save-changes-btn");
     let changesDetected = false;
+	const currentData = getCurrentData();
+	console.log("on toggle changes, changedData:", changedData);
 
     for (const key in currentData) {
         if (currentData[key] !== changedData[key]) {
@@ -221,44 +225,83 @@ function toggleChanges(currentData, changedData) {
     saveChangesBtn.disabled = !changesDetected;
 }
 
-function initSaveChangesEvents(currentData, changedData) {
-	const saveBtn = document.getElementById("confirm-save-changes");
-	saveBtn.addEventListener("click", async () => {
+function showSaveChangesModal(enabled, changedData) {
+	const modalElement = document.getElementById('save-changes-modal');
+	const modal = new bootstrap.Modal(modalElement);
+	const otpForm = document.getElementById('otp-form');
+	const otpRequired = enabled && !changedData.enable2FA;
+
+	if (otpRequired) {
+		otpForm.style.display = 'block';
+	} else {
+		otpForm.style.display = 'none';
+	}
+	modal.show();
+}
+
+function initSaveChangesEvents(changedData) {
+	const saveBtn = document.getElementById("save-changes-btn");
+	
+	saveBtn.addEventListener("click", () => showSaveChangesModal(isTwoFAEnabled(), changedData));
+	
+	const confirmSaveBtn = document.getElementById('confirm-save-changes');
+	confirmSaveBtn.addEventListener('click', async () => {
+		
 		const password = document.getElementById("confirm-changes-password").value;
 		if (!password) {
 			throwAlert("Password required");
 			return;
 		}
-		await handleSaveChanges(password, currentData, changedData);
-
-		// Hide the modal after saving changes
-		const modalElement = document.getElementById('save-changes-modal');
-		const modal = bootstrap.Modal.getInstance(modalElement);
+		const otpRequired = isTwoFAEnabled() && !changedData.enable2FA;
+		const otp = document.getElementById('otp-input').value;
+		if (otpRequired && !otp) {
+			throwAlert("OTP required");
+			return;
+		}
+		const modal = bootstrap.Modal.getInstance(document.getElementById('save-changes-modal'));
 		if (modal) {
+		//	console.log("escondiendo modal????");
 			modal.hide();
 		}
-	});
+		await handleSaveChanges(password, changedData, otp);
+		//Hide the modal after saving changes
+	})
+	
 }
 
-  async function handleSaveChanges(password, currentData, changedData) {
-	let changesMade = false;
+function cleanAfterChanges(changedData) {
+    changedData = getCurrentData();
+    toggleChanges(changedData);
+	const inputs = document.querySelectorAll('input');
+	inputs.forEach(input => {
+		input.value = '';
+		input.classList.remove('selected');
+	});
+	document.getElementById('sidebar-username').innerText = changedData.username;
+}
 
-	if (currentData.enable2FA !== changedData.enable2FA) {
-	  console.log('changes.enable2FA: ', changedData.enable2FA);
-		await handle2FAChange(changedData.enable2FA, password);
-		changesMade = true;
-	}
-	if (currentData.username !== changedData.username) {
-		await handleUsernameChange(changedData.username, password);
-		changesMade = true;
-	}
-	if (currentData.email !== changedData.email) {
-		await handleEmailChange(changedData.email, password);
-		changesMade = true;
-	}
-	if (changesMade) {
-		refreshAccessToken();
-	}
+async function handleSaveChanges(password, changedData, otp) {
+    let changesMade = false;
+	const currentData = getCurrentData();
+
+    if (currentData.enable2FA !== changedData.enable2FA) {
+      console.log('changes.enable2FA: ', changedData.enable2FA);
+        await handle2FAChange(changedData, password, otp);
+        changesMade = true;
+    }
+    if (currentData.username !== changedData.username) {
+        await handleUsernameChange(changedData.username, password);
+        changesMade = true;
+    }
+    if (currentData.email !== changedData.email) {
+        await handleEmailChange(changedData.email, password);
+        changesMade = true;
+    }
+    if (changesMade) {
+        await refreshAccessToken();
+		cleanAfterChanges(changedData);
+        //initializeSettingsEvents();
+    //	currentData = getCurrentData();
+    //	changedData = {...currentData};
+    }
 }	
-
-					/****** blocked users **********/
