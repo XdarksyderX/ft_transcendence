@@ -15,6 +15,20 @@ let playerWidth;
 // Variables provided by user (initialized to standard values) (in future game customization)
 let playAI = true;
 
+// Game settings object
+let gameConfig = {
+    playerHeight: 50,
+    startSpeed: 7.5,
+    playerSpeed: 5,
+    speedUpMultiple: 1.02,
+    pointsToWin: 3,
+    ballSide: 10,
+    boardWidth: 700,
+    boardHeight: 500,
+    allowPowerUp: false
+};
+
+
 // comment: low, high (middle is the value already initialized)
 let msAIcalcRefresh = 1000; // 1200 : 750 : 100
 let startSpeed = 7.5; // 6 : 10
@@ -47,29 +61,59 @@ const dangerColor = getComputedStyle(document.documentElement).getPropertyValue(
 export function initializePongEvents() {
     console.log("Pong AI game initialized!");
 
-    // Ensure the DOM is fully loaded before starting
-    if (document.readyState === "loading")
-        document.addEventListener("DOMContentLoaded", () => startGame());
-    else
-        startGame();
+    // Show customization menu
+    document.getElementById("dCustomizationOptions").hidden = false;
+    document.getElementById("board").hidden = true; // Hide board until game starts
+
+    // Add event listener to start game when button is clicked
+    document.getElementById("startGameButton").addEventListener("click", () => {
+        applySettings();
+        startGame(gameConfig);
+    });
 }
 
-function startGame()
+function applySettings() {
+    gameConfig.playerHeight = parseFloat(document.getElementById("playerSize").value);
+    gameConfig.startSpeed = parseFloat(document.getElementById("ballSpeed").value);
+    gameConfig.playerSpeed = parseFloat(document.getElementById("playerSpeed").value);
+    gameConfig.speedUpMultiple = parseFloat(document.getElementById("ballSpeedUp").value);
+    gameConfig.pointsToWin = parseInt(document.getElementById("pointsToWin").value);
+    gameConfig.ballSide = parseFloat(document.getElementById("ballSize").value);
+    gameConfig.allowPowerUp = document.getElementById("allowFreezeFlip").checked;
+
+    let boardSize = document.getElementById("boardSize").value;
+    switch (boardSize) {
+        case "small":
+            gameConfig.boardWidth = 500;
+            gameConfig.boardHeight = 400;
+            break;
+        case "normal":
+            gameConfig.boardWidth = 700;
+            gameConfig.boardHeight = 500;
+            break;
+        case "big":
+            gameConfig.boardWidth = 900;
+            gameConfig.boardHeight = 700;
+            break;
+        default:
+            gameConfig.boardWidth = 700;
+            gameConfig.boardHeight = 500;
+            break;
+    }
+}
+
+function startGame(gameConfig)
 {
     console.log("Starting Pong AI Game...");
     
-    board = document.getElementById("board");
-
-    board.width = boardWidth;
-    board.height = boardHeight;
-    context = board.getContext("2d");
-
-    start(); // Now, start the game after initializing the board
+    document.getElementById("dCustomizationOptions").hidden = true;
+    document.getElementById("board").hidden = false;
+    start(gameConfig); // Now, start the game after initializing the board
 }
 
 function start()
 {
-    initGame(); // To restart all values that are changed in previous games & apply settings changes
+    initGame(gameConfig); // To restart all values that are changed in previous games & apply settings changes
 
     if (playAI) 
     {
@@ -94,6 +138,22 @@ function start()
 
 function initGame()
 {
+	playerHeight = gameConfig.playerHeight;
+    startSpeed = gameConfig.startSpeed;
+    playerSpeed = gameConfig.playerSpeed;
+    speedUpMultiple = gameConfig.speedUpMultiple;
+    pointsToWin = gameConfig.pointsToWin;
+    ballSide = gameConfig.ballSide;
+    boardWidth = gameConfig.boardWidth;
+    boardHeight = gameConfig.boardHeight;
+    allowPowerUp = gameConfig.allowPowerUp;
+
+    // Set up game elements
+    board = document.getElementById("board");
+    board.width = boardWidth;
+    board.height = boardHeight;
+    context = board.getContext("2d");
+
     // To avoid the ball transvering the paddle
     // The paddle and margin are a little bit wider
     xMargin = ballSide * 1.2;

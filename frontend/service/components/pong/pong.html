@@ -1,9 +1,87 @@
-
 <div id="board-container">
     <div class="blinking-neon-frame p-3">
-
-        <canvas id="board"></canvas>
+        <canvas id="board" hidden></canvas>  <!-- Initially hidden -->
     </div>
-        <div class="instructions">Use W & S to move your paddle, D for power up</div>
+    <div class="instructions">Use W & S to move your paddle, D for power up</div>
 </div>
+
+<!-- Customization Menu -->
+<div id="dCustomizationOptions">
+    <h2>Game Customization</h2>
+    <form id="customizationForm">
+        <div class="container py-3">
+            <div class="row py-3">
+                <div class="col-sm text-start">
+                    <label for="playerSize">Paddle Size:</label>
+                    <select id="playerSize">
+                        <option value=30>Small</option>
+                        <option value=50 selected>Normal</option>
+                        <option value=70>Big</option>
+                    </select>
+                </div>
+                <div class="col-sm text-start">
+                    <label for="ballSpeed">Ball Start Speed:</label>
+                    <select id="ballSpeed">
+                        <option value=6>Slow</option>
+                        <option value=7.5 selected>Normal</option>
+                        <option value=10>Fast</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row py-3">
+                <div class="col-sm text-start">
+                    <label for="playerSpeed">Paddle Speed:</label>
+                    <select id="playerSpeed">
+                        <option value=3>Slow</option>
+                        <option value=5 selected>Normal</option>
+                        <option value=7>Fast</option>
+                    </select>
+                </div>
+                <div class="col-sm text-start">
+                    <label for="ballSpeedUp">Ball speed up:</label>
+                    <select id="ballSpeedUp">
+                        <option value=1>None</option>
+                        <option value=1.02 selected>Normal (2%)</option>
+                        <option value=1.05>Fast (5%)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row py-3">
+                <div class="col-sm text-start">
+                    <label for="pointsToWin">Points to win:</label>
+                    <select id="pointsToWin">
+                        <option value=1>1</option>
+                        <option value=3 selected>3</option>
+                        <option value=5>5</option>
+                        <option value=10>10</option>
+                    </select>
+                </div>
+                <div class="col-sm text-start">
+                    <label for="ballSize">Ball size:</label>
+                    <select id="ballSize">
+                        <option value=8>Small</option>
+                        <option value=10 selected>Normal</option>
+                        <option value=13>Big</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row py-3">
+                <div class="col-sm text-start">
+                    <label for="boardSize">Board size:</label>
+                    <select id="boardSize">
+                        <option value="small">Small</option>
+                        <option value="normal" selected>Normal</option>
+                        <option value="big">Big</option>
+                    </select>
+                </div>
+                <div class="col-sm text-start">
+                    <label for="allowFreezeFlip">Allow Freeze Flip power up:</label>
+                    <input type="checkbox" id="allowFreezeFlip" />
+                </div>
+            </div>
+        </div>
+    </form>
+    <button id="startGameButton">Start Game</button>
+</div>
+
 <script type="module" src="app.js"></script>
