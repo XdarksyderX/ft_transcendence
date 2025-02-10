@@ -3,7 +3,7 @@ from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
     username = models.CharField(max_length=20, unique=True, verbose_name='Username')
-    avatar = models.URLField(max_length=200, blank=True, null=True)
+    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
     friends = models.ManyToManyField(
         'self',
         blank=True,

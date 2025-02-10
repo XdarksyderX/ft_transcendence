@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
 import os
 
 
@@ -22,13 +23,31 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 
+with open(os.path.join(BASE_DIR, 'config/keys/public.pem'), 'r') as f:
+    PUBLIC_KEY = f.read()
+
+SIMPLE_JWT = {
+    "ALGORITHM": "RS256",
+    "VERIFYING_KEY": PUBLIC_KEY,
+    "AUTH_HEADER_TYPES": ("Bearer",),
+}
+
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
-JWT_SECRET = os.getenv('JWT_SECRET')
 APPEND_SLASH = True
 FRONTEND_URL = os.getenv('FRONTEND_URL')
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+
+if DEBUG:
+    import mimetypes
+    mimetypes.add_type("image/png", ".png", True)
+    mimetypes.add_type("image/jpeg", ".jpeg", True)
+    mimetypes.add_type("image/jpg", ".jpg", True)
+
 AMQP_ENABLED = False
 ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1']
 
@@ -42,6 +61,8 @@ RABBITMQ_VHOST = os.getenv("RABBITMQ_VHOST", "/")
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_TASK_PROTOCOL = 1
+
+APPEND_SLASH=False
 
 AUTH_USER_MODEL = 'core.User'
 
@@ -58,7 +79,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'rest_framework.authtoken',
+    'rest_framework_simplejwt',
     'chat',
     'friends',
     'core'
@@ -72,10 +93,15 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'middlewares.jwt_auth.JWTAuthenticationMiddleware'
 ]
 
 ROOT_URLCONF = 'config.urls'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'core.utils.CookieJWTAuthentication.CookieJWTAuthentication',
+    ),
+}
 
 TEMPLATES = [
     {

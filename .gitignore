@@ -6,3 +6,5 @@ __pycache__/
 migrations/
 .DS_Store
 volume-data/
+keys/
+*.pem

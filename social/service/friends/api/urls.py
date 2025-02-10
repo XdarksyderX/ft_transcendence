@@ -1,9 +1,10 @@
 
 from django.urls import path, include
-
+from django.conf import settings
+from django.conf.urls.static import static
 from .views.blocked import BlockUserView, UnblockUserView, IsUserBlockedView
 from .views.friends import FriendsListView, BlockedListView, RemoveFriendView, PendingReceivedRequestsView, PendingSentRequestsView, AcceptRequestView, DeclineRequestView, CancelRequestView
-from .views.profile import ProfileView, SearchUsersView
+from .views.profile import ProfileView, SearchUsersView, ChangeAvatarView
 
 urlpatterns = [
     path('friends/', include([
@@ -27,5 +28,7 @@ urlpatterns = [
     ])),
 
     path('profile/', ProfileView.as_view(), name='profile'),
+    path('profile/<str:username>/', ProfileView.as_view(), name='user_profile'),
+	path('profile/avatar/', ChangeAvatarView.as_view(), name='change_avatar'),
     path('search/<str:username>/', SearchUsersView.as_view(), name='search_users'),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
