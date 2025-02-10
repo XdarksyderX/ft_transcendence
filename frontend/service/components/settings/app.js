@@ -1,4 +1,3 @@
-
 import { isTwoFAEnabled, toggleTwoFA, changeUsername, changeEmail, changePassword, deleteAccount, refreshAccessToken, getUsername,  } from '../../app/auth.js';
 import { throwAlert } from '../../app/render.js';
 import { parseNewPasswords } from '../signup/signup.js';
@@ -341,5 +340,13 @@ function createBlockedUserCard(user) {
             <i class="fas fa-user-minus"></i> Unblock
         </button>
     `;
+
+    const unblockBtn = card.querySelector('button');
+    unblockBtn.addEventListener('click', () => handleUnblockUser(user));
+
     return card;
+}
+
+function handleUnblockUser(user) {
+	throwAlert(`no amiga, cómo vas a desbloquear a ese cucaracho aka ${user.username}`);
 }
