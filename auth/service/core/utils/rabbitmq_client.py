@@ -21,7 +21,7 @@ class RabbitMQClient:
     def _connect(self):
         if not self.mock_enabled:
             try:
-                credentials = pika.PlainCredentials(settings.RABBITMQ_USER, settings.RABBITMQ_PASSWORD)
+                credentials = pika.PlainCredentials(settings.RABBITMQ_DEFAULT_USER, settings.RABBITMQ_DEFAULT_PASS)
                 parameters = pika.ConnectionParameters(
                     host=settings.RABBITMQ_HOST,
                     port=settings.RABBITMQ_PORT,

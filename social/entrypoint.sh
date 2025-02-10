@@ -3,7 +3,8 @@
 service postgresql start
 sleep 5
 
-su postgres -c "psql -tc \"SELECT 1 FROM pg_database WHERE datname = '$SOCIALDB_NAME'\" | grep -q 1 || psql -c \"CREATE DATABASE $SOCIALDB_NAME OWNER $SOCIALDB_USER;\""
+su postgres -c "psql -c \"CREATE USER $SOCIALDB_USER WITH PASSWORD '$SOCIALDB_PASSWORD';\""
+su postgres -c "psql -c \"CREATE DATABASE $SOCIALDB_NAME OWNER $SOCIALDB_USER;\""
 su postgres -c "psql -c \"ALTER USER $SOCIALDB_USER CREATEDB;\""
 
 redis-server &

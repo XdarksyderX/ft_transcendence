@@ -34,14 +34,14 @@ ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1']
 #Rabbitmq Config
 RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "rabbitmq")
 RABBITMQ_PORT = int(os.getenv("RABBITMQ_PORT", 5672))
-RABBITMQ_USER = os.getenv("RABBITMQ_USER", "admin")
-RABBITMQ_PASSWORD = os.getenv("RABBITMQ_PASSWORD", "admin")
+RABBITMQ_DEFAULT_USER = os.getenv("RABBITMQ_DEFAULT_USER", "admin")
+RABBITMQ_DEFAULT_PASS = os.getenv("RABBITMQ_DEFAULT_PASS", "admin")
 RABBITMQ_VHOST = os.getenv("RABBITMQ_VHOST", "/")
 
 RABBITMQ_HOST = "rabbitmq"
 RABBITMQ_PORT = int(os.getenv("RABBITMQ_PORT", 5672))
-RABBITMQ_USER = "admin"
-RABBITMQ_PASSWORD = "admin"
+RABBITMQ_DEFAULT_USER = "admin"
+RABBITMQ_DEFAULT_PASS = "admin"
 RABBITMQ_VHOST = os.getenv("RABBITMQ_VHOST", "/")
 
 AUTH_USER_MODEL = 'core.User'
