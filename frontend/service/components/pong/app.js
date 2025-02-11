@@ -43,11 +43,10 @@ const dangerColor = getComputedStyle(document.documentElement).getPropertyValue(
 
 export function initializePongEvents()
 {
-    console.log("Pong AI game initialized!");
-
-    // Show customization menu
-    document.getElementById("dCustomizationOptions").hidden = false;
-    document.getElementById("board").hidden = true; // Hide board until game starts
+    if (document.readyState === "loading")
+        document.addEventListener("DOMContentLoaded", () => showMenu());
+    else
+        showMenu();
 
 	let gameConfig = 
 	{
@@ -70,6 +69,12 @@ export function initializePongEvents()
         applySettings(gameConfig);
         startGame(gameConfig);
     });
+}
+
+function showMenu()
+{
+    document.getElementById("dCustomizationOptions").hidden = false;
+    document.getElementById("instructions").hidden = false;
 }
 
 function applySettings(gameConfig)
@@ -131,6 +136,7 @@ function startGame(gameConfig)
     
     document.getElementById("dCustomizationOptions").hidden = true;
     document.getElementById("board").hidden = false;
+	document.getElementById("instructions").hidden = true; // Hide instructions when the game starts
     start(gameConfig); // Now, start the game after initializing the board
 }
 

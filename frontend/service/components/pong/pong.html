@@ -1,12 +1,5 @@
-<div id="board-container">
-    <div class="blinking-neon-frame p-3">
-        <canvas id="board" hidden></canvas>  <!-- Initially hidden -->
-    </div>
-    <div class="instructions">Use W & S to move your paddle, D for power up</div>
-</div>
-
 <!-- Customization Menu -->
-<div id="dCustomizationOptions">
+<div id="dCustomizationOptions" hidden >
     <h2>Game Customization</h2>
     <form id="customizationForm">
         <div class="container py-3">
@@ -97,6 +90,13 @@
         </div>
     </form>
     <button id="startGameButton">Start Game</button>
+</div>
+
+<div id="board-container"></div>
+    <div class="blinking-neon-frame p-3">
+        <canvas id="board" hidden></canvas>  <!-- Initially hidden -->
+    </div>
+    <div class="instructions" id="instructions" hidden> Controls: (up, down, powerup): L: W, S, D | R: (arrows): up, down, left </div>
 </div>
 
 <script type="module" src="app.js"></script>
