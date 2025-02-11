@@ -189,7 +189,7 @@ window.addEventListener("popstate", initRouteEvents);
 async function initRouteEvents() {
     console.log("initRouteEvents function called");
     await navigateTo(window.location.pathname);
-  //  router();
+    router();
     document.body.addEventListener("click", (e) => {
         if (e.target.matches("[data-link]") || e.target.tagName === 'A') {
             e.preventDefault();
