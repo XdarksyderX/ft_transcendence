@@ -6,24 +6,23 @@ let aiIntervalId;
 let board;
 let context;
 
-// Change both if the ball is wider
+// Variables provided by user (initialized in global scope)
+let playAI;
+let msAIcalcRefresh;
+let startSpeed;
+let speedUpMultiple;
+let playerHeight;
+let playerSpeed;
+let allowPowerUp;
+let boardWidth;
+let boardHeight;
+let pointsToWin;
+let ballSide;
+
+// Depend on user provided variables
 let xMargin; // Margin from paddle to side of board
 let playerWidth;
 let yMax;
-
-// Variables provided by user (initialized to standard values)
-let playAI = false;
-// comment: low, high (middle is the value already initialized) 
-let msAIcalcRefresh = 1000; // 1200 : 750 : 100
-let startSpeed = 7.5; // 6 : 10
-let speedUpMultiple = 1.02; // 1 : 1.05
-let playerHeight = 50; // 30 : 70
-let playerSpeed = 5; // 3 : 7
-let allowPowerUp = true;
-let boardWidth = 700; // 500 : 900
-let boardHeight = 500; // 400 : 700
-let pointsToWin = 3; // 1 : 3 : 5 : 10
-let ballSide = 10; // 8 : 10 : 13
  
 const   serveSpeedMultiple = 0.3;
 
@@ -40,10 +39,13 @@ const accentColor = getComputedStyle(document.documentElement).getPropertyValue(
 const lightColor = getComputedStyle(document.documentElement).getPropertyValue('--light').trim();
 const dangerColor = getComputedStyle(document.documentElement).getPropertyValue('--danger').trim();
 
-function initInstructionsTooltip() {
+function initInstructionsTooltip() 
+{
     const tooltipTriggerEl = document.querySelector('[data-bs-toggle="tooltip"]');
-    const explanation = "Powerups can only be used once at each point";
-    if (tooltipTriggerEl) {
+    const explanation = "Powerups can only be used once a point";
+    
+    if (tooltipTriggerEl)
+    {
         tooltipTriggerEl.setAttribute('title', explanation);
         new bootstrap.Tooltip(tooltipTriggerEl);
     }
@@ -130,17 +132,12 @@ function applySettings(gameConfig)
 
 function startGame(gameConfig)
 {
-    console.log("Starting Pong AI Game...");
-    
+    // Show menu and hide game board
     document.getElementById("dCustomizationOptions").hidden = true;
     document.getElementById("instructions").hidden = true;
     document.getElementById("board").hidden = false;
     document.getElementById("neonFrame").hidden = false;
-    start(gameConfig); // Now, start the game after initializing the board
-}
-
-function start(gameConfig)
-{
+    
     initGame(gameConfig); // To restart all values that are changed in previous games & apply settings changes
 
     if (playAI) 
@@ -156,7 +153,7 @@ function start(gameConfig)
         }, msAIcalcRefresh);
     }
 
-    requestAnimationFrame(update);
+    requestAnimationFrame(update); // Start game loop
     document.addEventListener("keydown", keyDownHandler);
     document.addEventListener("keyup", keyUpHandler);
 	
@@ -333,17 +330,27 @@ function update()
     }
 }
 
-function endMatch(playerScore, AIscore) // Adapted for AI pong
+function endMatch(LplayerScore, RplayerScore)
 {
     // Clear the canvas
     context.clearRect(0, 0, board.width, board.height);
 
 	let message;
     // Set message based on the outcome
-	if (playerScore > AIscore)
-		message = "You won!";
-	else
-		message = "You lost :("
+    if (playAI)
+    {
+	    if (LplayerScore > RplayerScore)
+		    message = "You won!";
+	    else
+		    message = "You lost :(";
+    }
+    else
+    {
+        if (LplayerScore > RplayerScore)
+		    message = "Left player won!";
+	    else
+		    message = "Right player won!";
+    }
 
     // Display the message on the board
     context.fillStyle = accentColor;
