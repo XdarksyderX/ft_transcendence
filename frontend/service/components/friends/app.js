@@ -1,5 +1,6 @@
-import { searchUsers } from "../../app/social.js";
 import { throwAlert } from "../../app/render.js";
+import { searchUsers, getFriendsList } from "../../app/social.js";
+
 
 const friends = [
 	{ id: 1, name: 'Alice', status: 'online', picture: '../../resources/avatar/avatar_1.png' },
@@ -28,12 +29,30 @@ function getElements() {
 
 /* * * * * * * * * * * * * * * FRIENDS * * * * * * * * * * * * * * */
 
-function renderFriendList(container, dataContainer) {
-	container.innerHTML = '';
-	friends.forEach(friend => {
-		const friendBtn = createFriendBtn(friend, dataContainer);
-		container.appendChild(friendBtn);
-	});
+export async function handleGetFriendList() {
+	const response = await getFriendsList();
+    if (response.status === "success") {
+		return (response.friends);
+    } else {
+        throwAlert(response.message);
+    }
+}
+
+async function renderFriendList(container, dataContainer) {
+    // container.innerHTML = '';
+    const friends = await handleGetFriendList();
+    if (friends.length === 0) {
+        container.innerHTML = `
+        <div> You don't have any friends, yet ;) </div>
+        <img src="../../resources/404/bot.png" class="img-fluid rounded mx-auto d-block" style=max-width:200px;max-height:200px;>
+        `;
+        console.log("0 friends");
+    } else {
+        friends.forEach(friend => {
+            const friendBtn = createFriendBtn(friend, dataContainer);
+            container.appendChild(friendBtn);
+        });
+    }
 }
 
 function createFriendBtn(friend, dataContainer) {
