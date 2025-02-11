@@ -135,8 +135,9 @@ function startGame(gameConfig)
     console.log("Starting Pong AI Game...");
     
     document.getElementById("dCustomizationOptions").hidden = true;
+    document.getElementById("instructions").hidden = true;
     document.getElementById("board").hidden = false;
-	document.getElementById("instructions").hidden = true; // Hide instructions when the game starts
+    document.getElementById("neonFrame").hidden = false;
     start(gameConfig); // Now, start the game after initializing the board
 }
 
