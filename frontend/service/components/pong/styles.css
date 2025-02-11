@@ -18,7 +18,7 @@
     display: flex;
     flex-direction: column;
     align-items: center; /* Center items horizontally */
-    justify-content: center; /* Center vertically */
+    justify-content: center; /* Center content */
     text-align: center;
     background-color: rgba(0, 0, 0, 0.8);
     color: var(--light);
@@ -26,30 +26,24 @@
     border-radius: 10px;
     border: 2px solid var(--light);
     box-shadow: 0px 0px 15px cyan; /* Neon glow effect */
-    width: 80%; /* Increased width */
+    width: 50%; /* Adjust width to fit content */
+    max-width: 600px; /* Ensures it doesn't get too large */
     position: absolute;
-    top: 5%;
+    top: 10%; /* Move it slightly down */
     left: 50%;
-    transform: translateX(-50%);
+    margin-left: -25%; /* Centers it properly */
 }
 
-.instructions {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%; /* Make it span the screen width */
+.instructions
+{
+    margin-top: 40px; /* Space between the board and instructions */
     padding: 10px 15px;
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: var(--transparent-dark); /* Black background behind text */
     color: var(--light);
-    border: 1px dashed var(--light);
+    border: 1px dashed var(--light); /* Change to dashed border */
     font-size: 18px;
     font-family: Arial, sans-serif;
     border-radius: 5px;
     text-align: center;
-    position: absolute;
-    bottom: 40px; /* 40px from the bottom of the screen */
-    left: 50%;
-    transform: translateX(-50%);
-    width: auto; /* Allow it to resize based on content */
-    min-width: 400px; /* Ensures it's visible even on small screens */
 }
+

@@ -43,11 +43,6 @@ const dangerColor = getComputedStyle(document.documentElement).getPropertyValue(
 
 export function initializePongEvents()
 {
-    if (document.readyState === "loading")
-        document.addEventListener("DOMContentLoaded", () => showMenu());
-    else
-        showMenu();
-
 	let gameConfig = 
 	{
     	playerHeight: 50,
@@ -69,12 +64,6 @@ export function initializePongEvents()
         applySettings(gameConfig);
         startGame(gameConfig);
     });
-}
-
-function showMenu()
-{
-    document.getElementById("dCustomizationOptions").hidden = false;
-    document.getElementById("instructions").hidden = false;
 }
 
 function applySettings(gameConfig)
@@ -356,7 +345,7 @@ function endMatch(playerScore, AIscore) // Adapted for AI pong
     // Wait 3 seconds before redirecting to /home
     setTimeout(() => {
         window.location.href = "/home";
-    }, 3000);
+    }, 1500);
 }
 
 function stop() 
