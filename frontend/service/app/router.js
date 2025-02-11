@@ -38,33 +38,30 @@ const routes = [
 ];
 
 async function router() {
-//    console.log('Router function called');
     const path = location.pathname;
-//    console.log('Current path:', path);
     const match = routes.find(route => route.url === path) || routes[0];
 
+    // Carga el contenido dinámico en el contenedor principal
     const html = await fetch(match.file).then(res => res.text());
     document.getElementById('app').innerHTML = html;
 
-    initializeNeonFrames();
+    initializeNeonFrames(); // Inicializa estilos o frames
 
 
-    //initializes the proper events depending on the view
+    // Inicializa eventos específicos de cada vista
     switch (path) {
         case "/":
             initializeIndexEvents();
             break;
         case "/login":
             initializeLoginEvents();
-            //initializeNeonFrames();
             break;
         case "/signup":
             initializeSignupEvents();
-            //initializeNeonFrames();
             break;
         case "/home":
             initializeHomeEvents();
-            //initializeNeonFrames();
+
             break;
         case "/ongoing-tournaments":
             initializeOngoingTournaments();
@@ -73,36 +70,29 @@ async function router() {
             initializeNewTournament();
             break;
         case "/profile":
-            //initializeNeonFrames();
             initializeProfileEvents();
             break;
         case "/friends":
- /*            loadChat();
-            loadSidebar(); */
-            //initializeNeonFrames();
             initializeFriendsEvents();
             break;
         case "/game-stats":
-/*             loadChat();
-            loadSidebar(); */
-            //initializeNeonFrames();
             initializeStatsEvents();
             break;
         case "/chess":
             initializeChessEvents();
-            //startBackgroundMusic()
+            break;
         case "/pong":
             initializePongEvents();
             break;
         case "/settings":
             initializeSettingsEvents();
-            break ;
+            break;
         case "/reset-password":
             initializeResetPasswordEvents();
-            break ;
+            break;
         case "/verify-email":
             initializeVerifyEmailEvents();
-            break ;
+            break;
         default:
             initialize404();
     }
@@ -168,7 +158,7 @@ async function navigateTo(fullUrl) {
         if (url !== window.location.pathname) {
             history.pushState(null, null, url);
             router();
-           
+            
         }
         loadLoggedContent(verify);
     } catch (error) {
@@ -196,9 +186,9 @@ function updateNavbar(url) {
 // Handle browser back/forward buttons
 window.addEventListener("popstate", initRouteEvents);
 
-function initRouteEvents() {
+async function initRouteEvents() {
     console.log("initRouteEvents function called");
-    navigateTo(window.location.pathname);
+    await navigateTo(window.location.pathname);
     router();
     document.body.addEventListener("click", (e) => {
         if (e.target.matches("[data-link]") || e.target.tagName === 'A') {
@@ -207,6 +197,8 @@ function initRouteEvents() {
         }
     });
 }
+
+
 
 // Initialize the application
 document.addEventListener("DOMContentLoaded", initRouteEvents);

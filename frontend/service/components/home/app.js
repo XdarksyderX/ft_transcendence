@@ -14,6 +14,7 @@ const friends = [
 
 export function initializeHomeEvents() {
 	const elements = getElements();
+	currentView = null;
 	initPongEvents(elements);
 	initChessEvents(elements);
 	initOverlayEvents(elements);

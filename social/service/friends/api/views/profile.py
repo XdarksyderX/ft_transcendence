@@ -27,7 +27,7 @@ class SearchUsersView(APIView):
     def get(self, request, username):
         users = User.objects.filter(username__icontains=username).order_by('username')[:50]
         users_data = [
-            {"user_id": user.id, "username": user.username, "avatar": user.avatar}
+            {"user_id": user.id, "username": user.username, "avatar": user.avatar.url if user.avatar else None}
             for user in users
         ]
         return Response({
