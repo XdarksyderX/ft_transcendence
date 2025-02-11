@@ -39,15 +39,26 @@ export async function handleGetFriendList() {
 }
 
 async function renderFriendList(container, dataContainer) {
-    // container.innerHTML = '';
     const friends = await handleGetFriendList();
     if (friends.length === 0) {
         container.innerHTML = `
-        <div> You don't have any friends, yet ;) </div>
-        <img src="../../resources/404/bot.png" class="img-fluid rounded mx-auto d-block" style=max-width:200px;max-height:200px;>
+        <div class="d-flex flex-column h-100">
+            <div> You don't have any friends, yet ;) </div>
+            <div class="mt-auto text-center">
+                <div> You'll can add some down there </div>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </div>
         `;
-        console.log("0 friends");
+        dataContainer.innerHTML = `
+        <img src="../../resources/rain.gif" class="img-fluid rounded mx-auto d-block" >
+        `;
     } else {
+		dataContainer.innerHTML = `
+		<div id="friend-data" class="h-100 flex-column ctm-text-light text-center">
+                click on a friend to see their data!
+		</div>
+        `;
         friends.forEach(friend => {
             const friendBtn = createFriendBtn(friend, dataContainer);
             container.appendChild(friendBtn);
