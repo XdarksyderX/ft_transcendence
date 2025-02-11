@@ -55,7 +55,7 @@ services:
       context: social
       dockerfile: Dockerfile
     ports:
-      - 5051:5001
+      - 5051:5051
     env_file:
       - .env
       - social/service/.env

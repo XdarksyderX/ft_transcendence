@@ -53,6 +53,7 @@ export async function searchUsers(username) {
 }
 
 async function sendRequest(method, endpoint, body = null) {
+    console.log("endpoint: ", endpoint);
     try {
         if (body) console.log('Payload:', JSON.stringify(body));
         
@@ -86,3 +87,4 @@ async function sendRequest(method, endpoint, body = null) {
         return { status: "error", message: "An unexpected error occurred" };
     }
 }
+
