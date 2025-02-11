@@ -84,8 +84,8 @@ function initSearchFriendEvents(elements) {
 			toggleSearch(true, elements);
 		}
 	});	
-	elements.searchInput.addEventListener('input', resetInactivityTimeout);
-	elements.searchInput.addEventListener('focus', resetInactivityTimeout);
+	elements.searchInput.addEventListener('input', () => resetInactivityTimeout(elements));
+	elements.searchInput.addEventListener('focus', () => resetInactivityTimeout(elements));
 	elements.searchForm.addEventListener('submit', function(e) {
 		e.preventDefault();
 		searchNewFriend(elements.searchInput);
@@ -101,13 +101,17 @@ function searchNewFriend(input) {
 }
 
 async function handleSearchUsers(username) {
-	const response = await searchUsers(username);
-	if (response.status === "success") {
-		throwAlert('ole ole ole los caracole');
-		console.log(response.data);
-	} else {
-		throwAlert(response.message);
-	}
+    const response = await searchUsers(username);
+    if (response.status === "success") {
+        if (response.users.length === 0) {
+            throwAlert('No match found.');
+        } else {
+            throwAlert('ole ole ole los caracole');
+            console.log(response.data);
+        }
+    } else {
+        throwAlert(response.message);
+    }
 }
 
 function toggleSearch(on, elements) {
@@ -115,7 +119,7 @@ function toggleSearch(on, elements) {
         elements.searchContainer.classList.toggle('expanded');
         elements.searchBtn.innerHTML = '<i class="bi bi-search"></i>';
         elements.searchBtn.setAttribute('aria-label', 'Search friends');
-        resetInactivityTimeout();
+        resetInactivityTimeout(elements);
     }
     else {
         elements.searchContainer.classList.remove('expanded');
@@ -125,10 +129,10 @@ function toggleSearch(on, elements) {
     }
 }
 
-function resetInactivityTimeout() {
+function resetInactivityTimeout(elements) {
     clearTimeout(inactivityTimeout);
     inactivityTimeout = setTimeout(() => {
-        toggleSearch(false);
+        toggleSearch(false, elements);
     }, 30000);
 }
 
