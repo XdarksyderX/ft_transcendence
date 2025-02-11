@@ -38,6 +38,7 @@ SIMPLE_JWT = {
 APPEND_SLASH = True
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 FRONTEND_URL = os.getenv('FRONTEND_URL')
+CONSISTENCY_SERVICE_TOKEN = os.getenv('CONSISTENCY_SERVICE_TOKEN')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "True") == "True"

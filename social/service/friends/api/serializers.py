@@ -3,16 +3,24 @@ from core.models import User, Status
 
 class ProfileSerializer(serializers.ModelSerializer):
     status = serializers.SerializerMethodField()
+    avatar = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ['user_id', 'username', 'avatar', 'status']
+        fields = ['id', 'username', 'avatar', 'status']
 
     def get_status(self, obj):
-        return obj.status.name if obj.status else None
+        return obj.status.name if hasattr(obj, 'status') and obj.status else None
 
+    def get_avatar(self, obj):
+        return obj.avatar.url if obj.avatar else "/media/default.png"
 
 class SearchUserSerializer(serializers.ModelSerializer):
+    avatar = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ['user_id', 'username', 'avatar']
+        fields = ['id', 'username', 'avatar']
+
+    def get_avatar(self, obj):
+        return obj.avatar.url if obj.avatar else "/media/default.png"

@@ -20,5 +20,6 @@ from django.urls import path, include
 urlpatterns = [
     path('', include('access.urls')),
     path('', include('change.urls')),
-    path('', include('activate.urls'))
+    path('', include('activate.urls')),
+	path('', include('core.consistency.urls'))
 ]
