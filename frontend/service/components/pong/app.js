@@ -40,7 +40,14 @@ const accentColor = getComputedStyle(document.documentElement).getPropertyValue(
 const lightColor = getComputedStyle(document.documentElement).getPropertyValue('--light').trim();
 const dangerColor = getComputedStyle(document.documentElement).getPropertyValue('--danger').trim();
 
-
+function initInstructionsTooltip() {
+    const tooltipTriggerEl = document.querySelector('[data-bs-toggle="tooltip"]');
+    const explanation = "Powerups can only be used once at each point";
+    if (tooltipTriggerEl) {
+        tooltipTriggerEl.setAttribute('title', explanation);
+        new bootstrap.Tooltip(tooltipTriggerEl);
+    }
+}
 export function initializePongEvents()
 {
 	let gameConfig = 
@@ -57,6 +64,8 @@ export function initializePongEvents()
 		playAI: false,
 		msAIcalcRefresh: 1000
 	};
+
+    initInstructionsTooltip();
 
     // Add event listener to start game when button is clicked
     document.getElementById("startGameButton").addEventListener("click", () => 
