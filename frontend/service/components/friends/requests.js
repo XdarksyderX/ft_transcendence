@@ -235,7 +235,7 @@ function createCardBtns(card, user, invitationId = null) {
     pendantBtn.className = 'btn ctm-btn pendant-btn';
     pendantBtn.setAttribute('data-action', 'pendant');
     pendantBtn.innerHTML = '<i class="fas fa-ban mt-1 me-2"></i> <span class="ctm-text"> pendant </span>';
-    pendantBtn.addEventListener('click', () => handleCancelFriendRequest(pendantBtn, card, invitationId));
+    pendantBtn.addEventListener('click', () => handleCancelFriendRequest(card, invitationId));
     pendantBtn.dataset.invitationId = invitationId;
     console.log('on create card ID: ', invitationId);
     // Add event listeners for hover effect
@@ -273,10 +273,9 @@ function toggleBtns(card, status, invitationId = null) {
         blockBtn.style.display = 'none';
         blockedBtn.style.display = 'none';
         pendantBtn.style.display = 'flex';
-        // if (invitationId) {
-        //     pendantBtn.dataset.invitationId = invitationId; 
-        //     console.log('invitation_id : ', invitationId);
-        // }
+        if (invitationId) {
+            pendantBtn.addEventListener('click', ()=>handleCancelFriendRequest(card, invitationId))
+        }
     } else {
         addBtn.style.display = 'flex';
         blockBtn.style.display = 'flex';
@@ -308,7 +307,7 @@ async function handleSendFriendRequest(username, card) {
         throwAlert(response.message);
     }
 }
-async function handleCancelFriendRequest(btn, card, invitationId) {
+async function handleCancelFriendRequest(card, invitationId) {
     const response = await cancelFriendRequest(invitationId);
     if (response.status === "success") {
         toggleBtns(card, 'default');
