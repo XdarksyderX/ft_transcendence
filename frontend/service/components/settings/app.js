@@ -351,7 +351,7 @@ function createBlockedUserCard(user) {
 export async function handleUnblockUser(username) {
 	const response = await unblockUser(username);
 	if (response.status === "success") {
-		throwAlert('ole ole ole los caracole');
+	//	throwAlert('ole ole ole los caracole');
 		document.getElementById('blocked-users-list').innerHTML = '';
 		renderBlockedUsers();
 	} else {
