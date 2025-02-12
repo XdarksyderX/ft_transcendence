@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from core.utils.rabbitmq_client import RabbitMQClient
-from core.utils.event_domain import wrap_event_data
+from core.utils.event_domain import publish_event
 from ..serializers import RegisterUserSerializer
 
 class RegisterUserView(APIView):
@@ -14,21 +14,7 @@ class RegisterUserView(APIView):
         serializer = RegisterUserSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-
-            rabbit_client = RabbitMQClient()
-            try:
-                event_data = wrap_event_data(
-                    data={
-                        "username": user.username,
-                        "user_id": user.id
-                    },
-                    event_type="auth.user_registered",
-                    aggregate_id=str(user.id)
-                )
-                rabbit_client.publish(exchange='auth', routing_key='auth.user_registered', message=event_data)
-            finally:
-                rabbit_client.close()
-
+            publish_event("auth", "auth.user_registered", {"user_id": user.id, "username": user.username})
             return Response({
                 "status": "success",
                 "message": "User registered successfully.",

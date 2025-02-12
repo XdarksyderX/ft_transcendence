@@ -48,7 +48,16 @@ class Status(models.Model):
     def __str__(self) -> str:
         return f"User id: {self.user_id}, Status: {'online' if self.online else 'offline'}"
     
+class OutgoingEvent(models.Model):
+    event_id = models.UUIDField(primary_key=True)
+    event_type = models.CharField(max_length=255)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    data = models.JSONField()
 
+class IncomingEvent(models.Model):
+    event_id = models.UUIDField(primary_key=True)
+    event_type = models.CharField(max_length=255)
+    timestamp = models.DateTimeField(auto_now_add=True)
 
 class Messages(models.Model):
     """

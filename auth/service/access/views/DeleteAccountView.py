@@ -4,8 +4,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from ..serializers import DeleteAccountSerializer
 from django.contrib.auth import get_user_model
-from core.utils.event_domain import wrap_event_data
-from core.utils.rabbitmq_client import RabbitMQClient
+from core.utils.event_domain import publish_event
 User = get_user_model()
 
 class DeleteAccountView(APIView):
@@ -22,22 +21,7 @@ class DeleteAccountView(APIView):
             try:
                 user = request.user
                 user.delete()
-                rabbit_client = RabbitMQClient()
-                try:
-                    event_data = {
-                        "user_id": user.id
-                    }
-                    rabbit_client.publish(
-                        exchange='auth',
-                        routing_key='auth.user_deleted',
-                        message=wrap_event_data(event_data, 'auth.user_deleted', str(user.id)), 
-                    )
-                finally:
-                    rabbit_client.close()
-                return Response(
-                    {"status": "sucess", "message": "Account deleted successfully"},
-                    status=status.HTTP_204_NO_CONTENT
-                )
+                publish_event("auth", "auth.user_deleted", {"user_id": user.id})
             except Exception as e:
                 return Response(
                     {"status":"error", "message": "Failed to delete account"},

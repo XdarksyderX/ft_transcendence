@@ -53,4 +53,3 @@ class IncomingEvent(models.Model):
     event_id = models.UUIDField(primary_key=True)
     event_type = models.CharField(max_length=255)
     timestamp = models.DateTimeField(auto_now_add=True)
-    data = models.JSONField()

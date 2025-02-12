@@ -42,16 +42,18 @@ CONSISTENCY_SERVICE_TOKEN = os.getenv('CONSISTENCY_SERVICE_TOKEN')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "True") == "True"
-AMQP_ENABLED = True
 
 ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1']
 
 #Rabbitmq Config
-RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "rabbitmq")
-RABBITMQ_PORT = int(os.getenv("RABBITMQ_PORT", 5672))
-RABBITMQ_DEFAULT_USER = os.getenv("RABBITMQ_DEFAULT_USER", "admin")
-RABBITMQ_DEFAULT_PASS = os.getenv("RABBITMQ_DEFAULT_PASS", "admin")
-RABBITMQ_VHOST = os.getenv("RABBITMQ_VHOST", "/")
+RABBITMQ_CONFIG = {
+    "AMQP_ENABLED": True,
+    "RABBITMQ_HOST": os.getenv("RABBITMQ_HOST", "rabbitmq"),
+    "RABBITMQ_PORT": int(os.getenv("RABBITMQ_PORT", 5672)),
+    "RABBITMQ_DEFAULT_USER": os.getenv("RABBITMQ_DEFAULT_USER", "admin"),
+    "RABBITMQ_DEFAULT_PASS": os.getenv("RABBITMQ_DEFAULT_PASS", "admin"),
+    "RABBITMQ_VHOST": os.getenv("RABBITMQ_VHOST", "/")
+}
 
 AUTH_USER_MODEL = 'core.User'
 

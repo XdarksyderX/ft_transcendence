@@ -24,6 +24,10 @@ export async function declineFriendRequest(invitationId) {
     return await sendRequest('POST', `requests/decline/${invitationId}/`);
 }
 
+export async function sendFriendRequest(username) {
+    return await sendRequest('POST', `requests/send/${username}/`);
+}
+
 export async function cancelFriendRequest(invitationId) {
     return await sendRequest('POST', `requests/cancel/${invitationId}/`);
 }

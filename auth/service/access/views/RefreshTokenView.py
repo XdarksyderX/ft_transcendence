@@ -6,8 +6,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from datetime import datetime, timezone, timedelta
 from django.utils.http import http_date
 from core.models import User
-from core.utils.rabbitmq_client import RabbitMQClient
-from core.utils.event_domain import wrap_event_data
+from core.utils.event_domain import publish_event
 
 
 class RefreshTokenView(APIView):
@@ -70,26 +69,7 @@ class RefreshTokenView(APIView):
                 expires=http_date(refresh_exp.timestamp()),
                 samesite='None'
             )
-
-
-            rabbit_client = RabbitMQClient()
-            try:
-                event_data = wrap_event_data(
-                    data={
-                        "user_id": user_id,
-                        "username": access_token.payload.get('username')
-                    },
-                    event_type="auth.token_refreshed",
-                    aggregate_id=str(user_id)
-                )
-                rabbit_client.publish(
-                    exchange='auth',
-                    routing_key='auth.token_refreshed',
-                    message=event_data
-                )
-            finally:
-                rabbit_client.close()
-
+            publish_event("auth", "auth.token_refreshed", {"user_id": user.id, "username": user.username})
             return response
 
         except Exception:
