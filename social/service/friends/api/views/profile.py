@@ -3,23 +3,32 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
+from django.http import Http404
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.core.files.images import get_image_dimensions
 from friends.api.serializers import ProfileSerializer
+from django.utils import timezone
 from core.models import User
+import os
 
 class ProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, username=None):
-        user = get_object_or_404(User, username=username) if username else request.user
+        try:
+            user = get_object_or_404(User, username=username) if username else request.user
+        except Http404:
+            return Response({
+                'status': 'error',
+                'message': 'User not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+
         serializer = ProfileSerializer(user)
         return Response({
             'status': 'success',
             'message': 'User profile data retrieved successfully.',
             'data': serializer.data
         }, status=status.HTTP_200_OK)
-
 
 class SearchUsersView(APIView):
     permission_classes = [IsAuthenticated]
@@ -53,8 +62,15 @@ class ChangeAvatarView(APIView):
         if width > 1024 or height > 1024:
             return Response({'status': 'error', 'message': 'Image too large. Max dimensions: 1024x1024.'}, status=status.HTTP_400_BAD_REQUEST)
 
+        extension = os.path.splitext(avatar.name)[1]
+        new_name = f"{request.user.username}_{timezone.now().strftime('%Y%m%d%H%M%S')}{extension}"
+        avatar.name = new_name
+
+        if request.user.avatar:
+            request.user.avatar.delete(save=False)
+
         user = request.user
         user.avatar = avatar
         user.save()
 
-        return Response({'status': 'success', 'message': 'Avatar updated successfully.', 'avatar_url': user.avatar.url}, status=status.HTTP_200_OK)
+        return Response({'status': 'success', 'message': 'Avatar updated successfully.', 'avatar': user.avatar.url}, status=status.HTTP_200_OK)

@@ -94,6 +94,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'core.utils.CookieJWTAuthentication.CookieJWTAuthentication',
     ),
+    'EXCEPTION_HANDLER': 'core.exceptions.global_handler.global_exception_handler',
 }
 
 MIDDLEWARE = [

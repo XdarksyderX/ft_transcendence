@@ -10,8 +10,6 @@ RABBITMQ_VHOST = os.getenv("RABBITMQ_VHOST", "/")
 
 BROKER_URL = f'pyamqp://{RABBITMQ_DEFAULT_USER}:{RABBITMQ_DEFAULT_PASS}@{RABBITMQ_HOST}:{RABBITMQ_PORT}/{RABBITMQ_VHOST}'
 
-print(BROKER_URL)
-
 app = Celery("consistency_service", broker=BROKER_URL)
 
 app.conf.task_queues = (

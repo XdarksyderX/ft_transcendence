@@ -48,8 +48,14 @@ if DEBUG:
     mimetypes.add_type("image/jpeg", ".jpeg", True)
     mimetypes.add_type("image/jpg", ".jpg", True)
 
-AMQP_ENABLED = False
 ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1']
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'core.utils.CookieJWTAuthentication.CookieJWTAuthentication',
+    ),
+    'EXCEPTION_HANDLER': 'core.exceptions.global_handler.global_exception_handler',
+}
 
 #Rabbitmq Config
 RABBITMQ_CONFIG = {

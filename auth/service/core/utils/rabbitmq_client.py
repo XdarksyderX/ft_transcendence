@@ -48,7 +48,7 @@ class RabbitMQClient:
                 self.connection = pika.BlockingConnection(parameters)
                 self.channel = self.connection.channel()
                 print("Connected to RabbitMQ.")
-            except pika.exceptions.AMQPConnectionError as e:
+            except Exception as e:
                 print(f"Error connecting to RabbitMQ: {e}")
                 self.connection = None
                 self.channel = None
@@ -106,7 +106,7 @@ class RabbitMQClient:
                     properties=properties
                 )
                 print(f"Message sent to exchange '{exchange}' with routing key '{routing_key}' (TTL={ttl}ms): {message_payload}")
-            except pika.exceptions.AMQPError as e:
+            except Exception as e:
                 print(f"Error sending message to RabbitMQ: {e}")
 
     def close(self):
