@@ -24,13 +24,40 @@ export function initSearchFriendEvents(elements) {
 	});
 }
 
-export function renderPendingFriendRequests(container) {
-    handleGetPendingReceivedRequests();
+export async function renderPendingFriendRequests(container) {
+    const requests = await handleGetPendingReceivedRequests();
+    if (requests.length === 0) {
+        container.innerText = "You don't have any friend requests yet, but you can add one!";
+    } else {
+        requests.forEach(request => {
+            const card = createFriendRequestCard(request);
+            container.appendChild(card);
+        })
+    }
+
+}
+
+function createFriendRequestCard( request ) {
+//if request only have the username i'll have to get the photo
+        // `<div class="user-card d-flex flex-column flex-md-row justify-content-between align-items-center">
+        //     <div class="d-flex align-items-center mb-2 mb-md-0">
+        //     <img src="${user.avatar}" alt="${user.username}" class="friend-picture">
+        //     <p class="mb-0 ms-2">${user.username}</p>
+        //     </div>
+        //     <div>
+        //     <button class="btn ctm-btn">
+        //         <i class="fas fa-check"> accept </i>
+        //     </button>
+        //     <button class="btn ctm-btn-secondary">
+        //         <i class="fas fa-cancel"> decline </i>
+        //     </button>
+        // </div>`
 }
 
 async function handleGetPendingReceivedRequests() {
     const response = await getPendingReceivedRequests();
     if (response.status === "success") {
+        return (response.incoming);
 /*         if (response.users.length === 0) {
             return (null);
         } else {
@@ -43,6 +70,7 @@ async function handleGetPendingReceivedRequests() {
         return (null);
     } 
 }
+
 
 
 
@@ -135,6 +163,8 @@ async function getUserStatusMap(users) {
     }
     return userStatusMap;
 }
+
+
 
 function renderSearchList(users, elements) {
     elements.searchList.innerHTML = '';
