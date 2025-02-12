@@ -50,6 +50,15 @@ function initInstructionsTooltip()
         new bootstrap.Tooltip(tooltipTriggerEl);
     }
 }
+
+function reShowMenu()
+{
+    document.getElementById("board").hidden = true; // Hide board
+    document.getElementById("neonFrame").hidden = true; // Hide frame
+    document.getElementById("customizationMenu").hidden = false; // Show menu
+    document.getElementById("instructions").hidden = false; // Show instructions
+}
+
 export function initializePongEvents()
 {
 	let gameConfig = 
@@ -132,8 +141,8 @@ function applySettings(gameConfig)
 
 function startGame(gameConfig)
 {
-    // Show menu and hide game board
-    document.getElementById("dCustomizationOptions").hidden = true;
+    // Hide menu and show game
+    document.getElementById("customizationMenu").hidden = true;
     document.getElementById("instructions").hidden = true;
     document.getElementById("board").hidden = false;
     document.getElementById("neonFrame").hidden = false;
@@ -358,10 +367,8 @@ function endMatch(LplayerScore, RplayerScore)
     context.textAlign = "center";
     context.fillText(message, board.width / 2, board.height / 2);
 
-    // Wait 3 seconds before redirecting to /home
-    setTimeout(() => {
-        window.location.href = "/home";
-    }, 1500);
+    // Wait 1.5s before showing menu again
+    setTimeout(() => { reShowMenu();}, 1500);
 }
 
 function stop() 
