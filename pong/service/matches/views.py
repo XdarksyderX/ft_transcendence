@@ -9,64 +9,82 @@ from .serializers import (
     MatchInvitationDetailSerializer,
     PendingMatchesSerializer
 )
+from rest_framework.permissions import IsAuthenticated
 
 class MatchHistoryView(APIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request):
         user_id = request.user.id
-        if not user_id:
-            return Response({'error': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
         history = MatchHistory.objects.filter(user__user_id=user_id)
         serializer = MatchHistorySerializer(history, many=True)
-        return Response(serializer.data)
+        return Response({"status": "success", "data": serializer.data})
 
 
 class MatchInvitationView(APIView):
+    permission_classes = [IsAuthenticated]
     def post(self, request):
         sender_id = request.user.id
-        if not sender_id:
-            return Response({'error': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
         request.data['sender'] = sender_id
         serializer = MatchInvitationSerializer(data=request.data)
         if serializer.is_valid():
             invitation = serializer.save()
-            response_data = serializer.data
-            response_data['token'] = invitation.token  # Incluye el token en la respuesta
-            return Response(response_data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({
+                "status": "success",
+                "message": "Invitation created successfully",
+                "data": {**serializer.data, "token": invitation.token}
+            }, status=status.HTTP_201_CREATED)
+        return Response({
+            "status": "error",
+            "message": "Invalid data provided",
+            "errors": serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request):
         user_id = request.user.id
-        if not user_id:
-            return Response({'error': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
         invitations = MatchInvitation.objects.filter(receiver__user_id=user_id, status='pending')
         serializer = MatchInvitationSerializer(invitations, many=True)
-        return Response(serializer.data)
+        return Response({
+            "status": "success",
+            "data": serializer.data
+        })
 
 
 class MatchInvitationDetailView(APIView):
+    permission_classes = [IsAuthenticated]
     def patch(self, request, invitation_id):
         try:
             invitation = MatchInvitation.objects.get(id=invitation_id)
         except MatchInvitation.DoesNotExist:
-            return Response({'error': 'Invitation not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({
+                "status": "error",
+                "message": "Invitation not found"
+            }, status=status.HTTP_404_NOT_FOUND)
+        
         serializer = MatchInvitationDetailSerializer(invitation, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({
+                "status": "success",
+                "data": serializer.data
+            })
+        return Response({
+            "status": "error",
+            "message": "Invalid data provided",
+            "errors": serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 
 class JoinMatchView(APIView):
-    def post(self, request):
-        token = request.data.get('token')
-        if not token:
-            return Response({'error': 'Token is required'}, status=status.HTTP_400_BAD_REQUEST)
+    permission_classes = [IsAuthenticated]
+    def get(self, request, token):
         try:
             invitation = MatchInvitation.objects.get(token=token, status='pending')
         except MatchInvitation.DoesNotExist:
-            return Response({'error': 'Invalid or expired token'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({
+                "status": "error",
+                "message": "Invalid or expired token"
+            }, status=status.HTTP_404_NOT_FOUND)
 
-        # Actualizar el estado de todas las partidas asociadas al token
         games = invitation.games.all()
         for game in games:
             game.status = 'in_progress'
@@ -76,19 +94,24 @@ class JoinMatchView(APIView):
         invitation.save()
 
         return Response({
-            'message': 'Successfully joined the matches',
-            'game_ids': [game.id for game in games]
+            "status": "success",
+            "message": "Successfully joined the matches",
+            "data": {
+                "game_ids": [game.id for game in games]
+            }
         })
 
 
 class PendingMatchesView(APIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request):
         user_id = request.user.id
-        if not user_id:
-            return Response({'error': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
         pending_matches = PongGame.objects.filter(
             status='pending',
             available=True
         ).filter(models.Q(player1__user_id=user_id) | models.Q(player2__user_id=user_id))
         serializer = PendingMatchesSerializer(pending_matches, many=True, context={'request': request})
-        return Response(serializer.data)
+        return Response({
+            "status": "success",
+            "data": serializer.data
+        })

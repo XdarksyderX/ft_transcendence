@@ -7,12 +7,12 @@ su postgres -c "psql -c \"CREATE USER $PONGDB_USER WITH PASSWORD '$PONGDB_PASSWO
 su postgres -c "psql -c \"CREATE DATABASE $PONGDB_NAME OWNER $PONGDB_USER;\""
 su postgres -c "psql -c \"ALTER USER $PONGDB_USER CREATEDB;\""
 
+
 python3 service/manage.py makemigrations core
 python3 service/manage.py migrate
 
 export DJANGO_SETTINGS_MODULE=config.settings
 export PYTHONPATH=/service
-export DJANGO_SETTINGS_MODULE=config.settings
 
 cd service
 

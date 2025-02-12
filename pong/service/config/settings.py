@@ -51,7 +51,6 @@ CORS_ALLOWED_ORIGINS = [
 	"http://localhost:80",
 ]
 
-AUTH_USER_MODEL = 'core.User'
 # Application definition
 
 INSTALLED_APPS = [
@@ -61,11 +60,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'channels',
+    'core',
     'game',
     'matches',
 	'tournaments'
 ]
+
+AUTH_USER_MODEL = 'core.User'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -82,7 +83,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'middlewares.jwt_auth.JWTAuthenticationMiddleware'
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -113,8 +113,7 @@ CHANNEL_LAYERS = {
 }
 
 
-ASGI_APPLICATION = 'pong.service.config.asgi.application'
-WSGI_APPLICATION = 'pong.service.config.wsgi.application' 
+WSGI_APPLICATION = 'config.wsgi.application'
 
 
 # Database
