@@ -49,6 +49,7 @@ class SendRequestView(APIView):
         return Response({
             "status": "success",
             "message": "Friend request sent successfully."
+            "invitation_id": invitation.id
         }, status=status.HTTP_201_CREATED)
 
 class PendingReceivedRequestsView(APIView):

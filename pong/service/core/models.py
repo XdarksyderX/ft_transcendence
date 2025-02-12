@@ -1,14 +1,15 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 import uuid
 import random
 import math
 
-class User(models.Model):
+class User(AbstractUser):
     username = models.CharField(max_length=150, unique=True)
     pong_statistics = models.OneToOneField(
         'PongStatistics',
         on_delete=models.CASCADE,
-        related_name='user',
+        related_name='user_stats',
         null=True,
         blank=True
     )
@@ -215,7 +216,7 @@ class TournamentGame(models.Model):
     tournament = models.ForeignKey(
         Tournament,
         on_delete=models.CASCADE,
-        related_name='games'
+        related_name='tournament_games'
     )
     match = models.OneToOneField(
         PongGame,
@@ -229,7 +230,7 @@ class TournamentGame(models.Model):
         return f"Tournament: {self.tournament.name}, Match: {self.match.id}"
 
 
-class MatchesHistory(models.Model):
+class MatchHistory(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
