@@ -1,5 +1,7 @@
 import { throwAlert } from "../../app/render.js";
-import { searchUsers, sendFriendRequest, blockUser, isUserBlocked } from "../../app/social.js";
+import { searchUsers, sendFriendRequest, 
+    getPendingSentRequests, getPendingReceivedRequests,
+    blockUser, isUserBlocked } from "../../app/social.js";
 import { getUsername } from "../../app/auth.js";
 
 
@@ -21,6 +23,32 @@ export function initSearchFriendEvents(elements) {
 		searchNewFriend(elements);
 	});
 }
+
+export function renderPendingFriendRequests(container) {
+    handleGetPendingReceivedRequests();
+}
+
+async function handleGetPendingReceivedRequests() {
+    const response = await getPendingReceivedRequests();
+    if (response.status === "success") {
+/*         if (response.users.length === 0) {
+            return (null);
+        } else {
+            console.log(response.data);
+            return (response.users);
+        } */
+       console.log("getPendingReceivedRequests says: ", response);
+    } else {
+        throwAlert(response.message);
+        return (null);
+    } 
+}
+
+
+
+
+
+
 function toggleSearch(on, elements) {
     if (on) {
         elements.searchContainer.classList.toggle('expanded');
@@ -85,14 +113,20 @@ async function filterSearchList(users) {
     const friendsNames = getFriendsFromDOM();
     const ownUsername = getUsername();
     const filteredUsers = users.filter(user => !friendsNames.includes(user.username) && user.username !== ownUsername);
-    return await mapUserBlockedStatus(filteredUsers);
+    return await getUserStatusMap(filteredUsers);
 }
 
-async function mapUserBlockedStatus(users) {
+async function getUserStatusMap(users) {
     const userStatusMap = new Map();
+    const pendingRequests = await getPendingSentRequests();
+    console.log('pengüins: ', pendingRequests);
+    const pendingUsernames = (pendingRequests.status === "success" && Array.isArray(pendingRequests.outgoing)) ? pendingRequests.outgoing.map(request => request.username) : [];
+
     for (const user of users) {
         const response = await isUserBlocked(user.username);
-        userStatusMap.set(user.username, { user, isBlocked: response.status === "success" && response.is_blocked });
+        const isBlocked = response.status === "success" && response.is_blocked;
+        const isPending = pendingUsernames.includes(user.username);
+        userStatusMap.set(user.username, { user, isBlocked, isPending });
     }
     return userStatusMap;
 }
@@ -105,21 +139,29 @@ function renderSearchList(users, elements) {
         elements.searchList.appendChild(createAddFriendCard(null));
     } else {
         users.forEach((value, key) => {
-            const addFriendCard = createAddFriendCard(value.user, value.isBlocked);
+            const status = value.isBlocked ? 'blocked' : value.isPending ? 'pendant' : 'default'
+            const addFriendCard = createAddFriendCard(value.user, status);
             elements.searchList.appendChild(addFriendCard);
         });
     }
 }
 
-function createAddFriendCard(user, isBlocked) {
+function createAddFriendCard(user, status) {
     const card = document.createElement('div');
     card.className = 'user-card d-flex flex-column flex-md-row justify-content-between align-items-center';
     if (!user) {
         createEmptyUserCard(card);
-    } else if (isBlocked) {
-        createBlockedUserCard(card, user);
     } else {
-        createUnblockedUserCard(card, user);
+        const btns = createCardBtns(card, user);
+        card.setAttribute('data-user-id', user.user_id);
+        card.innerHTML = `
+        <div class="d-flex align-items-center mb-2 mb-md-0">
+            <img src="${user.avatar}" alt="${user.username}" class="friend-picture">
+            <p class="mb-0 ms-2">${user.username}</p>
+        </div>
+        `;
+        card.appendChild(btns);
+        toggleBtns(card, status)
     }
     return card;
 }
@@ -138,7 +180,7 @@ function createCardBtns(card, user) {
     addBtn.className = 'btn ctm-btn-secondary me-2';
     addBtn.setAttribute('data-action', 'add');
     addBtn.innerHTML = '<i class="fas fa-plus"> add </i>';
-    addBtn.addEventListener('click', () => handleAddFriend(user.username, card));
+    addBtn.addEventListener('click', () => handleSendFriendRequest(user.username, card));
 
     const blockBtn = document.createElement('button');
     blockBtn.className = 'btn ctm-btn-danger';
@@ -166,45 +208,14 @@ function createCardBtns(card, user) {
     return btnsContainer;
 }
 
-function createBlockedUserCard(card, user) {
-    const btns = createCardBtns(card, user);
-    card.setAttribute('data-user-id', user.user_id);
-    card.classList.add('blocked');
-    card.innerHTML = `
-    <div class="d-flex align-items-center mb-2 mb-md-0">
-        <img src="${user.avatar}" alt="${user.username}" class="friend-picture">
-        <p class="mb-0 ms-2">${user.username}</p>
-    </div>
-    `;
-    card.appendChild(btns);
-    toggleBtns(card, 'blocked');
-}
 
-function createUnblockedUserCard(card, user) {
-    const btns = createCardBtns(card, user);
-    card.setAttribute('data-user-id', user.user_id);
-    card.classList.remove('blocked');
-    card.innerHTML = `
-    <div class="d-flex align-items-center mb-2 mb-md-0">
-        <img src="${user.avatar}" alt="${user.username}" class="friend-picture">
-        <p class="mb-0 ms-2">${user.username}</p>
-    </div>
-    `;
-    card.appendChild(btns);
-    toggleBtns(card, 'default');
-}
-
-
-// async function handleSendFriendRequest(username) {
-
-// }
 
 function toggleBtns(card, status) {
     const addBtn = card.querySelector('[data-action="add"]');
     const blockBtn = card.querySelector('[data-action="block"]');
     const blockedBtn = card.querySelector('[data-action="blocked"]');
     const pendantBtn = card.querySelector('[data-action="pendant"]');
-    console.log ('holi');
+
     if (status === 'blocked') {
         addBtn.style.display = 'none';
         blockBtn.style.display = 'none';
@@ -229,6 +240,16 @@ async function handleBlockUser(username, card) {
     const response = await blockUser(username);
     if (response.status === "success") {
         toggleBtns(card, 'blocked');
+    } else {
+        throwAlert(response.message);
+    } 
+}
+
+async function handleSendFriendRequest(username, card) {
+    const response = await sendFriendRequest(username);
+    if (response.status === "success") {
+        toggleBtns(card, 'pendant');
+        throwAlert(`Friend request sent to ${username}`)
     } else {
         throwAlert(response.message);
     } 

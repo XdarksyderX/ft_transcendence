@@ -1,6 +1,6 @@
 import { throwAlert } from "../../app/render.js";
 import { searchUsers, getFriendsList } from "../../app/social.js";
-import { initSearchFriendEvents } from "./requests.js";
+import { initSearchFriendEvents, renderPendingFriendRequests } from "./requests.js";
 
 
 const friends = [
@@ -14,6 +14,7 @@ const friends = [
 export function initializeFriendsEvents() {
 	const elements = getElements();
 	renderFriendList(elements.friendsContainer, elements.dataContainer);
+	renderPendingFriendRequests(elements.requestsContainer);
 	initSearchFriendEvents(elements);
 }
 
@@ -26,8 +27,8 @@ function getElements() {
         searchForm: document.getElementById('search-form'),
         searchInput: document.querySelector('#search-form input'),
         searchList: document.getElementById('search-list'),
-        searchListContainer: document.getElementById('search-list-container')
-    
+        searchListContainer: document.getElementById('search-list-container'),
+		requestsContainer: document.getElementById('requests-container')
     });
 }
 
