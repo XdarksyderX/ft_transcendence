@@ -46,9 +46,6 @@ async function handleGetPendingReceivedRequests() {
 
 
 
-
-
-
 function toggleSearch(on, elements) {
     if (on) {
         elements.searchContainer.classList.toggle('expanded');
@@ -120,12 +117,20 @@ async function getUserStatusMap(users) {
     const userStatusMap = new Map();
     const pendingRequests = await getPendingSentRequests();
     console.log('pengüins: ', pendingRequests);
+
+    // Log the structure of pendingRequests
+    console.log('pendingRequests structure: ', JSON.stringify(pendingRequests, null, 2));
+
     const pendingUsernames = (pendingRequests.status === "success" && Array.isArray(pendingRequests.outgoing)) ? pendingRequests.outgoing.map(request => request.username) : [];
+
+    // Log the pendingUsernames array
+    console.log('pendingUsernames: ', pendingUsernames);
 
     for (const user of users) {
         const response = await isUserBlocked(user.username);
         const isBlocked = response.status === "success" && response.is_blocked;
         const isPending = pendingUsernames.includes(user.username);
+        console.log(`User: ${user.username}, isBlocked: ${isBlocked}, isPending: ${isPending}`);
         userStatusMap.set(user.username, { user, isBlocked, isPending });
     }
     return userStatusMap;
@@ -195,7 +200,7 @@ function createCardBtns(card, user) {
     blockedBtn.disabled = true;
 
     const pendantBtn = document.createElement('button');
-    pendantBtn.className = 'btn ctm-btn';
+    pendantBtn.className = 'btn ctm-btn pendant-btn';
     pendantBtn.setAttribute('data-action', 'pendant');
     pendantBtn.innerHTML = '<i class="fas fa-ban"> pendant </i>';
     pendantBtn.addEventListener('click', () => handlePendant(user.username, card));
@@ -215,7 +220,7 @@ function toggleBtns(card, status) {
     const blockBtn = card.querySelector('[data-action="block"]');
     const blockedBtn = card.querySelector('[data-action="blocked"]');
     const pendantBtn = card.querySelector('[data-action="pendant"]');
-
+    console.log('togglebtns status: ', status)
     if (status === 'blocked') {
         addBtn.style.display = 'none';
         blockBtn.style.display = 'none';
