@@ -34,6 +34,7 @@
     overflow-y: auto;
 }
 
+
 #search-form-container {
     position: relative;
     height: 38px;
@@ -109,9 +110,5 @@
     border: 1px solid gray;
 }
 
-.pendant-btn:hover::after {
-    content: ' cancel ';
-    font-family: 'Font Awesome 5 Free';
-    font-weight: 900;
-    content: '\f05e'; /* Font Awesome icon for cancel (fa-ban) */
-}
+
+
