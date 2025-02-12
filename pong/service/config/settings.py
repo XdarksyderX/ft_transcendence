@@ -16,25 +16,42 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+with open(os.path.join(BASE_DIR, 'config/keys/public.pem'), 'r') as f:
+    PUBLIC_KEY = f.read()
+
+SIMPLE_JWT = {
+    "ALGORITHM": "RS256",
+    "VERIFYING_KEY": PUBLIC_KEY,
+    "AUTH_HEADER_TYPES": ("Bearer",),
+}
+
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
-JWT_SECRET = os.getenv('JWT_SECRET')
-APPEND_SLASH = True
 FRONTEND_URL = os.getenv('FRONTEND_URL')
+APPEND_SLASH = True
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-AMQP_ENABLED = False
 
 ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1']
 
 #Rabbitmq Config
-RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "localhost")
-RABBITMQ_PORT = int(os.getenv("RABBITMQ_PORT", 5672))
-RABBITMQ_DEFAULT_USER = os.getenv("RABBITMQ_DEFAULT_USER", "guest")
-RABBITMQ_DEFAULT_PASS = os.getenv("RABBITMQ_DEFAULT_PASS", "guest")
-RABBITMQ_VHOST = os.getenv("RABBITMQ_VHOST", "/")
+RABBITMQ_CONFIG = {
+    "AMQP_ENABLED": True,
+    "RABBITMQ_HOST": os.getenv("RABBITMQ_HOST", "rabbitmq"),
+    "RABBITMQ_PORT": int(os.getenv("RABBITMQ_PORT", 5672)),
+    "RABBITMQ_DEFAULT_USER": os.getenv("RABBITMQ_DEFAULT_USER", "admin"),
+    "RABBITMQ_DEFAULT_PASS": os.getenv("RABBITMQ_DEFAULT_PASS", "admin"),
+    "RABBITMQ_VHOST": os.getenv("RABBITMQ_VHOST", "/")
+}
 
-PONG_USER_MODEL = 'core.User'
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:44519",
+	"http://localhost:8000",
+	"http://localhost:5080",
+	"http://localhost:80",
+]
+
+AUTH_USER_MODEL = 'core.User'
 # Application definition
 
 INSTALLED_APPS = [
@@ -44,11 +61,18 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'channels'
-    'game'
+    'channels',
+    'game',
     'matches',
 	'tournaments'
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'core.utils.CookieJWTAuthentication.CookieJWTAuthentication',
+    ),
+    'EXCEPTION_HANDLER': 'core.exceptions.global_handler.global_exception_handler',
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
