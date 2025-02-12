@@ -19,3 +19,9 @@ def global_exception_handler(exc, context):
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     return response
+
+def page_not_found(request, exception):
+    return Response({
+        "status": "error",
+        "message": "Resource not found."
+    }, status=status.HTTP_404_NOT_FOUND)

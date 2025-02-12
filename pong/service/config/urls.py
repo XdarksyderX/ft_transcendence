@@ -21,3 +21,5 @@ urlpatterns = [
     path('game/', include('game.urls')), # not sure if game urls are necessary
 ]
 
+handler404 = 'core.exceptions.global_handler.page_not_found'
+

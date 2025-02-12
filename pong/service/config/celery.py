@@ -22,6 +22,8 @@ app.conf.task_queues = (
     Queue('pong.user_registered', Exchange('auth'), routing_key='auth.user_registered'),
     Queue('pong.user_deleted', Exchange('auth'), routing_key='auth.user_deleted'),
     Queue('pong.username_changed', Exchange('auth'), routing_key='auth.username_changed'),
+	Queue('pong.friend_added', Exchange('social'), routing_key='social.friend_added'),
+	Queue('pong.friend_removed', Exchange('social'), routing_key='social.friend_removed'),
 	Queue('consistency.subscribe_now.pong', Exchange('consistency'), routing_key='consistency.subscribe_now.pong')
 	
 )
@@ -30,6 +32,8 @@ app.conf.task_routes = {
     'auth.user_registered': {'queue': 'pong.user_registered'},
     'auth.user_deleted': {'queue': 'pong.user_deleted'},
     'auth.username_changed': {'queue': 'pong.username_changed'},
+	'auth.user_deleted': {'queue': 'pong.friend_added'},
+	'social.friend_removed': {'queue': 'pong.friend_removed'},
 	'consistency.subscribe_now.pong': {'queue': 'consistency.subscribe_now.pong'}
 }
 
