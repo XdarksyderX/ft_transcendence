@@ -1,5 +1,5 @@
 import { throwAlert } from "../../app/render.js";
-import { searchUsers, getFriendsList, blockUser } from "../../app/social.js";
+import { searchUsers, sendFriendRequest, blockUser, isUserBlocked } from "../../app/social.js";
 import { getUsername } from "../../app/auth.js";
 
 
@@ -45,13 +45,13 @@ function resetInactivityTimeout(elements) {
 
 
 async function searchNewFriend(elements) {
-	const username = elements.searchInput.value;
-    if (!username) return ;
+    const username = elements.searchInput.value;
+    if (!username) return;
     elements.searchInput.value = '';
     console.log('Searching for:', username);
-	const users = await handleSearchUsers(username);
-    const filteredUsers = filterSearchList(users);
-    renderSearchList(filteredUsers, elements);
+    const users = await handleSearchUsers(username);
+    const userStatusMap = await filterSearchList(users);
+    renderSearchList(userStatusMap, elements);
 }
 
 async function handleSearchUsers(username) {
@@ -78,66 +78,157 @@ function getFriendsFromDOM() {
     return usernames;
 }
 
-function filterSearchList(users) {
+async function filterSearchList(users) {
     if (!users) {
-        return (null);
+        return new Map();
     }
     const friendsNames = getFriendsFromDOM();
     const ownUsername = getUsername();
     const filteredUsers = users.filter(user => !friendsNames.includes(user.username) && user.username !== ownUsername);
-    return filteredUsers;
+    return await mapUserBlockedStatus(filteredUsers);
+}
+
+async function mapUserBlockedStatus(users) {
+    const userStatusMap = new Map();
+    for (const user of users) {
+        const response = await isUserBlocked(user.username);
+        userStatusMap.set(user.username, { user, isBlocked: response.status === "success" && response.is_blocked });
+    }
+    return userStatusMap;
 }
 
 function renderSearchList(users, elements) {
-// Eventualmente tendré que manejar que el usuario no sea yo, ni ya mi amigo
-elements.searchList.innerHTML = '';
-elements.searchListContainer.classList.add('show');
-    if (!users || users.length === 0) {
+    elements.searchList.innerHTML = '';
+    elements.searchListContainer.classList.add('show');
+    console.log("on renderSearchList", users);
+    if (users.size === 0) {
         elements.searchList.appendChild(createAddFriendCard(null));
     } else {
-        users.forEach(user => {
-            const addFriendCard = createAddFriendCard(user);
+        users.forEach((value, key) => {
+            const addFriendCard = createAddFriendCard(value.user, value.isBlocked);
             elements.searchList.appendChild(addFriendCard);
-        })
+        });
     }
 }
 
-function createAddFriendCard(user) {
+function createAddFriendCard(user, isBlocked) {
     const card = document.createElement('div');
     card.className = 'user-card d-flex flex-column flex-md-row justify-content-between align-items-center';
     if (!user) {
-        card.innerHTML = `
-        <div class="d-flex align-items-center p-2 mb-md-0">
-            No matches found :c
-        </div>`;
-        console.log('card created');
-        return card;
+        createEmptyUserCard(card);
+    } else if (isBlocked) {
+        createBlockedUserCard(card, user);
+    } else {
+        createUnblockedUserCard(card, user);
     }
+    return card;
+}
+
+function createEmptyUserCard(card) {
+    card.innerHTML = `
+    <div class="d-flex align-items-center p-2 mb-md-0">
+        No matches found :c
+    </div>`;
+}
+function createCardBtns(card, user) {
+    const btnsContainer = document.createElement('div');
+    btnsContainer.className = 'card-btns d-flex';
+
+    const addBtn = document.createElement('button');
+    addBtn.className = 'btn ctm-btn-secondary me-2';
+    addBtn.setAttribute('data-action', 'add');
+    addBtn.innerHTML = '<i class="fas fa-plus"> add </i>';
+    addBtn.addEventListener('click', () => handleAddFriend(user.username, card));
+
+    const blockBtn = document.createElement('button');
+    blockBtn.className = 'btn ctm-btn-danger';
+    blockBtn.setAttribute('data-action', 'block');
+    blockBtn.innerHTML = '<i class="fas fa-ban"> block </i>';
+    blockBtn.addEventListener('click', () => handleBlockUser(user.username, card));
+
+    const blockedBtn = document.createElement('button');
+    blockedBtn.className = 'btn ctm-btn-danger';
+    blockedBtn.setAttribute('data-action', 'blocked');
+    blockedBtn.innerHTML = '<i class="fas fa-ban"> this user is blocked </i>';
+    blockedBtn.disabled = true;
+
+    const pendantBtn = document.createElement('button');
+    pendantBtn.className = 'btn ctm-btn';
+    pendantBtn.setAttribute('data-action', 'pendant');
+    pendantBtn.innerHTML = '<i class="fas fa-ban"> pendant </i>';
+    pendantBtn.addEventListener('click', () => handlePendant(user.username, card));
+
+    btnsContainer.appendChild(addBtn);
+    btnsContainer.appendChild(blockBtn);
+    btnsContainer.appendChild(blockedBtn);
+    btnsContainer.appendChild(pendantBtn);
+
+    return btnsContainer;
+}
+
+function createBlockedUserCard(card, user) {
+    const btns = createCardBtns(card, user);
     card.setAttribute('data-user-id', user.user_id);
+    card.classList.add('blocked');
     card.innerHTML = `
     <div class="d-flex align-items-center mb-2 mb-md-0">
         <img src="${user.avatar}" alt="${user.username}" class="friend-picture">
         <p class="mb-0 ms-2">${user.username}</p>
     </div>
-    <div>
-        <button class="btn ctm-btn-secondary">
-            <i class="fas fa-plus"> add </i>
-        </button>
-        <button class="btn ctm-btn-danger">
-            <i class="fas fa-ban"> block </i>
-        </button>
+    `;
+    card.appendChild(btns);
+    toggleBtns(card, 'blocked');
+}
+
+function createUnblockedUserCard(card, user) {
+    const btns = createCardBtns(card, user);
+    card.setAttribute('data-user-id', user.user_id);
+    card.classList.remove('blocked');
+    card.innerHTML = `
+    <div class="d-flex align-items-center mb-2 mb-md-0">
+        <img src="${user.avatar}" alt="${user.username}" class="friend-picture">
+        <p class="mb-0 ms-2">${user.username}</p>
     </div>
     `;
-    //card.querySelector('.fa-plus').addEventListener
-    card.querySelector('.fa-ban').addEventListener('click', () => handleBlockUser(user.username, card));
-    return card;
+    card.appendChild(btns);
+    toggleBtns(card, 'default');
+}
+
+
+// async function handleSendFriendRequest(username) {
+
+// }
+
+function toggleBtns(card, status) {
+    const addBtn = card.querySelector('[data-action="add"]');
+    const blockBtn = card.querySelector('[data-action="block"]');
+    const blockedBtn = card.querySelector('[data-action="blocked"]');
+    const pendantBtn = card.querySelector('[data-action="pendant"]');
+    console.log ('holi');
+    if (status === 'blocked') {
+        addBtn.style.display = 'none';
+        blockBtn.style.display = 'none';
+        blockedBtn.style.display = 'flex';
+        pendantBtn.style.display = 'none';
+        card.classList.add('blocked');
+    } else if (status === 'pendant') {
+        addBtn.style.display = 'none';
+        blockBtn.style.display = 'none';
+        blockedBtn.style.display = 'none';
+        pendantBtn.style.display = 'flex';
+    } else {
+        addBtn.style.display = 'flex';
+        blockBtn.style.display = 'flex';
+        blockedBtn.style.display = 'none';
+        pendantBtn.style.display = 'none';
+        card.classList.remove('blocked');
+    }
 }
 
 async function handleBlockUser(username, card) {
     const response = await blockUser(username);
     if (response.status === "success") {
-       // throwAlert('ole ole ole los caracole');
-        card.classList.add('blocked');
+        toggleBtns(card, 'blocked');
     } else {
         throwAlert(response.message);
     } 
