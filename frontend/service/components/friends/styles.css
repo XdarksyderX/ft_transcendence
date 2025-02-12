@@ -95,3 +95,16 @@
 	border: 1px solid var(--light);
 	color: var(--light) !important;
 }
+
+.user-card {
+    color: var(--light);
+    background-color: var(--dark);
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid var(--light);  
+}
+.user-card.blocked{
+    color: gray;
+    border: 1px solid gray;
+}

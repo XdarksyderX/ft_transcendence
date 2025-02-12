@@ -13,6 +13,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         return obj.status.name if hasattr(obj, 'status') and obj.status else None
 
     def get_avatar(self, obj):
+
         return obj.avatar.url if obj.avatar else "/media/avatars/defaault.png"
 
 class SearchUserSerializer(serializers.ModelSerializer):

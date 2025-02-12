@@ -4,7 +4,7 @@ import { parseNewPasswords } from '../signup/signup.js';
 import { parseEmail } from '../signup/signup.js';
 import { handle2FAmodal } from './QRhandler.js';
 import { logout } from '../../app/auth.js';
-import { getBlockedList } from '../../app/social.js'
+import { getBlockedList, unblockUser } from '../../app/social.js'
 
 
 export function initializeSettingsEvents() {
@@ -304,7 +304,7 @@ async function handleSaveChanges(password, changedData, otp) {
 async function handleGetBlockedUsers() {
 	const response = await getBlockedList();
 	if (response.status === "success") {
-		return (response.data);
+		return (response.blocked);
 	} else {
 		throwAlert(response.message || "An error ocurred while getting blocked users data");
 		return (null);
@@ -313,6 +313,7 @@ async function handleGetBlockedUsers() {
 
 async function renderBlockedUsers() {
 	const list = document.getElementById('blocked-users-list');
+
 	try {
 		const blockedUsers = await handleGetBlockedUsers(); // Asegúrate de esperar la resolución
 		if (!blockedUsers) {
@@ -323,18 +324,18 @@ async function renderBlockedUsers() {
 			list.appendChild(card);
 		});
 	} catch (error) {
-		console.error("Error al renderizar usuarios bloqueados:", error);
+		console.error("Error al mostrar usuarios bloqueados:", error);
 	}
 }
 
 function createBlockedUserCard(user) {
     const card = document.createElement('div');
-    card.className = "friend-btn d-flex flex-column flex-md-row justify-content-between align-items-center";
-    card.setAttribute('data-blocked-user-id', user.id);
+    card.className = "user-card d-flex flex-column flex-md-row justify-content-between align-items-center";
+  //  card.setAttribute('data-blocked-user-id', user.id); //i dont have any id
     card.innerHTML = `
     <div class="d-flex align-items-center mb-2 mb-md-0">
-        <img src="${user.avatar}" alt="${user.username}" class="friend-picture">
-            <p class="mb-0 ms-2">${user.username}</p>
+        <img src="${user.avatar}" alt="${user}" class="friend-picture">
+            <p class="mb-0 ms-2">${user}</p>
     </div>
         <button class="btn ctm-btn-danger">
             <i class="fas fa-user-minus"></i> Unblock
@@ -347,6 +348,13 @@ function createBlockedUserCard(user) {
     return card;
 }
 
-function handleUnblockUser(user) {
-	throwAlert(`no amiga, cómo vas a desbloquear a ese cucaracho aka ${user.username}`);
+export async function handleUnblockUser(username) {
+	const response = await unblockUser(username);
+	if (response.status === "success") {
+	//	throwAlert('ole ole ole los caracole');
+		document.getElementById('blocked-users-list').innerHTML = '';
+		renderBlockedUsers();
+	} else {
+		throwAlert(response.message);
+	} 
 }

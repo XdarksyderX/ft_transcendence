@@ -7,6 +7,7 @@
 }
 
 .friend-btn {
+    color: var(--light);
     background-color: var(--darkish);
     border-radius: 5px;
     padding: 10px;
@@ -14,7 +15,12 @@
     cursor: pointer;
     transition: background-color 0.3s;
     border: 1px solid var(--light);
+    
+}
 
+.friend-btn.blocked{
+    color: gray;
+    border: 1px solid gray;
 }
 
 .friend-btn:hover {

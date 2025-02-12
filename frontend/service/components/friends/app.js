@@ -1,5 +1,6 @@
 import { throwAlert } from "../../app/render.js";
 import { searchUsers, getFriendsList } from "../../app/social.js";
+import { initSearchFriendEvents } from "./requests.js";
 
 
 const friends = [
@@ -23,7 +24,10 @@ function getElements() {
         searchContainer: document.getElementById('search-form-container'),
         searchBtn: document.getElementById('toggle-search'),
         searchForm: document.getElementById('search-form'),
-        searchInput: document.querySelector('#search-form input')
+        searchInput: document.querySelector('#search-form input'),
+        searchList: document.getElementById('search-list'),
+        searchListContainer: document.getElementById('search-list-container')
+    
     });
 }
 
@@ -100,69 +104,3 @@ function renderFriendData(friend, color, dataContainer) {
 		</p>
 	`;
 }
-
-/* * * * * * * * * * * * * FRIEND REQUEST * * * * * * * * * * * * */
-
-let inactivityTimeout;
-
-function initSearchFriendEvents(elements) {
-
-	elements.searchBtn.addEventListener('click', function() {
-		if (elements.searchContainer.classList.contains('expanded')) {
-			searchNewFriend(elements.searchInput);
-		} else {
-			toggleSearch(true, elements);
-		}
-	});	
-	elements.searchInput.addEventListener('input', () => resetInactivityTimeout(elements));
-	elements.searchInput.addEventListener('focus', () => resetInactivityTimeout(elements));
-	elements.searchForm.addEventListener('submit', function(e) {
-		e.preventDefault();
-		searchNewFriend(elements.searchInput);
-	});
-}
-
-function searchNewFriend(input) {
-	const username = input.value;
-    input.value = '';
-    console.log('Searching for:', username);
-	handleSearchUsers(username);
-
-}
-
-async function handleSearchUsers(username) {
-    const response = await searchUsers(username);
-    if (response.status === "success") {
-        if (response.users.length === 0) {
-            throwAlert('No match found.');
-        } else {
-            throwAlert('ole ole ole los caracole');
-            console.log(response.data);
-        }
-    } else {
-        throwAlert(response.message);
-    }
-}
-
-function toggleSearch(on, elements) {
-    if (on) {
-        elements.searchContainer.classList.toggle('expanded');
-        elements.searchBtn.innerHTML = '<i class="bi bi-search"></i>';
-        elements.searchBtn.setAttribute('aria-label', 'Search friends');
-        resetInactivityTimeout(elements);
-    }
-    else {
-        elements.searchContainer.classList.remove('expanded');
-        elements.searchBtn.innerHTML = '<i class="bi bi-plus"></i>';
-        elements.searchBtn.setAttribute('aria-label', 'Open friend request form');
-        elements.searchInput.value = '';
-    }
-}
-
-function resetInactivityTimeout(elements) {
-    clearTimeout(inactivityTimeout);
-    inactivityTimeout = setTimeout(() => {
-        toggleSearch(false, elements);
-    }, 30000);
-}
-
