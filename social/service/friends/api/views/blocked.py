@@ -23,7 +23,6 @@ class BlockUserView(APIView):
         publish_event("social", "social.user_blocked", {"user_id": request.user.id, "blocked_user_id": user_to_block.id})
         return Response({'status': 'success', 'message': f'User {username} has been blocked successfully.'}, status=status.HTTP_200_OK)
 
-
 class UnblockUserView(APIView):
     permission_classes = [IsAuthenticated]
     
@@ -43,10 +42,15 @@ class UnblockUserView(APIView):
 
         return Response({'status': 'success', 'message': f'User {username} has been unblocked successfully.'}, status=status.HTTP_200_OK)
 
-
 class IsUserBlockedView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, target_username):
         is_blocked = request.user.blocked.filter(username=target_username).exists()
         return Response({'status': 'success', 'message': 'Blocked status retrieved successfully', 'is_blocked': is_blocked}, status=status.HTTP_200_OK)
+
+class BlockedListView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        blocked_list = list(request.user.blocked.values_list("username", flat=True))
+        return Response({"status": "success", "message": "Blocked list retrieved successfully.", "blocked": blocked_list}, status=status.HTTP_200_OK)

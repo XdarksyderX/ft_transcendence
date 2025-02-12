@@ -2,9 +2,11 @@
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from .views.blocked import BlockUserView, UnblockUserView, IsUserBlockedView
-from .views.friends import FriendsListView, BlockedListView, RemoveFriendView, PendingReceivedRequestsView, PendingSentRequestsView, AcceptRequestView, DeclineRequestView, CancelRequestView
+from .views.blocked import BlockUserView, UnblockUserView, IsUserBlockedView, BlockedListView
+from .views.friends import FriendsListView, RemoveFriendView
 from .views.profile import ProfileView, SearchUsersView, ChangeAvatarView
+from .views.requests import (PendingReceivedRequestsView, PendingSentRequestsView,
+							AcceptRequestView, DeclineRequestView, CancelRequestView, SendRequestView)
 
 urlpatterns = [
     path('friends/', include([
@@ -13,6 +15,7 @@ urlpatterns = [
     ])),
     
     path('requests/', include([
+		path('send/<str:friend_username>/', SendRequestView.as_view(), name='send_friend_request'),
         path('pending/received/', PendingReceivedRequestsView.as_view(), name='pending_received_requests'),
         path('pending/sent/', PendingSentRequestsView.as_view(), name='pending_sent_requests'),
         path('accept/<int:invitation_id>/', AcceptRequestView.as_view(), name='accept_friend_request'),

@@ -20,7 +20,6 @@ class ProfileView(APIView):
             'data': serializer.data
         }, status=status.HTTP_200_OK)
 
-
 class SearchUsersView(APIView):
     permission_classes = [IsAuthenticated]
 
