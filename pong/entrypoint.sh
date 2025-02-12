@@ -8,7 +8,14 @@ su postgres -c "psql -c \"CREATE DATABASE $PONGDB_NAME OWNER $PONGDB_USER;\""
 su postgres -c "psql -c \"ALTER USER $PONGDB_USER CREATEDB;\""
 
 python3 service/manage.py makemigrations core
-python3 service/manage.py makemigrations
 python3 service/manage.py migrate
 
-exec python service/manage.py runserver 0.0.0.0:5000
+export DJANGO_SETTINGS_MODULE=config.settings
+export PYTHONPATH=/service
+export DJANGO_SETTINGS_MODULE=config.settings
+
+cd service
+
+celery -A config worker --loglevel=info --queues=pong.user_registered,pong.user_deleted,pong.username_changed &
+celery -A config flower --port=5555 &
+exec python manage.py runserver 0.0.0.0:5052

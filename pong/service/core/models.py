@@ -1,13 +1,17 @@
 from django.db import models
 import uuid
 import random
-from django.contrib.postgres.fields import JSONField  # for PostgreSQL, otherwise would be models.JSONField
+import math
 
 class User(models.Model):
-    """Model representing a user in the game."""
-    user_id = models.AutoField(primary_key=True)  # Auto-incremented unique ID
     username = models.CharField(max_length=150, unique=True)
-
+    pong_statistics = models.OneToOneField(
+        'PongStatistics',
+        on_delete=models.CASCADE,
+        related_name='user',
+        null=True,
+        blank=True
+    )
     def __str__(self):
         return self.username
 
@@ -306,3 +310,14 @@ class MatchInvitation(models.Model):
 
     def __str__(self):
         return f"Invitation {self.token} from {self.sender} to {self.receiver}"
+
+class OutgoingEvent(models.Model):
+    event_id = models.UUIDField(primary_key=True)
+    event_type = models.CharField(max_length=255)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    data = models.JSONField()
+
+class IncomingEvent(models.Model):
+    event_id = models.UUIDField(primary_key=True)
+    event_type = models.CharField(max_length=255)
+    timestamp = models.DateTimeField(auto_now_add=True)

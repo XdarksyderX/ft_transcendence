@@ -33,8 +33,8 @@ SIMPLE_JWT = {
 }
 
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
-APPEND_SLASH = True
 FRONTEND_URL = os.getenv('FRONTEND_URL')
+APPEND_SLASH = True
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
