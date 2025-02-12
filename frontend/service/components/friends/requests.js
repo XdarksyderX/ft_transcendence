@@ -216,19 +216,19 @@ function createCardBtns(card, user, invitationId = null) {
     const addBtn = document.createElement('button');
     addBtn.className = 'btn ctm-btn-secondary me-2';
     addBtn.setAttribute('data-action', 'add');
-    addBtn.innerHTML = '<i class="fas fa-plus mt-1"></i> <span class="ctm-text"> add </span>';
+    addBtn.innerHTML = '<i class="fas fa-plus mt-1 me-2"></i> <span class="ctm-text"> add </span>';
     addBtn.addEventListener('click', () => handleSendFriendRequest(user.username, card));
 
     const blockBtn = document.createElement('button');
     blockBtn.className = 'btn ctm-btn-danger';
     blockBtn.setAttribute('data-action', 'block');
-    blockBtn.innerHTML = '<i class="fas fa-ban mt-1"></i> <span class="ctm-text"> block </span>';
+    blockBtn.innerHTML = '<i class="fas fa-ban mt-1 me-2"></i> <span class="ctm-text"> block </span>';
     blockBtn.addEventListener('click', () => handleBlockUser(user.username, card));
 
     const blockedBtn = document.createElement('button');
     blockedBtn.className = 'btn ctm-btn-danger';
     blockedBtn.setAttribute('data-action', 'blocked');
-    blockedBtn.innerHTML = '<i class="fas fa-ban mt-1"></i> <span class="ctm-text"> this user is blocked </span>';
+    blockedBtn.innerHTML = '<i class="fas fa-ban mt-1 me-2"></i> <span class="ctm-text"> this user is blocked </span>';
     blockedBtn.disabled = true;
 
     const pendantBtn = document.createElement('button');
@@ -300,9 +300,9 @@ async function handleSendFriendRequest(username, card) {
     const response = await sendFriendRequest(username);
     console.log('handleSendFriendRequest response:', response);
     if (response.status === "success") {
-        console.log("RESPONSE",response);
+        console.log("RESPONSE", response);
 
-        toggleBtns(card, 'pendant');
+        toggleBtns(card, 'pendant', response.invitation_id);
         throwAlert(`Friend request sent to ${username}`);
     } else {
         throwAlert(response.message);
