@@ -329,7 +329,7 @@ async function renderBlockedUsers() {
 
 function createBlockedUserCard(user) {
     const card = document.createElement('div');
-    card.className = "friend-btn d-flex flex-column flex-md-row justify-content-between align-items-center";
+    card.className = "user-card d-flex flex-column flex-md-row justify-content-between align-items-center";
     card.setAttribute('data-blocked-user-id', user.id);
     card.innerHTML = `
     <div class="d-flex align-items-center mb-2 mb-md-0">
