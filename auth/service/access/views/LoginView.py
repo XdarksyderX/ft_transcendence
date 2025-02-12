@@ -7,10 +7,9 @@ from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.utils.http import http_date
 from django.contrib.auth import authenticate
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from core.models import TwoFA
-from core.utils.rabbitmq_client import RabbitMQClient
-from core.utils.event_domain import wrap_event_data
+from core.utils.event_domain import publish_event
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
@@ -89,23 +88,6 @@ class LoginView(APIView):
             samesite='None'
         )
 
-        rabbit_client = RabbitMQClient()
-        try:
-            event_type = "auth.user_logged_in_2fa" if user.two_fa_enabled else "auth.user_logged_in"
-            event_data = wrap_event_data(
-                data={
-                    "username": user.username,
-                    "email": user.email
-                },
-                event_type=event_type,
-                aggregate_id=str(user.id)
-            )
-            rabbit_client.publish(
-                exchange='auth',
-                routing_key=event_type,
-                message=event_data
-            )
-        finally:
-            rabbit_client.close()
+        publish_event("auth", "auth.user_logged_in", {"user_id": user.id, "username": user.username})
 
         return response

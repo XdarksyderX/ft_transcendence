@@ -1,10 +1,11 @@
 import socket
 import datetime
 import uuid
-import json
+from core.models import OutgoingEvent
+from core.utils.rabbitmq_client import RabbitMQClient
+from django.conf import settings
 
-def wrap_event_data(data: dict, event_type: str, aggregate_id: str, meta: dict = None) -> dict:
-    event_id = str(uuid.uuid4())
+def wrap_event_data(data: dict, event_type: str, aggregate_id: str, meta: dict = None, event_id = str(uuid.uuid4())) -> dict:
     occurred_on = datetime.datetime.now(datetime.timezone.utc).isoformat()
     host = socket.gethostname()
 
@@ -25,9 +26,11 @@ def wrap_event_data(data: dict, event_type: str, aggregate_id: str, meta: dict =
     }
     return wrapped_event
 
-def extract_event_data(serialized_event: str) -> dict:
-    try:
-        event = json.loads(serialized_event)
-        return event["data"]["attributes"]
-    except (KeyError, json.JSONDecodeError) as e:
-        raise ValueError(f"Invalid event format: {e}")
+def publish_event(origin, event_type, data):
+    event_id = str(uuid.uuid4())
+    wrapped_data = wrap_event_data(data, event_type, event_id)
+    event = {"event_id": event_id, "event_type": event_type, "data": wrapped_data}
+    
+    OutgoingEvent.objects.create(event_id=event_id, event_type=event_type, data=wrapped_data)
+    
+    RabbitMQClient(settings.RABBITMQ_CONFIG).publish(origin, event_type, event, event_id)

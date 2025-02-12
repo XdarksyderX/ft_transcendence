@@ -14,8 +14,7 @@ from datetime import timedelta
 from django.utils import timezone
 from core.models import EmailVerification, User, PasswordReset
 from django.utils import timezone
-from core.utils.rabbitmq_client import RabbitMQClient
-from core.utils.event_domain import wrap_event_data
+from core.utils.event_domain import publish_event
 import secrets
 
 class ChangePasswordView(APIView):
@@ -38,14 +37,7 @@ class ChangeUsernameView(APIView):
         serializer = ChangeUsernameSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             user = serializer.save()
-            
-            rabbit_client = RabbitMQClient()
-            try:
-                event_data = wrap_event_data(data={"user_id": user.id, "username": user.username}, event_type="auth.username_changed", aggregate_id=str(user.id))
-                rabbit_client.publish(exchange='auth', routing_key='auth.username_changed', message=event_data)
-            finally:
-                rabbit_client.close()
-
+            publish_event("auth", "auth.username_changed", {"user_id": user.id, "username": user.username})
             return Response({
                 "status": "success",
                 "message": "Username changed successfully."
@@ -77,13 +69,6 @@ class ChangeEmailView(APIView):
 
             verification_link = f"{settings.FRONTEND_URL}/verify-email/?token={verification_code}"
             send_mail(subject="Verify your new email address", message=f"Please verify your new email address by clicking on the following link: {verification_link}", from_email=settings.EMAIL_HOST_USER, recipient_list=[user.email], fail_silently=False)
-            
-            rabbit_client = RabbitMQClient()
-            try:
-                event_data = wrap_event_data(data={"user_id": user.id, "new_email": user.email}, event_type="auth.email_changed", aggregate_id=str(user.id))
-                rabbit_client.publish(exchange='auth', routing_key='auth.email_changed', message=event_data)
-            finally:
-                rabbit_client.close()
 
             return Response({"status": "success", "message": "Email changed successfully. Please verify your new email."}, status=status.HTTP_200_OK)
         

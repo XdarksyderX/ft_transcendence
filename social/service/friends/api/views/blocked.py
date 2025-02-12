@@ -3,8 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from core.models import User
-from core.utils.rabbitmq_client import RabbitMQClient
-from core.utils.event_domain import wrap_event_data
+from core.utils.event_domain import publish_event
 
 class BlockUserView(APIView):
     permission_classes = [IsAuthenticated]
@@ -21,10 +20,7 @@ class BlockUserView(APIView):
             return Response({'status': 'error', 'message': f'You have already blocked {username}.'}, status=status.HTTP_409_CONFLICT)
 
         request.user.blocked.add(user_to_block)
-
-        event_data = wrap_event_data({}, 'social.user_blocked', str(request.user.id))
-        RabbitMQClient().publish(exchange='social', routing_key='social.user_blocked', message=event_data)
-
+        publish_event("social", "social.user_blocked", {"user_id": request.user.id, "blocked_user_id": user_to_block.id})
         return Response({'status': 'success', 'message': f'User {username} has been blocked successfully.'}, status=status.HTTP_200_OK)
 
 
@@ -43,9 +39,7 @@ class UnblockUserView(APIView):
             return Response({'status': 'error', 'message': f'User {username} is not blocked.'}, status=status.HTTP_409_CONFLICT)
 
         request.user.blocked.remove(user_to_unblock)
-
-        event_data = wrap_event_data({}, 'social.user_unblocked', str(request.user.id))
-        RabbitMQClient().publish(exchange='social', routing_key='social.user_unblocked', message=event_data)
+        publish_event("social", "social.user_unblocked", {"user_id": request.user.id, "unblocked_user_id": user_to_unblock.id})
 
         return Response({'status': 'success', 'message': f'User {username} has been unblocked successfully.'}, status=status.HTTP_200_OK)
 

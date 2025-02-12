@@ -4,8 +4,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .serializers import VerifyEmailSerializer
 from core.models import TwoFA
-from core.utils.rabbitmq_client import RabbitMQClient
-from core.utils.event_domain import wrap_event_data
+from core.utils.event_domain import publish_event
 import pyotp
 
 class VerifyEmailView(APIView):
@@ -15,20 +14,7 @@ class VerifyEmailView(APIView):
         serializer = VerifyEmailSerializer(data=request.query_params)
         if serializer.is_valid():
             user = serializer.save()
-
-            rabbit_client = RabbitMQClient()
-            try:
-                event_data = wrap_event_data(
-                    data={
-                        "user_id": user.id,
-                        "username": user.username
-                    },
-                    event_type="auth.email_verified",
-                    aggregate_id=str(user.id)
-                )
-                rabbit_client.publish(exchange='auth', routing_key='auth.email_verified', message=event_data)
-            finally:
-                rabbit_client.close()
+            publish_event("auth", "auth.email_verified", {"user_id": user.id, "username": user.username})
 
             return Response({
                 "status": "success",
@@ -62,17 +48,7 @@ class Activate2FAView(APIView):
         user.two_fa = TwoFA.objects.create(secret=secret)
         user.two_fa_enabled = True
         user.save()
-
-        rabbit_client = RabbitMQClient()
-        try:
-            event_data = wrap_event_data(
-                data={"user_id": user.id, "username": user.username},
-                event_type="auth.2fa_enabled",
-                aggregate_id=str(user.id)
-            )
-            rabbit_client.publish(exchange='auth', routing_key="auth.2fa_enabled", message=event_data)
-        finally:
-            rabbit_client.close()
+        publish_event("auth", "auth.2fa_enabled", {"user_id": user.id, "username": user.username})
 
         return Response({"status": "success", "message": "2FA enabled successfully.", "secret": secret}, status=status.HTTP_200_OK)
 
@@ -108,15 +84,6 @@ class Deactivate2FAView(APIView):
         user.two_fa = None
         user.two_fa_enabled = False
         user.save()
-        rabbit_client = RabbitMQClient()
-        try:
-            event_data = wrap_event_data(
-                data={"user_id": user.id, "username": user.username},
-                event_type="auth.2fa_disabled",
-                aggregate_id=str(user.id)
-            )
-            rabbit_client.publish(exchange='auth', routing_key="auth.2fa_disabled", message=event_data)
-        finally:
-            rabbit_client.close()
+        publish_event("auth", "auth.2fa_disabled", {"user_id": user.id, "username": user.username})
 
         return Response({"status": "success", "message": "2FA disabled successfully."}, status=status.HTTP_200_OK)

@@ -21,6 +21,14 @@ services:
       - 15672:15672
     env_file: .env
 
+  consistency:
+    build:
+      context: consistency
+      dockerfile: Dockerfile
+    env_file: .env
+    depends_on:
+      - rabbitmq
+
   api-gateway:
     build:
       context: api-gateway
