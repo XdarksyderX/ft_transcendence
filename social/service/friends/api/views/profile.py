@@ -75,7 +75,7 @@ class ChangeAvatarView(APIView):
 
         return Response({'status': 'success', 'message': 'Avatar updated successfully.', 'avatar': user.avatar.url}, status=status.HTTP_200_OK)
 
-class UpdateStatusView(APIView):
+class UpdateOnlineStatusView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, is_online):
@@ -84,4 +84,4 @@ class UpdateStatusView(APIView):
 
         request.user.is_online = is_online
         request.user.save()
-        return Response({"status": "success", "message": f"User status updated to {'online' if is_online else 'offline'}."}, status=status.HTTP_200_OK)
+        return Response({"status": "success", "message": f"User online status updated to {'online' if is_online else 'offline'}."}, status=status.HTTP_200_OK)

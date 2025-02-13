@@ -2,7 +2,7 @@
 from django.urls import path, include
 from .views.blocked import BlockUserView, UnblockUserView, IsUserBlockedView, BlockedListView
 from .views.friends import FriendsListView, RemoveFriendView
-from .views.profile import ProfileView, SearchUsersView, ChangeAvatarView, UpdateStatusView
+from .views.profile import ProfileView, SearchUsersView, ChangeAvatarView, UpdateOnlineStatusView
 from .views.requests import (PendingReceivedRequestsView, PendingSentRequestsView,
 							AcceptRequestView, DeclineRequestView, CancelRequestView, SendRequestView)
 
@@ -28,7 +28,7 @@ urlpatterns = [
         path('list/', BlockedListView.as_view(), name='blocked_friends_list'),
     ])),
 
-	path('status/', UpdateStatusView.as_view(), name='update_status'),
+	path('online-status/', UpdateOnlineStatusView.as_view(), name='update_status'),
     path('profile/', ProfileView.as_view(), name='profile'),
     path('profile/<str:username>/', ProfileView.as_view(), name='user_profile'),
 	path('profile/avatar/', ChangeAvatarView.as_view(), name='change_avatar'),
