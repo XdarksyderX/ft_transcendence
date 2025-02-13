@@ -1,4 +1,6 @@
 import { getUsername } from "../../app/auth.js";
+import { handleGetFriendList } from "../friends/app.js";
+import { getAvatar } from "../../app/social.js";
 
 const avatarImages = [
     './resources/avatar/avatar_1.png',
@@ -6,10 +8,23 @@ const avatarImages = [
     './resources/avatar/avatar_3.png',
 ];
 
+export async function initializeProfileEvents() {
+    const elements = getElements();
+    const user = getUserData();
+    await fillUserData(elements, user);
+    loadCanvases();
+    btnHandler(elements);
+    if (sessionStorage.getItem("editMode") === "true") {
+        sessionStorage.removeItem("editMode"); 
+        setTimeout(() => {
+            toggleEditMode(true, elements);
+        }, 0);
+    }
+}
+
 function getElements() { 
     return (
         {
-		//	test: document.getElementById('settings-container'),
             username: document.getElementById('username'),
             registration: document.getElementById('registration'),
             totalFriends: document.getElementById('total-friends'),
@@ -33,22 +48,27 @@ function getElements() {
     );
 }
 
-const user = getUserData();
-
-function getUserData() {
-  //  alert("no amiga esto no está implementado");
-    return ({ // provisional obvsly
-        username: getUsername(),
+async function getUserData() {
+    const name = getUsername();
+    return {
+        username: name,
         registration: '3/11/24',
-        totalFriends: 3,
+        totalFriends: await getNumberOfFriends(),
         totalMatches: 42,
-        profilePicture: 'https://avatars.githubusercontent.com/u/131959167?v=4'
-    });
+        profilePicture: await getAvatar(name)
+    };
 }
 
-function fillUserData(elements) {
-    const user = getUserData();
-	//console.log(user);
+async function getNumberOfFriends() {
+    const friends = await handleGetFriendList();
+    const number = friends.length;
+    return (number);
+}
+
+
+async function fillUserData(elements) {
+    const user = await getUserData();
+    console.log(user);
     elements.username.textContent = user.username;
     elements.registration.textContent = `Registered on: ${user.registration}`;
     elements.totalFriends.textContent = `Friends: ${user.totalFriends}`;
@@ -235,18 +255,3 @@ function loadCanvases() {
         });
 }
 
-export function initializeProfileEvents() {
-    const elements = getElements();
- //   console.log(elements);
-    fillUserData(elements);
-    loadCanvases();
-    btnHandler(elements);
-    //if the "editMode" from settings flag is active,
-	//it'll wait to the profile page to ve fully charged
-    if (sessionStorage.getItem("editMode") === "true") {
-        sessionStorage.removeItem("editMode"); 
-        setTimeout(() => {
-            toggleEditMode(true, elements);
-        }, 0);
-    }
-}

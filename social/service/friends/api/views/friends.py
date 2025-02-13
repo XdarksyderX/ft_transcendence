@@ -11,7 +11,7 @@ class FriendsListView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        friends_list = [{"username": friend.username, "avatar": friend.avatar, "is_online": friend.is_online} for friend in request.user.friends.all()]
+        friends_list = [{"username": friend.username, "avatar": friend.avatar.url, "is_online": friend.is_online} for friend in request.user.friends.all()]
         return Response({
             "status": "success",
             "message": "Friends list retrieved successfully.",

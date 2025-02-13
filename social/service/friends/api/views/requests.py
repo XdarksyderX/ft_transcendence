@@ -43,10 +43,13 @@ class SendRequestView(APIView):
                 "message": "Friend request already sent."
             }, status=status.HTTP_400_BAD_REQUEST)
         
-        PendingInvitationRequest.objects.create(sender=request.user, receiver=target_user)
+        invitation = PendingInvitationRequest.objects.create(sender=request.user, receiver=target_user)
+        request.user.outgoing_requests.add(invitation)
+        target_user.incoming_requests.add(invitation)
         return Response({
             "status": "success",
-            "message": "Friend request sent successfully."
+            "message": "Friend request sent successfully.",
+            "invitation_id": invitation.id
         }, status=status.HTTP_201_CREATED)
 
 class PendingReceivedRequestsView(APIView):
