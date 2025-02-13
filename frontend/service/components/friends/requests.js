@@ -2,7 +2,7 @@ import { throwAlert } from "../../app/render.js";
 import { searchUsers, 
 sendFriendRequest, getPendingSentRequests, cancelFriendRequest,
 getPendingReceivedRequests, acceptFriendRequest, declineFriendRequest,
-    blockUser, isUserBlocked } from "../../app/social.js";
+    blockUser, isUserBlocked, unblockUser } from "../../app/social.js";
 import { getUsername } from "../../app/auth.js";
 import { initializeFriendsEvents } from "./app.js";
 
@@ -43,12 +43,21 @@ export async function renderPendingFriendRequests(container) {
 
 /* * * * * * * * * * * * * * * RECEIVED REQUESTS  * * * * * * * * * * * * * * */
 
+async function handleGetPendingReceivedRequests() {
+    const response = await getPendingReceivedRequests();
+    if (response.status === "success") {
+        console.log("getPendingReceivedRequests says: ", response);
+        return (response.incoming);
+    } else {
+        throwAlert(response.message);
+        return (null);
+    } 
+}
 
 function createFriendRequestCard( request ) {
 //if request only have the username i'll have to get the photo
     const username = request.sender__username;
-    const card = document.createElement('li');
-    console.log("FRIEND REQUEST: ", request);
+    const card = document.createElement('div');
     const invitationId = request.id;
     card.innerHTML = 
             `<div class="user-card d-flex flex-column flex-md-row justify-content-between align-items-center">
@@ -71,7 +80,6 @@ function createFriendRequestCard( request ) {
     return (card);
 }
 
-
 async function handleAcceptFiendRequest(invitationId, username) {
     const response = await acceptFriendRequest(invitationId);
     if (response.status === "success") {
@@ -92,29 +100,13 @@ async function handleDeclineFiendRequest(invitationId) {
 }
 
 
-
-
-
-
-
 /* * * * * * * * * * * * * * * SEARCH AND SENT REQUESTS * * * * * * * * * * * * * * */
 
-async function handleGetPendingReceivedRequests() {
-    const response = await getPendingReceivedRequests();
-    if (response.status === "success") {
-        console.log("getPendingReceivedRequests says: ", response);
-        return (response.incoming);
-    } else {
-        throwAlert(response.message);
-        return (null);
-    } 
-}
 
 async function searchNewFriend(elements) {
     const username = elements.searchInput.value;
     if (!username) return;
     elements.searchInput.value = '';
-//    console.log('Searching for:', username);
     const users = await handleSearchUsers(username);
     const userStatusMap = await filterSearchList(users);
     renderSearchList(userStatusMap, elements);
@@ -126,7 +118,6 @@ async function handleSearchUsers(username) {
         if (response.users.length === 0) {
             return (null);
         } else {
-       //     console.log(response.data);
             return (response.users);
         }
     } else {
@@ -134,16 +125,7 @@ async function handleSearchUsers(username) {
         return (null);
     }
 }
-//just for not duplicate API's work
-function getFriendsFromDOM() {
-    const friendElements = document.querySelectorAll('.friend-btn .friend-info p');
-    const usernames = [];
-    friendElements.forEach(friendElement => {
-        usernames.push(friendElement.textContent);
-    });
-    return usernames;
-}
-
+// filters your already friends and yourself from the search results
 async function filterSearchList(users) {
     if (!users) {
         return new Map();
@@ -153,7 +135,16 @@ async function filterSearchList(users) {
     const filteredUsers = users.filter(user => !friendsNames.includes(user.username) && user.username !== ownUsername);
     return await getUserStatusMap(filteredUsers);
 }
-
+// gets Friendlist from dom just for not duplicate API's work
+function getFriendsFromDOM() {
+    const friendElements = document.querySelectorAll('.friend-btn .friend-info p');
+    const usernames = [];
+    friendElements.forEach(friendElement => {
+        usernames.push(friendElement.textContent);
+    });
+    return usernames;
+}
+// converts the search results in a map with blocked/pendant status info
 async function getUserStatusMap(users) {
     const userStatusMap = new Map();
     const pendingRequests = await getPendingSentRequests();
@@ -181,9 +172,7 @@ async function getUserStatusMap(users) {
     }
     return userStatusMap;
 }
-
-
-
+// displays the search results
 function renderSearchList(users, elements) {
     elements.searchList.innerHTML = '';
     elements.searchListContainer.classList.add('show');
@@ -202,6 +191,7 @@ function renderSearchList(users, elements) {
 function createAddFriendCard(user, status, invitationId) {
     const card = document.createElement('div');
     card.className = 'user-card d-flex flex-column flex-md-row justify-content-between align-items-center';
+
     if (!user) {
         createEmptyUserCard(card);
     } else {
@@ -241,19 +231,17 @@ function createCardBtns(card, user, invitationId = null) {
     blockBtn.innerHTML = '<i class="fas fa-ban mt-1 me-2"></i> <span class="ctm-text"> block </span>';
     blockBtn.addEventListener('click', () => handleBlockUser(user.username, card));
 
-    const blockedBtn = document.createElement('button');
-    blockedBtn.className = 'btn ctm-btn-danger';
-    blockedBtn.setAttribute('data-action', 'blocked');
-    blockedBtn.innerHTML = '<i class="fas fa-ban mt-1 me-2"></i> <span class="ctm-text"> this user is blocked </span>';
-    blockedBtn.disabled = true;
-
+    const unblockBtn = document.createElement('button');
+    unblockBtn.className = 'btn ctm-btn-danger';
+    unblockBtn.setAttribute('data-action', 'unblock');
+    unblockBtn.innerHTML = '<i class="fas fa-ban mt-1 me-2"></i> <span class="ctm-text"> Unblock </span>';
+    unblockBtn.addEventListener('click', () => handleUnblockUser(user.username, card));
     const pendantBtn = document.createElement('button');
     pendantBtn.className = 'btn ctm-btn pendant-btn';
     pendantBtn.setAttribute('data-action', 'pendant');
     pendantBtn.innerHTML = '<i class="fas fa-ban mt-1 me-2"></i> <span class="ctm-text"> pendant </span>';
     pendantBtn.addEventListener('click', () => handleCancelFriendRequest(card, invitationId));
     pendantBtn.dataset.invitationId = invitationId;
-    console.log('on create card ID: ', invitationId);
     // Add event listeners for hover effect
     pendantBtn.addEventListener('mouseenter', () => {
         pendantBtn.dataset.originalHtml = pendantBtn.innerHTML;
@@ -266,7 +254,7 @@ function createCardBtns(card, user, invitationId = null) {
 
     btnsContainer.appendChild(addBtn);
     btnsContainer.appendChild(blockBtn);
-    btnsContainer.appendChild(blockedBtn);
+    btnsContainer.appendChild(unblockBtn);
     btnsContainer.appendChild(pendantBtn);
 
     return btnsContainer;
@@ -275,19 +263,18 @@ function createCardBtns(card, user, invitationId = null) {
 function toggleBtns(card, status, invitationId = null) {
     const addBtn = card.querySelector('[data-action="add"]');
     const blockBtn = card.querySelector('[data-action="block"]');
-    const blockedBtn = card.querySelector('[data-action="blocked"]');
+    const unblockBtn = card.querySelector('[data-action="unblock"]');
     const pendantBtn = card.querySelector('[data-action="pendant"]');
-//    console.log('togglebtns status: ', status)
     if (status === 'blocked') {
         addBtn.style.display = 'none';
         blockBtn.style.display = 'none';
-        blockedBtn.style.display = 'flex';
+        unblockBtn.style.display = 'flex';
         pendantBtn.style.display = 'none';
         card.classList.add('blocked');
     } else if (status === 'pendant') {
         addBtn.style.display = 'none';
         blockBtn.style.display = 'none';
-        blockedBtn.style.display = 'none';
+        unblockBtn.style.display = 'none';
         pendantBtn.style.display = 'flex';
         if (invitationId) {
             pendantBtn.addEventListener('click', ()=>handleCancelFriendRequest(card, invitationId))
@@ -295,7 +282,7 @@ function toggleBtns(card, status, invitationId = null) {
     } else {
         addBtn.style.display = 'flex';
         blockBtn.style.display = 'flex';
-        blockedBtn.style.display = 'none';
+        unblockBtn.style.display = 'none';
         pendantBtn.style.display = 'none';
         card.classList.remove('blocked');
         pendantBtn.dataset.invitationId = ''; 
@@ -313,16 +300,24 @@ async function handleBlockUser(username, card) {
 
 async function handleSendFriendRequest(username, card) {
     const response = await sendFriendRequest(username);
-    console.log('handleSendFriendRequest response:', response);
+//    console.log('handleSendFriendRequest response:', response);
     if (response.status === "success") {
-        console.log("RESPONSE", response);
-
         toggleBtns(card, 'pendant', response.invitation_id);
         throwAlert(`Friend request sent to ${username}`);
     } else {
         throwAlert(response.message);
     }
 }
+
+async function handleUnblockUser(username, card) {
+	const response = await unblockUser(username);
+	if (response.status === "success") {
+        toggleBtns(card, 'default');
+	} else {
+		throwAlert(response.message);
+	} 
+}
+
 async function handleCancelFriendRequest(card, invitationId) {
     const response = await cancelFriendRequest(invitationId);
     if (response.status === "success") {
@@ -331,7 +326,6 @@ async function handleCancelFriendRequest(card, invitationId) {
         throwAlert(response.message);
     } 
 }
-
 
 let inactivityTimeout;
 
