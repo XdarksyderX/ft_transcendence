@@ -51,6 +51,7 @@ body::before {
 .fw-semibold { font-weight: 600; }
 .fw-bold { font-weight: 700; }
 /* ctm text colours */
+.ctm-text {font-family: inherit !important;}
 .ctm-text-light { color: var(--light); }
 .ctm-text-accent { color: var(--accent); }
 .ctm-text-dark { color: var(--medium) }

@@ -11,11 +11,13 @@ const friends = [
 ];
 
 
-export function initializeFriendsEvents() {
+export function initializeFriendsEvents(init = true) {
 	const elements = getElements();
 	renderFriendList(elements.friendsContainer, elements.dataContainer);
 	renderPendingFriendRequests(elements.requestsContainer);
-	initSearchFriendEvents(elements);
+	if (init) {
+		initSearchFriendEvents(elements);
+	}
 }
 
 function getElements() {
