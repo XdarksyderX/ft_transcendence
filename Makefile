@@ -32,7 +32,10 @@ clean:
 	rm -f private.pem
 	rm -f public.pem
 
-prepare:
+prepare: keys
+	mkdir -p volume-data/ volume-data/auth volume-data/social volume-data/pong volume-data/chess
+
+keys:
 	@if [ ! -f private.pem ]; then openssl genpkey -algorithm RSA -out private.pem -pkeyopt rsa_keygen_bits:2048; fi
 	@if [ ! -f public.pem ]; then openssl rsa -pubout -in private.pem -out public.pem; fi
 

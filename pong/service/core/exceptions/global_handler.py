@@ -11,7 +11,7 @@ def global_exception_handler(exc, context):
         }, status=status.HTTP_401_UNAUTHORIZED)
 
     response = exception_handler(exc, context)
-    
+    print(exc)
     if response is None:
         return Response({
             "status": "error",

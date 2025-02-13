@@ -1,5 +1,13 @@
+
 import { navigateTo } from './router.js';
 import { handleSearchUsers } from '../components/friends/requests.js';
+
+export const ONLINE = true;
+export const OFFLINE = false;
+
+export async function setOnlineStatus(status) {
+    return await sendRequest('POST', 'online-status', { is_online: status });
+}
 
 export async function getFriendsList() {
     return await sendRequest('GET', 'friends/list/');
