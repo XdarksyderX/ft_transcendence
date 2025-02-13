@@ -10,11 +10,13 @@ class CookieJWTAuthentication(JWTAuthentication):
                 token = auth_header.split(" ")[1]
 
         if not token:
-            return None
+            raise AuthenticationFailed({"status": "error", "message": "Authentication failed."})
 
         try:
+            print(token)
             validated_token = self.get_validated_token(token)
             user = self.get_user(validated_token)
+            print(user)
             return (user, validated_token)
         except Exception:
-            return None
+            raise AuthenticationFailed({"status": "error", "message": "Authentication failed."})
