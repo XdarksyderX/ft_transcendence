@@ -112,7 +112,7 @@ async function searchNewFriend(elements) {
     renderSearchList(userStatusMap, elements);
 }
 
-async function handleSearchUsers(username) {
+export async function handleSearchUsers(username) {
     const response = await searchUsers(username);
     if (response.status === "success") {
         if (response.users.length === 0) {
