@@ -8,10 +8,23 @@ const avatarImages = [
     './resources/avatar/avatar_3.png',
 ];
 
+export async function initializeProfileEvents() {
+    const elements = getElements();
+    const user = getUserData();
+    await fillUserData(elements, user);
+    loadCanvases();
+    btnHandler(elements);
+    if (sessionStorage.getItem("editMode") === "true") {
+        sessionStorage.removeItem("editMode"); 
+        setTimeout(() => {
+            toggleEditMode(true, elements);
+        }, 0);
+    }
+}
+
 function getElements() { 
     return (
         {
-		//	test: document.getElementById('settings-container'),
             username: document.getElementById('username'),
             registration: document.getElementById('registration'),
             totalFriends: document.getElementById('total-friends'),
@@ -35,15 +48,14 @@ function getElements() {
     );
 }
 
-const user = getUserData();
-
 async function getUserData() {
+    const name = getUsername();
     return {
-        username: getUsername(),
+        username: name,
         registration: '3/11/24',
         totalFriends: await getNumberOfFriends(),
         totalMatches: 42,
-        profilePicture: await getAvatar(getUsername())
+        profilePicture: await getAvatar(name)
     };
 }
 
@@ -243,15 +255,3 @@ function loadCanvases() {
         });
 }
 
-export async function initializeProfileEvents() {
-    const elements = getElements();
-    await fillUserData(elements);
-    loadCanvases();
-    btnHandler(elements);
-    if (sessionStorage.getItem("editMode") === "true") {
-        sessionStorage.removeItem("editMode"); 
-        setTimeout(() => {
-            toggleEditMode(true, elements);
-        }, 0);
-    }
-}
