@@ -3,19 +3,13 @@ import { searchUsers, getFriendsList } from "../../app/social.js";
 import { initSearchFriendEvents, renderPendingFriendRequests } from "./requests.js";
 
 
-const friends = [
-	{ id: 1, name: 'Alice', status: 'online', picture: '../../resources/avatar/avatar_1.png' },
-	{ id: 2, name: 'Bob', status: 'offline', picture: '../../resources/avatar/avatar_2.png' },
-	{ id: 3, name: 'Charlie', status: 'online', picture: '../../resources/avatar/avatar_3.png' },
-	{ id: 4, name: 'David', status: 'away', picture: '../../resources/avatar/avatar_1.png' }
-];
-
-
-export function initializeFriendsEvents() {
+export function initializeFriendsEvents(init = true) {
 	const elements = getElements();
 	renderFriendList(elements.friendsContainer, elements.dataContainer);
 	renderPendingFriendRequests(elements.requestsContainer);
-	initSearchFriendEvents(elements);
+	if (init) {
+		initSearchFriendEvents(elements);
+	}
 }
 
 function getElements() {

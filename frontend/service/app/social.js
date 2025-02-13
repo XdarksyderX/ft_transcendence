@@ -1,3 +1,7 @@
+
+import { navigateTo } from './router.js';
+import { handleSearchUsers } from '../components/friends/requests.js';
+
 export const ONLINE = true;
 export const OFFLINE = false;
 
@@ -97,3 +101,41 @@ async function sendRequest(method, endpoint, body = null) {
     }
 }
 
+/**
+ * Retrieves the avatar URL for a user. It will work with the username, the user object, or the path
+ *
+ * @param {string|null} username - The username of the user (optional).
+ * @param {object|null} user - The user object containing user details (optional).
+ * @param {string|null} path - The direct path to the avatar (optional).
+ * @returns {Promise<string>} - The full URL to the user's avatar.
+ * @throws {Error} - If neither username, user object, nor path is provided.
+ * @throws {Error} - If the user is not found.
+ * @throws {Error} - If the avatar path is invalid.
+ */
+export async function getAvatar(username = null, user = null, path = null) {
+    if (!path) {
+        if (!user) {
+            if (!username) {
+                throw new Error("Username, user object, or path must be provided");
+            }
+            console.log('username: ', username);
+            // Perform an asynchronous search for the user.
+            const search = await handleSearchUsers(username);
+            if (search) {
+                user = search.find(u => u.username === username);
+                if (!user) {
+                    throw new Error("User not found");
+                }
+            } else {
+                throw new Error("Failed to search users");
+            }
+        }
+        path = user.avatar;
+    }
+
+    if (!path.startsWith('/media/')) {
+        throw new Error("Invalid avatar path");
+    }
+
+    return `http://localhost:5051${path}`;
+}
