@@ -77,5 +77,22 @@
         </div>
     </section>  
 </div>
-
+<div class="modal fade" id="save-changes-modal" tabindex="-1" aria-labelledby="save-changes-modal-label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title ctm-text-title" id="save-changes-modal-label">Confirm Changes</h5>
+                <button type="button" class="close-modal close-qr-modal" data-bs-dismiss="modal" aria-label="Close">x</button>
+            </div>
+            <div class="modal-body">
+                <p>Password is required to change username:</p>
+                <input type="password" id="confirm-changes-password" class="form-control ctm-form" placeholder="Enter your password">
+            </div>
+            <div class="modal-footer text-center">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn ctm-btn" id="confirm-save-changes">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>

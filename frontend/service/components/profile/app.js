@@ -1,6 +1,7 @@
-import { getUsername } from "../../app/auth.js";
+import { getUsername, refreshAccessToken } from "../../app/auth.js";
 import { handleGetFriendList } from "../friends/app.js";
-import { getAvatar } from "../../app/social.js";
+import { getAvatar, changeAvatar } from "../../app/social.js";
+import { handleUsernameChange } from "../settings/app.js";
 
 const avatarImages = [
     './resources/avatar/avatar_1.png',
@@ -8,17 +9,14 @@ const avatarImages = [
     './resources/avatar/avatar_3.png',
 ];
 
-export async function initializeProfileEvents() {
+export async function initializeProfileEvents(toggle = false) {
     const elements = getElements();
     const user = getUserData();
     await fillUserData(elements, user);
     loadCanvases();
     btnHandler(elements);
-    if (sessionStorage.getItem("editMode") === "true") {
-        sessionStorage.removeItem("editMode"); 
-        setTimeout(() => {
-            toggleEditMode(true, elements);
-        }, 0);
+    if (toggle) {
+        toggleEditMode(false, elements);
     }
 }
 
@@ -81,8 +79,8 @@ async function fillUserData(elements) {
 //toggles from profile to edit mode
 export function toggleEditMode(isEditing, elements) {
     if (!elements) {
-        const elements = getElements();
-		console.log("elements getted", elements);
+        elements = getElements();
+        console.log("elements getted", elements);
     }
     elements.editProfile.style.display = isEditing ? 'none' : 'inline-block';
     elements.saveChanges.style.display = isEditing ? 'inline-block' : 'none';
@@ -91,7 +89,7 @@ export function toggleEditMode(isEditing, elements) {
     if (isEditing) {
         elements.username.innerHTML = `
             <div class="mb-2">New username:</div>
-            <input type="text" class="form-control mb-2" value="${elements.username.textContent}">
+            <input type="text" class="form-control ctm-form mb-2" value="${elements.username.textContent}">
         `;
         elements.cancelChanges.forEach(button => button.style.display = 'block');
     } else {
@@ -109,32 +107,69 @@ function showCustomizeSection(elements) {
     elements.customizeSection.style.display = 'block';
 }
 
-function updateProfilePhoto() {
-    alert('photo changes must be stored on back');
+async function updateProfilePhoto(formData) {
+    const response = await changeAvatar(formData);
+    if (response.status === "success") {
+        alert('Photo changes saved successfully.');
+    } else {
+        alert('Failed to save photo changes.');
+    }
 }
 // update the profile picture and go back to profile section
-function savePhotoChanges(elements) {
+async function savePhotoChanges(elements) {
     const selectedCanvas = document.querySelector('.carousel-item.active canvas');
+    const formData = new FormData();
+
     if (selectedCanvas) {
-        user.profilePicture = selectedCanvas.toDataURL();
-        elements.profilePicture.style.backgroundColor = selectedCanvas.style.backgroundColor;
+        selectedCanvas.toBlob(async (blob) => {
+            formData.append('avatar', blob, 'avatar.png');
+            await updateProfilePhoto(formData);
+        });
     } else {
         const selectedImage = document.querySelector('.carousel-item.active img');
-        if (selectedImage)
-            user.profilePicture = selectedImage.src;
+        if (selectedImage) {
+            const response = await fetch(selectedImage.src);
+            const blob = await response.blob();
+            formData.append('avatar', blob, 'avatar.png');
+            await updateProfilePhoto(formData);
+        }
     }
+
     elements.profilePicture.src = user.profilePicture;
-   updateProfilePhoto();
-   saveNameChanges(elements);
+    saveNameChanges(elements);
 }
 
-function updateUsername() {
-    alert('usernameChanges must be stored on the back');
+async function updateChanges() {
+    await refreshAccessToken();
+    document.getElementById('sidebar-username').innerText = getUsername();
+    await initializeProfileEvents(true);
 }
 
-function saveNameChanges(elements) {
-    //user.username = elements.username.querySelector('input').value;
-    updateUsername();
+async function updateUsername(username) {
+    const modalElement = document.getElementById('save-changes-modal');
+	const modal = new bootstrap.Modal(modalElement);
+    modal.show();
+    const confirmSaveBtn = document.getElementById('confirm-save-changes');
+    confirmSaveBtn.addEventListener('click', async () => {
+		
+		const password = document.getElementById("confirm-changes-password").value;
+		if (!password) {
+			throwAlert("Password required");
+			return;
+		}
+        modal.hide();
+        await handleUsernameChange(username, password);
+        await updateChanges();
+    })
+}
+
+
+async function saveNameChanges(elements) {
+    const newName = elements.username.querySelector('input').value;
+    if (newName !== getUsername()) {
+        await updateUsername(newName);
+        return ;
+    }
     toggleEditMode(false, elements);
 }
 

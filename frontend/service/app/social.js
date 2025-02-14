@@ -65,16 +65,21 @@ export async function searchUsers(username) {
     return await sendRequest('GET', `search/${username}/`);
 }
 
-async function sendRequest(method, endpoint, body = null) {
+export async function changeAvatar(formData) {
+    return await sendRequest('POST', 'profile/avatar/', formData, true);
+}
+
+async function sendRequest(method, endpoint, body = null, isFormData = false) {
     console.log("endpoint: ", endpoint);
     try {
-        if (body) console.log('Payload:', JSON.stringify(body));
+        if (body && !isFormData) console.log('Payload:', JSON.stringify(body));
         
+        const headers = isFormData ? {} : { 'Content-Type': 'application/json' };
         const response = await fetch(`http://localhost:5051/${endpoint}`, {
             method,
             credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-            body: body ? JSON.stringify(body) : null
+            headers,
+            body: body ? (isFormData ? body : JSON.stringify(body)) : null
         });
 
         let responseData = null;
@@ -101,21 +106,6 @@ async function sendRequest(method, endpoint, body = null) {
     }
 }
 
-
-
-
-async function getAvatarPath(username) {
-    const search = await handleSearchUsers(username);
-    if (search) {
-        const user = search.find(u => u.username === username);
-        if (!user) {
-            throw new Error("User not found");
-        }
-        return user.avatar;
-    } else {
-        throw new Error("Failed to search users");
-    }
-}
 /**
  * Retrieves the avatar URL for a user. It will work with the username, the user object, or the path
  *
@@ -127,17 +117,28 @@ async function getAvatarPath(username) {
  * @throws {Error} - If the user is not found.
  * @throws {Error} - If the avatar path is invalid.
  */
+
 export async function getAvatar(username = null, user = null, path = null) {
     if (!path) {
         if (!user) {
             if (!username) {
                 throw new Error("Username, user object, or path must be provided");
             }
-            path = await getAvatarPath(username); // Pass the username here
-        } else {
-            path = user.avatar;
+            console.log('username: ', username);
+            // Perform an asynchronous search for the user.
+            const search = await handleSearchUsers(username);
+            if (search) {
+                user = search.find(u => u.username === username);
+                if (!user) {
+                    throw new Error("User not found");
+                }
+            } else {
+                throw new Error("Failed to search users");
+            }
         }
+        path = user.avatar;
     }
+
     if (!path.startsWith('/media/')) {
         throw new Error("Invalid avatar path");
     }

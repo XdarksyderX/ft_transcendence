@@ -111,7 +111,7 @@ function initUsernameChangeEvents(changedData) {
 	});
 }
 /* handles username changes with backend */
-async function handleUsernameChange(newUsername, password) {
+export async function handleUsernameChange(newUsername, password) {
 
 	const response = await changeUsername(newUsername, password);
 	let message;
@@ -254,7 +254,7 @@ function initSaveChangesEvents(changedData) {
 		if (otpRequired && !otp) {
 			throwAlert("OTP required");
 			return;
-		}
+		} 
 		const modal = bootstrap.Modal.getInstance(document.getElementById('save-changes-modal'));
 		if (modal) { //Hide the modal after saving changes
 			modal.hide();
