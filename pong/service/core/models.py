@@ -173,87 +173,6 @@ class PongGame(models.Model):
         return f"Game {self.id}: {self.player1} vs {self.player2} (Key: {self.game_key})"
 
 
-class Tournament(models.Model):
-    """
-    Represents a tournament with its organizer, status, and schedule.
-    """
-    name = models.CharField(max_length=100)
-    organizer = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='organized_tournaments'
-    )
-    status = models.CharField(
-        max_length=20,
-        choices=[
-            ('upcoming', 'Upcoming'),
-            ('blocked', 'Blocked'),
-            ('ongoing', 'Ongoing'),
-            ('completed', 'Completed')
-        ],
-        default='upcoming'
-    )
-    max_participants = models.IntegerField(default=16)
-    description = models.TextField(null=True, blank=True)
-    start_date = models.DateTimeField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    
-    def __str__(self):
-        return self.name
-
-
-class TournamentParticipant(models.Model):
-    """
-    Relates a user to a tournament and tracks their invitation status and match record.
-    """
-    tournament = models.ForeignKey(
-        Tournament,
-        on_delete=models.CASCADE,
-        related_name='participants'
-    )
-    participant = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='tournament_participations'
-    )
-    # Invitation status: pending, accepted, or declined.
-    status = models.CharField(
-        max_length=20,
-        choices=[
-            ('pending', 'Pending'),
-            ('accepted', 'Accepted'),
-            ('declined', 'Declined')
-        ],
-        default='pending'
-    )
-    games_won = models.IntegerField(default=0)
-    games_lost = models.IntegerField(default=0)
-    created_at = models.DateTimeField(auto_now_add=True)
-    
-    def __str__(self):
-        return f"{self.participant} in {self.tournament}"
-
-
-class TournamentGame(models.Model):
-    """
-    Associates a PongGame with a Tournament and tracks the round number.
-    """
-    tournament = models.ForeignKey(
-        Tournament,
-        on_delete=models.CASCADE,
-        related_name='tournament_games'
-    )
-    match = models.OneToOneField(
-        PongGame,
-        on_delete=models.CASCADE,
-        related_name='tournament_game'
-    )
-    round_number = models.IntegerField(default=1)
-    created_at = models.DateTimeField(auto_now_add=True)
-    
-    def __str__(self):
-        return f"Tournament: {self.tournament.name}, Match: {self.match.id}"
 
 
 class PongStatistics(models.Model):
@@ -312,6 +231,172 @@ class PendingInvitation(models.Model):
     
     def __str__(self):
         return f"PendingInvitation {self.token} from {self.sender} to {self.receiver} for game {self.game.id}"
+
+
+import random
+from django.db import models
+from django.contrib.auth.models import User
+from django.contrib.postgres.fields import ArrayField  # Only if using PostgreSQL
+
+class Tournament(models.Model):
+    name = models.CharField(max_length=100)
+    organizer = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='organized_tournaments'
+    )
+    # Only tournaments with 4 or 8 players are allowed.
+    max_players = models.IntegerField(choices=[(4, '4 players'), (8, '8 players')])
+    closed = models.BooleanField(default=False)
+    current_round = models.IntegerField(default=1)
+    # Using ArrayField to store seeding (list of player IDs) in bracket order.
+    seeding = ArrayField(models.IntegerField(), null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def close_tournament(self):
+        """
+        Closes the tournament:
+         - Checks that the tournament has the required number of confirmed players.
+         - Deletes pending invitations.
+         - Generates the seeding (random order for simplicity).
+         - Creates the first round matches.
+        """
+        confirmed_players = self.players.filter(confirmed=True)
+        if confirmed_players.count() != self.max_players:
+            raise Exception(f"Tournament cannot be closed without {self.max_players} confirmed players.")
+
+        # Delete invitations that have not been confirmed.
+        self.players.filter(confirmed=False).delete()
+
+        # Generate seeding: a list of player IDs in random order.
+        player_ids = list(confirmed_players.values_list('player__id', flat=True))
+        random.shuffle(player_ids)
+        self.seeding = player_ids
+        self.closed = True
+        self.save()
+
+        # Create the first round matches based on the seeding.
+        self.create_next_round_matches()
+
+    def is_current_round_finished(self):
+        """
+        Returns True if all matches in the current round have finished.
+        """
+        matches = self.matches.filter(round_number=self.current_round)
+        return all(match.status == 'finished' for match in matches)
+
+    def create_next_round_matches(self):
+        """
+        Creates the matches for the next round based on the current information.
+        
+        - For the first round (if no matches exist), create matches based on the seeding.
+          For 4 players: seed[0] vs seed[3] and seed[1] vs seed[2].
+          For 8 players: seed[0] vs seed[7], seed[3] vs seed[4], seed[1] vs seed[6] and seed[2] vs seed[5].
+        - For later rounds, use the winners from the previous round.
+        
+        Matches are created with status 'pending'.
+        """
+        if self.current_round == 1 and not self.matches.exists():
+            if not self.seeding:
+                raise Exception("Seeding is not set. Close the tournament first.")
+            if self.max_players == 4:
+                # For 4 players: seeding order [1,2,3,4]
+                TournamentMatch.objects.create(
+                    tournament=self,
+                    round_number=1,
+                    player1_id=self.seeding[0],
+                    player2_id=self.seeding[3],
+                    status='pending'
+                )
+                TournamentMatch.objects.create(
+                    tournament=self,
+                    round_number=1,
+                    player1_id=self.seeding[1],
+                    player2_id=self.seeding[2],
+                    status='pending'
+                )
+            elif self.max_players == 8:
+                # For 8 players: seeding order [1,2,3,4,5,6,7,8]
+                TournamentMatch.objects.create(
+                    tournament=self,
+                    round_number=1,
+                    player1_id=self.seeding[0],
+                    player2_id=self.seeding[7],
+                    status='pending'
+                )
+                TournamentMatch.objects.create(
+                    tournament=self,
+                    round_number=1,
+                    player1_id=self.seeding[3],
+                    player2_id=self.seeding[4],
+                    status='pending'
+                )
+                TournamentMatch.objects.create(
+                    tournament=self,
+                    round_number=1,
+                    player1_id=self.seeding[1],
+                    player2_id=self.seeding[6],
+                    status='pending'
+                )
+                TournamentMatch.objects.create(
+                    tournament=self,
+                    round_number=1,
+                    player1_id=self.seeding[2],
+                    player2_id=self.seeding[5],
+                    status='pending'
+                )
+        else:
+            # For later rounds: use winners from the previous round to create new matches.
+            previous_matches = self.matches.filter(round_number=self.current_round)
+            winners = []
+            for match in previous_matches:
+                if match.status != 'finished' or not match.winner:
+                    raise Exception("Not all matches in the current round have finished.")
+                winners.append(match.winner.id)
+            next_round = self.current_round + 1
+            for i in range(0, len(winners), 2):
+                TournamentMatch.objects.create(
+                    tournament=self,
+                    round_number=next_round,
+                    player1_id=winners[i],
+                    player2_id=winners[i+1],
+                    status='pending'
+                )
+            self.current_round = next_round
+            self.save()
+
+    def __str__(self):
+        return f"Tournament {self.name} (Players: {self.max_players})"
+
+
+class TournamentPlayer(models.Model):
+    """
+    Represents a player's participation in a tournament, acting as an invitation.
+    The invitation status is managed with the 'confirmed' Boolean field.
+    """
+    tournament = models.ForeignKey(
+        Tournament,
+        on_delete=models.CASCADE,
+        related_name='players'
+    )
+    player = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='tournament_entries'
+    )
+    # Invitation confirmation status: True means confirmed.
+    confirmed = models.BooleanField(default=False)
+    invited_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.player.username} in {self.tournament.name}"
+
+
+class TournamentMatch(models.Model):
+    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name='matches')
+    round_number = models.IntegerField(default=1)
+    pong_game = models.OneToOneField(PongGame, on_delete=models.CASCADE, related_name='tournament_match')
+
 
 
 class OutgoingEvent(models.Model):

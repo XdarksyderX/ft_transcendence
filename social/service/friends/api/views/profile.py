@@ -49,6 +49,10 @@ class ChangeAvatarView(APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = (MultiPartParser, FormParser)
 
+    def get(self, request):
+        avatar_url = request.user.avatar.url if request.user.avatar else None
+        return Response({'status': 'success', 'avatar': avatar_url}, status=status.HTTP_200_OK)
+
     def post(self, request):
         avatar = request.FILES.get('avatar')
 
