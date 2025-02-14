@@ -65,16 +65,21 @@ export async function searchUsers(username) {
     return await sendRequest('GET', `search/${username}/`);
 }
 
-async function sendRequest(method, endpoint, body = null) {
+export async function changeAvatar(formData) {
+    return await sendRequest('POST', 'profile/avatar/', formData, true);
+}
+
+async function sendRequest(method, endpoint, body = null, isFormData = false) {
     console.log("endpoint: ", endpoint);
     try {
-        if (body) console.log('Payload:', JSON.stringify(body));
+        if (body && !isFormData) console.log('Payload:', JSON.stringify(body));
         
+        const headers = isFormData ? {} : { 'Content-Type': 'application/json' };
         const response = await fetch(`http://localhost:5051/${endpoint}`, {
             method,
             credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-            body: body ? JSON.stringify(body) : null
+            headers,
+            body: body ? (isFormData ? body : JSON.stringify(body)) : null
         });
 
         let responseData = null;
@@ -112,6 +117,7 @@ async function sendRequest(method, endpoint, body = null) {
  * @throws {Error} - If the user is not found.
  * @throws {Error} - If the avatar path is invalid.
  */
+
 export async function getAvatar(username = null, user = null, path = null) {
     if (!path) {
         if (!user) {

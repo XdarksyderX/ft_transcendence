@@ -1,5 +1,5 @@
 import { throwAlert } from "../../app/render.js";
-import { searchUsers, 
+import { searchUsers, getAvatar,
 sendFriendRequest, getPendingSentRequests, cancelFriendRequest,
 getPendingReceivedRequests, acceptFriendRequest, declineFriendRequest,
     blockUser, isUserBlocked, unblockUser } from "../../app/social.js";
@@ -173,22 +173,22 @@ async function getUserStatusMap(users) {
     return userStatusMap;
 }
 // displays the search results
-function renderSearchList(users, elements) {
+async function renderSearchList(users, elements) {
     elements.searchList.innerHTML = '';
     elements.searchListContainer.classList.add('show');
     console.log("on renderSearchList", users);
     if (users.size === 0) {
-        elements.searchList.appendChild(createAddFriendCard(null));
+        elements.searchList.appendChild(await createAddFriendCard(null)); // Use await here
     } else {
-        users.forEach((value, key) => {
-            const status = value.isBlocked ? 'blocked' : value.isPending ? 'pendant' : 'default'
-            const addFriendCard = createAddFriendCard(value.user, status, value.invitationId);
+        for (const [key, value] of users) {
+            const status = value.isBlocked ? 'blocked' : value.isPending ? 'pendant' : 'default';
+            const addFriendCard = await createAddFriendCard(value.user, status, value.invitationId); // Use await here
             elements.searchList.appendChild(addFriendCard);
-        });
+        }
     }
 }
 
-function createAddFriendCard(user, status, invitationId) {
+async function createAddFriendCard(user, status, invitationId) {
     const card = document.createElement('div');
     card.className = 'user-card d-flex flex-column flex-md-row justify-content-between align-items-center';
 
@@ -196,15 +196,17 @@ function createAddFriendCard(user, status, invitationId) {
         createEmptyUserCard(card);
     } else {
         const btns = createCardBtns(card, user, invitationId);
+        const avatar = await getAvatar(null, user);
+        console.log('avatar: ', avatar);
         card.setAttribute('data-user-id', user.user_id);
         card.innerHTML = `
         <div class="d-flex align-items-center mb-2 mb-md-0">
-            <img src="${user.avatar}" alt="${user.username}" class="friend-picture">
+            <img src="${avatar}" alt="${user.username}" class="friend-picture">
             <p class="mb-0 ms-2">${user.username}</p>
         </div>
         `;
         card.appendChild(btns);
-        toggleBtns(card, status)
+        toggleBtns(card, status);
     }
     return card;
 }
