@@ -4,7 +4,7 @@ import { parseNewPasswords } from '../signup/signup.js';
 import { parseEmail } from '../signup/signup.js';
 import { handle2FAmodal } from './QRhandler.js';
 import { logout } from '../../app/auth.js';
-import { getBlockedList, unblockUser } from '../../app/social.js'
+import { getBlockedList, unblockUser, getAvatar } from '../../app/social.js'
 
 
 export function initializeSettingsEvents() {
@@ -312,30 +312,31 @@ async function handleGetBlockedUsers() {
 }
 
 async function renderBlockedUsers() {
-	const list = document.getElementById('blocked-users-list');
+    const list = document.getElementById('blocked-users-list');
 
-	try {
-		const blockedUsers = await handleGetBlockedUsers(); // Asegúrate de esperar la resolución
-		if (!blockedUsers) {
-			return;
-		}
-		blockedUsers.forEach(user => {
-			const card = createBlockedUserCard(user); // Asume que esta función crea un elemento DOM para el usuario
-			list.appendChild(card);
-		});
-	} catch (error) {
-		console.error("Error al mostrar usuarios bloqueados:", error);
-	}
+    try {
+        const blockedUsers = await handleGetBlockedUsers();
+        if (!blockedUsers) {
+            return;
+        }
+        for (const user of blockedUsers) {
+            const card = await createBlockedUserCard(user);
+            list.appendChild(card);
+        }
+    } catch (error) {
+        console.error("Error al mostrar usuarios bloqueados:", error);
+    }
 }
 
-function createBlockedUserCard(user) {
+async function createBlockedUserCard(username) {
     const card = document.createElement('div');
+	const avatar = await getAvatar(username);
     card.className = "user-card d-flex flex-column flex-md-row justify-content-between align-items-center";
   //  card.setAttribute('data-blocked-user-id', user.id); //i dont have any id
     card.innerHTML = `
     <div class="d-flex align-items-center mb-2 mb-md-0">
-        <img src="${user.avatar}" alt="${user}" class="friend-picture">
-            <p class="mb-0 ms-2">${user}</p>
+        <img src="${avatar}" alt="${username}" class="friend-picture">
+            <p class="mb-0 ms-2">${username}</p>
     </div>
         <button class="btn ctm-btn-danger">
             <i class="fas fa-user-minus"></i> Unblock

@@ -101,6 +101,21 @@ async function sendRequest(method, endpoint, body = null) {
     }
 }
 
+
+
+
+async function getAvatarPath(username) {
+    const search = await handleSearchUsers(username);
+    if (search) {
+        const user = search.find(u => u.username === username);
+        if (!user) {
+            throw new Error("User not found");
+        }
+        return user.avatar;
+    } else {
+        throw new Error("Failed to search users");
+    }
+}
 /**
  * Retrieves the avatar URL for a user. It will work with the username, the user object, or the path
  *
@@ -118,21 +133,11 @@ export async function getAvatar(username = null, user = null, path = null) {
             if (!username) {
                 throw new Error("Username, user object, or path must be provided");
             }
-            console.log('username: ', username);
-            // Perform an asynchronous search for the user.
-            const search = await handleSearchUsers(username);
-            if (search) {
-                user = search.find(u => u.username === username);
-                if (!user) {
-                    throw new Error("User not found");
-                }
-            } else {
-                throw new Error("Failed to search users");
-            }
+            path = await getAvatarPath(username); // Pass the username here
+        } else {
+            path = user.avatar;
         }
-        path = user.avatar;
     }
-
     if (!path.startsWith('/media/')) {
         throw new Error("Invalid avatar path");
     }
