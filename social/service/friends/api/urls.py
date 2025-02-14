@@ -30,7 +30,7 @@ urlpatterns = [
 
 	path('online-status/', UpdateOnlineStatusView.as_view(), name='update_status'),
     path('profile/', ProfileView.as_view(), name='profile'),
-	path('profile/avatar/', ChangeAvatarView.as_view(), name='change_avatar'),
+	path('change-avatar', ChangeAvatarView.as_view(), name='change_avatar'),
     path('profile/<str:username>/', ProfileView.as_view(), name='user_profile'),
     path('search/<str:username>/', SearchUsersView.as_view(), name='search_users'),
 ]
