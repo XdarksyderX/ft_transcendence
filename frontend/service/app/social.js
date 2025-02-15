@@ -66,7 +66,7 @@ export async function searchUsers(username) {
 }
 
 export async function changeAvatar(formData) {
-    return await sendRequest('POST', 'profile/avatar/', formData, true);
+    return await sendRequest('POST', 'change-avatar', formData, true);
 }
 
 async function sendRequest(method, endpoint, body = null, isFormData = false) {
