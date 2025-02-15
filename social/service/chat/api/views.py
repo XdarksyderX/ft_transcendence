@@ -1,94 +1,95 @@
-from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
-from django.db.models import Q
-from chat.models import User, Messages
-from .serializers import MessagesSerializer
-import jwt
-from django.http import JsonResponse
-from config.settings import JWT_SECRET
+from django.shortcuts import get_object_or_404
+from django.http import Http404
+from core.models import User
+from core.utils.event_domain import publish_event
+from rest_framework.permissions import IsAuthenticated
 
-class UserMessagesView(APIView):
-    """
-    APIView:
-        Manage the HTTP request from the API and return the response.
 
-    Args:
-        APIView:
-            Class from Django Rest Framework used for create views for HTTP request.
 
-    Return:
-        The response is all work correctly, or a Error Messages if fail.
-    """
-    def get(self, request, username2):
-        try:
+class CreateMessageView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        serializer = MessagesSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                "status": "success",
+                "message": "Message sent successfully."
+            }, status=status.HTTP_201_CREATED)
+        return Response({
+            "status": "error",
+            "message": "Message not sent/saved."
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
 
-            auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+class AllChatsView(APIView):
+    permission_classes = [IsAuthenticated]
 
-            if not auth_header.startswith('Bearer '):
-                return JsonResponse({'error': 'Invalid or missing Authorization header'}, status=status.HTTP_401_UNAUTHORIZED)
-
-            jwt_token = auth_header.split('Bearer ')[1]
-            try:
-                decoded_payload = jwt.decode(jwt_token, JWT_SECRET, algorithms=['HS256'])
-            except:
-                return Response({'error: invalid auth cookie'}, status=status.HTTP_401_UNAUTHORIZED)
-
-            # Find the user
-            user = User.objects.get(user_id=decoded_payload["user_id"])
-            user2 = User.objects.get(user=username2)
-            
-            # Obtain the messages
-            messages = Messages.objects.filter(
-                Q(sender_id=user, receiver_id=user2) |
-                Q(sender_id=user2, receiver_id=user))
-
-            # Mark messages as read
-            messages.update(is_read=True)
-
-            # Order the messages by created date
-            messages = messages.order_by('created_at')
-            
-            # Serialize the messages
-            serializer = MessagesSerializer(messages, many=True)
-            
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except User.DoesNotExist:
-            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-
-class UsersListsView(APIView):
     def get(self, request):
-        try:
-            auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+        messages_qs = Messages.objects.filter(
+            Q(sender_id=request.user.id) | Q(receiver_id=request.user.id)
+        ).order_by('created_at')
 
-            if not auth_header.startswith('Bearer '):
-                return JsonResponse({'error': 'Invalid or missing Authorization header'}, status=status.HTTP_401_UNAUTHORIZED)
+        conversations = {}
 
-            jwt_token = auth_header.split('Bearer ')[1]
-            try:
-                decoded_payload = jwt.decode(jwt_token, JWT_SECRET, algorithms=['HS256'])
-            except:
-                return Response({'error: invalid auth cookie'}, status=status.HTTP_401_UNAUTHORIZED)
-
-            # Find the user
-            user = User.objects.get(user_id=decoded_payload["user_id"])
-
-            # Obtain the Users Lists
-            chats = Messages.objects.filter(
-                Q(sender_id=user) | Q(receiver_id=user)
-            ).distinct()
-
-            chat_users = set()
-            for chat in chats:
-                if chat.sender_id != user:
-                    chat_users.add(chat.sender_id)
-                if chat.receiver_id != user:
-                    chat_users.add(chat.receiver_id)
+        for message in messages_qs:
+            # Determinamos quién es el partner en la conversación:
+            if message.sender_id == request.user.id:
+                partner = message.receiver_id
+                sender_label = "out"
+            else:
+                partner = message.sender_id
+                sender_label = "in"
             
-            # Convert the format
-            chat_user_list = [{"user": chat_user.user} for chat_user in chat_users]
+            # Creamos la conversación si aún no existe
+            if partner.id not in conversations:
+                conversations[partner.id] = {
+                    "id": partner.id,
+                    "name": partner.username,
+                    "messages": []
+                }
+            
+            # Generamos un índice secuencial para el mensaje dentro de la conversación.
+            msg_index = len(conversations[partner.id]["messages"]) + 1
 
-            return Response({chat_user_list}, status=status.HTTP_200_OK)
-        except User.DoesNotExist:
-            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+            conversations[partner.id]["messages"].append({
+                "id": msg_index,
+                "text": message.content,
+                "sender": sender_label,
+                "read": message.is_read
+            })
+
+        chats = list(conversations.values())
+        return Response({
+            "status": "success",
+            "message": "ALL Chats History successfully.",
+            "history": chats
+        }, status=status.HTTP_200_OK)
+
+class ChatHistoryView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, friend_username):
+
+        try:
+            friend_user = get_object_or_404(User, username=friend_username)
+        except Http404:
+            return Response({
+                "status": "error",
+                "message": "Resource not found"
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        if request.user.friends.filter(id=friend_user.id).exists():
+            messages = Messages.objects.filter(
+                Q(sender_id=request.sender_id, receiver_id_id=friend_user.id) | Q(sender_id_id=friend_user.id, receiver_id_id=request.sender_id)
+            ).order_by('created_at')
+        serializer = MessagesSerializer(messages, many=True)
+        return Response({
+            "status": "success",
+            "message": "Chat history retrieved successfully.",
+            "history": serializer.data
+        }, status=status.HTTP_200_OK)
