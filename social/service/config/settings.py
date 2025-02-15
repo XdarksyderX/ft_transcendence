@@ -81,6 +81,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -92,7 +93,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'chat',
     'friends',
-    'core'
+    'core',
 ]
 
 MIDDLEWARE = [
@@ -145,19 +146,19 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 # ASGI Config
-ASGI_APPLICATION = 'backend.asgi.application'
+ASGI_APPLICATION = 'config.asgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# CHANNEL_LAYERS = { # TODO descomentar
-#     "default": {
-#         "BACKEND": "channels_redis.core.RedisChannelLayer",
-#         "CONFIG": {
-#             "hosts": [("redis", 6379)], #redis_cont es la dirección del contenedor de redis
-#         },
-#     },
-# }
+CHANNEL_LAYERS = { # TODO descomentar
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)], #redis_cont es la dirección del contenedor de redis
+        },
+    },
+}
 
 DATABASES = {
     'default': {
