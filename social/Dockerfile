@@ -12,16 +12,18 @@
 
 FROM python:3.11-bookworm
 
-COPY service /service
-
 RUN apt-get update && apt-get install -y postgresql postgresql-contrib redis-server
+
+COPY service /service
 
 RUN pip install --no-cache-dir -r /service/requirements.txt
 
 EXPOSE 5051
 
 COPY entrypoint.sh /entrypoint.sh
+COPY dropdb.sh /dropdb.sh
 
 RUN chmod +x /entrypoint.sh
+RUN chmod +x /dropdb.sh
 
 CMD ["/bin/bash", "/entrypoint.sh"]
