@@ -13,7 +13,6 @@ redis-server &
 python3 service/manage.py makemigrations core
 python3 service/manage.py migrate
 
-export DJANGO_SETTINGS_MODULE=config.settings
 export PYTHONPATH=/service
 export DJANGO_SETTINGS_MODULE=config.settings
 

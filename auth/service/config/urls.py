@@ -23,3 +23,5 @@ urlpatterns = [
     path('', include('activate.urls')),
 	path('', include('core.consistency.urls'))
 ]
+
+handler404 = 'core.exceptions.global_handler.page_not_found'

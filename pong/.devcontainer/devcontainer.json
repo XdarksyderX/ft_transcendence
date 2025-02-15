@@ -12,14 +12,17 @@
 	// "features": {},
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	"forwardPorts": [5000],
+	"forwardPorts": [5052],
 
 	"runArgs": [
-    "--env-file", "service/.env"
+    "--env-file", "service/.env",
+	"--env-file", "../.env",
+	"--network=dev_network"
   	],
+	
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	 "postCreateCommand": ". service/.venv/bin/activate && pip3 install --user -r service/requirements.txt && bash entrypoint.sh",
+	 "postCreateCommand": "pip3 install --user -r service/requirements.txt && bash entrypoint.sh",
 
 	// Configure tool-specific properties.
 	// "customizations": {},

@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.db import models
 from django.utils.timezone import now
-from .models import Tournament, TournamentParticipant, TournamentGame
+from core.models import Tournament, TournamentParticipant, TournamentGame
 from .serializers import TournamentSerializer, TournamentParticipantSerializer, TournamentGameSerializer
 from core.models import PongGame
 import uuid
