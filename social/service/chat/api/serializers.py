@@ -1,5 +1,5 @@
 from rest_framework.serializers import ModelSerializer
-from chat.models import Messages
+from core.models import Messages
 class MessagesSerializer(ModelSerializer):
     """
     Serializers:
@@ -11,4 +11,4 @@ class MessagesSerializer(ModelSerializer):
     """
     class Meta:
         model = Messages
-        fields = ['id', 'sender_id', 'receiver_id', 'content', 'created_at', 'is_read']
+        fields = '__all__'
