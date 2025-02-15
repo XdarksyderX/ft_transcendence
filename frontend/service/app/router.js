@@ -14,11 +14,11 @@ import { loadChat, loadSidebar } from './render.js';
 import { initializeIndexEvents } from '../components/index/app.js';
 import { isLoggedIn, logout } from './auth.js';
 import { initializeSettingsEvents } from '../components/settings/app.js';
-import { startBackgroundMusic } from '../components/chess/Render/main.js';
 import { getUsername } from './auth.js';
 import { initializeResetPasswordEvents } from '../components/login/reset-pw.js';
 import { initializePongEvents } from '../components/pong/app.js';
 import { renderNotifications } from '../components/notifications/app.js';
+import { stopBackgroundMusic, toggleBackgroundMusic } from '../components/chess/index.js';
 
 const routes = [
     { url: "/404", file: "./components/error/404.html", allowed: true },
@@ -47,7 +47,7 @@ async function router() {
     document.getElementById('app').innerHTML = html;
 
     initializeNeonFrames(); // Inicializa estilos o frames
-
+    stopBackgroundMusic();
 
     // Inicializa eventos específicos de cada vista
     switch (path) {

@@ -127,35 +127,11 @@ function winGame(winBool) {
 }
 
 function resingOption() {
-/*   const msg = document.createElement("p");
-  msg.textContent = `You are about to resign the game\nAre you sure?`;
-
-  const cancelButton = document.createElement("button");
-  cancelButton.textContent = "Cancel";
-  cancelButton.classList.add("cancel-button");
-  cancelButton.onclick = () => {
-    modal.hide();
-  }
-   */
   const resignButton = document.getElementById("resign-button");
-/*   resignButton.textContent = "Resign";
-  resignButton.classList.add("resign-button"); */
   resignButton.onclick = () => {
     //aqui guardariamos la victoria y/o derrota en el historial
     navigateTo('/home');
-    modal.hide();
   }
-  
-  const buttonContainer = document.createElement("div");
-  buttonContainer.appendChild(cancelButton);
-  buttonContainer.appendChild(resignButton);
-  
-  const finalContainer = document.createElement("div");
-  finalContainer.appendChild(msg);
-  finalContainer.appendChild(buttonContainer);
-  finalContainer.classList.add("chess-modal");
-  const modal = new ModalCreator(finalContainer);
-  modal.show();
 }
 
 export { pawnPromotion, winGame, resingOption };
