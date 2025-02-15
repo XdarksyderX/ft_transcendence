@@ -135,7 +135,6 @@ async function savePhotoChanges(elements) {
         }
     }
 
-    elements.profilePicture.src = user.profilePicture;
     saveNameChanges(elements);
 }
 
@@ -169,8 +168,10 @@ async function saveNameChanges(elements) {
     if (newName !== getUsername()) {
         await updateUsername(newName);
         return ;
+    } else {
+        await initializeProfileEvents(true);
     }
-    toggleEditMode(false, elements);
+ 
 }
 
     // handle photo upload adding it to the carousel
@@ -218,18 +219,43 @@ function scrollToNewPhoto() {
     }
 }
 
+
+let originalImageData = {};
+
+function loadImageToCanvas(canvas, src) {
+    return new Promise((resolve) => {
+        const context = canvas.getContext('2d', { willReadFrequently: true });
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.src = src;
+        img.onload = function() {
+            canvas.width = 300;
+            canvas.height = 300;
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            context.drawImage(img, 0, 0, 300, 300);
+            // Store the original pixels for future color changes
+            originalImageData[canvas.id] = context.getImageData(0, 0, canvas.width, canvas.height);
+            resolve();
+        }
+    });
+}
+
 function changeAvatarColor(color) {
     const canvases = document.querySelectorAll('.carousel-item canvas');
     canvases.forEach(canvas => {
-        const context = canvas.getContext('2d', { willReadFrequently: true });
-        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        const context = canvas.getContext('2d');
+        // Use the saved original data instead of current canvas data
+        const imageData = new ImageData(
+            new Uint8ClampedArray(originalImageData[canvas.id].data),
+            canvas.width,
+            canvas.height
+        );
         const data = imageData.data;
         for (let i = 0; i < data.length; i += 4) {
-            // RGBA if Alfa is 0 is transparent
-            if (data[i + 3] !== 0) {                           // Alfa
-                data[i] = parseInt(color.slice(1, 3), 16);     // Red
-                data[i + 1] = parseInt(color.slice(3, 5), 16); // Green
-                data[i + 2] = parseInt(color.slice(5, 7), 16); // Blue
+            if (data[i + 3] !== 0) {
+                data[i] = parseInt(color.slice(1, 3), 16);
+                data[i + 1] = parseInt(color.slice(3, 5), 16);
+                data[i + 2] = parseInt(color.slice(5, 7), 16);
             }
         }
         context.putImageData(imageData, 0, 0);
@@ -239,26 +265,22 @@ function changeAvatarColor(color) {
 function changeAvatarBackgroundColor(color) {
     const canvases = document.querySelectorAll('.carousel-item canvas');
     canvases.forEach(canvas => {
-        canvas.style.backgroundColor = color;
+        const ctx = canvas.getContext('2d');
+        // Capture the current image
+        const oldDataUrl = canvas.toDataURL();
+        const oldImg = new Image();
+        oldImg.src = oldDataUrl;
+        oldImg.onload = () => {
+            // Clear and fill the background
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = color;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            // Redraw the old content on top
+            ctx.drawImage(oldImg, 0, 0);
+        };
     });
 }
 
-// load the src of a given img URL and draw it to a canvas
-function loadImageToCanvas(canvas, src) {
-    return new Promise((resolve) => {
-        const context = canvas.getContext('2d', { willReadFrequently: true });
-        const img = new Image();
-        img.crossOrigin = "anonymous";
-        img.src = src;
-        img.onload = function() { // this ensure the function executes once the image is fully charged
-            canvas.width = 300;
-            canvas.height = 300;
-            context.clearRect(0, 0, canvas.width, canvas.height);
-            context.drawImage(img, 0, 0, 300, 300);
-            resolve();
-        }
-    });
-}
 
 function btnHandler(elements) {
     elements.editProfile.addEventListener('click', () => toggleEditMode(true, elements));
