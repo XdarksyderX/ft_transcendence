@@ -4,8 +4,10 @@ from rest_framework import status
 from django.db import models
 from rest_framework.permissions import IsAuthenticated
 from core.models import PongGame, PendingInvitation
+from core.utils.event_domain import publish_event
 
 from .serializers import (
+    PongGameSerializer,
     PongGameHistorySerializer,
     PendingInvitationSerializer,
     PendingInvitationDetailSerializer,
@@ -25,6 +27,25 @@ class MatchHistoryView(APIView):
             "matches": serializer.data
         })
 
+class MatchDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, match_id):
+        try:
+            match = PongGame.objects.get(id=match_id)
+        except PongGame.DoesNotExist:
+            return Response({
+                "status": "error",
+                "message": "Match not found"
+            }, status=404)
+
+        serializer = PongGameSerializer(match)
+        return Response({
+            "status": "success",
+            "message": "Match details retrieved successfully",
+            "match": serializer.data
+        })
+        
 
 class PendingInvitationCreateView(APIView):
     permission_classes = [IsAuthenticated]
@@ -34,6 +55,12 @@ class PendingInvitationCreateView(APIView):
         serializer = PendingInvitationSerializer(data=request.data)
         if serializer.is_valid():
             invitation = serializer.save()
+            event = {
+                'sender_id': invitation.sender.id,
+                'receiver_id': invitation.receiver.id,
+                'match_id': invitation.game.id
+            }
+            publish_event('pong', 'pong.match_invitation', event)
             return Response({
                 "status": "success",
                 "message": "Invitation created successfully",

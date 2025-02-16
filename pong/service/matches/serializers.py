@@ -4,6 +4,26 @@ from core.models import PendingInvitation, PongGame
 from rest_framework import serializers
 from core.models import PongGame
 
+class PongGameSerializer(serializers.ModelSerializer):
+    player1 = serializers.CharField(source='player1.username', read_only=True)
+    player2 = serializers.CharField(source='player2.username', read_only=True)
+    winner = serializers.CharField(source='winner.username', read_only=True, default=None)
+    
+    class Meta:
+        model = PongGame
+        fields = [
+            'id',
+            'player1',
+            'player2',
+            'winner',
+            'player1_score',
+            'player2_score',
+            'status',
+            'created_at',
+            'updated_at'
+        ]
+
+
 class PongGameHistorySerializer(serializers.ModelSerializer):
     player1 = serializers.CharField(source='player1.username', read_only=True)
     player2 = serializers.CharField(source='player2.username', read_only=True)

@@ -12,7 +12,7 @@
 
 FROM python:3.11-bookworm
 
-RUN apt-get update && apt-get install -y postgresql postgresql-contrib redis-server
+RUN apt-get update && apt-get install -y postgresql postgresql-contrib redis-server redis
 
 COPY service /service
 

@@ -151,11 +151,11 @@ ASGI_APPLICATION = 'config.asgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-CHANNEL_LAYERS = { # TODO descomentar
+CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("redis", 6379)], #redis_cont es la dirección del contenedor de redis
+            "hosts": [("localhost", 6379)],
         },
     },
 }
