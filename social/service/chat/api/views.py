@@ -7,6 +7,8 @@ from core.models import User
 from core.utils.event_domain import publish_event
 from rest_framework.permissions import IsAuthenticated
 
+
+
 class CreateMessageView(APIView):
     permission_classes = [IsAuthenticated]
     

@@ -69,6 +69,18 @@ export async function changeAvatar(formData) {
     return await sendRequest('POST', 'change-avatar', formData, true);
 }
 
+export async function getAllChats() {
+    return await sendRequest('GET', 'history/all/');
+}
+
+export async function getChatHistory(friendUsername) {
+    return await sendRequest('GET', `history/chat/${friendUsername}/`);
+}
+
+export async function createMessage(friendUsername, messageContent) {
+    return await sendRequest('POST', 'message/new/', { friend_username: friendUsername, content: messageContent });
+}
+
 async function sendRequest(method, endpoint, body = null, isFormData = false) {
     console.log("endpoint: ", endpoint);
     try {
