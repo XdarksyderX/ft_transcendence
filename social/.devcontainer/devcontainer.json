@@ -19,7 +19,7 @@
         "--network=dev_network"
     ],
     // Use 'postCreateCommand' to run commands after the container is created.
-    "postCreateCommand": "pip3 install --user -r service/requirements.txt && bash entrypoint.sh",
+    "postCreateCommand": "apt update && apt install redis-server && pip3 install --user -r service/requirements.txt && bash entrypoint.sh",
     // Configure tool-specific properties.
     // "customizations": {},
     // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.

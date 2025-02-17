@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework.exceptions import AuthenticationFailed, NotAuthenticated, NotFound, MethodNotAllowed
 
 def global_exception_handler(exc, context):
+    print(exc)
     if isinstance(exc, AuthenticationFailed) or isinstance(exc, NotAuthenticated):
         return Response({
             "status": "error",

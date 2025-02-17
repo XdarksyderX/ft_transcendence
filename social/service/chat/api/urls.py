@@ -1,11 +1,7 @@
-from django.urls import path, include
-from .views import CreateMessageView, AllChatsView, ChatHistoryView
+from django.urls import path
+from chat.api.views import MessageListView, mark_messages_as_read
 
 urlpatterns = [
-    path('history/', include([
-        path('all/', AllChatsView.as_view(), name='all_chats'),
-        path('chat/<str:friend_username>/', ChatHistoryView.as_view(), name='chat_history'),
-    ])),
-
-    path('message/new/', CreateMessageView.as_view(), name='create_message'),
+    path("messages/<str:other_username>/", MessageListView.as_view(), name="message-list"),
+    path("messages/read/<str:other_username>/", mark_messages_as_read, name="mark-messages-read"),
 ]

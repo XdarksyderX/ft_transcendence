@@ -73,12 +73,12 @@ export async function getAllChats() {
     return await sendRequest('GET', 'history/all/');
 }
 
-export async function getChatHistory(friendUsername) {
-    return await sendRequest('GET', `history/chat/${friendUsername}/`);
+export async function getMessages(user_id) {
+    return await sendRequest('GET', `messages/${user_id}/`);
 }
 
-export async function createMessage(friendUsername, messageContent) {
-    return await sendRequest('POST', 'message/new/', { friend_username: friendUsername, content: messageContent });
+export async function markAsReadMessage(user_id) {
+    return await sendRequest('POST', `messages/read/${user_id}/`);
 }
 
 async function sendRequest(method, endpoint, body = null, isFormData = false) {
