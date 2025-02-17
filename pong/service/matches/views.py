@@ -46,13 +46,11 @@ class MatchDetailView(APIView):
             "match": serializer.data
         })
         
-
 class PendingInvitationCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        request.data['sender'] = request.user.id
-        serializer = PendingInvitationSerializer(data=request.data)
+        serializer = PendingInvitationSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             invitation = serializer.save()
             event = {
@@ -71,6 +69,7 @@ class PendingInvitationCreateView(APIView):
             "message": "Invalid data provided",
             "errors": serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class PendingInvitationListView(APIView):

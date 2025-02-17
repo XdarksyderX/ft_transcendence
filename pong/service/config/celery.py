@@ -32,7 +32,7 @@ app.conf.task_routes = {
     'auth.user_registered': {'queue': 'pong.user_registered'},
     'auth.user_deleted': {'queue': 'pong.user_deleted'},
     'auth.username_changed': {'queue': 'pong.username_changed'},
-	'auth.user_deleted': {'queue': 'pong.friend_added'},
+	'social.friend_added': {'queue': 'pong.friend_added'},
 	'social.friend_removed': {'queue': 'pong.friend_removed'},
 	'consistency.subscribe_now.pong': {'queue': 'consistency.subscribe_now.pong'}
 }
