@@ -1,19 +1,15 @@
-export function initializeChatEvents() {
-    /* each big container */
+import { getFriendsList, getMessages, markAsReadMessage } from '../../app/social.js';
+import { getUsername } from '../../app/auth.js';
+
+export async function initializeChatEvents() {
     const chatContainer = document.getElementById('chat-container');
     const chatHeader = document.getElementById('chat-header');
     const chatBody = document.getElementById('chat-body');
-
-    /* the three available tabs on our chat */
     const recentChatsTab = document.getElementById('recent-chats');
     const newChatTab = document.getElementById('new-chat');
     const chatTab = document.getElementById('chat-window');
-
-    /* buttons and icons */
     const newChatBtn = document.getElementById('new-chat-btn');
     const toggleIcon = document.getElementById('toggle-icon');
-
-    /* lists and chat elements */
     const friendList = document.getElementById('friends-list');
     const recentChatsList = document.getElementById('recent-chats-list');
     const chatMessages = document.getElementById('chat-messages');
@@ -22,107 +18,154 @@ export function initializeChatEvents() {
     const currentChatName = document.getElementById('current-chat-name');
     const notificationIndicator = document.getElementById('notification-indicator');
 
-    /* state variables */
     let isExpanded = false;
-    let currentChat = null;
     let currentView = 'recent-chats';
 
-    /* provisional data */
-    const friends = [
-        { id: 6, name: "albagar4" },
-        { id: 7, name: "jariza-o" },
-        { id: 8, name: "marirodr" },
-        { id: 9, name: "erivero-" },
-    ];
+    let chatSocket = null;
+    let currentChat = {
+        username: null,
+        name: "",
+        messages: []
+    };
 
-    let chats = [
-        { id: 1, name: "Vicenta", messages: [
-            { id: 1, text: "Policía?! Me llamo Vicenta, estoy muy nerviosa", sender: "in", read: true },
-            { id: 2, text: "...", sender: "out", read: true },
-            { id: 3, text: "Ya vienen para acá", sender: "in", read: false },
-        ]},
-        { id: 2, name: "Bob", messages: [
-            { id: 1, text: "Did you see the game last night?", sender: "in", read: true },
-            { id: 2, text: "Yeah, it was amazing!", sender: "out", read: true },
-        ]},
-        { id: 3, name: "Charlie", messages: [
-            { id: 1, text: "Meeting at 3pm today", sender: "in", read: true },
-            { id: 2, text: "I'll be there", sender: "out", read: true },
-            { id: 3, text: "Great, see you then!", sender: "in", read: false },
-        ]},
-    ];
+    const response = await getFriendsList();
+    const friends = response["friends"] || [];
+    console.log("Friends list:", friends);
 
-    /* function to toggle chat visibility so it is collapsible */
-    chatHeader.addEventListener('click', toggleChat);
-    function toggleChat() {
-        isExpanded = !isExpanded; // inverts the current state
+    chatHeader.addEventListener('click', async () => {
+        await toggleChat();
+    });
+    async function toggleChat() {
+        isExpanded = !isExpanded;
         chatBody.style.display = isExpanded ? 'block' : 'none';
         toggleIcon.className = isExpanded ? 'fas fa-chevron-down' : 'fas fa-chevron-up';
-        if (isExpanded && !currentChat) {
-            showRecentChats();
+        if (isExpanded && currentView === 'recent-chats') {
+            await showRecentChats();
         }
-        updateNotificationIndicator();
+        await updateNotificationIndicator();
     }
-
-    function showRecentChats() {
+    async function showRecentChats() {
         currentView = 'recent-chats';
         newChatTab.style.display = 'none';
         chatTab.style.display = 'none';
         recentChatsTab.style.display = 'flex';
-        renderRecentChats();
+        await renderRecentChats();
     }
-
-    function renderRecentChats() {
-        // sets the innerHTML of the recentChatsList to the chats array
-        recentChatsList.innerHTML = chats.map(chat => { // with API, it will be a fetch I guess
-            const lastMessage = chat.messages[chat.messages.length - 1]; // gets the last message
-            const unreadClass = !lastMessage.read && lastMessage.sender === 'in' ? 'unread' : ''; //sets the unread status 
-            // returns the chat item with the name, last message and unread status on html format
-            return ` 
-                <a href="#" class="list-group-item list-group-item-action chat-item" data-chat-id="${chat.id}">
+    async function fetchLastMessageForUser(friendUsername) {
+        try {
+            const messagesResponse = await getMessages(friendUsername);
+            if (messagesResponse.status === "success" && messagesResponse.messages && messagesResponse.messages.length > 0) {
+                return messagesResponse.messages[messagesResponse.messages.length - 1];
+            }
+        } catch (error) {
+            console.error("Error fetching messages for", friendUsername, error);
+        }
+        return null;
+    }
+    async function renderRecentChats() {
+        let html = '';
+        for (let friend of friends) {
+            const lastMessage = await fetchLastMessageForUser(friend.username);
+            const messageText = lastMessage ? lastMessage.content : "No messages yet";
+            html += `
+                <a href="#" class="list-group-item list-group-item-action chat-item" 
+                   data-friend-username="${friend.username}" data-friend-name="${friend.username}">
                     <div class="d-flex w-100 justify-content-between">
-                        <h5 class="mb-1">${chat.name}</h5>
-                        <small class="text-muted">3 days ago</small>
+                        <h5 class="mb-1">${friend.username}</h5>
+                        <small class="text-muted">Last message time</small>
                     </div>
-                    <p class="mb-1 ${unreadClass}">${lastMessage ? lastMessage.text : 'No messages yet'}</p>
+                    <p class="mb-1">${messageText}</p>
                 </a>
             `;
-        }).join(''); // joins the array of HTML strings into a single string
-        updateNotificationIndicator();
+        }
+        recentChatsList.innerHTML = html;
+        await updateNotificationIndicator();
     }
-
-    newChatBtn.addEventListener('click', showFriendList);
-
-    function showFriendList() {
+    newChatBtn.addEventListener('click', async () => {
+        await showFriendList();
+    });
+    async function showFriendList() {
         currentView = 'friend-list';
         recentChatsTab.style.display = 'none';
         newChatTab.style.display = 'flex';
-        renderFriendList();
+        await renderFriendList();
     }
-
-    function renderFriendList() {
+    async function renderFriendList() {
         friendList.innerHTML = friends.map(friend => `
-            <a href="#" class="list-group-item list-group-item-action" data-friend-id="${friend.id}">
-                <h6 class="mb-1">${friend.name}</h6>
+            <a href="#" class="list-group-item list-group-item-action friend-item" 
+               data-friend-username="${friend.username}" data-friend-name="${friend.username}">
+                <h6 class="mb-1">${friend.username}</h6>
             </a>
         `).join('');
     }
-
-    function openChat(chatId) {
-        currentChat = chats.find(chat => chat.id === chatId);
-        if (currentChat) {
-            currentView = 'chat';
-            recentChatsTab.style.display = 'none';
-            newChatTab.style.display = 'none';
-            chatTab.style.display = 'flex';
-            currentChatName.textContent = currentChat.name;
-            renderChat();
-            currentChat.messages.forEach(message => message.read = true);
-            updateNotificationIndicator();
-        } 
+    async function openChat(friendUsername, friendName) {
+        console.log("Opening chat with:", friendUsername, friendName);
+        currentChat = { username: friendUsername, name: friendName, messages: [] };
+        if (chatSocket) {
+            chatSocket.close();
+        }
+        try {
+            const messagesResponse = await getMessages(friendUsername);
+            if (messagesResponse.status === "success" && messagesResponse.messages) {
+                const currentUser = getUsername();
+                currentChat.messages = messagesResponse.messages.map((msg, index) => ({
+                    id: index + 1,
+                    text: msg.content,
+                    sender: msg.sender === currentUser ? "out" : "in",
+                    read: msg.is_read
+                }));
+                console.log("Messages history:", currentChat.messages);
+            }
+        } catch (error) {
+            console.error("Error fetching messages:", error);
+        }
+        try {
+            const markResponse = await markAsReadMessage(friendUsername);
+            if (markResponse.status !== "success") {
+                console.error("Error marking messages as read:", markResponse.message);
+            }
+        } catch (error) {
+            console.error("Error marking messages as read:", error);
+        }
+        chatSocket = new WebSocket(`ws://localhost:5051/ws/chat/${friendUsername}/`);
+        chatSocket.onopen = () => {
+            console.log("WebSocket connected for", friendUsername);
+        };
+        chatSocket.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                console.log("WS message received:", data);
+                const currentUser = getUsername();
+                if (data.status === "success" && data.data && data.data.message) {
+                    if (data.data.sender === currentUser) return;
+                    currentChat.messages.push({
+                        id: currentChat.messages.length + 1,
+                        text: data.data.message,
+                        sender: "in",
+                        read: true
+                    });
+                    renderChat();
+                } else {
+                    console.error("WS error:", data.message);
+                }
+            } catch (e) {
+                console.error("Error parsing WS message:", e);
+            }
+        };
+        chatSocket.onerror = (error) => {
+            console.error("WebSocket error:", error);
+        };
+        chatSocket.onclose = () => {
+            console.log("WebSocket closed");
+        };
+        currentView = 'chat';
+        recentChatsTab.style.display = 'none';
+        newChatTab.style.display = 'none';
+        chatTab.style.display = 'flex';
+        currentChatName.textContent = friendName;
+        renderChat();
     }
-
-    function renderChat() {    
+    function renderChat() {
         if (currentChat) {
             chatMessages.innerHTML = currentChat.messages.map(message => `
                 <div class="message ${message.sender}">
@@ -132,63 +175,53 @@ export function initializeChatEvents() {
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
     }
-
-    function startNewChat(friendName) {
-        let chat = chats.find(chat => chat.name === friendName);
-        if (!chat) {
-            chat = { id: chats.length + 1, name: friendName, messages: [] };
-            chats.push(chat);
-        }
-        currentChat = chat;
-        openChat(chat.id);
+    async function startNewChat(friendUsername, friendName) {
+        await openChat(friendUsername, friendName);
     }
-
-    function updateNotificationIndicator() {
-        const hasUnreadMessages = chats.some(chat => 
-            chat.messages.some(message => !message.read && message.sender === 'in')
-        );
-        notificationIndicator.style.display = hasUnreadMessages && !isExpanded ? 'block' : 'none';
+    async function updateNotificationIndicator() {
+        notificationIndicator.style.display = 'none';
     }
-
-    function addMessage(text, sender) {
-        if (currentChat) {
-            const message = { id: currentChat.messages.length + 1, text, sender, read: true };
-            currentChat.messages.push(message);
-            renderChat();
-        }
-    }
-
-    document.querySelectorAll('.back-to-recents').forEach(button => {
-        button.addEventListener('click', showRecentChats);
-    });
-
-    friendList.addEventListener('click', event => {
-        event.preventDefault();
-        const friendLink = event.target.closest('.list-group-item');
-        if (friendLink) {
-            const friendName = friendLink.querySelector('h6').textContent;
-            startNewChat(friendName);
-        }
-    });
-
-    recentChatsTab.addEventListener('click', event => {
-        event.preventDefault();
-        const chatItem = event.target.closest('.chat-item');
-        if (chatItem) {
-            openChat(parseInt(chatItem.dataset.chatId));
-        }
-    });
-
-    chatForm.addEventListener('submit', event => {
+    chatForm.addEventListener('submit', async (event) => {
         event.preventDefault();
         const messageText = messageInput.value.trim();
-        if (messageText) {
-            addMessage(messageText, 'out');
+        if (messageText && chatSocket && chatSocket.readyState === WebSocket.OPEN) {
+            chatSocket.send(JSON.stringify({ message: messageText }));
+            currentChat.messages.push({
+                id: currentChat.messages.length + 1,
+                text: messageText,
+                sender: "out",
+                read: true
+            });
+            renderChat();
             messageInput.value = '';
         }
     });
-
-    updateNotificationIndicator();
+    friendList.addEventListener('click', async (event) => {
+        event.preventDefault();
+        const friendLink = event.target.closest('.friend-item');
+        if (friendLink) {
+            const friendUsername = friendLink.getAttribute('data-friend-username');
+            const friendName = friendLink.getAttribute('data-friend-name');
+            await startNewChat(friendUsername, friendName);
+        }
+    });
+    recentChatsList.addEventListener('click', async (event) => {
+        event.preventDefault();
+        const chatItem = event.target.closest('.chat-item');
+        if (chatItem) {
+            const friendUsername = chatItem.getAttribute('data-friend-username');
+            const friendName = chatItem.getAttribute('data-friend-name');
+            await openChat(friendUsername, friendName);
+        }
+    });
+    document.querySelectorAll('.back-to-recents').forEach(button => {
+        button.addEventListener('click', async () => {
+            if (chatSocket) {
+                chatSocket.close();
+                chatSocket = null;
+            }
+            await showRecentChats();
+        });
+    });
+    await showRecentChats();
 }
-
-/* initializeChatEvents(); */

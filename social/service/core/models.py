@@ -26,7 +26,7 @@ class User(AbstractUser):
         blank=True,
         related_name='outgoing_requests'
     )
-    sent_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_online = models.BooleanField(default=False)
 
@@ -62,8 +62,8 @@ class IncomingEvent(models.Model):
 
 class Message(models.Model):
     content = models.CharField(max_length=300, blank=False, verbose_name='message_content')
-    sender_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages', verbose_name='sender_id')
-    receiver_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_messages', verbose_name='receiver_id')
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages', verbose_name='sender_id')
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_messages', verbose_name='receiver_id')
     sent_at = models.DateTimeField(auto_now_add=True, verbose_name='sent_at')
     is_read = models.BooleanField(default=False, verbose_name='is_read')
     is_special = models.BooleanField(default=False, verbose_name='is_special')
