@@ -53,14 +53,23 @@
                                 <span class="visually-hidden">Next</span>
                             </button>
                         </div>
-                        <div class="row text-center mb-3">
-                            <div class="col-12 col-md-6 mb-2 mb-md-0">
-                                <button id="change-avatar-color" class="btn ctm-btn">Change Avatar Color</button>
+                        <div class="row text-center mb-3 d-flex justify-content-center">
+                            <div class="col-12 col-md-5 mb-2 mb-md-0 d-flex justify-content-center">
+                                <button id="choose-avatar-color" class="btn ctm-btn flex-fill py-3 d-flex align-items-center justify-content-center">
+                                    Choose Avatar Color
+                                    <span id="avatar-color-square" class="color-square ms-2"></span>
+                                </button>
                                 <input type="color" id="avatar-color-picker" style="display: none;">
                             </div>
-                            <div class="col-12 col-md-6">
-                                <button id="change-background-color" class="btn ctm-btn">Change Background</button>
+                            <div class="col-12 col-md-4 mb-2 mb-md-0 d-flex justify-content-center">
+                                <button id="choose-background-color" class="btn ctm-btn flex-fill py-3 d-flex align-items-center justify-content-center">
+                                    Choose Background
+                                    <span id="background-color-square" class="color-square ms-2"></span>
+                                </button>
                                 <input type="color" id="background-color-picker" style="display: none;">
+                            </div>
+                            <div class="col-12 col-md-3 d-flex justify-content-center">
+                                <button id="apply-color" class="btn ctm-btn flex-fill py-3">Apply</button>
                             </div>
                         </div>
                         <div class="text-center mb-3">

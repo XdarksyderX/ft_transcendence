@@ -131,7 +131,12 @@
 	background-color: var(--darkish);
 	position: sticky;
 	top: 0;
-	z-index: 1000;
+	/* z-index: 1000; */
+}
+
+#start-a-new-chat {
+	color: var(--title);
+	background-color: var(--darkish);
 }
 
 .back-to-recents:hover {

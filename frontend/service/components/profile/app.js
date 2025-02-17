@@ -164,9 +164,11 @@ async function updateUsername(username) {
 
 
 async function saveNameChanges(elements) {
-    const newName = elements.username.querySelector('input').value;
+    const nameInput = elements.username.querySelector('input')
+    const newName = nameInput.value;
     if (newName !== getUsername()) {
         await updateUsername(newName);
+        nameInput.value = '';
         return ;
     } else {
         await initializeProfileEvents(true);

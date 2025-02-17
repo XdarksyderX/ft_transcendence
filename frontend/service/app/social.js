@@ -69,6 +69,10 @@ export async function changeAvatar(formData) {
     return await sendRequest('POST', 'change-avatar', formData, true);
 }
 
+export async function getAllChats() {
+    return await sendRequest('GET', 'history/all/');
+}
+
 export async function getMessages(user_id) {
     return await sendRequest('GET', `messages/${user_id}/`);
 }
