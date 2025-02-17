@@ -242,7 +242,11 @@ class Tournament(models.Model):
         related_name='organized_tournaments'
     )
     # Only tournaments with 4 or 8 players are allowed.
-    max_players = models.IntegerField(choices=[(4, '4 players'), (8, '8 players')])
+    max_players = models.IntegerField(
+    choices=[(4, '4 Players'), (8, '8 Players')],
+    default=4
+    )
+
     closed = models.BooleanField(default=False)
     current_round = models.IntegerField(default=1)
     # Using ArrayField to store seeding (list of player IDs) in bracket order.
