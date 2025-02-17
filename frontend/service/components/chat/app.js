@@ -10,7 +10,7 @@ let currentChat = {
     messages: []
 };
 
-let chats = {}; // Estructura: { username: { lastMessage: "Hola", lastUpdated: timestamp } }
+let chats = {}; // Estructura: { username: { lastMessage: "Hola", lastUpdated: timestamp, read: true/false } }
 
 export async function initializeChatEvents() {
     const elements = getElements();
@@ -58,7 +58,7 @@ async function toggleChat(elements) {
     if (isExpanded && currentView === 'recent-chats') {
         await showRecentChats(elements);
     }
-    await updateNotificationIndicator(elements);
+    updateNotificationIndicator(elements.notificationIndicator);
 }
 
 async function showRecentChats(elements) {
@@ -92,7 +92,8 @@ async function getRecentChats() {
             if (lastMessage) {
                 chats[friend.username] = {
                     lastMessage: lastMessage.content,
-                    lastUpdated: new Date(lastMessage.timestamp).getTime()
+                //    lastUpdated: new Date(lastMessage.timestamp).getTime(),
+                    read: lastMessage.is_read
                 };
             }
         }
@@ -106,23 +107,25 @@ async function renderRecentChats(elements) {
     }
     if (Object.keys(chats).length === 0) {
         showFriendList(elements, false);
-        return ;
+        return;
     }
     let html = '';
     for (const [username, chatData] of Object.entries(chats)) {
+        const unreadClass = !chatData.read ? 'unread' : '';
         html += `
             <a href="#" class="list-group-item list-group-item-action chat-item" 
                 data-friend-username="${username}">
                 <div class="d-flex w-100 justify-content-between">
                     <h5 class="mb-1">${username}</h5>
-                    <small class="text-muted">${new Date(chatData.lastUpdated).toLocaleTimeString()}</small>
+                    <small class="text-muted">${'nope'}</small>
                 </div>
-                <p class="mb-1">${chatData.lastMessage}</p>
+                <p class="mb-1 ${unreadClass}">${chatData.lastMessage}</p>
             </a>
         `;
+        // <small class="text-muted">${new Date(chatData.lastUpdated).toLocaleTimeString()}</small>
     }
     elements.recentChatsList.innerHTML = html;
-    await updateNotificationIndicator(elements);
+    updateNotificationIndicator(elements.notificationIndicator);
 }
 
 async function showFriendList(elements, hasChats = true) {
@@ -187,6 +190,12 @@ async function markMessagesAsRead(friendUsername) {
         const markResponse = await markAsReadMessage(friendUsername);
         if (markResponse.status !== "success") {
             console.error("Error marking messages as read:", markResponse.message);
+        } else {
+            if (chats[friendUsername]) { // updates also the read on the chat object
+                chats[friendUsername].read = true;
+                console.log(`Marked messages as read for ${friendUsername}`);
+                console.log("Updated chats object after marking messages as read:", chats);
+            }
         }
     } catch (error) {
         console.error("Error marking messages as read:", error);
@@ -208,21 +217,32 @@ function handleReceivedMessage(event) {
         const currentUser = getUsername();
         if (data.status === "success" && data.data && data.data.message) {
             if (data.data.sender === currentUser) return;
-            currentChat.messages.push({
-                id: currentChat.messages.length + 1,
-                text: data.data.message,
-                sender: "in",
-                read: true
-            });
-            chats[currentChat.username] = {
-                lastMessage: data.data.message,
-                lastUpdated: Date.now()
+
+            // Update currentChat if the message is for the currently open chat
+            if (currentChat.username === data.data.sender && currentView === 'chat') {
+                currentChat.messages.push({
+                    id: currentChat.messages.length + 1,
+                    text: data.data.message,
+                    sender: "in",
+                    read: true
+                });
             }
-            if (currentView === 'chat') {
+            // Update chats object
+            chats[data.data.sender] = {
+                lastMessage: data.data.message,
+                //lastUpdated: Date.now(),
+                read: false
+            };
+
+            // Update the view if the current view is the chat with the sender or the recent-chats tab
+            if (currentView === 'chat' && currentChat.username === data.data.sender) {
                 renderChat(getElements());
             } else if (currentView === 'recent-chats') {
                 renderRecentChats(getElements());
             }
+
+            // Update notification indicator
+            updateNotificationIndicator(document.getElementById('notification-indicator'));
         } else {
             console.error("WS error:", data.message);
         }
@@ -254,8 +274,13 @@ async function startNewChat(friendUsername, elements) {
     await openChat(friendUsername, elements);
 }
 
-async function updateNotificationIndicator(elements) {
-    elements.notificationIndicator.style.display = 'none';
+function updateNotificationIndicator(indicator) {
+    console.log("Updating notification indicator...");
+    console.log("Chats object:", chats);
+    const hasUnreadMessages = Object.values(chats).some(chat => !chat.read);
+    console.log("Has unread messages:", hasUnreadMessages);
+    console.log("Is chat expanded:", isExpanded);
+    indicator.style.display = hasUnreadMessages && !isExpanded ? 'block' : 'none';
 }
 
 function handleFriendListClick(event, elements) {
@@ -280,7 +305,8 @@ function handleSentMessage(event, elements) {
         });
         chats[currentChat.username] = {
             lastMessage: messageText,
-            lastUpdated: Date.now()
+            //lastUpdated: Date.now(),
+            read: true
         };
         renderChat(elements);
         elements.messageInput.value = '';
