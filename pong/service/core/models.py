@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.contrib.postgres.fields import ArrayField
 import uuid
 import random
 import math
@@ -232,11 +233,6 @@ class PendingInvitation(models.Model):
     def __str__(self):
         return f"PendingInvitation {self.token} from {self.sender} to {self.receiver} for game {self.game.id}"
 
-
-import random
-from django.db import models
-from django.contrib.auth.models import User
-from django.contrib.postgres.fields import ArrayField  # Only if using PostgreSQL
 
 class Tournament(models.Model):
     name = models.CharField(max_length=100)
