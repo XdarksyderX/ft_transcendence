@@ -7,4 +7,5 @@ migrations/
 .DS_Store
 volume-data/
 keys/
+dump.rdb
 *.pem
