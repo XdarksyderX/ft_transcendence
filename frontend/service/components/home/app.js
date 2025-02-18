@@ -1,5 +1,6 @@
 import { throwAlert } from "../../app/render.js";
 import { navigateTo } from "../../app/router.js";
+import { sendGameInvitation } from "./game-invitation.js";
 
 let chessVariant = null;
 let currentView = null;
@@ -82,7 +83,7 @@ function initPongEvents(elements) {
 	elements.pong.tournament.btn.addEventListener('click', () => showTournamentOptions(elements));
 	elements.pong.tournament.ongoing.addEventListener('click', () => navigateTo("/ongoing-tournaments"));
     elements.pong.tournament.new.addEventListener('click', () => navigateTo("/new-tournament"));
-    elements.pong.quickPlay.startGameWithFriendButton.addEventListener('click', () => launchWaitModal('pong', elements));
+    elements.pong.quickPlay.startGameWithFriendButton.addEventListener('click', () => sendGameInvitation('pong', elements, selectedFriend));
 }
 // goes from initial view to pong-options
 function togglePongOptions(event, elements) { 

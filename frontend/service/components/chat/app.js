@@ -171,14 +171,23 @@ async function renderFriendList(elements) {
 async function openChat(friendUsername, elements) {
     console.log("Opening chat with:", friendUsername);
     currentChat = { username: friendUsername, messages: [] };
-    if (chatSocket) {
-        chatSocket.close();
-    }
+    // if (chatSocket) {
+    //     chatSocket.close();
+    // }
     await fetchChatMessages(friendUsername);
     await markMessagesAsRead(friendUsername);
     initializeChatSocket(friendUsername);
     displayChatWindow(elements, friendUsername);
     renderChat(elements);
+}
+
+export function handleSendGameInvitation(friend, game) {
+
+    initializeChatSocket(friend);
+    const messageText = `${friend} has invited you to play ${game}! ;____;`;
+    if (chatSocket && chatSocket.readyState === WebSocket.OPEN) {
+        chatSocket.send(JSON.stringify({ message: messageText }));
+    }
 }
 
 // Fetch chat messages for a specific friend
@@ -220,6 +229,9 @@ async function markMessagesAsRead(friendUsername) {
 
 // Initialize the WebSocket connection for a specific friend
 function initializeChatSocket(friendUsername) {
+    if (chatSocket) {
+        chatSocket.close();
+    }
     chatSocket = new WebSocket(`ws://localhost:5051/ws/chat/${friendUsername}/`);
     chatSocket.onopen = () => console.log("WebSocket connected for", friendUsername);
     chatSocket.onmessage = (event) => handleReceivedMessage(event);
