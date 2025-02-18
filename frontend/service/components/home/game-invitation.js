@@ -1,4 +1,4 @@
-//import { sendGameInvitation } from "../chat/app.js";
+import { sendGameInvitation } from "../chat/app.js";
 
 function launchWaitModal(friendName, game, elements) {
 	const modal = new bootstrap.Modal(elements.modal.waitGame);

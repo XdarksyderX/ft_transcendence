@@ -11,10 +11,6 @@ let currentChat = {
     messages: []
 };
 
-// A variable to store the last message of each chat to avoid unnecessary API calls
-// Structure: { username: { lastMessage: "Hola", lastUpdated: timestamp, read: true/false } }
-let chats = {};
-
 // Initialize chat events by getting elements, binding event listeners, and showing recent chats
 export async function initializeChatEvents() {
     const elements = getElements();
@@ -64,8 +60,9 @@ async function toggleChat(elements) {
     elements.toggleIcon.className = isExpanded ? 'fas fa-chevron-down' : 'fas fa-chevron-up';
     if (isExpanded && currentView === 'recent-chats') {
         await showRecentChats(elements);
+    } else {
+        await updateNotificationIndicator(elements.notificationIndicator);
     }
-    updateNotificationIndicator(elements.notificationIndicator);
 }
 
 // Show the recent chats tab
@@ -92,23 +89,22 @@ async function fetchLastMessageForUser(friendUsername) {
 
 // Get the recent chats by fetching the last message for each friend
 async function getRecentChats() {
-    if (!chats) chats = {}; // Ensure chats is defined
-
     const friends = await handleGetFriendList();
+    const recentChats = {};
 
     for (let friend of friends) {
-        if (!chats[friend.username]) { // Only fetch if not already in chats
-            const lastMessage = await fetchLastMessageForUser(friend.username);
-            if (lastMessage) {
-                chats[friend.username] = {
-                    lastMessage: lastMessage.content,
-                    lastUpdated: lastMessage.sent_at,
-                    is_read: lastMessage.is_read,
-                    sender: lastMessage.sender === friend.username ? 'in' : 'out'
-                };
-            }
+        const lastMessage = await fetchLastMessageForUser(friend.username);
+        if (lastMessage) {
+            recentChats[friend.username] = {
+                lastMessage: lastMessage.content,
+                lastUpdated: lastMessage.sent_at,
+                is_read: lastMessage.is_read,
+                sender: lastMessage.sender === friend.username ? 'in' : 'out'
+            };
         }
     }
+
+    return recentChats;
 }
 
 function formatTime(dateString) {
@@ -121,20 +117,18 @@ function formatTime(dateString) {
 // Render the recent chats list
 async function renderRecentChats(elements) {
     console.log("render recent chats function called");
-    if (!chats || Object.keys(chats).length === 0) {
-        await getRecentChats(); // Fill chats if empty
-    }
-    if (Object.keys(chats).length === 0) {
+    const recentChats = await getRecentChats();
+
+    if (Object.keys(recentChats).length === 0) {
         showFriendList(elements, false);
         return;
     }
     let html = '';
-    for (const [username, chatData] of Object.entries(chats)) {
+    for (const [username, chatData] of Object.entries(recentChats)) {
+        console.log("ON renderRecentChats CHATDATA: ", chatData);
         const unreadClass = !chatData.is_read ? 'unread' : '';
         const formattedTime = formatTime(chatData.lastUpdated);
         const checkIcon = chatData.sender === 'out' ? (chatData.is_read ? '✔✔' : '✔') : '';
-        console.log("ON renderRecentChats CHATDATA: ", chatData);
-
         html += `
             <a href="#" class="list-group-item list-group-item-action chat-item" 
                 data-friend-username="${username}">
@@ -150,7 +144,7 @@ async function renderRecentChats(elements) {
         `;
     }
     elements.recentChatsList.innerHTML = html;
-    updateNotificationIndicator(elements.notificationIndicator);
+    await updateNotificationIndicator(elements.notificationIndicator, recentChats);
 }
 
 // Show the friend list tab
@@ -195,15 +189,6 @@ async function openChat(friendUsername, elements) {
     renderChat(elements);
 }
 
-export function handleSendGameInvitation(friend, game) {
-
-    initializeChatSocket(friend);
-    const messageText = `${friend} has invited you to play ${game}! ;____;`;
-    if (chatSocket && chatSocket.readyState === WebSocket.OPEN) {
-        chatSocket.send(JSON.stringify({ message: messageText }));
-    }
-}
-
 // Fetch chat messages for a specific friend
 async function fetchChatMessages(friendUsername) {
     try {
@@ -245,15 +230,24 @@ async function markMessagesAsRead(friendUsername) {
 
 // Initialize the WebSocket connection for a specific friend
 function initializeChatSocket(friendUsername) {
-    if (chatSocket) {
-        chatSocket.close();
-    }
-    chatSocket = new WebSocket(`ws://localhost:5051/ws/chat/${friendUsername}/`);
-    chatSocket.onopen = () => console.log("WebSocket connected for", friendUsername);
-    chatSocket.onmessage = (event) => handleReceivedMessage(event);
-    chatSocket.onerror = (error) => console.error("WebSocket error:", error);
-    chatSocket.onclose = () => console.log("WebSocket closed");
+    return new Promise((resolve, reject) => {
+        if (chatSocket) {
+            chatSocket.close();
+        }
+        chatSocket = new WebSocket(`ws://localhost:5051/ws/chat/${friendUsername}/`);
+        chatSocket.onopen = () => {
+            console.log("WebSocket connected for", friendUsername);
+            resolve();
+        };
+        chatSocket.onmessage = (event) => handleReceivedMessage(event);
+        chatSocket.onerror = (error) => {
+            console.error("WebSocket error:", error);
+            reject(error);
+        };
+        chatSocket.onclose = () => console.log("WebSocket closed");
+    });
 }
+
 
 // Handle received WebSocket messages
 function handleReceivedMessage(event) {
@@ -276,23 +270,15 @@ function handleReceivedMessage(event) {
                     is_read: data.data.is_read
                 });
             }
-            // Update chats object
-            chats[data.data.sender] = {
-                lastMessage: data.data.message,
-                lastUpdated: data.data.sent_at,
-                is_read: false,
-                sender: 'in'
-            };
 
             // Update the view if the current view is the chat with the sender or the recent-chats tab
             if (currentView === 'chat' && currentChat.username === data.data.sender) {
                 renderChat(getElements());
             } else if (currentView === 'recent-chats') {
                 renderRecentChats(getElements());
+            } else if (!isExpanded) {
+                updateNotificationIndicator(document.getElementById('notification-indicator'));
             }
-
-            // Update notification indicator
-            updateNotificationIndicator(document.getElementById('notification-indicator'));
         } else {
             console.error("WS error:", data.message);
         }
@@ -332,14 +318,26 @@ async function startNewChat(friendUsername, elements) {
 }
 
 // Update the notification indicator based on unread messages
-function updateNotificationIndicator(indicator) {
+async function updateNotificationIndicator(indicator, recentChats = null) {
     console.log("Updating notification indicator...");
-    console.log("Chats object:", chats);
-    const hasUnreadMessages = Object.values(chats).some(chat => !chat.read);
+
+    if (!recentChats) {
+        recentChats = await getRecentChats();
+    }
+    let hasUnreadMessages = false;
+
+    for (let [username, chatData] of Object.entries(recentChats)) {
+        if (!chatData.is_read && chatData.sender !== getUsername()) {
+            hasUnreadMessages = true;
+            break;
+        }
+    }
+
     console.log("Has unread messages:", hasUnreadMessages);
     console.log("Is chat expanded:", isExpanded);
     indicator.style.display = hasUnreadMessages && !isExpanded ? 'block' : 'none';
 }
+
 
 // Handle clicks on the friend list to start a new chat
 function handleFriendListClick(event, elements) {
@@ -369,12 +367,6 @@ function handleSentMessage(event, elements) {
             id: currentChat.messages.length + 1,
             ...messageData
         });
-        chats[currentChat.username] = {
-            lastMessage: messageText,
-            lastUpdated: messageData.sent_at,
-            is_read: false,
-            sender: 'out'
-        };
         renderChat(elements);
         elements.messageInput.value = '';
     }
@@ -387,5 +379,24 @@ function handleRecentChatsClick(event, elements) {
     if (chatItem) {
         const friendUsername = chatItem.getAttribute('data-friend-username');
         openChat(friendUsername, elements);
+    }
+}
+
+// Send a game invitation to a friend
+export async function sendGameInvitation(friend, game) {
+    console.log("Sending game invitation to", friend, "for game", game);
+    try {
+        await initializeChatSocket(friend);
+        const messageText = `${getUsername()} has invited you to play ${game}!`;
+        const messageData = {
+            type: 'game-invitation',
+            sender: getUsername(),
+            message: messageText,
+            is_special: true
+        };
+        console.log("Sending game invitation message:", messageData);
+        chatSocket.send(JSON.stringify(messageData));
+    } catch (error) {
+        console.error("Failed to send game invitation:", error);
     }
 }
