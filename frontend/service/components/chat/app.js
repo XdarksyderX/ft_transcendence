@@ -346,7 +346,6 @@ function renderChat(elements) {
     }
 }
 
-
 // Function to handle accepting a game invitation
 function acceptGameInvitation(sender) {
     console.log('Invitation accepted from', sender);
