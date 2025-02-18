@@ -232,19 +232,14 @@ function handleReceivedMessage(event) {
     try {
         const data = JSON.parse(event.data);
         console.log("WS message received:", data);
-        const currentUser = getUsername();
         if (data.status === "success" && data.data && data.data.message) {
-            if (data.data.sender === currentUser) return;
-
-            // Update currentChat if the message is for the currently open chat
-            if (currentChat.username === data.data.sender && currentView === 'chat') {
-                currentChat.messages.push({
-                    id: currentChat.messages.length + 1,
-                    text: data.data.message,
-                    sender: "in",
-                    read: true
-                });
-            }
+            console.log("entramos?")
+            currentChat.messages.push({
+                id: currentChat.messages.length + 1,
+                text: data.data.message,
+                sender: data.data.sender === getUsername() ? "out" : "in",
+                read: true
+            });
             // Update chats object
             chats[data.data.sender] = {
                 lastMessage: data.data.message,
@@ -253,7 +248,7 @@ function handleReceivedMessage(event) {
             };
 
             // Update the view if the current view is the chat with the sender or the recent-chats tab
-            if (currentView === 'chat' && currentChat.username === data.data.sender) {
+            if (currentView === 'chat') {
                 renderChat(getElements());
             } else if (currentView === 'recent-chats') {
                 renderRecentChats(getElements());

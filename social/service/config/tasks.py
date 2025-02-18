@@ -95,29 +95,41 @@ def handle_match_invitation(event):
         return f"Event {event_id} already processed."
 
     event_data = event["data"]["data"]["attributes"]
-    sender_id = event_data["sender_id"]
-    receiver_id = event_data["receiver_id"]
-    match_id = event_data["match_id"]
-    msg = Message.objects.create(sender_id=sender_id, receiver_id=receiver_id, content=json.dumps({"type": "match","match_id": match_id}, is_special=True))
+    sender = User.objects.get(id=event_data["sender_id"])
+    receiver = User.objects.get(id=event_data["receiver_id"])
+    invitation_token = event_data["invitation_token"]
+    msg = Message.objects.create(
+        sender=sender,
+        receiver=receiver,
+        content=json.dumps({"type": "pong-match", "invitation_token": invitation_token}),
+        is_special=True
+    )
     msg.save()
 
     channel_layer = get_channel_layer()
-    room_group_name = f"user_{receiver_id}"
+    room_group_name = f"chat_{min(sender.username, receiver.username)}_{max(sender.username, receiver.username)}"
     async_to_sync(channel_layer.group_send)(
         room_group_name,
         {
-            "type": "new_match_invitation",
+            "type": "pong_new_match_invitation",
             "status": "success",
             "message": "New match invitation received",
             "data": {
-                "match_id": match_id,
-                "sender_id": sender_id,
-                "receiver_id": receiver_id
+                "message": json.dumps({
+                    "type": "pong-match",
+                    "invitation_token": invitation_token
+                }),
+                "is_read": False,
+                "is_special": True,
+                "receiver": receiver.username,
+                "sender": sender.username,
+                "sent_at": msg.sent_at.strftime("%Y-%m-%d %H:%M:%S.%f%z")
             }
         }
     )
+    
+    return f"Match invitation message from {sender.username} to {receiver.username} sent correctly."
 
-    return f"Match invitation message from {User.objects.get(id=sender_id)} to {User.objects.get(id=receiver_id)} sent correctly."
 
 @shared_task(name="pong.tournament_invitation")
 def handle_tournament_invitation(event):
@@ -126,26 +138,31 @@ def handle_tournament_invitation(event):
         return f"Event {event_id} already processed."
 
     event_data = event["data"]["data"]["attributes"]
-    sender_id = event_data["sender_id"]
-    receiver_id = event_data["receiver_id"]
+    sender = User.objects.get(id=event_data["sender_id"])
+    receiver = User.objects.get(id=event_data["receiver_id"])
     tournament_id = event_data["tournament_id"]
-    msg = Message.objects.create(sender_id=sender_id, receiver_id=receiver_id, content=json.dumps({"type": "tournament","tournament_id": tournament_id}, is_special=True))
+    msg = Message.objects.create(
+        sender=sender,
+        receiver=receiver,
+        content=json.dumps({"type": "tournament", "tournament_id": tournament_id}),
+        is_special=True
+    )
     msg.save()
 
     channel_layer = get_channel_layer()
-    room_group_name = f"user_{receiver_id}"
+    room_group_name = f"chat_{min(sender.username, receiver.username)}_{max(sender.username, receiver.username)}"
     async_to_sync(channel_layer.group_send)(
         room_group_name,
         {
-            "type": "new_tournament_invitation",
+            "type": "pong_new_tournament_invitation",
             "status": "success",
-            "message": "New match invitation received",
+            "message": "New tournament invitation received",
             "data": {
                 "tournament_id": tournament_id,
-                "sender_id": sender_id,
-                "receiver_id": receiver_id
+                "sender": sender.username,
+                "receiver": receiver.username
             }
         }
     )
 
-    return f"Tournament invitation message from {User.objects.get(id=sender_id)} to {User.objects.get(id=receiver_id)} sent correctly."
+    return f"Tournament invitation message from {sender.username} to {receiver.username} sent correctly."

@@ -62,14 +62,14 @@ class IncomingEvent(models.Model):
 
 class Message(models.Model):
     content = models.CharField(max_length=300, blank=False, verbose_name='message_content')
-    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages', verbose_name='sender_id')
-    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_messages', verbose_name='receiver_id')
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages', verbose_name='sender')
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_messages', verbose_name='receiver')
     sent_at = models.DateTimeField(auto_now_add=True, verbose_name='sent_at')
     is_read = models.BooleanField(default=False, verbose_name='is_read')
     is_special = models.BooleanField(default=False, verbose_name='is_special')
 
     def __str__(self) -> str:
-        return f'From {self.sender_id} to {self.receiver_id}: {self.content[:30]}'
+        return f'From {self.sender} to {self.receiver}: {self.content[:30]}'
     
     class Meta:
         ordering = ['sent_at']

@@ -82,21 +82,10 @@ services:
       env_file:
         - .env
         - pong/service/.env
-      # depends_on:
-      #   - redis
       volumes:
         - pong-data:/service
       depends_on:
         - auth
-    # redis:
-    #   container_name: redis_cont
-    #   image: redis:7.4-alpine
-    #   expose:
-    #     - "6379"
-    #   networks:
-    #     - red
-    #   restart: always
-    #   command: redis-server
 
   #chess:
   #  build:

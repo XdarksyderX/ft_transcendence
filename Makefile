@@ -47,6 +47,7 @@ keys:
 	cp public.pem social/service/config/keys/public.pem
 	cp public.pem pong/service/config/keys/public.pem
 	cp public.pem chess/service/config/keys/public.pem
+	cp public.pem events/service/config/keys/public.pem
 
 
 re: down up
