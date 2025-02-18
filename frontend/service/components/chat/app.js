@@ -216,12 +216,6 @@ async function markMessagesAsRead(friendUsername) {
         const markResponse = await markAsReadMessage(friendUsername);
         if (markResponse.status !== "success") {
             console.error("Error marking messages as read:", markResponse.message);
-        } else {
-            if (chats[friendUsername]) { // Update the read status in the chats object
-                chats[friendUsername].read = true;
-                console.log(`Marked messages as read for ${friendUsername}`);
-                console.log("Updated chats object after marking messages as read:", chats);
-            }
         }
     } catch (error) {
         console.error("Error marking messages as read:", error);
@@ -258,6 +252,16 @@ function handleReceivedMessage(event) {
         if (data.status === "success" && data.data && data.data.message) {
             if (data.data.sender === currentUser) return;
 
+            // Check if the message is a game invitation
+            //if (data.data.type === 'game-invitation') {
+            if (data.data.is_special) {
+                // Untoggle the chat window
+                const elements = getElements();
+                if (!isExpanded) {
+                    toggleChat(elements);
+                    openChat(data.data.sender, getElements());
+                }
+            }
             // Update currentChat if the message is for the currently open chat
             if (currentChat.username === data.data.sender && currentView === 'chat') {
                 currentChat.messages.push({
