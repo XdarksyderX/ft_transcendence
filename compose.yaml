@@ -73,6 +73,22 @@ services:
       - social-data:/var/www/service
     depends_on:
       - auth
+    
+  pong:
+    build:
+      context: pong
+      dockerfile: Dockerfile
+    ports:
+      - 5052:5052
+    env_file:
+      - .env
+      - pong/service/.env
+    # depends_on:
+    #   - redis
+    volumes:
+      - pong-data:/service
+    depends_on:
+      - auth
 
     # redis:
     #   container_name: redis_cont

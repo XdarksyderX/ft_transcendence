@@ -1,4 +1,5 @@
 import { sendGameInvitation } from "../chat/app.js";
+import { createPongMatchInvitation } from "../../app/pong.js";
 
 function launchWaitModal(friendName, game, elements) {
 	const modal = new bootstrap.Modal(elements.modal.waitGame);
@@ -36,5 +37,20 @@ function handleProgressBar(modal, elements) {
 
 export function handleSendGameInvitation(game, elements, friend) {
 	launchWaitModal(friend.username, game, elements);
-	sendGameInvitation(friend.username, game);
+	if (game === 'pong') {
+		sendPongInvitation(friend.username);
+	}
+}
+
+async function sendPongInvitation(friendName) {
+    try {
+        const response = await createPongMatchInvitation(friendName);
+        if (response.status === "success") {
+            console.log('Invitation sent successfully:', response);
+        } else {
+            console.error('Failed to send invitation:', response.message);
+        }
+    } catch (error) {
+        console.error('Error sending invitation:', error);
+    }
 }
