@@ -102,12 +102,20 @@ async function getRecentChats() {
             if (lastMessage) {
                 chats[friend.username] = {
                     lastMessage: lastMessage.content,
-                    // lastUpdated: new Date(lastMessage.timestamp).getTime(),
-                    read: lastMessage.is_read
+                    lastUpdated: lastMessage.sent_at,
+                    is_read: lastMessage.is_read,
+                    sender: lastMessage.sender === friend.username ? 'in' : 'out'
                 };
             }
         }
     }
+}
+
+function formatTime(dateString) {
+    const date = new Date(dateString);
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
 }
 
 // Render the recent chats list
@@ -122,18 +130,24 @@ async function renderRecentChats(elements) {
     }
     let html = '';
     for (const [username, chatData] of Object.entries(chats)) {
-        const unreadClass = !chatData.read ? 'unread' : '';
+        const unreadClass = !chatData.is_read ? 'unread' : '';
+        const formattedTime = formatTime(chatData.lastUpdated);
+        const checkIcon = chatData.sender === 'out' ? (chatData.is_read ? '✔✔' : '✔') : '';
+        console.log("ON renderRecentChats CHATDATA: ", chatData);
+
         html += `
             <a href="#" class="list-group-item list-group-item-action chat-item" 
                 data-friend-username="${username}">
                 <div class="d-flex w-100 justify-content-between">
                     <h5 class="mb-1">${username}</h5>
-                    <small class="text-muted">${'nope'}</small>
+                    <small class="text-muted">${formattedTime}</small>
                 </div>
-                <p class="mb-1 ${unreadClass}">${chatData.lastMessage}</p>
+                <div class="d-flex w-100 justify-content-between">
+                    <p class="mb-1 ${unreadClass}">${chatData.lastMessage}</p>
+                    <span class="check-icon">${checkIcon}</span>
+                </div>
             </a>
         `;
-        // <small class="text-muted">${new Date(chatData.lastUpdated).toLocaleTimeString()}</small>
     }
     elements.recentChatsList.innerHTML = html;
     updateNotificationIndicator(elements.notificationIndicator);
@@ -195,12 +209,14 @@ async function fetchChatMessages(friendUsername) {
     try {
         const messagesResponse = await getMessages(friendUsername);
         if (messagesResponse.status === "success" && messagesResponse.messages) {
-            const currentUser = getUsername();
             currentChat.messages = messagesResponse.messages.map((msg, index) => ({
                 id: index + 1,
-                text: msg.content,
-                sender: msg.sender === currentUser ? "out" : "in",
-                read: msg.is_read
+                message: msg.content,
+                sender: msg.sender,
+                receiver: friendUsername,
+                sent_at: msg.timestamp,
+                is_special: msg.is_special,
+                is_read: msg.is_read
             }));
             console.log("Messages history:", currentChat.messages);
         }
@@ -252,16 +268,20 @@ function handleReceivedMessage(event) {
             if (currentChat.username === data.data.sender && currentView === 'chat') {
                 currentChat.messages.push({
                     id: currentChat.messages.length + 1,
-                    text: data.data.message,
-                    sender: "in",
-                    read: true
+                    message: data.data.message,
+                    sender: data.data.sender,
+                    receiver: currentUser,
+                    sent_at: data.data.sent_at,
+                    is_special: data.data.is_special,
+                    is_read: data.data.is_read
                 });
             }
             // Update chats object
             chats[data.data.sender] = {
                 lastMessage: data.data.message,
-                //lastUpdated: Date.now(),
-                read: false
+                lastUpdated: data.data.sent_at,
+                is_read: false,
+                sender: 'in'
             };
 
             // Update the view if the current view is the chat with the sender or the recent-chats tab
@@ -293,11 +313,15 @@ function displayChatWindow(elements, friendUsername) {
 // Render the chat messages in the chat window
 function renderChat(elements) {
     if (currentChat) {
-        elements.chatMessages.innerHTML = currentChat.messages.map(message => `
-            <div class="message ${message.sender}">
-                ${message.text}
-            </div>
-        `).join('');
+        const currentUser = getUsername();
+        elements.chatMessages.innerHTML = currentChat.messages.map(message => {
+            const messageClass = message.sender === currentUser ? 'out' : 'in';
+            return `
+                <div class="message ${messageClass}">
+                    ${message.message}
+                </div>
+            `;
+        }).join('');
         elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
     }
 }
@@ -332,17 +356,24 @@ function handleSentMessage(event, elements) {
     event.preventDefault();
     const messageText = elements.messageInput.value.trim();
     if (messageText && chatSocket && chatSocket.readyState === WebSocket.OPEN) {
-        chatSocket.send(JSON.stringify({ message: messageText }));
+        const messageData = {
+            message: messageText,
+            sender: getUsername(),
+            receiver: currentChat.username,
+            sent_at: new Date().toISOString(),
+            is_special: false,
+            is_read: false
+        };
+        chatSocket.send(JSON.stringify(messageData));
         currentChat.messages.push({
             id: currentChat.messages.length + 1,
-            text: messageText,
-            sender: "out",
-            read: true
+            ...messageData
         });
         chats[currentChat.username] = {
             lastMessage: messageText,
-            //lastUpdated: Date.now(),
-            read: true
+            lastUpdated: messageData.sent_at,
+            is_read: false,
+            sender: 'out'
         };
         renderChat(elements);
         elements.messageInput.value = '';

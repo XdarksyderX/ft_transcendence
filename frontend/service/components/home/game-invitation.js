@@ -1,8 +1,8 @@
-import { handleSendGameInvitation } from "../chat/app.js";
+//import { sendGameInvitation } from "../chat/app.js";
 
-function launchWaitModal(game, elements) {
+function launchWaitModal(friendName, game, elements) {
 	const modal = new bootstrap.Modal(elements.modal.waitGame);
-	elements.modal.text.innerHTML = `Waiting for ${selectedFriend.name} to start a game of ${game}...`;
+	elements.modal.text.innerHTML = `Waiting for ${friendName} to start a game of ${game}...`;
 	modal.show();
 	handleProgressBar(modal, elements);
 }
@@ -34,7 +34,7 @@ function handleProgressBar(modal, elements) {
 	});
 }
 
-export function sendGameInvitation(game, elements, friend) {
-	launchWaitModal(game, elements);
-	handleSendGameInvitation(friend, game);
+export function handleSendGameInvitation(game, elements, friend) {
+	launchWaitModal(friend.username, game, elements);
+	sendGameInvitation(friend.username, game);
 }
