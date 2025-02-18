@@ -300,20 +300,61 @@ function displayChatWindow(elements, friendUsername) {
     elements.currentChatName.textContent = friendUsername;
 }
 
+
+function createMessageBubble(message) {
+    const messageClass = message.sender === getUsername() ? 'out' : 'in';
+    return `
+        <div class="message ${messageClass}">
+            ${message.message}
+        </div>
+    `;
+}
+
+function createQuickGameInvitation(message) {
+    return `
+    <div class="game-invitation card border-0 overflow-hidden" style="max-width: 250px;">
+        <div class="progress position-absolute w-100 h-100" style="z-index: 0;">
+            <div class="progress-bar bg-primary" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+        <div class="card-body position-relative p-3" style="z-index: 1;">
+            <h6 class="card-title mb-2">Game Invitation</h6>
+            <p class="card-text mb-2 small">${message.sender} invited you!</p>
+            <div class="d-flex justify-content-between align-items-center">
+                <button class="btn btn-sm ctm-btn flex-grow-1 me-1" onclick="acceptGameInvitation('${message.sender}')">
+                    Accept <span class="ms-1 badge bg-light text-dark">30s</span>
+                </button>
+                <button class="btn btn-sm btn-danger flex-grow-1 ms-1" onclick="declineGameInvitation('${message.sender}')">Decline</button>
+            </div>
+        </div>
+    </div>
+`;
+}
+
 // Render the chat messages in the chat window
+
 function renderChat(elements) {
     if (currentChat) {
-        const currentUser = getUsername();
         elements.chatMessages.innerHTML = currentChat.messages.map(message => {
-            const messageClass = message.sender === currentUser ? 'out' : 'in';
-            return `
-                <div class="message ${messageClass}">
-                    ${message.message}
-                </div>
-            `;
+            console.log("ON RENDER CHAT: ", message);
+            if (message.is_special) {
+                return createQuickGameInvitation(message);
+            } else {
+                return createMessageBubble(message);
+            }
         }).join('');
         elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
     }
+}
+
+
+// Function to handle accepting a game invitation
+function acceptGameInvitation(sender) {
+    console.log('Invitation accepted from', sender);
+}
+
+// Function to handle declining a game invitation
+function declineGameInvitation(sender) {
+    console.log('Invitation declined from', sender);
 }
 
 // Start a new chat with a specific friend
@@ -391,12 +432,13 @@ export async function sendGameInvitation(friend, game) {
     console.log("Sending game invitation to", friend, "for game", game);
     try {
         await initializeChatSocket(friend);
-        const messageText = `${getUsername()} has invited you to play ${game}!`;
         const messageData = {
             type: 'game-invitation',
             sender: getUsername(),
-            message: messageText,
-            is_special: true
+            message: `${getUsername()} has invited you to play ${game}!`,
+            is_special: true,
+            sent_at: new Date().toISOString(),
+            is_read: false
         };
         console.log("Sending game invitation message:", messageData);
         chatSocket.send(JSON.stringify(messageData));
