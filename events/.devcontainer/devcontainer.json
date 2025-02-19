@@ -12,13 +12,13 @@
 	// "features": {},
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	"forwardPorts": [5052],
+	"forwardPorts": [5053],
 
 	"runArgs": [
-    "--env-file", "service/.env",
+	"--env-file", "service/.env",
 	"--env-file", "../.env",
 	"--network=dev_network"
-  	],
+		],
 	
 
 	// Use 'postCreateCommand' to run commands after the container is created.
