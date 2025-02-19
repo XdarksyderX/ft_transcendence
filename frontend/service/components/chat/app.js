@@ -342,4 +342,6 @@ function handleRecentChatsClick(event, elements) {
 //     }
 // }
 
+
 export {currentChat}
+

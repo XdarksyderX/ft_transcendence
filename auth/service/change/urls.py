@@ -14,3 +14,5 @@ urlpatterns = [
     re_path(r'^reset-password-request/?$', ResetPasswordRequestView.as_view(), name='reset_password_request'),
     re_path(r'^reset-password/?$', ResetPasswordView.as_view(), name='reset_password'),
 ]
+
+handler404 = 'service.core.exceptions.global_handler.page_not_found'
