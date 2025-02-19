@@ -263,7 +263,7 @@ function handleReceivedMessage(event) {
                 }
             }
             // Update currentChat if the message is for the currently open chat
-            if (currentChat.username === data.data.sender && currentView === 'chat') {
+            //if (currentChat.username === data.data.sender && currentView === 'chat') {
                 currentChat.messages.push({
                     id: currentChat.messages.length + 1,
                     message: data.data.message,
@@ -273,10 +273,10 @@ function handleReceivedMessage(event) {
                     is_special: data.data.is_special,
                     is_read: data.data.is_read
                 });
-            }
+           // }
 
             // Update the view if the current view is the chat with the sender or the recent-chats tab
-            if (currentView === 'chat' && currentChat.username === data.data.sender) {
+            if (currentView === 'chat' ) { /* && currentChat.username === data.data.sender */
                 renderChat(getElements());
             } else if (currentView === 'recent-chats') {
                 renderRecentChats(getElements());
