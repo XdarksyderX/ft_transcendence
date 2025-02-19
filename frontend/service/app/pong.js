@@ -6,24 +6,36 @@ export async function getMatchDetail(matchId) {
     return await sendRequest('GET', `match/detail/${matchId}`);
 }
 
-export async function getPendingInvitations() {
-    return await sendRequest('GET', 'invitations/');
+export async function getPendingInvitationsOutgoing() {
+    return await sendRequest('GET', 'invitation/outgoing/list/');
+}
+
+export async function getPendingInvitationsIncoming() {
+    return await sendRequest('GET', 'invitation/incoming/list/');
 }
 
 export async function createPongMatchInvitation(friendName) {
-    return await sendRequest('POST', 'invitations/create/', friendName);
+    return await sendRequest('POST', 'invitation/create/', friendName);
 }
 
-export async function getInvitationDetail(invitationId) {
-    return await sendRequest('GET', `invitations/${invitationId}/`);
+export async function getInvitationDetail(token) {
+    return await sendRequest('GET', `invitation/detail/${token}`);
+}
+
+export async function denyInvitation(token) {
+    return await sendRequest('POST', `invitation/deny/${token}`);
+}
+
+export async function cancelInvitation(token) {
+    return await sendRequest('POST', `invitation/cancel/${token}`);
 }
 
 export async function joinMatch(token) {
-    return await sendRequest('POST', `join/${token}/`);
+    return await sendRequest('POST', `match/join/${token}/`);
 }
 
 export async function getPendingMatches() {
-    return await sendRequest('GET', 'pending/');
+    return await sendRequest('GET', 'match/pending/');
 }
 
 async function sendRequest(method, endpoint, body = null, isFormData = false) {

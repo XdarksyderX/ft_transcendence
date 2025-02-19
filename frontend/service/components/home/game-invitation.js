@@ -1,4 +1,3 @@
-import { sendGameInvitation } from "../chat/app.js";
 import { createPongMatchInvitation } from "../../app/pong.js";
 
 function launchWaitModal(friendName, game, elements) {

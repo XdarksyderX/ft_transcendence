@@ -346,15 +346,6 @@ function renderChat(elements) {
     }
 }
 
-// Function to handle accepting a game invitation
-function acceptGameInvitation(sender) {
-    console.log('Invitation accepted from', sender);
-}
-
-// Function to handle declining a game invitation
-function declineGameInvitation(sender) {
-    console.log('Invitation declined from', sender);
-}
 
 // Start a new chat with a specific friend
 async function startNewChat(friendUsername, elements) {
@@ -426,22 +417,22 @@ function handleRecentChatsClick(event, elements) {
     }
 }
 
-// Send a game invitation to a friend
-export async function sendGameInvitation(friend, game) {
-    console.log("Sending game invitation to", friend, "for game", game);
-    try {
-        await initializeChatSocket(friend);
-        const messageData = {
-            type: 'game-invitation',
-            sender: getUsername(),
-            message: `${getUsername()} has invited you to play ${game}!`,
-            is_special: true,
-            sent_at: new Date().toISOString(),
-            is_read: false
-        };
-        console.log("Sending game invitation message:", messageData);
-        chatSocket.send(JSON.stringify(messageData));
-    } catch (error) {
-        console.error("Failed to send game invitation:", error);
-    }
-}
+// // Send a game invitation to a friend
+// export async function sendGameInvitation(friend, game) {
+//     console.log("Sending game invitation to", friend, "for game", game);
+//     try {
+//         await initializeChatSocket(friend);
+//         const messageData = {
+//             type: 'game-invitation',
+//             sender: getUsername(),
+//             message: `${getUsername()} has invited you to play ${game}!`,
+//             is_special: true,
+//             sent_at: new Date().toISOString(),
+//             is_read: false
+//         };
+//         console.log("Sending game invitation message:", messageData);
+//         chatSocket.send(JSON.stringify(messageData));
+//     } catch (error) {
+//         console.error("Failed to send game invitation:", error);
+//     }
+// }
