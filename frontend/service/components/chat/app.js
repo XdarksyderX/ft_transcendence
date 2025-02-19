@@ -436,3 +436,4 @@ function handleRecentChatsClick(event, elements) {
 //         console.error("Failed to send game invitation:", error);
 //     }
 // }
+

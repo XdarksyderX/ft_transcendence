@@ -29,14 +29,18 @@ clean:
 	rm -rf social/service/config/keys
 	rm -rf pong/service/config/keys
 	rm -rf chess/service/config/keys
+	rm -rf events/service/config/keys
 	rm -f private.pem
 	rm -f public.pem
 
-prepare:
+prepare: keys
+	mkdir -p volume-data/ volume-data/auth volume-data/social volume-data/pong volume-data/chess
+
+keys:
 	@if [ ! -f private.pem ]; then openssl genpkey -algorithm RSA -out private.pem -pkeyopt rsa_keygen_bits:2048; fi
 	@if [ ! -f public.pem ]; then openssl rsa -pubout -in private.pem -out public.pem; fi
 
-	mkdir -p auth/service/config/keys social/service/config/keys pong/service/config/keys chess/service/config/keys
+	mkdir -p auth/service/config/keys social/service/config/keys pong/service/config/keys chess/service/config/keys events/service/config/keys
 
 	cp private.pem auth/service/config/keys/private.pem
 
@@ -44,6 +48,7 @@ prepare:
 	cp public.pem social/service/config/keys/public.pem
 	cp public.pem pong/service/config/keys/public.pem
 	cp public.pem chess/service/config/keys/public.pem
+	cp public.pem events/service/config/keys/public.pem
 
 
 re: down up

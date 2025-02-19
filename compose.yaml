@@ -70,47 +70,22 @@ services:
     # depends_on:
     #   - redis
     volumes:
-      - social-data:/var/www/service
+      - social-data:/service
     depends_on:
       - auth
-    
   pong:
-    build:
-      context: pong
-      dockerfile: Dockerfile
-    ports:
-      - 5052:5052
-    env_file:
-      - .env
-      - pong/service/.env
-    # depends_on:
-    #   - redis
-    volumes:
-      - pong-data:/service
-    depends_on:
-      - auth
-
-    # redis:
-    #   container_name: redis_cont
-    #   image: redis:7.4-alpine
-    #   expose:
-    #     - "6379"
-    #   networks:
-    #     - red
-    #   restart: always
-    #   command: redis-server
-
-  #chess:
-  #  build:
-  #    context: chess
-  #    dockerfile: Dockerfile
-  #  ports:
-  #    - 5052:5002
-  #  env_file:
-  #    - .env
-  #    - chess/service/.env
-  #  volumes:
-  #    - chess-data:/var/www/service
+      build:
+        context: pong
+        dockerfile: Dockerfile
+      ports:
+        - 5052:5052
+      env_file:
+        - .env
+        - pong/service/.env
+      volumes:
+        - pong-data:/service
+      depends_on:
+        - auth
 
 networks:
   ft_transcendence-network:

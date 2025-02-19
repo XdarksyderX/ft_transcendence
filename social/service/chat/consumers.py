@@ -18,10 +18,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.close()
             return
 
-        # Se espera que en la URL se pase el username del receptor
+
         self.receiver_username = self.scope["url_route"]["kwargs"]["receiver_username"]
 
-        # Se crea un nombre de sala basado en los usernames (ordenados alfabéticamente)
+
         self.room_group_name = f"chat_{min(self.sender.username, self.receiver_username)}_{max(self.sender.username, self.receiver_username)}"
 
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
@@ -47,7 +47,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 }))
                 return
 
-            # Obtener al receptor usando su username
+
             receiver = await sync_to_async(User.objects.get)(username=self.receiver_username)
             msg = await sync_to_async(Message.objects.create)(
                 content=message_content,
@@ -65,8 +65,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         "sender": self.sender.username,
                         "receiver": receiver.username,
                         "sent_at": str(msg.sent_at),
-                        "is_special": str(msg.is_special),
-                        "is_read": str(msg.is_read)
+                        "is_special": msg.is_special,
+                        "is_read": msg.is_read
                     }
                 }
             )
@@ -83,8 +83,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             "data": event.get("data", {})
         }))
 
-    async def new_match_invitation(self, event):
+    async def pong_new_match_invitation(self, event):
         await self.send(text_data=json.dumps(event))
 
-    async def new_tournament_invitation(self, event):
+    async def pong_new_tournament_invitation(self, event):
         await self.send(text_data=json.dumps(event))
