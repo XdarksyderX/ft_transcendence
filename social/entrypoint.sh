@@ -12,6 +12,7 @@ sleep 5
 #	fi
 #fi
 
+
 su postgres -c "psql -c \"CREATE USER $SOCIALDB_USER WITH PASSWORD '$SOCIALDB_PASSWORD';\""
 su postgres -c "psql -c \"CREATE DATABASE $SOCIALDB_NAME OWNER $SOCIALDB_USER;\""
 su postgres -c "psql -c \"ALTER USER $SOCIALDB_USER CREATEDB;\""

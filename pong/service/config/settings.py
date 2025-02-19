@@ -34,7 +34,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1']
 
-#Rabbitmq Config
+# Rabbitmq Config
 RABBITMQ_CONFIG = {
     "AMQP_ENABLED": True,
     "RABBITMQ_HOST": os.getenv("RABBITMQ_HOST", "rabbitmq"),
@@ -46,10 +46,12 @@ RABBITMQ_CONFIG = {
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:44519",
-	"http://localhost:8000",
-	"http://localhost:5080",
-	"http://localhost:80",
+    "http://localhost:8000",
+    "http://localhost:5080",
+    "http://localhost:80",
 ]
+
+CORS_ALLOW_CREDENTIALS = True
 
 # Application definition
 
@@ -63,7 +65,8 @@ INSTALLED_APPS = [
     'core',
     'game',
     'matches',
-	'tournaments'
+    'tournaments',
+    'corsheaders'
 ]
 
 AUTH_USER_MODEL = 'core.User'
@@ -76,6 +79,7 @@ REST_FRAMEWORK = {
 }
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',  # This should be at the top
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -112,9 +116,7 @@ CHANNEL_LAYERS = {
     },
 }
 
-
 WSGI_APPLICATION = 'config.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
@@ -129,7 +131,6 @@ DATABASES = {
         'PORT': os.getenv('PONGDB_PORT', '5432'),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -149,7 +150,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
@@ -161,7 +161,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
@@ -171,3 +170,4 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+

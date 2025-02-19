@@ -18,12 +18,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.close()
             return
 
+
         self.receiver_username = self.scope["url_route"]["kwargs"]["receiver_username"]
+
 
         self.room_group_name = f"chat_{min(self.sender.username, self.receiver_username)}_{max(self.sender.username, self.receiver_username)}"
 
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
+
         await self.send(text_data=json.dumps({
             "status": "success",
             "message": "Connection established"
@@ -43,6 +46,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     "message": "The message cannot be empty"
                 }))
                 return
+
 
             receiver = await sync_to_async(User.objects.get)(username=self.receiver_username)
             msg = await sync_to_async(Message.objects.create)(

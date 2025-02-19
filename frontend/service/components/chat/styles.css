@@ -168,6 +168,11 @@
 	border-bottom-right-radius: 0;
 }
 
+.special-message {
+	background-color: #ffeb3b;
+	font-weight: bold;
+}
+
 #chat-body {
 	height: 350px;
 }

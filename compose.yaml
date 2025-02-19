@@ -87,18 +87,6 @@ services:
       depends_on:
         - auth
 
-  #chess:
-  #  build:
-  #    context: chess
-  #    dockerfile: Dockerfile
-  #  ports:
-  #    - 5052:5002
-  #  env_file:
-  #    - .env
-  #    - chess/service/.env
-  #  volumes:
-  #    - chess-data:/var/www/service
-
 networks:
   ft_transcendence-network:
     driver: bridge

@@ -1,16 +1,18 @@
 import { throwAlert } from "../../app/render.js";
 import { navigateTo } from "../../app/router.js";
+import { handleSendGameInvitation } from "./game-invitation.js";
+import { handleGetFriendList } from "../friends/app.js";
 
 let chessVariant = null;
 let currentView = null;
 let selectedFriend = null;
 
-const friends = [
+/* const friends = [
 	{ id: 1, name: 'Alice', status: 'online' },
 	{ id: 2, name: 'Bob', status: 'offline' },
 	{ id: 3, name: 'Charlie', status: 'online' },
 	{ id: 4, name: 'David', status: 'away' }
-];
+]; */
 
 export function initializeHomeEvents() {
 	const elements = getElements();
@@ -82,7 +84,7 @@ function initPongEvents(elements) {
 	elements.pong.tournament.btn.addEventListener('click', () => showTournamentOptions(elements));
 	elements.pong.tournament.ongoing.addEventListener('click', () => navigateTo("/ongoing-tournaments"));
     elements.pong.tournament.new.addEventListener('click', () => navigateTo("/new-tournament"));
-    elements.pong.quickPlay.startGameWithFriendButton.addEventListener('click', () => launchWaitModal('pong', elements));
+    elements.pong.quickPlay.startGameWithFriendButton.addEventListener('click', () => handleSendGameInvitation('pong', elements, selectedFriend));
 }
 // goes from initial view to pong-options
 function togglePongOptions(event, elements) { 
@@ -161,8 +163,8 @@ function chooseChessVariant(toggleTo) {
 
 function playChessWithFriend(elements) {
     //    console.log("playchess tggles from: ", currentView);
-        toggleView(currentView, chess.friendList);
-        renderFriendList(chess.friendsContainer, elements);
+        toggleView(currentView, elements.chess.friendList);
+        renderFriendList(elements.chess.friendsContainer, elements);
 }
 
 function playChessWithRandom() {
@@ -227,12 +229,12 @@ function toggleView(from, to, elements) {
         from.style.display = 'none';
     }
 	currentView = to;
-	console.log("toggle view togling from: ", from, "to: ", to);
+	//console.log("toggle view togling from: ", from, "to: ", to);
 }
 
 function launchWaitModal(game, elements) {
 	const modal = new bootstrap.Modal(elements.modal.waitGame);
-	elements.modal.text.innerHTML = `Waiting for ${selectedFriend.name} to start a game of ${game}...`;
+	elements.modal.text.innerHTML = `Waiting for ${selectedFriend.usernamename} to start a game of ${game}...`;
 	modal.show();
 	handleProgressBar(modal, elements);
 }
@@ -265,14 +267,15 @@ function handleProgressBar(modal, elements) {
 }
 
 /* * * * * * * * * * * * * * * FRIEND HANDLE * * * * * * * * * * * * * * */
-function renderFriendList(container, elements) {
+async function renderFriendList(container, elements) {
+	const friends = await handleGetFriendList();
 	container.innerHTML = '';
 	let startBtn;
 	if (container === elements.pong.quickPlay.friendsContainer)
 		startBtn = elements.pong.quickPlay.startGameWithFriendButton;
 	else 
 		startBtn = elements.chess.startGameWithFriendButton;
-	console.log("startBtn: ", startBtn);
+	//console.log("startBtn: ", startBtn);
 	friends.forEach(friend => {
 		const friendBtn = createFriendBtn(friend, startBtn);
 		container.appendChild(friendBtn);
@@ -282,9 +285,9 @@ function renderFriendList(container, elements) {
 function createFriendBtn(friend, startBtn) {
 	const friendBtn = document.createElement('div');
 	friendBtn.className = 'friend-btn';
-	friendBtn.setAttribute('data-friend-id', friend.id);
-	friendBtn.innerHTML = `<p class="mb-0">${friend.name}</p>`;
-	let color = (friend.status === 'online') ? 'accent' : 'light';
+	friendBtn.setAttribute('data-friend-username', friend.username);
+	friendBtn.innerHTML = `<p class="mb-0">${friend.username}</p>`;
+	let color = friend.is_online ? 'accent' : 'light';
 	friendBtn.style.color = `var(--${color})`;
 	friendBtn.style.border = `1px solid var(--${color})`;
 	friendBtn.addEventListener('click', () => toggleFriendSelection(friend, startBtn));
@@ -292,12 +295,11 @@ function createFriendBtn(friend, startBtn) {
 }
 
 function toggleFriendSelection(friend, btn) { // btn is for chess or for pong
-	console.log('toggleFriendSelection called with btn:', btn); // Debugging line
-	if (friend.status !== 'online') {
-		throwAlert('This friend is not available to play right now.');
-		return;
-	}
-	const newFriendBtn = document.querySelector(`.friend-btn[data-friend-id="${friend.id}"]`);
+	// if (!friend.is_online) { this will go back when status is propertly setted
+	// 	throwAlert('This friend is not available to play right now.');
+	// 	return;
+	// }
+	const newFriendBtn = document.querySelector(`.friend-btn[data-friend-username="${friend.username}"]`);
 	if (selectedFriend === friend) {
 		unselectFriend(true, btn);
 	} else {
@@ -310,7 +312,7 @@ function toggleFriendSelection(friend, btn) { // btn is for chess or for pong
 
 function unselectFriend(all, btn) {
 	if (selectedFriend) {
-		const friendBtn = document.querySelector(`.friend-btn[data-friend-id="${selectedFriend.id}"]`);
+		const friendBtn = document.querySelector(`.friend-btn[data-friend-username="${selectedFriend.username}"]`);
 		friendBtn.classList.remove('selected');            
 		if (all) {
 			selectedFriend = null;

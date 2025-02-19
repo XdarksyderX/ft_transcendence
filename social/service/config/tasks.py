@@ -138,6 +138,7 @@ def handle_tournament_invitation(event):
         return f"Event {event_id} already processed."
 
     event_data = event["data"]["data"]["attributes"]
+
     sender = User.objects.get(id=event_data["sender_id"])
     receiver = User.objects.get(id=event_data["receiver_id"])
     tournament_id = event_data["tournament_id"]
