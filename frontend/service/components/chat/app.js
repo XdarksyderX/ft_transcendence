@@ -1,6 +1,7 @@
 import { getMessages, markAsReadMessage } from '../../app/social.js';
 import { getUsername } from '../../app/auth.js';
 import { handleGetFriendList } from '../friends/app.js';
+import { renderChat, renderRecentChats, renderFriendList } from './render.js';
 
 let isExpanded = false;
 let currentView = 'recent-chats';
@@ -88,7 +89,7 @@ async function fetchLastMessageForUser(friendUsername) {
 }
 
 // Get the recent chats by fetching the last message for each friend
-async function getRecentChats() {
+export async function getRecentChats() {
     const friends = await handleGetFriendList();
     const recentChats = {};
 
@@ -107,45 +108,6 @@ async function getRecentChats() {
     return recentChats;
 }
 
-function formatTime(dateString) {
-    const date = new Date(dateString);
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    return `${hours}:${minutes}`;
-}
-
-// Render the recent chats list
-async function renderRecentChats(elements) {
-    console.log("render recent chats function called");
-    const recentChats = await getRecentChats();
-
-    if (Object.keys(recentChats).length === 0) {
-        showFriendList(elements, false);
-        return;
-    }
-    let html = '';
-    for (const [username, chatData] of Object.entries(recentChats)) {
-        console.log("ON renderRecentChats CHATDATA: ", chatData);
-        const unreadClass = !chatData.is_read ? 'unread' : '';
-        const formattedTime = formatTime(chatData.lastUpdated);
-        const checkIcon = chatData.sender === 'out' ? (chatData.is_read ? '✔✔' : '✔') : '';
-        html += `
-            <a href="#" class="list-group-item list-group-item-action chat-item" 
-                data-friend-username="${username}">
-                <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">${username}</h5>
-                    <small class="text-muted">${formattedTime}</small>
-                </div>
-                <div class="d-flex w-100 justify-content-between">
-                    <p class="mb-1 ${unreadClass}">${chatData.lastMessage}</p>
-                    <span class="check-icon">${checkIcon}</span>
-                </div>
-            </a>
-        `;
-    }
-    elements.recentChatsList.innerHTML = html;
-    await updateNotificationIndicator(elements.notificationIndicator, recentChats);
-}
 
 // Show the friend list tab
 async function showFriendList(elements, hasChats = true) {
@@ -162,18 +124,6 @@ async function showFriendList(elements, hasChats = true) {
     await renderFriendList(elements);
 }
 
-// Render the friend list
-async function renderFriendList(elements) {
-    const friends = await handleGetFriendList();
-    const newChatFriends = friends.filter(friend => !chats[friend.username]);
-
-    elements.friendList.innerHTML = newChatFriends.map(friend => `
-        <a href="#" class="list-group-item list-group-item-action friend-item" 
-           data-friend-username="${friend.username}">
-            <h6 class="mb-1">${friend.username}</h6>
-        </a>
-    `).join('');
-}
 
 // Open a chat with a specific friend
 async function openChat(friendUsername, elements) {
@@ -301,51 +251,6 @@ function displayChatWindow(elements, friendUsername) {
 }
 
 
-function createMessageBubble(message) {
-    const messageClass = message.sender === getUsername() ? 'out' : 'in';
-    return `
-        <div class="message ${messageClass}">
-            ${message.message}
-        </div>
-    `;
-}
-
-function createQuickGameInvitation(message) {
-    return `
-    <div class="game-invitation card border-0 overflow-hidden" style="max-width: 250px;">
-        <div class="progress position-absolute w-100 h-100" style="z-index: 0;">
-            <div class="progress-bar bg-primary" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
-        </div>
-        <div class="card-body position-relative p-3" style="z-index: 1;">
-            <h6 class="card-title mb-2">Game Invitation</h6>
-            <p class="card-text mb-2 small">${message.sender} invited you!</p>
-            <div class="d-flex justify-content-between align-items-center">
-                <button class="btn btn-sm ctm-btn flex-grow-1 me-1" onclick="acceptGameInvitation('${message.sender}')">
-                    Accept <span class="ms-1 badge bg-light text-dark">30s</span>
-                </button>
-                <button class="btn btn-sm btn-danger flex-grow-1 ms-1" onclick="declineGameInvitation('${message.sender}')">Decline</button>
-            </div>
-        </div>
-    </div>
-`;
-}
-
-// Render the chat messages in the chat window
-
-function renderChat(elements) {
-    if (currentChat) {
-        elements.chatMessages.innerHTML = currentChat.messages.map(message => {
-            console.log("ON RENDER CHAT: ", message);
-            if (message.is_special) {
-                return createQuickGameInvitation(message);
-            } else {
-                return createMessageBubble(message);
-            }
-        }).join('');
-        elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
-    }
-}
-
 
 // Start a new chat with a specific friend
 async function startNewChat(friendUsername, elements) {
@@ -353,7 +258,7 @@ async function startNewChat(friendUsername, elements) {
 }
 
 // Update the notification indicator based on unread messages
-async function updateNotificationIndicator(indicator, recentChats = null) {
+export async function updateNotificationIndicator(indicator, recentChats = null) {
     console.log("Updating notification indicator...");
 
     if (!recentChats) {
@@ -436,4 +341,7 @@ function handleRecentChatsClick(event, elements) {
 //         console.error("Failed to send game invitation:", error);
 //     }
 // }
+
+
+export {currentChat}
 

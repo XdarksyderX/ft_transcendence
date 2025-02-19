@@ -21,11 +21,11 @@ export async function createPongMatchInvitation(friendName) {
 export async function getInvitationDetail(token) {
     return await sendRequest('GET', `invitation/detail/${token}`);
 }
-
+// denys an invitation you've received
 export async function denyInvitation(token) {
     return await sendRequest('POST', `invitation/deny/${token}`);
 }
-
+//cancels an invitation you've sent
 export async function cancelInvitation(token) {
     return await sendRequest('POST', `invitation/cancel/${token}`);
 }
