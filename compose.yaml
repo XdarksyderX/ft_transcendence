@@ -12,13 +12,13 @@
 
 services:
 
-  # Infrastructure services
+  # Servicios de infraestructura
   rabbitmq:
     image: rabbitmq:4.0.1-management
     restart: always
     ports:
-      - 5672
-      - 15672:15672
+      - "5672"
+      - "15672:15672"
     env_file: .env
 
   consistency:
@@ -34,18 +34,20 @@ services:
       context: api-gateway
       dockerfile: Dockerfile
     ports:
-      - 5443:443
-      - 5081:80
+      - "5443:443"
+      - "5081:80"
 
   auth:
     build:
       context: auth
       dockerfile: Dockerfile
     ports:
-      - 5050:5050
+      - "5050:5050"
     env_file:
       - .env
       - auth/service/.env
+    volumes:
+      - auth-data:/var/lib/postgresql/data
     depends_on:
       - rabbitmq
 
@@ -54,38 +56,36 @@ services:
       context: frontend
       dockerfile: Dockerfile
     ports:
-      - 5080:80
-    volumes:
-      - ./frontend/service:/var/www/service
+      - "5080:80"
+    # Se utiliza el código de la imagen; no se monta volumen para el código
 
   social:
     build:
       context: social
       dockerfile: Dockerfile
     ports:
-      - 5051:5051
+      - "5051:5051"
     env_file:
       - .env
       - social/service/.env
-    # depends_on:
-    #   - redis
     volumes:
-      - social-data:/service
+      - social-data:/var/lib/postgresql/data
     depends_on:
       - auth
+
   pong:
-      build:
-        context: pong
-        dockerfile: Dockerfile
-      ports:
-        - 5052:5052
-      env_file:
-        - .env
-        - pong/service/.env
-      volumes:
-        - pong-data:/service
-      depends_on:
-        - auth
+    build:
+      context: pong
+      dockerfile: Dockerfile
+    ports:
+      - "5052:5052"
+    env_file:
+      - .env
+      - pong/service/.env
+    volumes:
+      - pong-data:/var/lib/postgresql/data
+    depends_on:
+      - auth
 
 networks:
   ft_transcendence-network:

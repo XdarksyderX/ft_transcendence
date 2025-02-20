@@ -19,15 +19,12 @@ su postgres -c "psql -c \"ALTER USER $SOCIALDB_USER CREATEDB;\""
 
 redis-server &
 
-
 python3 service/manage.py makemigrations core
 python3 service/manage.py migrate
-
-export PYTHONPATH=/service
-export DJANGO_SETTINGS_MODULE=config.settings
 
 cd service
 
 celery -A config worker --loglevel=info --queues=social.user_registered,social.user_deleted,social.username_changed,social.pong.match_invitation,social.pong.tournament_invitation,social.pong.tournament_invitation &
+
 celery -A config flower --port=5555 &
 exec python manage.py runserver 0.0.0.0:5051
