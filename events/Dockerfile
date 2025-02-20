@@ -12,11 +12,11 @@
 
 FROM python:3.11-bookworm
 
+RUN apt-get update && apt-get install -y postgresql postgresql-contrib
+
 COPY service /service
 
 RUN pip install --no-cache-dir -r /service/requirements.txt
-
-RUN apt-get update && apt-get install -y postgresql postgresql-contrib
 
 EXPOSE 5053
 

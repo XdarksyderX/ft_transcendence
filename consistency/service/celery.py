@@ -23,11 +23,11 @@ app.conf.task_routes = {
 app.conf.beat_schedule = {
     "send-subscription-requests-every-30s": {
         "task": "subscribe_now",
-        "schedule": 30.0,  
+        "schedule": 3.0,  
     },
     "check-consistency-every-60s": {
         "task": "check_consistency",
-        "schedule": 60.0,  
+        "schedule": 6.0,  
     },
 }
 

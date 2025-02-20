@@ -17,10 +17,10 @@ su postgres -c "psql -c \"CREATE USER $SOCIALDB_USER WITH PASSWORD '$SOCIALDB_PA
 su postgres -c "psql -c \"CREATE DATABASE $SOCIALDB_NAME OWNER $SOCIALDB_USER;\""
 su postgres -c "psql -c \"ALTER USER $SOCIALDB_USER CREATEDB;\""
 
-redis-server &
-
 python3 service/manage.py makemigrations core
 python3 service/manage.py migrate
+
+redis-server &
 
 cd service
 
