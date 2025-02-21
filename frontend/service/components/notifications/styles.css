@@ -1,0 +1,31 @@
+.dropdown-menu {
+	background: linear-gradient(225deg, var(--dark), var(--darkish),  var(--transition), var(--title));
+	border: none !important;
+	min-width: 300px;
+	max-height: 270px;
+	overflow-y: auto;
+}
+#bell {
+	color: var(--light);
+	font-size: 1.5rem;
+}
+.dropdown-toggle::before {
+	display: none !important;
+}
+.notification-card {
+	padding-left: 15px;
+	padding-right: 5px;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	margin: 1rem;
+	font-size: 14px;
+	color: var(--light);
+	border: 1px solid var(--light);
+	border-radius: 5px;
+	cursor: pointer;
+	background-color: var(--darkish);
+}
+.notification-card:hover {
+	background-color: var(--dark);
+	color: var(--accent);
+}

@@ -1,12 +1,12 @@
 import { getMessages, markAsReadMessage } from '../../app/social.js';
 import { getUsername } from '../../app/auth.js';
 import { handleGetFriendList } from '../friends/app.js';
-import { renderChat, renderRecentChats, renderFriendList } from './render.js';
+import { handleAcceptInvitation } from '../home/game-invitation.js';
 
 let isExpanded = false;
 let currentView = 'recent-chats';
 let chatSocket = null;
-
+let chats = {}
 let currentChat = {
     username: null,
     messages: []
@@ -104,10 +104,8 @@ export async function getRecentChats() {
             };
         }
     }
-
     return recentChats;
 }
-
 
 // Show the friend list tab
 async function showFriendList(elements, hasChats = true) {
@@ -124,6 +122,18 @@ async function showFriendList(elements, hasChats = true) {
     await renderFriendList(elements);
 }
 
+// Render the friend list
+export async function renderFriendList(elements) {
+    const friends = await handleGetFriendList();
+    const newChatFriends = friends.filter(friend => !chats[friend.username]);
+
+    elements.friendList.innerHTML = newChatFriends.map(friend => `
+        <a href="#" class="list-group-item list-group-item-action friend-item" 
+           data-friend-username="${friend.username}">
+            <h6 class="mb-1">${friend.username}</h6>
+        </a>
+    `).join('');
+}
 
 // Open a chat with a specific friend
 async function openChat(friendUsername, elements) {
@@ -204,7 +214,7 @@ function handleReceivedMessage(event) {
 
             // Check if the message is a game invitation
             //if (data.data.type === 'game-invitation') {
-            if (data.data.is_special) {
+            if (data.data.is_special) { // if the message is a game invitation
                 // Untoggle the chat window
                 const elements = getElements();
                 if (!isExpanded) {
@@ -224,7 +234,7 @@ function handleReceivedMessage(event) {
                     is_read: data.data.is_read
                 });
            // }
-
+            console.log("CURRENt chat: ", currentChat);
             // Update the view if the current view is the chat with the sender or the recent-chats tab
             if (currentView === 'chat' ) { /* && currentChat.username === data.data.sender */
                 renderChat(getElements());
@@ -241,6 +251,46 @@ function handleReceivedMessage(event) {
     }
 }
 
+// Render the recent chats list
+export async function renderRecentChats(elements) {
+    console.log("render recent chats function called");
+    const recentChats = await getRecentChats();
+    chats = { ... recentChats};
+
+/* 	if (Object.keys(recentChats).length === 0) {
+        showFriendList(elements, false);
+        return;
+    } */
+    let html = '';
+    for (const [username, chatData] of Object.entries(recentChats)) {
+        const unreadClass = !chatData.is_read ? 'unread' : '';
+        const formattedTime = formatTime(chatData.lastUpdated);
+        const checkIcon = chatData.sender === 'out' ? (chatData.is_read ? '✔✔' : '✔') : '';
+        html += `
+            <a href="#" class="list-group-item list-group-item-action chat-item" 
+                data-friend-username="${username}">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">${username}</h5>
+                    <small class="text-muted">${formattedTime}</small>
+                </div>
+                <div class="d-flex w-100 justify-content-between">
+                    <p class="mb-1 ${unreadClass}">${chatData.lastMessage}</p>
+                    <span class="check-icon">${checkIcon}</span>
+                </div>
+            </a>
+        `;
+    }
+    elements.recentChatsList.innerHTML = html;
+    await updateNotificationIndicator(elements.notificationIndicator, recentChats);
+}
+
+function formatTime(dateString) {
+    const date = new Date(dateString);
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
+}
+
 // Display the chat window for a specific friend
 function displayChatWindow(elements, friendUsername) {
     currentView = 'chat';
@@ -250,8 +300,62 @@ function displayChatWindow(elements, friendUsername) {
     elements.currentChatName.textContent = friendUsername;
 }
 
+function renderChat(elements) {
+    if (currentChat) {
+        console.log("current CHAT: ", currentChat);
+        elements.chatMessages.innerHTML = ''; // Clear previous messages
+        currentChat.messages.forEach(message => {
+            console.log("ON RENDER CHAT: ", message);
+            let messageElement;
+            if (message.is_special) {
+                console.log("is special");
+                messageElement = createQuickGameInvitation(message);
+            } else {
+                messageElement = document.createElement('div');
+                messageElement.innerHTML = createMessageBubble(message);
+            }
+            elements.chatMessages.appendChild(messageElement);
+        });
+        elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+    }
+}
 
 
+
+function createMessageBubble(message) {
+    const messageClass = message.sender === getUsername() ? 'out' : 'in';
+    return `
+        <div class="message ${messageClass}">
+            ${message.message}
+        </div>
+    `;
+}
+
+function createQuickGameInvitation(message) {
+    const card = document.createElement('div');
+    card.innerHTML = `
+        <div class="quick-game-invitation card border-0 overflow-hidden" style="max-width: 250px;">
+            <div class="progress position-absolute w-100 h-100" style="z-index: 0;">
+                <div class="progress-bar bg-primary" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <div class="card-body position-relative p-3" style="z-index: 1;">
+                <h6 class="card-title mb-2">Game Invitation</h6>
+                <p class="card-text mb-2 small">${message.sender} invited you!</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <button class="btn btn-sm ctm-btn flex-grow-1 me-1" data-action="accept">
+                        Accept <span class="ms-1 badge bg-light text-dark">30s</span>
+                    </button>
+                    <button class="btn btn-sm btn-danger flex-grow-1 ms-1" onclick="declineGameInvitation('${message.sender}')">Decline</button>
+                </div>
+            </div>
+        </div>
+    `;
+    const acceptBtn = card.querySelector('[data-action="accept"]');
+    const messageContent = JSON.parse(message.message);
+    const token = messageContent.invitation_token;
+    acceptBtn.addEventListener('click', () => handleAcceptInvitation(token));
+    return card; // Return the card element
+}
 // Start a new chat with a specific friend
 async function startNewChat(friendUsername, elements) {
     await openChat(friendUsername, elements);
@@ -259,7 +363,7 @@ async function startNewChat(friendUsername, elements) {
 
 // Update the notification indicator based on unread messages
 export async function updateNotificationIndicator(indicator, recentChats = null) {
-    console.log("Updating notification indicator...");
+    console.log("Updating notification indicator...");  
 
     if (!recentChats) {
         recentChats = await getRecentChats();
@@ -321,26 +425,6 @@ function handleRecentChatsClick(event, elements) {
         openChat(friendUsername, elements);
     }
 }
-
-// // Send a game invitation to a friend
-// export async function sendGameInvitation(friend, game) {
-//     console.log("Sending game invitation to", friend, "for game", game);
-//     try {
-//         await initializeChatSocket(friend);
-//         const messageData = {
-//             type: 'game-invitation',
-//             sender: getUsername(),
-//             message: `${getUsername()} has invited you to play ${game}!`,
-//             is_special: true,
-//             sent_at: new Date().toISOString(),
-//             is_read: false
-//         };
-//         console.log("Sending game invitation message:", messageData);
-//         chatSocket.send(JSON.stringify(messageData));
-//     } catch (error) {
-//         console.error("Failed to send game invitation:", error);
-//     }
-// }
 
 
 export {currentChat}

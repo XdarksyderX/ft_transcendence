@@ -57,9 +57,10 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5080:80"
+    volumes:
+      - ./frontend/service:/var/www/service
     depends_on:
       - auth
-    # Se utiliza el código de la imagen; no se monta volumen para el código
 
   social:
     build:

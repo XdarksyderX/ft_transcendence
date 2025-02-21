@@ -16,9 +16,12 @@ export async function initializeProfileEvents(toggle = false) {
     loadCanvases();
     btnHandler(elements);
     if (toggle) {
+        console.log("toggling on initializeProfileEvents");
         toggleEditMode(false, elements);
     }
 }
+let chosenAvatarColor = null;
+let chosenBgColor = null;
 
 function getElements() { 
     return (
@@ -38,10 +41,11 @@ function getElements() {
             customizeSection: document.getElementById('customize-section'),
             uploadImage: document.getElementById('upload-image'),
             saveCustomPhoto: document.getElementById('save-custom-photo'),
-            avatarColorButton: document.getElementById('change-avatar-color'),
+            avatarColorButton: document.getElementById('choose-avatar-color'),
             avatarColorPicker: document.getElementById('avatar-color-picker'),
-            backgroundColorButton: document.getElementById('change-background-color'),
+            backgroundColorButton: document.getElementById('choose-background-color'),
             backgroundColorPicker: document.getElementById('background-color-picker'),
+            applyColor: document.getElementById('apply-color')
         }
     );
 }
@@ -140,6 +144,7 @@ async function savePhotoChanges(elements) {
 
 async function updateChanges() {
     await refreshAccessToken();
+    console.log("updating access token")
     document.getElementById('sidebar-username').innerText = getUsername();
     await initializeProfileEvents(true);
 }
@@ -283,6 +288,27 @@ function changeAvatarBackgroundColor(color) {
     });
 }
 
+function chooseAvatarColor(color) {
+    const square =  document.getElementById('avatar-color-square');
+    square.style.backgroundColor = color;
+    chosenAvatarColor = color;
+}
+
+function chooseBgColor(color) {
+    const square =  document.getElementById('background-color-square');
+    square.style.backgroundColor = color;
+    chosenBgColor = color;
+}
+
+function applyColorChanges() {
+    if (chosenAvatarColor) {
+        changeAvatarColor(chosenAvatarColor);
+    } if (chosenBgColor) {
+        changeAvatarBackgroundColor(chosenBgColor);
+    }
+}
+
+
 
 function btnHandler(elements) {
     elements.editProfile.addEventListener('click', () => toggleEditMode(true, elements));
@@ -293,10 +319,11 @@ function btnHandler(elements) {
     elements.saveCustomPhoto.addEventListener('click', () => savePhotoChanges(elements));
     elements.saveChanges.addEventListener('click', () => saveNameChanges(elements));
     elements.avatarColorButton.addEventListener('click', () => {elements.avatarColorPicker.click()})
-    elements.avatarColorPicker.addEventListener('change', (event) => changeAvatarColor(event.target.value));	
+    elements.avatarColorPicker.addEventListener('change', (event) => chooseAvatarColor(event.target.value));	
     elements.backgroundColorButton.addEventListener('click', () => {elements.backgroundColorPicker.click()})
-    elements.backgroundColorPicker.addEventListener('change', (event) => changeAvatarBackgroundColor(event.target.value));	
-    elements.backgroundColorButton.addEventListener('click', () => {elements.backgroundColorPicker.click()})
+    elements.backgroundColorPicker.addEventListener('change', (event) => chooseBgColor(event.target.value));	
+    elements.backgroundColorButton.addEventListener('click', () => {elements.backgroundColorPicker.click()});
+    elements.applyColor.addEventListener('click', applyColorChanges);
     elements.uploadImage.addEventListener('click', () => {elements.fileInput.click();});
     elements.fileInput.addEventListener('change', handlePhotoUpload);
 }

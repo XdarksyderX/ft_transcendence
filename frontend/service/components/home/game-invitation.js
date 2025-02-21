@@ -1,4 +1,6 @@
-import { createPongMatchInvitation } from "../../app/pong.js";
+import { createPongMatchInvitation, acceptInvitation } from "../../app/pong.js";
+import { throwAlert } from "../../app/render.js";
+import { navigateTo } from "../../app/router.js";
 
 function launchWaitModal(friendName, game, elements) {
 	const modal = new bootstrap.Modal(elements.modal.waitGame);
@@ -52,4 +54,13 @@ async function sendPongInvitation(friendName) {
     } catch (error) {
         console.error('Error sending invitation:', error);
     }
+}
+
+export async function handleAcceptInvitation(token) {
+	const response = await acceptInvitation(token);
+	if (response.status === "success") {
+		navigateTo("/pong");
+	} else {
+		console.error('Failed to accept invitation:', response.message);
+	}
 }

@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="./components/tournament/styles.css">
     <link rel="stylesheet" href="./components/chess/styles.css">
     <link rel="stylesheet" href="./components/pong/styles.css">
+    <link rel="stylesheet" href="./components/notifications/styles.css">
 </head>
 <body>
     <!-- navbar -->
@@ -30,9 +31,22 @@
             </button>
             <span class="navbar-brand" id="pong">P.L1.F.</span>
             <div id="navbar-content" class="d-flex ms-auto align-items-center">
-                <a href="/login" class="nav-link ctm-link" data-link="true">Log in</a>
-                <span class="divider mx-2 ctm-text-light">|</span>
-                <a href="/signup" class="nav-link ctm-link" data-link>Sign up</a>
+                <div id="unlogged-content" class="d-flex align-items-center hidden">
+                    <a href="/login" class="nav-link ctm-link" data-link="true">Log in</a>
+                    <span class="divider mx-2 ctm-text-light">|</span>
+                    <a href="/signup" class="nav-link ctm-link" data-link>Sign up</a>
+                </div>
+                <div id="logged-content" class="d-flex align-items-center">
+                    <div class="btn-group dropstart">
+                        <div type="button" class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i id="bell" class="fas fa-bell me-2"></i>
+                        </div>
+                        <ul id="notifications-container" class="dropdown-menu">
+                        </ul>
+                      </div>
+                    <div id="lc-text"></div>
+                </div>
+                
             </div>
         </div>
     </nav>
@@ -50,6 +64,7 @@
     <!-- <script type="module" src="app/render.js"></script> -->
     <!-- <script type="module" src="app/neon.js"></script> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script type="module" src="components/notifications/app.js"></script>
     <script type="module" src="app/router.js"></script>
     <script type="module" src="app/auth.js"></script>
     <script type="module" src="components/chat/app.js"></script>
