@@ -1,12 +1,14 @@
 import jwt
 from django.conf import settings
 from channels.generic.websocket import AsyncWebsocketConsumer
+from events.utils.event_domain import publish_event
 
 class NotificationConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.user_id = await self.get_user_from_cookie()
         if self.user_id:
             self.room_group_name = f"user_{self.user_id}"
+            publish_event("events", "events.user_connected", {"user_id": self.user_id})
             await self.channel_layer.group_add(self.room_group_name, self.channel_name)
             await self.accept()
         else:

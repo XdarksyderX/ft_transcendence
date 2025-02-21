@@ -3,7 +3,7 @@ from django.contrib.auth.models import AbstractUser
 import random
 
 def generate_random_bigint():
-    return int.from_bytes(random.randbytes(8), 'little')
+    return int.from_bytes(random.randbytes(6), 'little')
 
 class User(AbstractUser):
     id = models.BigIntegerField(primary_key=True, default=generate_random_bigint, editable=False)
