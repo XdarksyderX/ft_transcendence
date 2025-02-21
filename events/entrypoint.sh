@@ -16,5 +16,5 @@ su postgres -c "psql -c \"ALTER USER $EVENTSDB_USER CREATEDB;\""
 
 redis-server &
 
-python3 service/manage.py makemigrations core
+python3 service/manage.py makemigrations events
 python3 service/manage.py migrate
