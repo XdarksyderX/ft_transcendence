@@ -15,7 +15,7 @@ export async function getPendingInvitationsIncoming() {
 }
 
 export async function createPongMatchInvitation(friendName) {
-    return await sendRequest('POST', 'invitation/create/', friendName);
+    return await sendRequest('POST', 'invitation/create/', {receiver: friendName});
 }
 
 export async function getInvitationDetail(token) {
