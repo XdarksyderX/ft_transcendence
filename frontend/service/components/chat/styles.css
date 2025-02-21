@@ -131,7 +131,12 @@
 	background-color: var(--darkish);
 	position: sticky;
 	top: 0;
-	z-index: 1000;
+	/* z-index: 1000; */
+}
+
+#start-a-new-chat {
+	color: var(--title);
+	background-color: var(--darkish);
 }
 
 .back-to-recents:hover {
@@ -167,9 +172,29 @@
 	height: 350px;
 }
 
+/* this part is for game invitations:  */
+
 .progress {
     background-color: var(--dark);
 }
 .progress-bar {
     background: linear-gradient(to left, var(--lorange), var(--title), #920505cc);
+}
+
+.quick-game-invitation .card-title, .quick-game-invitation .card-text {
+	background-color: var(--medium);
+	padding: 3px;
+	border-radius: 5px;
+	color: var(--title);
+}
+
+.card-border {
+	background: linear-gradient(to left, var(--lorange), var(--title), #920505cc);
+	padding: 6px;
+	border-radius: 5px; /* Adjust as needed */
+}
+.game-invitation {
+	background-color: var(--dark);
+	border-radius: 5px; /* Adjust as needed */
+	padding: 5px; /* Adjust as needed */
 }

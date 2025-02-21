@@ -30,14 +30,14 @@ export async function renderPendingFriendRequests(container) {
         container = document.getElementById('requests-container');
     }
     const requests = await handleGetPendingReceivedRequests();
-    if (!requests ||requests.length === 0) {
+    if (!requests || requests.length === 0) {
         container.innerText = "You don't have any friend requests yet, but you can make your own!";
     } else {
         container.innerHTML = '';
-        requests.forEach(request => {
-            const card = createFriendRequestCard(request);
+        for (const request of requests) {
+            const card = await createFriendRequestCard(request);
             container.appendChild(card);
-        })
+        }
     }
 }
 
@@ -54,15 +54,16 @@ async function handleGetPendingReceivedRequests() {
     } 
 }
 
-function createFriendRequestCard( request ) {
+async function createFriendRequestCard( request ) {
 //if request only have the username i'll have to get the photo
     const username = request.sender__username;
     const card = document.createElement('div');
     const invitationId = request.id;
+    const avatar = await getAvatar(username);
     card.innerHTML = 
             `<div class="user-card d-flex flex-column flex-md-row justify-content-between align-items-center">
                 <div class="d-flex align-items-center mb-2 mb-md-0">
-                <img src="${'avatar'}" alt="${username}" class="friend-picture">
+                <img src="${avatar}" alt="${username}" class="friend-picture">
                 <p class="mb-0 ms-2">${username}</p>
                 </div>
                 <div>

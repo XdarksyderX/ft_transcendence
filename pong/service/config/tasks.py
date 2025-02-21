@@ -26,7 +26,7 @@ def handle_subscribe_now():
                 "auth.user_deleted",
                 "auth.username_changed",
                 "social.friend_removed",
-                "social.friend_added"
+                "social.friend_added",
             ],
             "subscription_id": str(uuid.uuid4()),
             "timestamp": time.time()

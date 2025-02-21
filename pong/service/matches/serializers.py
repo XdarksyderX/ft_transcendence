@@ -1,8 +1,32 @@
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from core.models import PendingInvitation, PongGame
-
 from rest_framework import serializers
 from core.models import PongGame
+
+
+User = get_user_model()
+
+
+class PongGameSerializer(serializers.ModelSerializer):
+    player1 = serializers.CharField(source='player1.username', read_only=True)
+    player2 = serializers.CharField(source='player2.username', read_only=True)
+    winner = serializers.CharField(source='winner.username', read_only=True, default=None)
+    
+    class Meta:
+        model = PongGame
+        fields = [
+            'id',
+            'player1',
+            'player2',
+            'winner',
+            'player1_score',
+            'player2_score',
+            'status',
+            'created_at',
+            'updated_at'
+        ]
+
 
 class PongGameHistorySerializer(serializers.ModelSerializer):
     player1 = serializers.CharField(source='player1.username', read_only=True)
@@ -23,22 +47,15 @@ class PongGameHistorySerializer(serializers.ModelSerializer):
             'updated_at'
         ]
 
-
-class PendingInvitationSerializer(serializers.ModelSerializer):
-    game = serializers.PrimaryKeyRelatedField(queryset=PongGame.objects.all())
-
-    class Meta:
-        model = PendingInvitation
-        fields = ['id', 'sender', 'receiver', 'game', 'token', 'created_at']
-        read_only_fields = ['token', 'created_at']
-
-
 class PendingInvitationDetailSerializer(serializers.ModelSerializer):
-    game = serializers.PrimaryKeyRelatedField(read_only=True)
+    sender = serializers.CharField(source='sender.username', read_only=True)
+    receiver = serializers.CharField(source='receiver.username', read_only=True)
+    token = serializers.CharField(read_only=True)
+    created_at = serializers.DateTimeField(read_only=True)
 
     class Meta:
         model = PendingInvitation
-        fields = ['id', 'sender', 'receiver', 'game', 'token', 'created_at']
+        fields = ['id', 'sender', 'receiver', 'token', 'created_at']
 
 
 class PendingMatchesSerializer(serializers.ModelSerializer):

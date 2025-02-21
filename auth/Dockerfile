@@ -21,5 +21,9 @@ RUN pip install --no-cache-dir -r /service/requirements.txt
 EXPOSE 5050
 
 COPY entrypoint.sh /entrypoint.sh
+COPY dropdb.sh /dropdb.sh
+
 RUN chmod +x /entrypoint.sh
+RUN chmod +x /dropdb.sh
+
 CMD ["/bin/bash", "/entrypoint.sh"]

@@ -112,6 +112,7 @@ export async function refreshAccessToken() {
         localStorage.setItem('username', decoded.username);
         localStorage.setItem('user_id', decoded.user_id);
         localStorage.setItem('two_fa_enabled', decoded.two_fa_enabled);
+        console.log("access token refreshed");
         return true;
     }
     return false;

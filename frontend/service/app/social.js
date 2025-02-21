@@ -66,7 +66,19 @@ export async function searchUsers(username) {
 }
 
 export async function changeAvatar(formData) {
-    return await sendRequest('POST', 'profile/avatar/', formData, true);
+    return await sendRequest('POST', 'change-avatar', formData, true);
+}
+
+export async function getAllChats() {
+    return await sendRequest('GET', 'history/all/');
+}
+
+export async function getMessages(user_id) {
+    return await sendRequest('GET', `messages/${user_id}/`);
+}
+
+export async function markAsReadMessage(user_id) {
+    return await sendRequest('POST', `messages/read/${user_id}/`);
 }
 
 async function sendRequest(method, endpoint, body = null, isFormData = false) {

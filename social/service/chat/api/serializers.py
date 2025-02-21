@@ -1,14 +1,13 @@
 from rest_framework.serializers import ModelSerializer
-from chat.models import Messages
-class MessagesSerializer(ModelSerializer):
-    """
-    Serializers:
-        Transform the model information to JSON format
+from core.models import Message
+from rest_framework import serializers
+from core.models import Message
 
-    Args:
-        ModelSerializer:
-            Class from Django Rest Framework used for create serializers.
-    """
+class MessageSerializer(serializers.ModelSerializer):
+    sender = serializers.CharField(source='sender.username', read_only=True)
+    receiver = serializers.CharField(source='receiver.username', read_only=True)
+
     class Meta:
-        model = Messages
-        fields = ['id', 'sender_id', 'receiver_id', 'content', 'created_at', 'is_read']
+        model = Message
+        fields = ['content', 'sender', 'receiver', 'sent_at', 'is_read']
+

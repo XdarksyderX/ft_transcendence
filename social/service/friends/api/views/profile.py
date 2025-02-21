@@ -7,6 +7,7 @@ from django.http import Http404
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.core.files.images import get_image_dimensions
 from friends.api.serializers import ProfileSerializer
+from core.utils.event_domain import publish_event
 from django.utils import timezone
 from core.models import User
 import os
@@ -76,6 +77,8 @@ class ChangeAvatarView(APIView):
         user = request.user
         user.avatar = avatar
         user.save()
+
+        publish_event("social", "social.avatar_changed", {"user_id": user.id, "new_avatar": avatar.url})
 
         return Response({'status': 'success', 'message': 'Avatar updated successfully.', 'avatar': user.avatar.url}, status=status.HTTP_200_OK)
 

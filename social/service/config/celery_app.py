@@ -22,15 +22,18 @@ app.conf.task_queues = (
     Queue('social.user_registered', Exchange('auth'), routing_key='auth.user_registered'),
     Queue('social.user_deleted', Exchange('auth'), routing_key='auth.user_deleted'),
     Queue('social.username_changed', Exchange('auth'), routing_key='auth.username_changed'),
+	Queue('social.pong.match_invitation', Exchange('pong'), routing_key='pong.match_invitation'),
+	Queue('social.pong.tournament_invitation', Exchange('pong'), routing_key='pong.tournament_invitation'),
 	Queue('consistency.subscribe_now.social', Exchange('consistency'), routing_key='consistency.subscribe_now.social')
-	
 )
 
 app.conf.task_routes = {
     'auth.user_registered': {'queue': 'social.user_registered'},
     'auth.user_deleted': {'queue': 'social.user_deleted'},
     'auth.username_changed': {'queue': 'social.username_changed'},
-	'consistency.subscribe_now.social': {'queue': 'consistency.subscribe_now.social'}
+	'consistency.subscribe_now.social': {'queue': 'consistency.subscribe_now.social'},
+	'pong.match_invitation': {'queue': 'social.pong.match_invitation'},
+	'pong.tournament_invitation': {'queue': 'social.pong.tournament_invitation'}
 }
 
 

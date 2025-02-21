@@ -1,11 +1,14 @@
 from service.utils.rabbitmq_client import RabbitMQClient
 from celery import shared_task
 import time
+import logging
 import requests
 import os
 
 rabbitmq_client = RabbitMQClient()
 SUBSCRIPTIONS = {}
+
+logger = logging.getLogger(__name__)
 
 SERVICES = {
     "auth": 5050,
@@ -18,6 +21,7 @@ CONSISTENCY_TOKEN = os.getenv("CONSISTENCY_TOKEN")
 
 @shared_task(name="subscribe_now")
 def send_subscription_requests():
+    logger.info(f"SUSCRIBE NOW!!! {SUBSCRIPTIONS}")
     for service_name in SERVICES.keys():
         if service_name not in SUBSCRIPTIONS:
             routing_key = f"consistency.subscribe_now.{service_name}"
@@ -53,6 +57,7 @@ def handle_subscription(event):
 
 @shared_task(name="check_consistency")
 def check_consistency():
+    logger.info(f"SUSCRIBE NOW!!! {SUBSCRIPTIONS}")
     for service_name, subscribed_events in SUBSCRIPTIONS.items():
 
         outgoing_events = fetch_outgoing_events("auth")

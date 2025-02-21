@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.contrib.postgres.fields import ArrayField
 import uuid
 import random
 import math
@@ -233,11 +234,6 @@ class PendingInvitation(models.Model):
         return f"PendingInvitation {self.token} from {self.sender} to {self.receiver} for game {self.game.id}"
 
 
-import random
-from django.db import models
-from django.contrib.auth.models import User
-from django.contrib.postgres.fields import ArrayField  # Only if using PostgreSQL
-
 class Tournament(models.Model):
     name = models.CharField(max_length=100)
     organizer = models.ForeignKey(
@@ -246,7 +242,11 @@ class Tournament(models.Model):
         related_name='organized_tournaments'
     )
     # Only tournaments with 4 or 8 players are allowed.
-    max_players = models.IntegerField(choices=[(4, '4 players'), (8, '8 players')])
+    max_players = models.IntegerField(
+    choices=[(4, '4 Players'), (8, '8 Players')],
+    default=4
+    )
+
     closed = models.BooleanField(default=False)
     current_round = models.IntegerField(default=1)
     # Using ArrayField to store seeding (list of player IDs) in bracket order.

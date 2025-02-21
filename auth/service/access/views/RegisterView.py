@@ -17,8 +17,7 @@ class RegisterUserView(APIView):
             publish_event("auth", "auth.user_registered", {"user_id": user.id, "username": user.username})
             return Response({
                 "status": "success",
-                "message": "User registered successfully.",
-                "user_id": user.id
+                "message": "User registered successfully."
             }, status=status.HTTP_201_CREATED)
 
         required_fields = {"username", "email", "password"}
