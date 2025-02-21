@@ -107,7 +107,6 @@ export async function getRecentChats() {
     return recentChats;
 }
 
-
 // Show the friend list tab
 async function showFriendList(elements, hasChats = true) {
     currentView = 'friend-list';
@@ -264,7 +263,6 @@ export async function renderRecentChats(elements) {
     } */
     let html = '';
     for (const [username, chatData] of Object.entries(recentChats)) {
-        console.log("ON renderRecentChats CHATDATA: ", chatData);
         const unreadClass = !chatData.is_read ? 'unread' : '';
         const formattedTime = formatTime(chatData.lastUpdated);
         const checkIcon = chatData.sender === 'out' ? (chatData.is_read ? '✔✔' : '✔') : '';
