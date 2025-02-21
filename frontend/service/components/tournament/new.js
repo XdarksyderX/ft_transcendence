@@ -1,4 +1,5 @@
 import { throwAlert } from "../../app/render.js";
+import { handleGetFriendList } from "../friends/app.js";
 
 let requiredParticipants = 0;
 
@@ -46,31 +47,20 @@ function updateRequiredParticipants(total, elements) {
   }
 }
 
-function renderFriendList(elements) {
-  const friends = getFriends();
-
+async function renderFriendList(elements) {
+  const friends = await handleGetFriendList(); 
+  if (friends.length < 4) {
+    elements.friendsContainer.innerText = `you dont have enough friends to start a tournament`
+    //elements.friendsContainer.innerText = `you dont have enough friends to start a ${requiredParticipants} players tournament`
+    return ;
+  }
   friends.forEach((friend) => {
     const friendBtn = document.createElement("div")
     friendBtn.className = "friend-btn"
-    friendBtn.setAttribute("data-friend-id", friend.id)
-    friendBtn.innerHTML = `<p class="mb-0">${friend.name}</p>`
+    friendBtn.innerHTML = `<p class="mb-0">${friend.username}</p>`
     elements.friendsContainer.appendChild(friendBtn)
     friendBtn.addEventListener("click", () => toggleFriendSelection(friend, friendBtn, elements))
   })
-}
-
-
-
-
-function getFriends() {
-  return [
-    { id: 1, name: "Concha", status: "online" },
-    { id: 2, name: "Marisa", status: "offline" },
-    { id: 3, name: "Valentín", status: "online" },
-    { id: 4, name: "Belén", status: "online" },
-    { id: 5, name: "Emilio", status: "online" },
-    { id: 5, name: "Juan", status: "online" },
-  ]
 }
 
 let selectedFriends = []

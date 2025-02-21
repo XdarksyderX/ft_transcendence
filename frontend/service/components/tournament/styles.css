@@ -117,3 +117,7 @@ width: 75%;
 	max-height: 1000px; /* Adjust this value based on your content */
 	transition: max-height 0.3s ease-in;
 }
+
+#tournament-form {
+	max-width: 450px;
+}
