@@ -30,8 +30,8 @@ export async function cancelInvitation(token) {
     return await sendRequest('POST', `invitation/cancel/${token}`);
 }
 
-export async function joinMatch(token) {
-    return await sendRequest('POST', `match/join/${token}/`);
+export async function acceptInvitation(token) {
+    return await sendRequest('GET', `match/join/${token}/`);
 }
 
 export async function getPendingMatches() {
@@ -41,7 +41,7 @@ export async function getPendingMatches() {
 async function sendRequest(method, endpoint, body = null, isFormData = false) {
     console.log("endpoint: ", endpoint);
     try {
-        if (body && !isFormData) console.log('Payload:', JSON.stringify(body));
+       // if (body && !isFormData) console.log('Payload:', JSON.stringify(body));
         
         const headers = isFormData ? {} : { 'Content-Type': 'application/json' };
         const response = await fetch(`http://localhost:5052/${endpoint}`, {

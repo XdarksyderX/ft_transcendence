@@ -1,6 +1,7 @@
 import { getMessages, markAsReadMessage } from '../../app/social.js';
 import { getUsername } from '../../app/auth.js';
 import { handleGetFriendList } from '../friends/app.js';
+import { handleAcceptInvitation } from '../home/game-invitation.js';
 
 let isExpanded = false;
 let currentView = 'recent-chats';
@@ -214,7 +215,7 @@ function handleReceivedMessage(event) {
 
             // Check if the message is a game invitation
             //if (data.data.type === 'game-invitation') {
-            if (data.data.is_special) {
+            if (data.data.is_special) { // if the message is a game invitation
                 // Untoggle the chat window
                 const elements = getElements();
                 if (!isExpanded) {
@@ -304,15 +305,19 @@ function displayChatWindow(elements, friendUsername) {
 function renderChat(elements) {
     if (currentChat) {
         console.log("current CHAT: ", currentChat);
-        elements.chatMessages.innerHTML = currentChat.messages.map(message => {
+        elements.chatMessages.innerHTML = ''; // Clear previous messages
+        currentChat.messages.forEach(message => {
             console.log("ON RENDER CHAT: ", message);
+            let messageElement;
             if (message.is_special) {
                 console.log("is special");
-                return createQuickGameInvitation(message);
+                messageElement = createQuickGameInvitation(message);
             } else {
-                return createMessageBubble(message);
+                messageElement = document.createElement('div');
+                messageElement.innerHTML = createMessageBubble(message);
             }
-        }).join('');
+            elements.chatMessages.appendChild(messageElement);
+        });
         elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
     }
 }
@@ -328,9 +333,9 @@ function createMessageBubble(message) {
     `;
 }
 
-// Function to create a quick game invitation card
 function createQuickGameInvitation(message) {
-    return `
+    const card = document.createElement('div');
+    card.innerHTML = `
         <div class="quick-game-invitation card border-0 overflow-hidden" style="max-width: 250px;">
             <div class="progress position-absolute w-100 h-100" style="z-index: 0;">
                 <div class="progress-bar bg-primary" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
@@ -339,7 +344,7 @@ function createQuickGameInvitation(message) {
                 <h6 class="card-title mb-2">Game Invitation</h6>
                 <p class="card-text mb-2 small">${message.sender} invited you!</p>
                 <div class="d-flex justify-content-between align-items-center">
-                    <button class="btn btn-sm ctm-btn flex-grow-1 me-1" onclick="acceptGameInvitation('${message.sender}')">
+                    <button class="btn btn-sm ctm-btn flex-grow-1 me-1" data-action="accept">
                         Accept <span class="ms-1 badge bg-light text-dark">30s</span>
                     </button>
                     <button class="btn btn-sm btn-danger flex-grow-1 ms-1" onclick="declineGameInvitation('${message.sender}')">Decline</button>
@@ -347,6 +352,11 @@ function createQuickGameInvitation(message) {
             </div>
         </div>
     `;
+    const acceptBtn = card.querySelector('[data-action="accept"]');
+    const messageContent = JSON.parse(message.message);
+    const token = messageContent.invitation_token;
+    acceptBtn.addEventListener('click', () => handleAcceptInvitation(token));
+    return card; // Return the card element
 }
 // Start a new chat with a specific friend
 async function startNewChat(friendUsername, elements) {
@@ -355,7 +365,7 @@ async function startNewChat(friendUsername, elements) {
 
 // Update the notification indicator based on unread messages
 export async function updateNotificationIndicator(indicator, recentChats = null) {
-    console.log("Updating notification indicator...");
+    console.log("Updating notification indicator...");  
 
     if (!recentChats) {
         recentChats = await getRecentChats();
