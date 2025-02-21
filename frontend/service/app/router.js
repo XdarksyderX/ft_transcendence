@@ -18,6 +18,7 @@ import { startBackgroundMusic } from '../components/chess/Render/main.js';
 import { getUsername } from './auth.js';
 import { initializeResetPasswordEvents } from '../components/login/reset-pw.js';
 import { initializePongEvents } from '../components/pong/app.js';
+import { renderNotifications } from '../components/notifications/app.js';
 
 const routes = [
     { url: "/404", file: "./components/error/404.html", allowed: true },
@@ -166,20 +167,32 @@ async function navigateTo(fullUrl) {
     }
 }
 
+function toggleNavbarContent(show, hide) {
+    show.classList.add('d-flex');
+    show.classList.remove('hidden');
+    hide.classList.add('hidden');
+    hide.classList.remove('d-flex');
+}
+
 function updateNavbar(url) {
-    const navbarContent = document.getElementById('navbar-content');;
+ //   const navbarContent = document.getElementById('navbar-content');;
     const allowed = routes.find(route => route.url === url).allowed;
 
-    if (url === "/home") {
-     navbarContent.innerHTML = `<div>Welcome ${getUsername()}</div>`;
-    } else if (!allowed) {
-    //    console.log('url: ', url);
-    //    console.log('pathname: ', window.location.pathname);
-        navbarContent.innerHTML = `<a href="/home" class="nav-link ctm-link" data-link>Home</a>`
+    const loggedContent = document.getElementById('logged-content');
+    const unloggedContent = document.getElementById('unlogged-content');
+   // const bellDropdown = document.getElementById('bell-dropdown');
+    const lcText = document.getElementById('lc-text');
+
+    if (!allowed) {
+        toggleNavbarContent(loggedContent, unloggedContent);
+        renderNotifications();
+        if (url === "/home") {
+            lcText.innerHTML = `<div>Welcome ${getUsername()}</div>`;
+        } else {
+            lcText.innerHTML = `<a href="/home" class="nav-link ctm-link ms-5" data-link>Home</a>`
+        }
     } else {
-        navbarContent.innerHTML = `                <a href="/login" class="nav-link ctm-link" data-link="true">Log in</a>
-                <span class="divider mx-2 ctm-text-light">|</span>
-                <a href="/signup" class="nav-link ctm-link" data-link>Sign up</a>`
+        toggleNavbarContent(unloggedContent, loggedContent);
     }
 }
 

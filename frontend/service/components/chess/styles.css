@@ -310,7 +310,7 @@
 }
 
 #chess-side-container {
-  background: linear-gradient(225deg, var(--dark), var(--darkish),  #920505cc, var(--title));
+  background: linear-gradient(225deg, var(--dark), var(--darkish),  var(--transition), var(--title));
   border-radius: 5px;
 
 }

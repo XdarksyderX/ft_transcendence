@@ -8,8 +8,9 @@
 	--light: #84cca3;
 	--title: #F59C00;
 	--lorange: #f1c478;
-    --transition: #a90808;
+    --transition: #920505cc;
     --danger: #c10505;
+    --ddanger: #a90808;
 
     --transparent-dark: #190a23c4;
     --transparent-medium: #5c39731f;
@@ -103,7 +104,7 @@ body::before {
 }
 .ctm-btn-danger {
     color: var(--lorange);
-    background-color: var(--transition);
+    background-color: var(--ddanger);
     &:hover {
         color: var(--lorange);
         background-color: var(--danger);
