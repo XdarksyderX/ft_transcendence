@@ -68,6 +68,9 @@ class PongGame(models.Model):
         related_name='games'
     )
     game_key = models.UUIDField(default=uuid.uuid4, unique=True)  # Unique game session key
+    connected_players = models.JSONField(default=list)  # Stores connected player usernames
+    ready_players = models.JSONField(default=list)  # Stores players who marked themselves as ready
+
     
     # Game configuration parameters
     board_width = models.IntegerField(default=700)
@@ -131,13 +134,15 @@ class PongGame(models.Model):
     
     def save(self, *args, **kwargs):
         """
-        Computes initial positions for players and the ball before saving.
+        Ensures game initialization without overwriting player movements.
         """
-        self.player_positions = {
-            "player1": {"x": self.x_margin, "y": self.p_y_mid},
-            "player2": {"x": self.p2_xpos, "y": self.p_y_mid}
-        }
-        self.ball_position = self.initialize_ball()
+        if not self.player_positions:
+            self.player_positions = {
+                "player1": {"x": self.x_margin, "y": self.p_y_mid},
+                "player2": {"x": self.p2_xpos, "y": self.p_y_mid}
+            }
+        if not self.ball_position:
+            self.ball_position = self.initialize_ball()
         super().save(*args, **kwargs)
     
     def get_opponent(self, user):
