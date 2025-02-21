@@ -4,7 +4,7 @@ import uuid
 import pika
 
 DEFAULT_CONFIG = {
-    "AMQP_ENABLED": os.getenv("AMQP_ENABLED", "false").lower() == "true",
+    "AMQP_ENABLED": True,
     "RABBITMQ_DEFAULT_USER": os.getenv("RABBITMQ_DEFAULT_USER", "guest"),
     "RABBITMQ_DEFAULT_PASS": os.getenv("RABBITMQ_DEFAULT_PASS", "guest"),
     "RABBITMQ_HOST": os.getenv("RABBITMQ_HOST", "localhost"),

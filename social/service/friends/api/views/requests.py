@@ -46,6 +46,11 @@ class SendRequestView(APIView):
         invitation = PendingInvitationRequest.objects.create(sender=request.user, receiver=target_user)
         request.user.outgoing_requests.add(invitation)
         target_user.incoming_requests.add(invitation)
+        publish_event("social", "social.request_sent", {
+            "user_id": request.user.id,
+            "friend_id": target_user.id,
+            "invitation_id": invitation.id
+        })
         return Response({
             "status": "success",
             "message": "Friend request sent successfully.",
@@ -123,6 +128,10 @@ class DeclineRequestView(APIView):
             }, status=status.HTTP_400_BAD_REQUEST)
         
         invitation.delete()
+        publish_event("social", "social.request_declined", {
+            "user_id": invitation.receiver.id,
+            "friend_id": invitation.sender.id
+        })
         return Response({
             "status": "success",
             "message": "Friend request rejected."
@@ -147,7 +156,11 @@ class CancelRequestView(APIView):
             }, status=status.HTTP_400_BAD_REQUEST)
         
         invitation.delete()
+        publish_event("social", "social.request_cancelled", {
+            "user_id": invitation.sender.id,
+            "friend_id": invitation.receiver.id
+        })
         return Response({
             "status": "success",
-            "message": "Friend request canceled."
+            "message": "Friend request cancelled."
         }, status=status.HTTP_200_OK)

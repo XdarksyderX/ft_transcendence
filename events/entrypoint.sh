@@ -1,22 +1,20 @@
-#!/bin/bash
-
 service postgresql start
 sleep 5
 
-su postgres -c "psql -c \"CREATE USER $PONGDB_USER WITH PASSWORD '$PONGDB_PASSWORD';\""
-su postgres -c "psql -c \"CREATE DATABASE $PONGDB_NAME OWNER $PONGDB_USER;\""
-su postgres -c "psql -c \"ALTER USER $PONGDB_USER CREATEDB;\""
+#if [[ "$DROP_DB" == "TRUE" ]]; then
+#	if [[ -x "./dropdb.sh" ]]; then
+#		./dropdb.sh || { echo "Error: dropdb.sh failed to execute." >&2; }
+#	else
+#		echo "Error: dropdb.sh not found or not executable." >&2
+#	fi
+#fi
 
+
+su postgres -c "psql -c \"CREATE USER $EVENTSDB_USER WITH PASSWORD '$EVENTSDB_PASSWORD';\""
+su postgres -c "psql -c \"CREATE DATABASE $EVENTSDB_NAME OWNER $EVENTSDB_USER;\""
+su postgres -c "psql -c \"ALTER USER $EVENTSDB_USER CREATEDB;\""
+
+redis-server &
 
 python3 service/manage.py makemigrations core
 python3 service/manage.py migrate
-
-export DJANGO_SETTINGS_MODULE=config.settings
-export PYTHONPATH=/service
-
-cd service
-
-celery -A config worker --loglevel=info --queues=pong.user_registered,pong.user_deleted,pong.username_changed,pong.friend_added,pong.friend_removed &
-
-celery -A config flower --port=5555 &
-exec python manage.py runserver 0.0.0.0:5053

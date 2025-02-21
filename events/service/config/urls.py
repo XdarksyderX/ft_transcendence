@@ -6,6 +6,8 @@ from events.exceptions import (
     custom_server_error
 )
 
+urlpatterns = []
+
 handler400 = custom_bad_request
 handler403 = custom_permission_denied
 handler404 = custom_page_not_found

@@ -21,6 +21,7 @@ def mark_event_as_processed(event_id, event_type):
 
 @shared_task(name="consistency.subscribe_now.social")
 def handle_subscribe_now():
+    print("SUSCRIBE NOWWWWW SOCIAL")
     try:
         subscription_event = {
             "service": "social",
