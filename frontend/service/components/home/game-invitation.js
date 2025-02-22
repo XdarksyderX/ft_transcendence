@@ -99,7 +99,7 @@ async function sendPongInvitation(friendName) {
 export async function handleAcceptInvitation(token) {
     const response = await acceptInvitation(token);
     if (response.status === "success") {
-        navigateTo("/pong");
+        console.log("/pong");
     } else {
         console.error('Failed to accept invitation:', response.message);
     }
@@ -108,7 +108,7 @@ export async function handleAcceptInvitation(token) {
 export async function handleDeclineInvitation(token) {
     const response = await denyInvitation(token);
     if (response.status === "success") {
-        alert("invitation declined successfully");
+        console.log("invitation declined successfully");
     } else {
         console.error('Failed to accept invitation:', response.message);
     }
@@ -117,7 +117,7 @@ export async function handleDeclineInvitation(token) {
 export async function handleCancelInvitation(token) {
     const response = await cancelInvitation(token);
     if (response.status === "success") {
-        alert("invitation canceled successfully");
+        console.log("invitation canceled successfully");
     } else {
         console.error('Failed to accept invitation:', response.message);
     }
