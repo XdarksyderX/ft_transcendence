@@ -11,17 +11,17 @@ let playAI;
 let msAIcalcRefresh;
 let startSpeed;
 let speedUpMultiple;
-let playerHeight;
+let playerHeight = 50;
 let playerSpeed;
 let allowPowerUp;
-let boardWidth;
-let boardHeight;
+let boardWidth = 700; // Added values to now as they´re used in first version of onlinepong
+let boardHeight = 500;
 let pointsToWin;
-let ballSide;
+let ballSide = 10;
 
 // Depend on user provided variables
 let xMargin; // Margin from paddle to side of board
-let playerWidth;
+let playerWidth = 12; // HARDCODED FOR ONLINE PONG
 let yMax;
  
 const   serveSpeedMultiple = 0.3;
@@ -59,28 +59,228 @@ function reShowMenu()
     document.getElementById("instructions").hidden = false; // Show instructions
 }
 
-export function initializePongEvents()
+export async function initializePongEvents()
 {
-	let gameConfig = 
-	{
-    	playerHeight: 50,
-    	startSpeed: 7.5,
-    	playerSpeed: 5,
-    	speedUpMultiple: 1.02,
-    	pointsToWin: 3,
-    	ballSide: 10,
-    	boardWidth: 700,
-    	boardHeight: 500,
-    	allowPowerUp: false,
-		playAI: false,
-		msAIcalcRefresh: 1000
-	};
+    // Check for an online match
+    try 
+    {
+        const response = await fetch("http://localhost:5052/match/in-progress/", { credentials: "include" }); // CHANGE TO MAKE WORK 
+        if (!response.ok) throw new Error("Failed to fetch online match");
+        
+        const data = await response.json();
+        if (data && data.game_key) 
+        {
+            console.log("Online match found. Connecting...");
+            return connectToOnlineGame(data.game_key);
+        }
+    }
+    catch (error)
+    {
+        console.warn("No online match found, starting local game.", error);
+    }
+
+    // No online match found → Start Local Game
+    startLocalGame();
+}
+
+// ONLINE CODE START
+function connectToOnlineGame(gameKey)
+{
+    const socket = new WebSocket(`ws://localhost:5050/ws/game/${gameKey}/`);
+
+    // init board
+    board = document.getElementById("board");
+    board.width = boardWidth;
+    board.height = boardHeight;
+    context = board.getContext("2d");
+
+    socket.onopen = () =>
+    {
+        console.log("WebSocket connected to game:", gameKey);
+        socket.send(JSON.stringify({ action: "ready" })); // Send "ready" signal
+    };
+
+    socket.onmessage = (event) =>
+    {
+        const message = JSON.parse(event.data);
+        console.log("Received WebSocket message:", message);
+        if (message.status === "game_starting") 
+        {
+            console.log("Game is starting!");
+            // Attach key_hooks
+            document.addEventListener("keydown", (event) => keyDownHandlerOnline(event, socket));
+            document.addEventListener("keyup", (event) => keyUpHandlerOnline(event, socket));
+            hideMenu();
+        }
+        else if (message.status === "game_update") 
+            updateGameState(message.state);
+            
+    };
+
+    window.addEventListener("beforeunload", () => 
+    {
+        if (socket.readyState === WebSocket.OPEN) 
+            socket.send(JSON.stringify({ action: "move", direction: "STOP" })); // Send player STOP upon disconnection
+    });
+
+    socket.onclose = () => 
+    {
+        console.log("WebSocket Closed.");
+        
+        // Remove event listeners to avoid issues on reconnection
+        document.removeEventListener("keydown", keyDownHandlerOnline); // Dont know how to handle reinstating keyhooks on reconnection but leaving it like this for now
+        document.removeEventListener("keyup", keyUpHandlerOnline);
+    };
+
+    socket.onerror = (error) => console.error("WebSocket Error:", error);
+}
+
+function updateGameState(state)
+{
+    if (!state || !state.players || !state.ball)
+        return; // Ensure valid data
+
+    // Update player positions
+    if (state.players.player1) 
+    {
+        Lplayer.x = state.players.player1.x;
+        Lplayer.y = state.players.player1.y;
+        Lplayer.score = state.players.player1.score;
+    }
+    
+    if (state.players.player2) 
+    {
+        Rplayer.x = state.players.player2.x;
+        Rplayer.y = state.players.player2.y;
+        Rplayer.score = state.players.player2.score;
+    }
+
+    // Update ball position
+    ball.x = state.ball.x;
+    ball.y = state.ball.y;
+
+    // Render the updated positions
+    renderGame();
+}
+
+function renderGame()
+{
+    // Clear the board
+    context.clearRect(0, 0, board.width, board.height);
+
+    // Draw center dashed line
+    context.fillStyle = accentColor;
+    for (let i = 10; i < board.height; i += 25)
+        context.fillRect(board.width / 2 - 10, i, 5, 5);
+    // Draw ball
+    context.fillRect(ball.x, ball.y, ballSide, ballSide);
+
+    // Draw scores
+    context.fillStyle = lightColor; 
+    context.font = "45px 'ROG LyonsType Regular'";
+    context.fillText(Lplayer.score, board.width / 5, 45);
+    context.fillText(Rplayer.score, board.width / 5 * 4 - 45, 45);
+
+    // Draw paddles
+    context.fillRect(Lplayer.x, Lplayer.y, playerWidth, playerHeight);
+    context.fillRect(Rplayer.x, Rplayer.y, playerWidth, playerHeight);
+}
+
+function keyDownHandlerOnline(event, socket)
+{
+    if (["KeyW", "KeyS", "ArrowUp", "ArrowDown"].includes(event.code)) 
+        event.preventDefault(); // Avoid page moving up & down when using arrows
+
+    if (socket.readyState !== WebSocket.OPEN) 
+        return; // Prevent sending messages if WebSocket is closed
+
+    let direction = null;
+
+    if (event.code == "KeyW") 
+    {
+        keyState.w = true;
+        direction = "UP"; // Equivalent to Lplayer.speed = -playerSpeed;
+    }
+    else if (event.code == "KeyS")
+    {
+        keyState.s = true;
+        direction = "DOWN"; // Equivalent to Lplayer.speed = playerSpeed;
+    }
+    else if (event.code == "ArrowUp")
+    {
+        keyState.up = true;
+        direction = "UP"; // Equivalent to Rplayer.speed = -playerSpeed;
+    }
+    else if (event.code == "ArrowDown")
+    {
+        keyState.down = true;
+        direction = "DOWN"; // Equivalent to Rplayer.speed = playerSpeed;
+    }
+
+    if (direction !== null)
+        socket.send(JSON.stringify({ action: "move", direction: direction }));
+}
+
+function keyUpHandlerOnline(event, socket)
+{
+    if (["KeyW", "KeyS", "ArrowUp", "ArrowDown"].includes(event.code)) 
+        event.preventDefault();
+
+    if (socket.readyState !== WebSocket.OPEN) 
+        return; // Prevent sending messages if WebSocket is closed
+
+    let direction = "STOP"; // Default when key is released
+
+    if (event.code == "KeyW")
+    {
+        keyState.w = false;
+        if (keyState.down || keyState.s)
+            direction = "DOWN"; // If Down is still pressed, move down
+    } 
+    else if (event.code == "KeyS")
+    {
+        keyState.s = false;
+        if (keyState.w)
+            direction = "UP"; // If Up is still pressed, move up
+    }
+    else if (event.code == "ArrowUp")
+    {
+        keyState.up = false;
+        if (keyState.down || keyState.s) 
+            direction = "DOWN"; // If Down is still pressed, move down
+    } 
+    else if (event.code == "ArrowDown")
+    {
+        keyState.down = false;
+        if (keyState.up || keyState.w)
+            direction = "UP"; // If Up is still pressed, move up
+    }
+
+    socket.send(JSON.stringify({ action: "move", direction: direction }));
+}
+// ONLINE CODE END
+
+function startLocalGame() 
+{
+    let gameConfig =
+    {
+        playerHeight: 50,
+        startSpeed: 7.5,
+        playerSpeed: 5,
+        speedUpMultiple: 1.02,
+        pointsToWin: 3,
+        ballSide: 10,
+        boardWidth: 700,
+        boardHeight: 500,
+        allowPowerUp: false,
+        playAI: false,
+        msAIcalcRefresh: 1000
+    };
 
     initInstructionsTooltip();
 
-    // Add event listener to start game when button is clicked
     document.getElementById("startGameButton").addEventListener("click", () => 
-	{
+    {
         applySettings(gameConfig);
         startGame(gameConfig);
     });
@@ -139,14 +339,18 @@ function applySettings(gameConfig)
 	}
 }
 
-function startGame(gameConfig)
+function hideMenu()
 {
     // Hide menu and show game
     document.getElementById("customizationMenu").hidden = true;
     document.getElementById("instructions").hidden = true;
     document.getElementById("board").hidden = false;
     document.getElementById("neonFrame").hidden = false;
-    
+}
+
+function startGame(gameConfig)
+{ 
+    hideMenu();
     initGame(gameConfig); // To restart all values that are changed in previous games & apply settings changes
 
     if (playAI) 
