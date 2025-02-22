@@ -185,14 +185,14 @@ function flipBoard() {
 
 function toggleBackgroundMusic(url) {
     const musicIcon = document.getElementById('music-icon');
-    if (currentMusic) {
+    if (currentMusic)
         pauseBackgroundMusic();
-    }
-    if (url === "/chess") {
+    if (url === "/chess")
         currentMusic = backgroundMusicChess;
-    } else if (url === "/pong") {
+    else if (url === "/pong")
         currentMusic = backgroundMusicPong;
-    }
+    else
+        return;
     if (isMusicPlaying) {
         pauseBackgroundMusic()
         musicIcon.classList.remove('bi-volume-up-fill');
