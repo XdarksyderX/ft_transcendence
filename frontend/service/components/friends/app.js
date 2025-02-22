@@ -1,4 +1,4 @@
-import { throwAlert } from "../../app/render.js";
+import { throwAlert, throwToast } from "../../app/render.js";
 import { getAvatar, getFriendsList, removeFriend, blockUser } from "../../app/social.js";
 import { initSearchFriendEvents, renderPendingFriendRequests } from "./requests.js";
 
@@ -143,7 +143,7 @@ async function handleRemoveFriend(username, modal = null) {
         modal.hide();
     }
     if (response.status === 'success') {
-        throwAlert(`You and ${username} are not friends anymore`);
+        throwToast(`You and ${username} are not friends anymore`);
         initializeFriendsEvents(false);
     } else {
         throwAlert(response.message);
@@ -157,7 +157,7 @@ async function handleBlockFriend(username, modal = null) {
         modal.hide();
     }
     if (response.status === 'success') {
-        throwAlert(`You and ${username} are not friends anymore >:(`);
+        throwToast(`You and ${username} are not friends anymore >:(`);
         const removeResponse = await removeFriend(username);
         if (removeResponse.status === 'success') {
             initializeFriendsEvents(false);

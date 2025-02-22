@@ -1,4 +1,4 @@
-import { throwAlert } from "../../app/render.js";
+import { throwAlert, throwToast } from "../../app/render.js";
 import { searchUsers, getAvatar,
 sendFriendRequest, getPendingSentRequests, cancelFriendRequest,
 getPendingReceivedRequests, acceptFriendRequest, declineFriendRequest,
@@ -84,7 +84,7 @@ async function createFriendRequestCard( request ) {
 async function handleAcceptFiendRequest(invitationId, username) {
     const response = await acceptFriendRequest(invitationId);
     if (response.status === "success") {
-       throwAlert(`${username} and you are now Friends!`)
+       throwToast(`${username} and you are now Friends!`);
        initializeFriendsEvents(false);
 
     } else {
@@ -95,6 +95,7 @@ async function handleDeclineFiendRequest(invitationId) {
     const response = await declineFriendRequest(invitationId);
     if (response.status === "success") {
         renderPendingFriendRequests(null);
+        throwToast(`Friend request declined`);
     } else {
         throwAlert(response.message);
     } 
@@ -306,7 +307,9 @@ async function handleSendFriendRequest(username, card) {
 //    console.log('handleSendFriendRequest response:', response);
     if (response.status === "success") {
         toggleBtns(card, 'pendant', response.invitation_id);
-        throwAlert(`Friend request sent to ${username}`);
+        //throwAlert(`Friend request sent to ${username}`);
+        throwToast(`Friend request sent to ${username}`);
+        
     } else {
         throwAlert(response.message);
     }
