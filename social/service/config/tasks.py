@@ -106,30 +106,32 @@ def handle_match_invitation(event):
     )
     msg.save()
 
-    channel_layer = get_channel_layer()
-    room_group_name = f"chat_{min(sender.username, receiver.username)}_{max(sender.username, receiver.username)}"
-    async_to_sync(channel_layer.group_send)(
-        room_group_name,
-        {
-            "type": "pong_new_match_invitation",
-            "status": "success",
-            "message": "New match invitation received",
-            "data": {
-                "message": json.dumps({
-                    "type": "pong-match",
-                    "invitation_token": invitation_token
-                }),
-                "is_read": False,
-                "is_special": True,
-                "receiver": receiver.username,
-                "sender": sender.username,
-                "sent_at": msg.sent_at.strftime("%Y-%m-%d %H:%M:%S.%f%z")
-            }
+    data = {
+        "type": "pong_new_match_invitation",
+        "status": "success",
+        "message": "New match invitation received",
+        "data": {
+            "message": json.dumps({
+                "type": "pong-match",
+                "invitation_token": invitation_token
+            }),
+            "is_read": False,
+            "is_special": True,
+            "receiver": receiver.username,
+            "sender": sender.username,
+            "sent_at": msg.sent_at.strftime("%Y-%m-%d %H:%M:%S.%f%z")
         }
-    )
-    
-    return f"Match invitation message from {sender.username} to {receiver.username} sent correctly."
+    }
 
+    channel_layer = get_channel_layer()
+    for user in [sender, receiver]:
+        user_group_name = f"user_{user.username}"
+        async_to_sync(channel_layer.group_send)(
+            user_group_name,
+            data
+        )
+
+    return f"Match invitation message from {sender.username} to {receiver.username} sent correctly."
 
 @shared_task(name="pong.tournament_invitation")
 def handle_tournament_invitation(event):
@@ -149,21 +151,30 @@ def handle_tournament_invitation(event):
         is_special=True
     )
     msg.save()
+    
+    data = {
+        "type": "pong_new_tournament",
+        "status": "success",
+        "message": "New tournament invitation received",
+        "data": {
+            "message": json.dumps({
+                "type": "pong-match",
+                "tournament_id": tournament_id
+            }),
+            "is_read": False,
+            "is_special": True,
+            "receiver": receiver.username,
+            "sender": sender.username,
+            "sent_at": msg.sent_at.strftime("%Y-%m-%d %H:%M:%S.%f%z")
+        }
+    }
 
     channel_layer = get_channel_layer()
-    room_group_name = f"chat_{min(sender.username, receiver.username)}_{max(sender.username, receiver.username)}"
-    async_to_sync(channel_layer.group_send)(
-        room_group_name,
-        {
-            "type": "pong_new_tournament_invitation",
-            "status": "success",
-            "message": "New tournament invitation received",
-            "data": {
-                "tournament_id": tournament_id,
-                "sender": sender.username,
-                "receiver": receiver.username
-            }
-        }
-    )
+    for user in [sender, receiver]:
+        user_group_name = f"user_{user.username}"
+        async_to_sync(channel_layer.group_send)(
+            user_group_name,
+            data
+        )
 
     return f"Tournament invitation message from {sender.username} to {receiver.username} sent correctly."

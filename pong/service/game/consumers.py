@@ -1,15 +1,19 @@
 import json
 import uuid
 from channels.generic.websocket import AsyncWebsocketConsumer
-from core.models import PongGame
+from django.db.models import Q
+from core.models import PongGame, User  # Import the database models
 from asgiref.sync import sync_to_async
-from logic import Game
+from logic import Game  # Import game logic
 
 class GameConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         """Handles new WebSocket connections."""
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = f'game_{self.room_name}'
+
+        # Local game state
+        self.in_progress = False
 
         # Get authenticated user
         self.user = self.scope["user"]
@@ -97,6 +101,9 @@ class GameConsumer(AsyncWebsocketConsumer):
 
             # Handle actions
             if action == 'move':
+                if not self.in_progress:
+                    await self.send(json.dumps({"status": "error", "message": "Game has not started yet."}))
+                    return
                 if not direction:
                     await self.send(json.dumps({"status": "error", "message": "Direction is required for movement"}))
                     return
@@ -107,8 +114,9 @@ class GameConsumer(AsyncWebsocketConsumer):
                 await self.send(json.dumps({"status": "error", "message": f"Unknown action: {action}"}))
 
             # Update ball position & broadcast updated game state
-            await self.calculate_ball_position()
-            await self.broadcast_game_state()
+            if self.in_progress:
+                await self.calculate_ball_position()
+                await self.broadcast_game_state()
 
         except ValueError as e:
             await self.send(json.dumps({"status": "error", "message": str(e)}))
@@ -162,6 +170,7 @@ class GameConsumer(AsyncWebsocketConsumer):
 
         if len(self.game.ready_players) == 2:
             # Both players are ready, start the game
+            self.in_progress = True
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
@@ -170,8 +179,6 @@ class GameConsumer(AsyncWebsocketConsumer):
                     'message': 'Both players are ready. Game is starting!'
                 }
             )
-            self.game.status = 'in_progress'
-            await sync_to_async(self.game.save)()
 
     async def calculate_ball_position(self):
         """Updates ball movement based on game logic and saves the updated state."""
@@ -207,7 +214,7 @@ class GameConsumer(AsyncWebsocketConsumer):
                 }
             },
             "ball": self.game.ball_position,
-            "status": self.game.status
+            "status": "in_progress" if self.in_progress else "waiting"
         }
 
     async def game_update(self, event):
