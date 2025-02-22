@@ -1,7 +1,7 @@
 import { getMessages, markAsReadMessage } from '../../app/social.js';
 import { getUsername } from '../../app/auth.js';
 import { handleGetFriendList } from '../friends/app.js';
-import { handleAcceptInvitation } from '../home/game-invitation.js';
+import { handleAcceptInvitation, handleDeclineInvitation } from '../home/game-invitation.js';
 
 let isExpanded = false;
 let currentView = 'recent-chats';
@@ -367,15 +367,17 @@ function createQuickGameInvitation(message) {
                     <button class="btn btn-sm ctm-btn flex-grow-1 me-1" data-action="accept">
                         Accept <span class="ms-1 badge bg-light text-dark">30s</span>
                     </button>
-                    <button class="btn btn-sm btn-danger flex-grow-1 ms-1" onclick="declineGameInvitation('${message.sender}')">Decline</button>
+                    <button class="btn btn-sm ctm-btn-danger flex-grow-1 ms-1" data-action="decline">Decline</button>
                 </div>
             </div>
         </div>
     `;
     const acceptBtn = card.querySelector('[data-action="accept"]');
+    const declineBtn = card.querySelector('[data-action="decline"]');
     const messageContent = JSON.parse(message.message);
     const token = messageContent.invitation_token;
     acceptBtn.addEventListener('click', () => handleAcceptInvitation(token));
+    declineBtn.addEventListener('click', () => handleDeclineInvitation(token));
     return card; // Return the card element
 }
 // Start a new chat with a specific friend
