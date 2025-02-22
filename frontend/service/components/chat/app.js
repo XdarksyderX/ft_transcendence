@@ -233,41 +233,46 @@ function initializeGlobalChatSocket() {
 function handleReceivedMessage(event) {
     try {
         const data = JSON.parse(event.data);
-        console.log("Mensaje recibido:", data);
+        console.log("WS message received:", data);
         const currentUser = getUsername();
-
         if (data.status === "success" && data.data && data.data.message) {
-            const sender = data.data.sender;
-            const message = {
-                id: Date.now(),
-                message: data.data.message,
-                sender: sender,
-                receiver: currentUser,
-                sent_at: data.data.sent_at,
-                is_special: data.data.is_special,
-                is_read: false
-            };
+            if (data.data.sender === currentUser) return;
 
-            // Si el chat con ese usuario está abierto, actualizamos la vista
-            if (currentChat.username === sender && currentView === 'chat') {
-                currentChat.messages.push(message);
-                renderChat(getElements());
-            } else {
-                // Agregar el mensaje al historial de chats
-                if (!chats[sender]) {
-                    chats[sender] = { messages: [] };
+            // Check if the message is a game invitation
+            //if (data.data.type === 'game-invitation') {
+            if (data.data.is_special) { // if the message is a game invitation
+                // Untoggle the chat window
+                const elements = getElements();
+                if (!isExpanded) {
+                    toggleChat(elements);
+                    openChat(data.data.sender, getElements());
                 }
-                chats[sender].messages.push(message);
-
-                // Actualizar la lista de chats recientes y notificaciones
+            }
+            // Update currentChat if the message is for the currently open chat
+            //if (currentChat.username === data.data.sender && currentView === 'chat') {
+                currentChat.messages.push({
+                    id: currentChat.messages.length + 1,
+                    message: data.data.message,
+                    sender: data.data.sender,
+                    receiver: currentUser,
+                    sent_at: data.data.sent_at,
+                    is_special: data.data.is_special,
+                    is_read: data.data.is_read
+                });
+           // }
+            // Update the view if the current view is the chat with the sender or the recent-chats tab
+            if (currentView === 'chat' && currentChat.username === data.data.sender) { /* && currentChat.username === data.data.sender */
+                renderChat(getElements());
+            } else if (currentView === 'recent-chats') {
                 renderRecentChats(getElements());
+            } else if (!isExpanded) {
                 updateNotificationIndicator(document.getElementById('notification-indicator'));
             }
         } else {
-            console.error("Error en WebSocket:", data.message);
+            console.error("WS error:", data.message);
         }
     } catch (e) {
-        console.error("Error parseando el mensaje WebSocket:", e);
+        console.error("Error parsing WS message:", e);
     }
 }
 
