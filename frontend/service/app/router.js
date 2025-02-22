@@ -191,6 +191,14 @@ function updateNavbar(url) {
         } else {
             lcText.innerHTML = `<a href="/home" class="nav-link ctm-link ms-5" data-link>Home</a>`
         }
+        if (url === '/chess' || url === '/pong') {
+            const button4 = document.getElementById('button4');
+            button4.style.display = 'block';
+        }
+        else {
+            const button4 = document.getElementById('button4');
+            button4.style.display = 'none';
+        }
     } else {
         toggleNavbarContent(unloggedContent, loggedContent);
     }
@@ -209,9 +217,11 @@ async function initRouteEvents() {
             navigateTo(e.target.href);
         }
     });
+    const button4 = document.getElementById('button4');
+    button4.addEventListener('click', () => {
+        toggleBackgroundMusic(window.location.pathname);
+    });
 }
-
-
 
 // Initialize the application
 document.addEventListener("DOMContentLoaded", initRouteEvents);
