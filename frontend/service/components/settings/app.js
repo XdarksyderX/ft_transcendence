@@ -1,5 +1,5 @@
 import { isTwoFAEnabled, toggleTwoFA, changeUsername, changeEmail, changePassword, deleteAccount, refreshAccessToken, getUsername,  } from '../../app/auth.js';
-import { throwAlert } from '../../app/render.js';
+import { throwAlert, throwToast } from '../../app/render.js';
 import { parseNewPasswords } from '../signup/signup.js';
 import { parseEmail } from '../signup/signup.js';
 import { handle2FAmodal } from './QRhandler.js';
@@ -43,15 +43,17 @@ function toggle2FASwitch(event, changedData) {
 
 }
 /* handles the 2FA change with backend */
- async function handle2FAChange(changedData, password, otp) {
-	const enable = changedData.enable2FA;
-	const response = await toggleTwoFA(enable, password, otp);
-	if (response.status === "success") {
-		handle2FAmodal(enable, response.secret);
-	} else {
-		throwAlert(`Failed to ${enable ? "enable" : "disable"} 2FA`);
-		toggle2FASwitch(null, changedData);
-	}
+async function handle2FAChange(changedData, password, otp) {
+    const enable = changedData.enable2FA;
+    const response = await toggleTwoFA(enable, password, otp);
+    if (response.status === "success") {
+        handle2FAmodal(enable, response.secret);
+        return true;
+    } else {
+        throwAlert(`Failed to ${enable ? "enable" : "disable"} 2FA`);
+        toggle2FASwitch(null, changedData);
+        return false;
+    }
 }
 
 					/******* password change *******/
@@ -79,13 +81,11 @@ async function handlePasswordChange(event) {
 	}
 
 	const response = await changePassword(newPassword, currentPassword);
-	let message;
 	if (response.status === "success") {
-		message = "Password changed succesfully";
+		throwToast("Password changed succesfully");
 	} else {
-		message = response.message || "Failed to change password.";
+		throwAlert(response.message || "Failed to change password.");
 	}
-	throwAlert(message);
 }
 
 					/******* username change *******/
@@ -112,15 +112,13 @@ function initUsernameChangeEvents(changedData) {
 }
 /* handles username changes with backend */
 export async function handleUsernameChange(newUsername, password) {
-
-	const response = await changeUsername(newUsername, password);
-	let message;
-	if (response.status === "success") {
-		message = "Username changed successfully";
-	} else {
-		message = response.message || "Failed to change username.";
-	}
-	throwAlert(message);
+    const response = await changeUsername(newUsername, password);
+    if (response.status === "success") {
+        return true;
+    } else {
+        throwAlert(response.message || "Failed to change username.");
+        return false;
+    }
 }
 
 
@@ -149,16 +147,13 @@ function initEmailChangeEvents(changedData) {
 }
 /* handles email changes with backend */
 async function handleEmailChange(newEmail, password) {
-
     const response = await changeEmail(newEmail, password);
-	let message;
-
-	if (response.status === "success") {
-		message = "Email changed succesfully";
-	} else {
-		message = response.message || "Failed to change email.";
-	}
-	throwAlert(message);
+    if (response.status === "success") {
+        return true;
+    } else {
+        throwAlert(response.message || "Failed to change email.");
+        return false;
+    }
 }
 
 					/****** delete account *********/
@@ -189,12 +184,11 @@ async function handleDeleteAccount(password) {
 	let message;
 
     if (response.status === "success") {
-      message = "Account deleted successfully";
+		throwToast("Account deleted successfully");
+		logout();
     } else {
-      message = response.message || "Failed to delete account.";
+	  throwAlert(response.message || "Failed to delete account.");
     }
-	throwAlert(message);
-	logout();
 }
 					/************ save changes utils ************/
 /* gets the user data before any changes made */
@@ -277,26 +271,27 @@ function cleanAfterChanges(changedData) {
 
 async function handleSaveChanges(password, changedData, otp) {
     let changesMade = false;
-	const currentData = getCurrentData();
+    const currentData = getCurrentData();
 
     if (currentData.enable2FA !== changedData.enable2FA) {
-      console.log('changes.enable2FA: ', changedData.enable2FA);
-        await handle2FAChange(changedData, password, otp);
-        changesMade = true;
+        console.log('changes.enable2FA: ', changedData.enable2FA);
+        const success = await handle2FAChange(changedData, password, otp);
+        changesMade = changesMade || success;
     }
     if (currentData.username !== changedData.username) {
-        await handleUsernameChange(changedData.username, password);
-        changesMade = true;
+        const success = await handleUsernameChange(changedData.username, password);
+        changesMade = changesMade || success;
     }
     if (currentData.email !== changedData.email) {
-        await handleEmailChange(changedData.email, password);
-        changesMade = true;
+        const success = await handleEmailChange(changedData.email, password);
+        changesMade = changesMade || success;
     }
     if (changesMade) {
+		throwToast("Changes applyied succesfully");
         await refreshAccessToken();
-		cleanAfterChanges(changedData);
+        cleanAfterChanges(changedData);
     }
-}	
+}
 
 					/******** blocked users* *******/
 
@@ -352,7 +347,6 @@ async function createBlockedUserCard(username) {
 export async function handleUnblockUser(username) {
 	const response = await unblockUser(username);
 	if (response.status === "success") {
-	//	throwAlert('ole ole ole los caracole');
 		document.getElementById('blocked-users-list').innerHTML = '';
 		renderBlockedUsers();
 	} else {

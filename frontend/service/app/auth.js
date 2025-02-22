@@ -1,5 +1,6 @@
 import jwtDecode from 'https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.esm.js';
 import { navigateTo } from './router.js';
+import { throwToast } from './render.js';
 /**
  * Obtiene el username almacenado en localStorage.
  */
@@ -41,6 +42,7 @@ export async function logout() {
             method: 'POST',
             credentials: 'include',
         });
+        throwToast('Logged out succesfully');
     } catch (error) {
         console.error('Logout error:', error);
     } finally {

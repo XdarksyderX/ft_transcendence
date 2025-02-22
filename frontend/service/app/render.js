@@ -95,4 +95,37 @@ function throwAlert(text) {
     });
 }
 
-export { loadChat, loadSidebar, throwAlert }
+function throwToast(text, delay = 3000) {
+  const prevToast = document.getElementById('ctm-toast');
+  if (prevToast) {
+      prevToast.remove();
+  }
+
+  const toastHTML = `
+  <div id="ctm-toast" class="toast align-items-center border-0 position-fixed top-0 end-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+          <div class="toast-body">
+              ${text}
+          </div>
+          <div type="button" class="me-3 m-auto" data-bs-dismiss="toast" aria-label="Close">x</div>
+      </div>
+  </div>`;
+
+  // Insertar el toast en el DOM
+  document.body.insertAdjacentHTML("beforeend", toastHTML);
+
+  // Inicializar y mostrar el toast
+  const toastElement = document.getElementById('ctm-toast');
+  const toast = new bootstrap.Toast(toastElement, { delay: delay });
+  toast.show();
+
+  // Eliminar el toast del DOM cuando se oculta
+  toastElement.addEventListener('hidden.bs.toast', () => {
+      toastElement.remove();
+  });
+}
+
+
+
+
+export { loadChat, loadSidebar, throwAlert, throwToast }
