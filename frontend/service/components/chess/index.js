@@ -11,9 +11,15 @@ import { resingOption } from "./Helper/modalCreator.js";
 import { pawnPromotion } from "./Helper/modalCreator.js"; // fully provisional
 import { winGame } from "./Helper/modalCreator.js";
 
-const globalState = initGame();
+let globalState = initGame();
 let keySquareMapper = {};
 let imgStyle = "modern";
+let backgroundMusicChess = new Audio('components/chess/Assets/music/wiiChess.mp3');
+let backgroundMusicPong = new Audio('components/chess/Assets/music/wiiSport.mp3');
+backgroundMusicChess.loop = true;
+backgroundMusicPong.loop = true;
+let isMusicPlaying = false;
+let currentMusic = null;
 
 globalState.flat().forEach((square) => {
     keySquareMapper[square.id] = square;
@@ -55,10 +61,12 @@ function provisionalModalHandle() {
 }
 
 export function initializeChessEvents() {
+    const button1 = document.getElementById('button1');
     const settingsPanel = document.getElementById('settings-panel');
     const saveSettingsButton = document.getElementById('save-settings');
     const cancelSettingsButton = document.getElementById('cancel-settings');
     const pieceStyleSelect = document.getElementById('piece-style');
+    
     
     initGameRender(globalState);
     GlobalEvent();
@@ -72,7 +80,6 @@ export function initializeChessEvents() {
     });
 
     provisionalModalHandle();
-
 }
 
 function setupButtonEvents(settingsPanel, saveSettingsButton, cancelSettingsButton, pieceStyleSelect) {
@@ -176,6 +183,46 @@ function flipBoard() {
     numCoordRight.classList.toggle('flipped');
 }
 
+function toggleBackgroundMusic(url) {
+    const musicIcon = document.getElementById('music-icon');
+    if (currentMusic)
+        pauseBackgroundMusic();
+    if (url === "/chess")
+        currentMusic = backgroundMusicChess;
+    else if (url === "/pong")
+        currentMusic = backgroundMusicPong;
+    else
+        return;
+    if (isMusicPlaying) {
+        pauseBackgroundMusic()
+        musicIcon.classList.remove('bi-volume-up-fill');
+        musicIcon.classList.add('bi-volume-mute-fill');
+    } else {
+        startBackgroundMusic()
+        musicIcon.classList.remove('bi-volume-mute-fill');
+        musicIcon.classList.add('bi-volume-up-fill');
+    }
+    isMusicPlaying = !isMusicPlaying;
+}
+
+function startBackgroundMusic() {
+    if (currentMusic)
+        currentMusic.play();
+}
+
+function pauseBackgroundMusic() {
+    if (currentMusic)
+        currentMusic.pause();
+}
+
+function stopBackgroundMusic() {
+    if (currentMusic) {
+        currentMusic.pause();
+        currentMusic.currentTime = 0;
+      }
+}
+
+
 /*add a custom method to String prototipe that replace a part of an
 string in a specific position. Ex: str = "hello" -> str = str.replaceAt(1, "a") = "hallo" */ //borrar?
 
@@ -183,4 +230,4 @@ String.prototype.replaceAt = function (index, replacement) {
     return (this.substring(0, index) + replacement + this.substring(index + replacement.length));
 };
 
-export { globalState, keySquareMapper, highlightColor, imgStyle };
+export { globalState, keySquareMapper, highlightColor, imgStyle, stopBackgroundMusic, toggleBackgroundMusic };

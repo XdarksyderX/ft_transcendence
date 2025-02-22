@@ -1,17 +1,11 @@
 import * as piece from "../Data/pieces.js";
-import { globalState, highlightColor } from "../index.js";
+import { globalState, highlightColor, keySquareMapper } from "../index.js";
 import { getChess960Piece } from "../Variants/chess960.js";
 import { renderHordePieces } from "../Variants/horde.js";
+import { initGame } from "../Data/data.js";
 
 const globalPiece = new Object();
 const chessVariantTmp = sessionStorage.getItem('chessVariant'); //borrar -> solucion temporal para asegurar la persistencia de la variable hasta que tengamos backend
-
-const backgroundMusic = new Audio('components/chess/Assets/music/wiiChess.mp3')
-backgroundMusic.loop = true;
-
-function startBackgroundMusic() {
-  backgroundMusic.play();
-}
 
 /**
  * funciton globlaStateRender is usefull to render pieces from globalStateData,
@@ -117,12 +111,13 @@ const piecePositions = {
  */
 function initGameRender(data)
 {
-  startBackgroundMusic();
   globalPiece.black_pawns = [];
   globalPiece.white_pawns = [];
 
   if (chessVariantTmp === "960")
     getChess960Piece();
+
+  document.getElementById('root').innerHTML = '';
 
   data.forEach(element => {
     const rowEl = document.createElement("div");
@@ -134,6 +129,8 @@ function initGameRender(data)
       if (chessVariantTmp === "horde") {
         renderHordePieces(square, globalPiece, assignSpecificPiece);
       } else {
+        if ((square.id[1] >= 3 && square.id[1] <= 6) && square.piece)
+          square.piece = null;
         if (square.id[1] == 7) {
           square.piece = piece.blackPawn(square.id);
           globalPiece.black_pawns.push(square.piece);
@@ -215,4 +212,4 @@ function circleHighlightRender(highlightSquareIds, keySquareMapper) {
   });
 }
 
-export { initGameRender, renderHighlight, clearHighlight, selfHighlight, globalStateRender, globalPiece, circleHighlightRender, piecePositions, startBackgroundMusic };
+export { initGameRender, renderHighlight, clearHighlight, selfHighlight, globalStateRender, globalPiece, circleHighlightRender, piecePositions };
