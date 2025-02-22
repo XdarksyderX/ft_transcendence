@@ -40,8 +40,11 @@ CORS_ALLOW_CREDENTIALS = True
 
 INSTALLED_APPS = [
     'django.contrib.auth',
+    'daphne',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
+    'rest_framework',
+    'channels',
     'core',
     'game',
     'matches',
@@ -78,6 +81,7 @@ CHANNEL_LAYERS = {
 }
 
 WSGI_APPLICATION = 'config.wsgi.application'
+ASGI_APPLICATION = 'config.asgi.application'
 
 DATABASES = {
     'default': {

@@ -73,7 +73,8 @@ class PendingInvitationCreateView(APIView):
             player1=sender,
             player2=receiver_user,
             status='pending',
-            available=True
+            available=True,
+            
         )
         invitation = PendingInvitation.objects.create(
             sender=sender,

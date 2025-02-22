@@ -67,11 +67,13 @@ export async function initializePongEvents()
         const response = await fetch("http://localhost:5052/match/in-progress/", { credentials: "include" }); // CHANGE TO MAKE WORK 
         if (!response.ok) throw new Error("Failed to fetch online match");
         
+        console.log("Trying to find online match...");
         const data = await response.json();
-        if (data && data.game_key) 
+        console.log(data)
+        if (data && data?.match.game_key) 
         {
             console.log("Online match found. Connecting...");
-            return connectToOnlineGame(data.game_key);
+            return connectToOnlineGame(data?.match.game_key);
         }
     }
     catch (error)
@@ -86,7 +88,7 @@ export async function initializePongEvents()
 // ONLINE CODE START
 function connectToOnlineGame(gameKey)
 {
-    const socket = new WebSocket(`ws://localhost:5050/ws/game/${gameKey}/`);
+    const socket = new WebSocket(`ws://localhost:5052/ws/game/${gameKey}/`);
 
     // init board
     board = document.getElementById("board");
@@ -103,7 +105,7 @@ function connectToOnlineGame(gameKey)
     socket.onmessage = (event) =>
     {
         const message = JSON.parse(event.data);
-        console.log("Received WebSocket message:", message);
+        console.log("WebSocket message:", message);
         if (message.status === "game_starting") 
         {
             console.log("Game is starting!");
@@ -113,8 +115,11 @@ function connectToOnlineGame(gameKey)
             hideMenu();
         }
         else if (message.status === "game_update") 
+        {
+            document.addEventListener("keydown", (event) => keyDownHandlerOnline(event, socket));
+            document.addEventListener("keyup", (event) => keyUpHandlerOnline(event, socket));
             updateGameState(message.state);
-            
+        }
     };
 
     window.addEventListener("beforeunload", () => 
