@@ -1,7 +1,7 @@
 import { getMessages, markAsReadMessage } from '../../app/social.js';
 import { getUsername } from '../../app/auth.js';
 import { handleGetFriendList } from '../friends/app.js';
-import { handleAcceptInvitation } from '../home/game-invitation.js';
+import { handleAcceptInvitation, handleDeclineInvitation } from '../home/game-invitation.js';
 
 let isExpanded = false;
 let currentView = 'recent-chats';
@@ -15,6 +15,7 @@ let currentChat = {
 // Initialize chat events by getting elements, binding event listeners, and showing recent chats
 export async function initializeChatEvents() {
     const elements = getElements();
+    initializeGlobalChatSocket();
     bindEventListeners(elements);
     await showRecentChats(elements);
 }
@@ -144,7 +145,7 @@ async function openChat(friendUsername, elements) {
     // }
     await fetchChatMessages(friendUsername);
     await markMessagesAsRead(friendUsername);
-    initializeChatSocket(friendUsername);
+    //initializeChatSocket(friendUsername);
     displayChatWindow(elements, friendUsername);
     renderChat(elements);
 }
@@ -201,7 +202,7 @@ function initializeChatSocket(friendUsername) {
         chatSocket.onclose = () => console.log("WebSocket closed");
     });
 }
-
+//initializes a global socket for all the chat
 function initializeGlobalChatSocket() {
     if (chatSocket) {
         chatSocket.close();
@@ -232,49 +233,44 @@ function initializeGlobalChatSocket() {
 function handleReceivedMessage(event) {
     try {
         const data = JSON.parse(event.data);
-        console.log("WS message received:", data);
+        console.log("Mensaje recibido:", data);
         const currentUser = getUsername();
-        if (data.status === "success" && data.data && data.data.message) {
-            if (data.data.sender === currentUser) return;
 
-            // Check if the message is a game invitation
-            //if (data.data.type === 'game-invitation') {
-            if (data.data.is_special) { // if the message is a game invitation
-                // Untoggle the chat window
-                const elements = getElements();
-                if (!isExpanded) {
-                    toggleChat(elements);
-                    openChat(data.data.sender, getElements());
-                }
-            }
-            // Update currentChat if the message is for the currently open chat
-            //if (currentChat.username === data.data.sender && currentView === 'chat') {
-                currentChat.messages.push({
-                    id: currentChat.messages.length + 1,
-                    message: data.data.message,
-                    sender: data.data.sender,
-                    receiver: currentUser,
-                    sent_at: data.data.sent_at,
-                    is_special: data.data.is_special,
-                    is_read: data.data.is_read
-                });
-           // }
-            console.log("CURRENt chat: ", currentChat);
-            // Update the view if the current view is the chat with the sender or the recent-chats tab
-            if (currentView === 'chat' ) { /* && currentChat.username === data.data.sender */
+        if (data.status === "success" && data.data && data.data.message) {
+            const sender = data.data.sender;
+            const message = {
+                id: Date.now(),
+                message: data.data.message,
+                sender: sender,
+                receiver: currentUser,
+                sent_at: data.data.sent_at,
+                is_special: data.data.is_special,
+                is_read: false
+            };
+
+            // Si el chat con ese usuario está abierto, actualizamos la vista
+            if (currentChat.username === sender && currentView === 'chat') {
+                currentChat.messages.push(message);
                 renderChat(getElements());
-            } else if (currentView === 'recent-chats') {
+            } else {
+                // Agregar el mensaje al historial de chats
+                if (!chats[sender]) {
+                    chats[sender] = { messages: [] };
+                }
+                chats[sender].messages.push(message);
+
+                // Actualizar la lista de chats recientes y notificaciones
                 renderRecentChats(getElements());
-            } else if (!isExpanded) {
                 updateNotificationIndicator(document.getElementById('notification-indicator'));
             }
         } else {
-            console.error("WS error:", data.message);
+            console.error("Error en WebSocket:", data.message);
         }
     } catch (e) {
-        console.error("Error parsing WS message:", e);
+        console.error("Error parseando el mensaje WebSocket:", e);
     }
 }
+
 
 // Render the recent chats list
 export async function renderRecentChats(elements) {
@@ -367,15 +363,17 @@ function createQuickGameInvitation(message) {
                     <button class="btn btn-sm ctm-btn flex-grow-1 me-1" data-action="accept">
                         Accept <span class="ms-1 badge bg-light text-dark">30s</span>
                     </button>
-                    <button class="btn btn-sm btn-danger flex-grow-1 ms-1" onclick="declineGameInvitation('${message.sender}')">Decline</button>
+                    <button class="btn btn-sm ctm-btn-danger flex-grow-1 ms-1" data-action="decline">Decline</button>
                 </div>
             </div>
         </div>
     `;
     const acceptBtn = card.querySelector('[data-action="accept"]');
+    const declineBtn = card.querySelector('[data-action="decline"]');
     const messageContent = JSON.parse(message.message);
     const token = messageContent.invitation_token;
     acceptBtn.addEventListener('click', () => handleAcceptInvitation(token));
+    declineBtn.addEventListener('click', () => handleDeclineInvitation(token));
     return card; // Return the card element
 }
 // Start a new chat with a specific friend

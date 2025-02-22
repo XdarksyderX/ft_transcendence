@@ -1,4 +1,4 @@
-import { throwAlert } from "../../app/render.js";
+import { throwAlert, throwToast } from "../../app/render.js";
 import { getUsername } from "../../app/auth.js";
 import { refreshAccessToken } from "../../app/auth.js";
 
@@ -12,7 +12,7 @@ export function handle2FAmodal(status, secret = null) {
     console.log('status: ', status);
     
     if (!status) {
-        throwAlert(`2FA disabled succesfully`);
+        throwToast(`2FA disabled succesfully`);
         return;
     }
 

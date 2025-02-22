@@ -4,7 +4,6 @@ import { getUsername, refreshAccessToken, login, resetPassword } from '../../app
 import { requestPasswordReset } from '../../app/auth.js';
 import { parseEmail } from '../signup/signup.js';
 
-
 export async function initializeLoginEvents() {
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
@@ -50,7 +49,6 @@ async function authenticateUser(userCredentials) {
         throwAlert("An error occurred during login. Please try again later.");
     }
 }
-
 
 async function showOTPForm(userCredentials) {
     document.getElementById('app').innerHTML = `

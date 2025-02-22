@@ -110,6 +110,13 @@ body::before {
         background-color: var(--danger);
     }
 }
+#ctm-toast {
+  background-color: var(--transparent-dark);  
+  color: var(--light);
+  margin-top: 60px;
+  margin-right: 20px;
+}
+
 .cancel-btn {
     color: var(--title);
     border-radius: 15%;

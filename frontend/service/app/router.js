@@ -12,7 +12,7 @@ import { initializeNewTournament } from '../components/tournament/new.js';
 import { initializeChessEvents } from '../components/chess/index.js';
 import { loadChat, loadSidebar } from './render.js';
 import { initializeIndexEvents } from '../components/index/app.js';
-import { isLoggedIn, logout } from './auth.js';
+import { isLoggedIn } from './auth.js';
 import { initializeSettingsEvents } from '../components/settings/app.js';
 import { getUsername } from './auth.js';
 import { initializeResetPasswordEvents } from '../components/login/reset-pw.js';
@@ -147,9 +147,7 @@ function loadLoggedContent(isLogged) {
     updateNavbar(window.location.pathname);
 }
 
-async function navigateTo(fullUrl) {
-     console.log('navigate function called, url: ', fullUrl);
-    
+async function navigateTo(fullUrl) {    
     try {
         const verify = await isLoggedIn();
         const url = redirectURL(verify, fullUrl);

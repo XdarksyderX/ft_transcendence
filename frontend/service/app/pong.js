@@ -38,6 +38,22 @@ export async function getPendingMatches() {
     return await sendRequest('GET', 'match/pending/');
 }
 
+export async function getTournaments() {
+    return await sendRequest('GET', 'tournaments/');
+}
+
+export async function editTournament(tournamentId, data) {
+    return await sendRequest('POST', `tournaments/${tournamentId}/edit/`, data);
+}
+
+export async function startTournament(tournamentId) {
+    return await sendRequest('POST', `tournaments/${tournamentId}/start/`);
+}
+
+export async function getTournamentGames(tournamentId) {
+    return await sendRequest('GET', `tournaments/${tournamentId}/games/`);
+}
+
 async function sendRequest(method, endpoint, body = null, isFormData = false) {
     console.log("endpoint: ", endpoint);
     try {
