@@ -202,6 +202,31 @@ function initializeChatSocket(friendUsername) {
     });
 }
 
+function initializeGlobalChatSocket() {
+    if (chatSocket) {
+        chatSocket.close();
+    }
+    chatSocket = new WebSocket(`ws://localhost:5051/ws/chat/`);
+
+    chatSocket.onopen = () => {
+        console.log("WebSocket global conectado");
+    };
+
+    chatSocket.onmessage = (event) => {
+        handleReceivedMessage(event);
+    };
+
+    chatSocket.onerror = (error) => {
+        console.error("WebSocket error:", error);
+    };
+
+    chatSocket.onclose = () => {
+        console.log("WebSocket cerrado, intentando reconectar...");
+        setTimeout(initializeGlobalChatSocket, 5000); // Reintentar conexión tras 5 segundos
+    };
+}
+
+
 
 // Handle received WebSocket messages
 function handleReceivedMessage(event) {
@@ -308,11 +333,9 @@ function renderChat(elements) {
             console.log("ON RENDER CHAT: ", message);
             let messageElement;
             if (message.is_special) {
-                console.log("is special");
                 messageElement = createQuickGameInvitation(message);
             } else {
-                messageElement = document.createElement('div');
-                messageElement.innerHTML = createMessageBubble(message);
+                messageElement = createMessageBubble(message);
             }
             elements.chatMessages.appendChild(messageElement);
         });
@@ -323,12 +346,11 @@ function renderChat(elements) {
 
 
 function createMessageBubble(message) {
+    const card = document.createElement('div');
     const messageClass = message.sender === getUsername() ? 'out' : 'in';
-    return `
-        <div class="message ${messageClass}">
-            ${message.message}
-        </div>
-    `;
+    card.classList = `message ${messageClass}`;
+    card.innerText = `${message.message}`;
+    return card;
 }
 
 function createQuickGameInvitation(message) {
