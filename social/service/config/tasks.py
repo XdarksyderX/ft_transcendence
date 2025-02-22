@@ -107,7 +107,7 @@ def handle_match_invitation(event):
     msg.save()
 
     data = {
-        "type": "pong_new_match_invitation",
+        "type": "message",
         "status": "success",
         "message": "New match invitation received",
         "data": {
@@ -153,7 +153,7 @@ def handle_tournament_invitation(event):
     msg.save()
     
     data = {
-        "type": "pong_new_tournament",
+        "type": "message",
         "status": "success",
         "message": "New tournament invitation received",
         "data": {
