@@ -154,13 +154,14 @@ async function openChat(friendUsername, elements) {
 async function fetchChatMessages(friendUsername) {
     try {
         const messagesResponse = await getMessages(friendUsername);
+        console.log("on fetch chat messages: ", messagesResponse.messages)
         if (messagesResponse.status === "success" && messagesResponse.messages) {
             currentChat.messages = messagesResponse.messages.map((msg, index) => ({
                 id: index + 1,
                 message: msg.content,
                 sender: msg.sender,
-                receiver: friendUsername,
-                sent_at: msg.timestamp,
+                receiver: msg.receiver,
+                sent_at: msg.sent_at,
                 is_special: msg.is_special,
                 is_read: msg.is_read
             }));
@@ -259,6 +260,8 @@ function handleReceivedMessage(event) {
                     is_special: data.data.is_special,
                     is_read: data.data.is_read
                 });
+
+                console.log("current chat on received: ", currentChat);
            // }
             // Update the view if the current view is the chat with the sender or the recent-chats tab
             if (currentView === 'chat' && currentChat.username === data.data.sender) { /* && currentChat.username === data.data.sender */
@@ -350,15 +353,21 @@ function createMessageBubble(message) {
     const card = document.createElement('div');
     const messageClass = message.sender === getUsername() ? 'out' : 'in';
     card.classList = `message ${messageClass}`;
-    card.innerText = `${message.message}`;
+    card.innerHTML = `
+        <div class="d-flex">
+            <div class="me-2">${message.message}</div>
+            <small class="ms-auto text-muted timestamp">${formatTime(message.sent_at)}</small>
+        </div>
+    `;
     return card;
 }
 
 function createQuickGameInvitation(message) {
     const card = document.createElement('div');
+    const remainingTime = calculateTimeRemaining(message.sent_at); 
     card.innerHTML = `
         <div class="quick-game-invitation card border-0 overflow-hidden" style="max-width: 250px;">
-            <div class="progress position-absolute w-100 h-100" style="z-index: 0;">
+            <div class="progress position-absolute w-100 h-100" style="z-index: 0;" data-progress>
                 <div class="progress-bar bg-primary" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
             </div>
             <div class="card-body position-relative p-3" style="z-index: 1;">
@@ -366,21 +375,61 @@ function createQuickGameInvitation(message) {
                 <p class="card-text mb-2 small">${message.sender} invited you!</p>
                 <div class="d-flex justify-content-between align-items-center">
                     <button class="btn btn-sm ctm-btn flex-grow-1 me-1" data-action="accept">
-                        Accept <span class="ms-1 badge bg-light text-dark">30s</span>
+                        Accept <span class="ms-1 badge bg-light text-dark" data-timer>${remainingTime}s</span>
                     </button>
                     <button class="btn btn-sm ctm-btn-danger flex-grow-1 ms-1" data-action="decline">Decline</button>
                 </div>
             </div>
         </div>
     `;
-    const acceptBtn = card.querySelector('[data-action="accept"]');
+
+    const progressBar = card.querySelector('[data-progress] .progress-bar');
+    const timer = card.querySelector('[data-timer]');
     const declineBtn = card.querySelector('[data-action="decline"]');
+    const btns = {
+        accept: card.querySelector('[data-action="accept"]'),
+        decline: card.querySelector('[data-action="decline"]')
+    }
     const messageContent = JSON.parse(message.message);
     const token = messageContent.invitation_token;
-    acceptBtn.addEventListener('click', () => handleAcceptInvitation(token));
-    declineBtn.addEventListener('click', () => handleDeclineInvitation(token));
+    startProgressBar(remainingTime, progressBar, timer, btns);
+    btns.accept.addEventListener('click', () => handleAcceptInvitation(token));
     return card; // Return the card element
 }
+
+function calculateTimeRemaining(sentAt) {
+    const sentAtTimestamp = new Date(sentAt).getTime();
+    const expirationTimestamp = sentAtTimestamp + 30000;
+    return Math.max(0, Math.floor((expirationTimestamp - Date.now()) / 1000));
+}
+
+
+function startProgressBar(remainingTime, progressBar, timer, btns) {
+    const expirationTime = Date.now() + (remainingTime * 1000); // Convert seconds to milliseconds
+    const interval = setInterval(() => {
+        const now = Date.now();
+        const timeLeft = Math.max(0, (expirationTime - now) / 1000); // Get remaining seconds with decimals
+
+        const progress = (timeLeft / 30) * 100; // Adjust to the correct percentage
+        progressBar.style.width = `${progress}%`;
+        timer.textContent = `${Math.ceil(timeLeft)}s`; // Show the time in whole seconds
+
+        if (timeLeft <= 0) {
+            clearInterval(interval);
+            btns.accept.disabled = true; // Disable the accept button
+            btns.decline.disabled = true; // Disable the decline button
+            progressBar.style.width = '0%';
+        }
+    }, 100); // Update every 100ms for a smoother effect
+
+    btns.decline.addEventListener('click', () => {
+        clearInterval(interval);
+        progressBar.style.width = '0%'; // Set the progress bar width to 0%
+        btns.accept.disabled = true; // Disable the accept button
+        btns.decline.disabled = true; // Disable the decline button
+    });
+}
+
 // Start a new chat with a specific friend
 async function startNewChat(friendUsername, elements) {
     await openChat(friendUsername, elements);
