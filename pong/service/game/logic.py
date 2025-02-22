@@ -31,8 +31,12 @@ class Game:
         self.game.player_positions.setdefault("player1", {"x": self.x_margin, "y": self.p_y_mid})  # Initialize at the middle of the board
         self.game.player_positions.setdefault("player2", {"x": self.p2_xpos, "y": self.p_y_mid}) 
 
-        # Load ball position or reset if missing
-        self.ball = self.game.ball_position or self._reset_ball(0)  # param is the who scored, 0 means no one scored (game start)
+        if self.game.ball_position:
+            self.ball = self.game.ball_position
+            if "speed" not in self.ball:  # Ensure speed is correctly set
+                self.ball["speed"] = self.start_speed
+        else:
+            self.ball = self._reset_ball(0)# param is the who scored, 0 means no one scored (game start)
         self.winner = None
 
     def _reset_ball(self, scored):
@@ -53,11 +57,12 @@ class Game:
             "yVel": self.start_speed * math.sin(angle),
             "speed": self.start_speed
         }
+        self.game.update_ball_position(self.ball) # saves to database inside function
         return self.ball  
 
     def update_player_movement(self, player, direction):
         """Updates player movement & persists it in the database."""
-        if player not in self.game.player_positions:
+        if player not in self.game.player_positions or self.game.status == "finished":
             return
 
         current_y = self.game.player_positions[player]["y"]
@@ -79,6 +84,9 @@ class Game:
 
     def update_ball_position(self):
         """Updates the ball's position, handles collisions, and persists it."""
+        if self.game.status == "finished":
+            return
+
         ball = self.ball
         ball["x"] += ball["xVel"]
         ball["y"] += ball["yVel"]
@@ -151,8 +159,10 @@ class Game:
         """Check if a player has won the game and persist scores."""
         if self.game.player1_score >= self.points_to_win:
             self.winner = "player1"
+            self.game.winner = self.game.player1  # Saves winner in DB (I think)
         elif self.game.player2_score >= self.points_to_win:
             self.winner = "player2"
+            self.game.winner = self.game.player2
 
         if self.winner:
             self.game.status = "finished"
@@ -173,5 +183,5 @@ class Game:
                 }
             },
             "status": "in_progress" if not self.winner else "game_over",
-            "winner": self.winner
+            "winner": self.game.winner.username if self.game.winner else None
         }
