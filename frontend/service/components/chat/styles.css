@@ -188,6 +188,10 @@
 	color: var(--title);
 }
 
+.quick-game-invitation {
+	margin-bottom: 10px;
+}
+
 .card-border {
 	background: linear-gradient(to left, var(--lorange), var(--title), #920505cc);
 	padding: 6px;
