@@ -162,19 +162,26 @@ class JoinMatchView(APIView):
         })
 
 
-class PendingMatchesView(APIView):
+class InProgressMatchesView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         user = request.user
-        pending_matches = PongGame.objects.filter(
-            status='pending',
+        in_progress_match = PongGame.objects.filter(
+            status='in_progress',
             available=True
-        ).filter(Q(player1=user) | Q(player2=user))
-        serializer = PendingMatchesSerializer(pending_matches, many=True, context={'request': request})
+        ).filter(Q(player1=user) | Q(player2=user)).first()
+        
+        if in_progress_match:
+            serializer = PendingMatchesSerializer(in_progress_match, context={'request': request})
+            match_data = serializer.data
+        else:
+            match_data = None
+
         return Response({
             "status": "success",
-            "data": serializer.data
+            "message": "In progress match retrieved successfully",
+            "match": match_data
         })
 
 class PendingInvitationDenyView(APIView):

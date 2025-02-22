@@ -2,7 +2,7 @@ from django.urls import path
 from .views import (
     MatchHistoryView,
     MatchDetailView,
-    PendingMatchesView,
+    InProgressMatchesView,
     JoinMatchView,
     PendingInvitationIncomingListView,
 	PendingInvitationOutgoingListView,
@@ -16,7 +16,7 @@ urlpatterns = [
     path('match/history', MatchHistoryView.as_view(), name='match-history'),
     path('match/detail/<int:match_id>', MatchDetailView.as_view(), name='match-detail'),
     path('match/join/<str:token>/', JoinMatchView.as_view(), name='join-match'),
-    path('match/pending/', PendingMatchesView.as_view(), name='pending-matches'),
+    path('match/in-progress/', InProgressMatchesView.as_view(), name='in-progress-matches'),
 
     path('invitation/outgoing/list/', PendingInvitationOutgoingListView.as_view(), name='invitation-outgoing-list'),
 	path('invitation/incoming/list/', PendingInvitationIncomingListView.as_view(), name='invitation-incoming-list'),

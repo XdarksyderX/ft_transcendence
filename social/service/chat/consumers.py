@@ -6,11 +6,11 @@ from core.models import Message
 
 User = get_user_model()
 
-class ChatConsumer(AsyncWebsocketConsumer):
+class GlobalChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        self.sender = self.scope["user"]
+        self.user = self.scope["user"]
 
-        if self.sender.is_anonymous:
+        if self.user.is_anonymous:
             await self.send(text_data=json.dumps({
                 "status": "error",
                 "message": "Authentication required"
@@ -18,13 +18,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.close()
             return
 
+        self.user_group_name = f"user_{self.user.username}"
 
-        self.receiver_username = self.scope["url_route"]["kwargs"]["receiver_username"]
-
-
-        self.room_group_name = f"chat_{min(self.sender.username, self.receiver_username)}_{max(self.sender.username, self.receiver_username)}"
-
-        await self.channel_layer.group_add(self.room_group_name, self.channel_name)
+        await self.channel_layer.group_add(self.user_group_name, self.channel_name)
         await self.accept()
 
         await self.send(text_data=json.dumps({
@@ -33,36 +29,37 @@ class ChatConsumer(AsyncWebsocketConsumer):
         }))
 
     async def disconnect(self, close_code):
-        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+        await self.channel_layer.group_discard(self.user_group_name, self.channel_name)
 
     async def receive(self, text_data):
         try:
             data = json.loads(text_data)
             message_content = data.get("message", "").strip()
+            receiver_username = data.get("receiver", "").strip()
 
-            if not message_content:
+            if not message_content or not receiver_username:
                 await self.send(text_data=json.dumps({
                     "status": "error",
-                    "message": "The message cannot be empty"
+                    "message": "Both message and receiver are required"
                 }))
                 return
 
-
-            receiver = await sync_to_async(User.objects.get)(username=self.receiver_username)
+            receiver = await sync_to_async(User.objects.get)(username=receiver_username)
             msg = await sync_to_async(Message.objects.create)(
                 content=message_content,
-                sender=self.sender,
+                sender=self.user,
                 receiver=receiver
             )
+
             await self.channel_layer.group_send(
-                self.room_group_name,
+                f"user_{receiver.username}",
                 {
                     "type": "chat_message",
                     "status": "success",
-                    "message": "Message received",
+                    "message": "New message received",
                     "data": {
                         "message": msg.content,
-                        "sender": self.sender.username,
+                        "sender": self.user.username,
                         "receiver": receiver.username,
                         "sent_at": str(msg.sent_at),
                         "is_special": msg.is_special,
@@ -70,6 +67,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     }
                 }
             )
+        except User.DoesNotExist:
+            await self.send(text_data=json.dumps({
+                "status": "error",
+                "message": "Receiver not found"
+            }))
         except json.JSONDecodeError:
             await self.send(text_data=json.dumps({
                 "status": "error",
