@@ -31,6 +31,7 @@ SECONDUSER_JWT=$(curl -s -X POST http://localhost:5050/login \
 -d "{\"username\": \"${SECONDUSERNAME}\", \"password\": \"12345678\"}" | jq -r '.access_token')
 
 echo "Making friends..."
+sleep 3
 
 curl -s -X POST "http://localhost:5051/requests/send/${SECONDUSERNAME}/" \
 -H "Cookie: access_token=${FIRSTUSER_JWT}" > /dev/null
