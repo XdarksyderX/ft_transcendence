@@ -9,6 +9,9 @@ User = get_user_model()
 class GlobalChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.user = self.scope["user"]
+        self.user_group_name = None
+
+        await self.accept()
 
         if self.user.is_anonymous:
             await self.send(text_data=json.dumps({
@@ -19,9 +22,7 @@ class GlobalChatConsumer(AsyncWebsocketConsumer):
             return
 
         self.user_group_name = f"user_{self.user.username}"
-
         await self.channel_layer.group_add(self.user_group_name, self.channel_name)
-        await self.accept()
 
         await self.send(text_data=json.dumps({
             "status": "success",
@@ -29,7 +30,8 @@ class GlobalChatConsumer(AsyncWebsocketConsumer):
         }))
 
     async def disconnect(self, close_code):
-        await self.channel_layer.group_discard(self.user_group_name, self.channel_name)
+        if self.user_group_name:
+            await self.channel_layer.group_discard(self.user_group_name, self.channel_name)
 
     async def receive(self, text_data):
         try:
