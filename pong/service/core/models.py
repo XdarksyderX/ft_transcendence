@@ -81,7 +81,7 @@ class PongGame(models.Model):
     start_speed = models.FloatField(default=7.5)
     speed_up_multiple = models.FloatField(default=1.02)
     max_speed = models.IntegerField(default=20)
-    points_to_win = models.IntegerField(default=3)
+    points_to_win = models.IntegerField(default=100)
     
     # Computed game constants (dynamic)
     @property

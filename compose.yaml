@@ -21,6 +21,12 @@ services:
       - "15672:15672"
     env_file: .env
 
+  redis:
+    image: redis:7.4.2
+    restart: always
+    ports:
+      - "6379"
+
   consistency:
     build:
       context: consistency
