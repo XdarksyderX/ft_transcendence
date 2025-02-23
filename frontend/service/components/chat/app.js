@@ -2,7 +2,7 @@ import { getMessages, markAsReadMessage } from '../../app/social.js';
 import { getUsername } from '../../app/auth.js';
 import { handleGetFriendList } from '../friends/app.js';
 import { initializeGlobalChatSocket, handleSentMessage } from './socket.js';
-import { createMessageBubble, createQuickGameInvitation } from './bubbles.js';
+import { createMessageBubble, createSpecialBubble } from './bubbles.js';
 
 let isExpanded = false;
 let currentView = 'recent-chats';
@@ -286,7 +286,7 @@ export function renderChat(elements) {
 			console.log("ON RENDER CHAT: ", message);
 			let messageElement;
 			if (message.is_special) {
-				messageElement = createQuickGameInvitation(message);
+				messageElement = createSpecialBubble(message);
 			} else {
 				messageElement = createMessageBubble(message);
 			}
