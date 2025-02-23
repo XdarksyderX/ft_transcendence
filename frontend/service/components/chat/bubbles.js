@@ -45,7 +45,7 @@ export function createSpecialBubble(message) {
 function createQuickGameSent(game, friend) {
     const card = document.createElement('div');
     card.innerHTML = `
-        <div class="card-border special-bubble" style="max-width: 250px;">
+        <div class="card-border special-bubble ms-auto" style="max-width: 250px;">
             <div class="game-invitation card overflow-hidden">
                 <div class="card-body position-relative p-2" style="z-index: 1;">
                     <h6 class="mb-2 ctm-text-title">${game} invitation!</h6>
