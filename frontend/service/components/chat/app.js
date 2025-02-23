@@ -148,8 +148,12 @@ async function getRecentChats() {
 	for (let friend of friends) {
 		const lastMessage = await fetchLastMessageForUser(friend.username);
 		if (lastMessage) {
+			let invitation = null;
+			if (lastMessage.is_special) {
+				invitation = '[Game notification]'
+			}
 			recentChats[friend.username] = {
-				lastMessage: lastMessage.content,
+				lastMessage: invitation || lastMessage.content,
 				lastUpdated: lastMessage.sent_at,
 				is_read: lastMessage.is_read,
 				sender: lastMessage.sender === friend.username ? 'in' : 'out'
@@ -204,10 +208,10 @@ export async function renderFriendList(elements) {
 	const newChatFriends = friends.filter(friend => !chats[friend.username]);
 
 	elements.friendList.innerHTML = newChatFriends.map(friend => `
-		<a href="#" class="list-group-item list-group-item-action friend-item" 
+		<div  class="list-group-item list-group-item-action friend-item" 
 		   data-friend-username="${friend.username}">
 			<h6 class="mb-1">${friend.username}</h6>
-		</a>
+		</div>
 	`).join('');
 }
 
