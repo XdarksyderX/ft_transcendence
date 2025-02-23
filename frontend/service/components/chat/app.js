@@ -22,7 +22,7 @@ export async function initializeChatEvents() {
 }
 
 // Get DOM elements related to the chat functionality
-function getElements() {
+export function getElements() {
     return {
         chatContainer: document.getElementById('chat-container'),
         chatHeader: document.getElementById('chat-header'),
@@ -68,25 +68,25 @@ async function toggleChat(elements) {
 	}
 }
 
-// Update the notification indicator based on unread messages
 export async function updateNotificationIndicator(indicator, recentChats = null) {
-	console.log("Updating notification indicator...");  
+    console.log("Updating notification indicator...");  
 
-	if (!recentChats) {
-		recentChats = await getRecentChats();
-	}
-	let hasUnreadMessages = false;
+    if (!recentChats) {
+        recentChats = await getRecentChats();
+    }
+    let hasUnreadMessages = false;
 
-	for (let [username, chatData] of Object.entries(recentChats)) {
-		if (!chatData.is_read && chatData.sender !== getUsername()) {
-			hasUnreadMessages = true;
-			break;
-		}
-	}
+    for (let [username, chatData] of Object.entries(recentChats)) {
+        console.log(`Checking chat with ${username}: is_read=${chatData.is_read}, sender=${chatData.sender}`);
+        if (!chatData.is_read && chatData.sender === 'in') {
+            hasUnreadMessages = true;
+            break;
+        }
+    }
 
-	console.log("Has unread messages:", hasUnreadMessages);
-	console.log("Is chat expanded:", isExpanded);
-	indicator.style.display = hasUnreadMessages && !isExpanded ? 'block' : 'none';
+    console.log("Has unread messages:", hasUnreadMessages);
+    console.log("Is chat expanded:", isExpanded);
+    indicator.style.display = hasUnreadMessages && !isExpanded ? 'block' : 'none';
 }
 
 /* * * * * * * * * * * * * * * * * *  RECENT CHATS TAB  * * * * * * * * * * * * * * * * * */
@@ -101,7 +101,7 @@ async function showRecentChats(elements) {
 }
 
 // Renders the recent chats list
-async function renderRecentChats(elements) {
+export async function renderRecentChats(elements) {
 	console.log("render recent chats function called");
 	const recentChats = await getRecentChats();
 	chats = { ... recentChats};
@@ -112,7 +112,7 @@ async function renderRecentChats(elements) {
 	} */
 	let html = '';
 	for (const [username, chatData] of Object.entries(recentChats)) {
-		const unreadClass = !chatData.is_read ? 'unread' : '';
+		const unreadClass = (!chatData.is_read && chatData.sender === 'in') ? 'unread' : '';
 		const formattedTime = formatTime(chatData.lastUpdated);
 		const checkIcon = chatData.sender === 'out' ? (chatData.is_read ? '✔✔' : '✔') : '';
 		html += `
@@ -258,7 +258,7 @@ async function fetchChatMessages(friendUsername) {
 }
 
 // Mark messages as read for a specific friend
-async function markMessagesAsRead(friendUsername) { // eli no deberías llamar aquí a updatenotification
+export async function markMessagesAsRead(friendUsername) { // eli no deberías llamar aquí a updatenotification
     try {
         const markResponse = await markAsReadMessage(friendUsername);
         if (markResponse.status !== "success") {
@@ -296,4 +296,4 @@ export function renderChat(elements) {
 	}
 }
 
-export {currentChat}
+export {currentChat, currentView}

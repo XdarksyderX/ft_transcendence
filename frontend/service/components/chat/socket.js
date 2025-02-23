@@ -1,4 +1,5 @@
-import { updateNotificationIndicator, renderChat, currentChat } from "./app.js";
+import { updateNotificationIndicator, getElements, renderChat, renderRecentChats, 
+markMessagesAsRead, currentChat, currentView } from "./app.js";
 import { getUsername } from "../../app/auth.js";
 
 let chatSocket = null;
@@ -63,6 +64,7 @@ function handleReceivedMessage(event) {
 		   // }
 			// Update the view if the current view is the chat with the sender or the recent-chats tab
 			if (currentView === 'chat' && currentChat.username === data.data.sender) { /* && currentChat.username === data.data.sender */
+				markMessagesAsRead(currentChat.username);
 				renderChat(getElements());
 			} else if (currentView === 'recent-chats') {
 				renderRecentChats(getElements());
