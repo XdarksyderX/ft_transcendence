@@ -3,7 +3,8 @@ from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from django.contrib.auth import get_user_model
 from core.models import IncomingEvent, Message
-from core.utils import rabbitmq_client
+from core.utils.rabbitmq_client import RabbitMQClient
+from config.settings import RABBITMQ_CONFIG
 import time
 import json
 import uuid
@@ -20,20 +21,22 @@ def mark_event_as_processed(event_id, event_type):
     )
 
 @shared_task(name="consistency.subscribe_now.social")
-def handle_subscribe_now():
+def handle_subscribe_now(event):
     try:
         subscription_event = {
             "service": "social",
             "subscribed_events": [
                 "auth.user_registered",
                 "auth.user_deleted",
-                "auth.username_changed"
+                "auth.username_changed",
+                "pong.match_invitation",
+                "pong.tournament_invitation"
             ],
             "subscription_id": str(uuid.uuid4()),
             "timestamp": time.time()
         }
 
-        rabbitmq_client.publish(
+        RabbitMQClient(RABBITMQ_CONFIG).publish(
             exchange="consistency",
             routing_key="consistency.subscribe",
             message=subscription_event,

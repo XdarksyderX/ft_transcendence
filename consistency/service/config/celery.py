@@ -14,21 +14,23 @@ app = Celery("consistency_service", broker=BROKER_URL)
 
 app.conf.task_queues = (
     Queue("consistency.subscribe", Exchange("consistency"), routing_key="consistency.subscribe"),
+    Queue("consistency.check", Exchange("consistency"), routing_key="consistency.check"),
 )
 
 app.conf.task_routes = {
-    "consistency.subscribe": {"queue": "consistency.subscribe"},
+    "subscribe_now": {"queue": "consistency.subscribe"},
+    "check_consistency": {"queue": "consistency.check"},
 }
 
 app.conf.beat_schedule = {
-    "send-subscription-requests-every-30s": {
+    "send-subscription-requests-every-3s": {
         "task": "subscribe_now",
-        "schedule": 3.0,  
+        "schedule": 3.0,
     },
-    "check-consistency-every-60s": {
+    "check-consistency-every-6s": {
         "task": "check_consistency",
-        "schedule": 6.0,  
+        "schedule": 6.0,
     },
 }
 
-app.autodiscover_tasks(['service'])
+app.autodiscover_tasks(['service.config'])

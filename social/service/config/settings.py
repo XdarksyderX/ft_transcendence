@@ -8,6 +8,7 @@ with open(os.path.join(BASE_DIR, 'config/keys/public.pem'), 'r') as f:
 
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 FRONTEND_URL = os.getenv('FRONTEND_URL')
+CONSISTENCY_TOKEN = os.getenv('CONSISTENCY_TOKEN')
 APPEND_SLASH = True
 DEBUG = True
 
