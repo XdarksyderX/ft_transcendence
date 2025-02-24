@@ -2,6 +2,7 @@ import { getUsername, refreshAccessToken } from "../../app/auth.js";
 import { handleGetFriendList } from "../friends/app.js";
 import { getAvatar, changeAvatar } from "../../app/social.js";
 import { handleUsernameChange } from "../settings/app.js";
+import { throwAlert } from "../../app/render.js";
 
 const avatarImages = [
     './resources/avatar/avatar_1.png',
@@ -14,9 +15,10 @@ export async function initializeProfileEvents(toggle = false) {
     const user = getUserData();
     await fillUserData(elements, user);
     loadCanvases();
-    btnHandler(elements);
+    if (!toggle) {
+        btnHandler(elements);
+    }
     if (toggle) {
-        console.log("toggling on initializeProfileEvents");
         toggleEditMode(false, elements);
     }
 }
@@ -93,7 +95,7 @@ export function toggleEditMode(isEditing, elements) {
     if (isEditing) {
         elements.username.innerHTML = `
             <div class="mb-2">New username:</div>
-            <input type="text" class="form-control ctm-form mb-2" value="${elements.username.textContent}">
+            <input type="text" class="form-control ctm-form mb-2" value="${getUsername()}">
         `;
         elements.cancelChanges.forEach(button => button.style.display = 'block');
     } else {
@@ -119,6 +121,7 @@ async function updateProfilePhoto(formData) {
         alert('Failed to save photo changes.');
     }
 }
+
 // update the profile picture and go back to profile section
 async function savePhotoChanges(elements) {
     const selectedCanvas = document.querySelector('.carousel-item.active canvas');
@@ -181,26 +184,30 @@ async function saveNameChanges(elements) {
  
 }
 
-    // handle photo upload adding it to the carousel
 function handlePhotoUpload(event) {
     const file = event.target.files[0];
     if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            let uploadedImageItem = document.getElementById('uploaded-image-item');
-            if (!uploadedImageItem) {
-                createUploadedImageItem();
+        const img = new Image();
+        img.src = URL.createObjectURL(file);
+        img.onload = () => {
+            if (img.width > 1024 || img.height > 1024) {
+                throwAlert('Image too large. Max dimensions: 1024x1024.');
+                // Reset the file input to allow re-uploading the same file
+                event.target.value = '';
+            } else {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    let uploadedImageItem = document.getElementById('uploaded-image-item');
+                    if (!uploadedImageItem) {
+                        createUploadedImageItem();
+                    }
+                    const uploadedImg = document.getElementById('uploaded-img');
+                    uploadedImg.src = e.target.result;
+                    scrollToNewPhoto();
+                }
+                reader.readAsDataURL(file);
             }
-            const uploadedImg = document.getElementById('uploaded-img');
-            uploadedImg.src = e.target.result;
-/*                 uploadedImg.classList.add('ctm-img');
-            uploadedImg.style.width = '100%';
-            uploadedImg.style.aspectRatio = '1 / 1'; */
-            
-            
-            scrollToNewPhoto();
         }
-        reader.readAsDataURL(file);
     }
 }
 
