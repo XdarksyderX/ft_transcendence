@@ -93,6 +93,7 @@ width: 75%;
 	aspect-ratio: 3/2;
 	background-color: var(--light);
 	border: 1px solid var(--dark);
+	color: var(--dark);
 	transition: perspective 0.3s ease;
 }
 .switch-btn.active {
