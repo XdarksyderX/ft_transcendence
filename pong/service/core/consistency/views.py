@@ -8,7 +8,7 @@ from core.models import OutgoingEvent, IncomingEvent
 
 def validate_consistency_service(request):
     token = request.headers.get("Authorization")
-    return token == settings.CONSISTENCY_SERVICE_TOKEN
+    return token == settings.CONSISTENCY_TOKEN
 
 @method_decorator(csrf_exempt, name="dispatch")
 class OutgoingEventsView(APIView):

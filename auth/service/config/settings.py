@@ -12,7 +12,7 @@ with open(os.path.join(BASE_DIR, 'config/keys/public.pem'), 'r') as f:
 
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 FRONTEND_URL = os.getenv('FRONTEND_URL')
-CONSISTENCY_SERVICE_TOKEN = os.getenv('CONSISTENCY_SERVICE_TOKEN')
+CONSISTENCY_TOKEN = os.getenv('CONSISTENCY_TOKEN')
 DEBUG = os.getenv("DEBUG", "True") == "True"
 ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1']
 

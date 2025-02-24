@@ -19,4 +19,8 @@ python3 service/manage.py makemigrations core
 python3 service/manage.py makemigrations
 python3 service/manage.py migrate
 
-exec python service/manage.py runserver 0.0.0.0:5050
+cd service
+
+celery -A config worker --loglevel=info --queues=consistency.subscribe_now.auth &
+
+exec python manage.py runserver 0.0.0.0:5050
