@@ -1,12 +1,17 @@
 from django.conf.urls import handler400, handler403, handler404, handler500
-from events.exceptions import (
+from django.urls import include
+from core.exceptions import (
     custom_bad_request, 
     custom_permission_denied, 
     custom_page_not_found, 
     custom_server_error
 )
 
-urlpatterns = []
+
+
+urlpatterns = [
+	include('events.urls')
+]
 
 handler400 = custom_bad_request
 handler403 = custom_permission_denied
