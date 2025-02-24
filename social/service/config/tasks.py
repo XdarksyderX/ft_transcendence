@@ -21,16 +21,14 @@ def mark_event_as_processed(event_id, event_type):
     )
 
 @shared_task(name="consistency.subscribe_now.social")
-def handle_subscribe_now(event):
+def handle_subscribe_now():
     try:
         subscription_event = {
             "service": "social",
             "subscribed_events": [
                 "auth.user_registered",
                 "auth.user_deleted",
-                "auth.username_changed",
-                "pong.match_invitation",
-                "pong.tournament_invitation"
+                "auth.username_changed"
             ],
             "subscription_id": str(uuid.uuid4()),
             "timestamp": time.time()

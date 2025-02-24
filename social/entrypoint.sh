@@ -24,7 +24,7 @@ redis-server &
 
 cd service
 
-celery -A config worker --loglevel=info --queues=auth.user_registered,auth.user_deleted,auth.username_changed,pong.match_invitation,pong.tournament_invitation,consistency.subscribe_now.social &
-
+celery -A config worker --loglevel=info --queues=social.user_registered,social.user_deleted,social.username_changed,social.pong.match_invitation,social.pong.tournament_invitation,social.pong.tournament_invitation &
 celery -A config flower --port=5555 &
+
 exec python manage.py runserver 0.0.0.0:5051
