@@ -142,3 +142,10 @@ volumes:
       type: none
       o: bind
       device: ./volume-data/chess
+
+  notifications-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./volume-data/notifications
