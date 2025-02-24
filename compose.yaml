@@ -96,6 +96,20 @@ services:
     depends_on:
       - auth
 
+  notifications:
+    build:
+      context: notifications
+      dockerfile: Dockerfile
+    ports:
+      - "5054:5054"
+    env_file:
+      - .env
+      - notifications/service/.env
+    volumes:
+      - notifications-data:/var/lib/postgresql/data
+    depends_on:
+      - auth
+
 networks:
   ft_transcendence-network:
     driver: bridge
