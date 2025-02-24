@@ -28,6 +28,11 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5080",
+]
+
+CORS_ALLOW_CREDENTIALS = True
 
 # Application definition
 
@@ -39,12 +44,14 @@ INSTALLED_APPS = [
     'core',
     'channels',
     'notifications',
-    'events'
+    'events',
+    'corsheaders',
 ]
 
 AUTH_USER_MODEL = 'core.User'
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'core.exceptions.GlobalExceptionMiddleware'
 ]
 

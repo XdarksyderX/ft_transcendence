@@ -19,5 +19,5 @@ python3 service/manage.py migrate
 
 celery -A service.config worker --loglevel=info --queues=events.social.avatar_changed,events.social.friend_added,events.social.friend_removed,events.social.request_declined,events.social.request_cancelled,events.social.request_sent &
 
-exec python manage.py runserver 0.0.0.0:5054
+exec python service/manage.py runserver 0.0.0.0:5054
 

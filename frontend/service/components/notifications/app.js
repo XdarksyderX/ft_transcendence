@@ -1,3 +1,23 @@
+
+import { getNotifications, markNotification } from "../../app/notifications.js";
+/* 
+urlpatterns = [
+	path('notifications/', PendingNotificationsView.as_view(), name='pending-notifications'),
+	path('notifications/mark/', MarkNotification.as_view(), name='mark-notification')
+]
+*/
+
+async function handleGetNotifications() {
+    try {
+        const response = await getNotifications();
+        if (response.status === 'success') {
+            console.log(response);
+        }
+    } catch (error) {
+        console.error('Error fetching pending notifications:', error);
+    }
+}
+
 const cards = document.querySelectorAll('.notification-card');
 cards.forEach(card => {
 	card.addEventListener('click', (event) => {
@@ -6,7 +26,7 @@ cards.forEach(card => {
 	});
 });
 
-async function getNotifications() {
+/* async function getNotifications() {
     return new Promise((resolve) => {
         setTimeout(() => {
             resolve([
@@ -16,10 +36,11 @@ async function getNotifications() {
             ]);
         }, 1000);
     });
-}
+} */
 
 export async function renderNotifications() {
-	const notifications = await getNotifications();
+	getNotifications();
+	/* const notifications = await getNotifications();
 	const container = document.getElementById('notifications-container');
 	const bell = document.getElementById('bell');
 
@@ -37,5 +58,5 @@ export async function renderNotifications() {
 			card.remove();
 		});
 		container.appendChild(card);
-	})
+	}) */
 }
