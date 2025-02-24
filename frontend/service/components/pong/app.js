@@ -278,11 +278,23 @@ function startLocalGame()
     };
 
     initInstructionsTooltip();
+    setSwitches();
 
     document.getElementById("startGameButton").addEventListener("click", () => 
     {
         applySettings(gameConfig);
         startGame(gameConfig);
+    });
+}
+
+function setSwitches() {
+    const switches = document.querySelectorAll("#customizationMenu .switch-btn");
+    switches.forEach((btn) => {
+        btn.addEventListener('click', (event) => {
+            event.preventDefault();
+            switches.forEach((btn) => btn.classList.remove("active"));
+            btn.classList.add("active");
+        })
     });
 }
 
@@ -295,7 +307,8 @@ function applySettings(gameConfig)
     gameConfig.pointsToWin = parseInt(document.getElementById("pointsToWin").value);
     gameConfig.ballSide = parseFloat(document.getElementById("ballSize").value);
     gameConfig.allowPowerUp = document.getElementById("allowFreezeFlip").checked;
-	gameConfig.playAI = document.getElementById("AIopponent").checked;
+	gameConfig.playAI = document.querySelector('[data-mode="ai"]').classList.contains('active');
+
 
     let boardSize = document.getElementById("boardSize").value;
     switch (boardSize)
