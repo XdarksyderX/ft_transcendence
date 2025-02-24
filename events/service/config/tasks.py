@@ -1,7 +1,7 @@
 from celery import shared_task
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
-from events.models import IncomingEvent, User, PendingNotification
+from core.models import IncomingEvent, User, Notification
 
 def event_already_processed(event_id):
 	return IncomingEvent.objects.filter(event_id=event_id).exists()
@@ -13,6 +13,10 @@ def mark_event_as_processed(event_id, event_type):
 	)
 
 def send_notification(user_id, notification):
+	Notification.objects.create(
+		notification=notification
+	)
+	User.objects.get(id=user_id).notifications.add(notification)
 	channel_layer = get_channel_layer()
 	room_group_name = f"user_{user_id}"
 	async_to_sync(channel_layer.group_send)(
@@ -35,8 +39,6 @@ def handle_user_registered(event):
 	mark_event_as_processed(event_id, event["event_type"])
 	return f"User {event_data['username']} {'created' if created else 'already exists'} in notification service."
 
-
-
 @shared_task(name="social.friend_added")
 def handle_friend_added(event):
 	event_data = event["data"]["data"]["attributes"]
@@ -44,7 +46,7 @@ def handle_friend_added(event):
 	other_id = event_data["friend_id"]
 	notification = {
 		"event_type": "friend_added",
-		"user_id": user_id,
+		"user_id": user_id,	
 		"other_id": other_id
 	}
 	send_notification(user_id, notification)

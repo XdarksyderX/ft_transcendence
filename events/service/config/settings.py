@@ -32,22 +32,33 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'django.contrib.auth',
+    'django.contrib.sessions',
     'django.contrib.contenttypes',
+    'core',
+    'notifications',
     'events'
 ]
 
 MIDDLEWARE = [
-    'events.exceptions.GlobalExceptionMiddleware'
+    'core.exceptions.GlobalExceptionMiddleware'
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'core.utils.CookieJWTAuthentication.CookieJWTAuthentication',
+    ),
+    'EXCEPTION_HANDLER': 'core.exceptions.global_handler.global_exception_handler',
+}
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('EVENTSDB_NAME'),
-        'USER': os.getenv('EVENTSDB_USER'),
-        'PASSWORD': os.getenv('EVENTSDB_PASSWORD'),
-        'HOST': os.getenv('EVENTSDB_HOST', 'localhost'),
-        'PORT': os.getenv('EVENTSDB_PORT', '5432'),
+        'NAME': os.getenv('NOTIFICATIONSDB_NAME'),
+        'USER': os.getenv('NOTIFICATIONSDB_USER'),
+        'PASSWORD': os.getenv('NOTIFICATIONSDB_PASSWORD'),
+        'HOST': os.getenv('NOTIFICATIONSDB_HOST', 'localhost'),
+        'PORT': os.getenv('NOTIFICATIONSDB_PORT', '5432'),
     }
 }
 
