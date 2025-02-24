@@ -20,18 +20,17 @@
     align-items: center; /* Center items horizontally */
     justify-content: center; /* Center content */
     text-align: center;
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: var(--transparent-dark);
     color: var(--light);
     padding: 20px;
     border-radius: 10px;
     border: 2px solid var(--light);
-    box-shadow: 0px 0px 15px cyan; /* Neon glow effect */
-    width: 50%; /* Adjust width to fit content */
-    max-width: 600px; /* Ensures it doesn't get too large */
-    position: absolute;
-    top: 10%; /* Move it slightly down */
-    left: 50%;
-    margin-left: -25%; /* Centers it properly */
+    box-shadow: 0px 0px 15px var(--accent);
+    max-width: 700px;
+}
+
+#customizationMenu .switch-btn {
+    max-height: 100px;
 }
 
 .instructions
@@ -47,3 +46,14 @@
     text-align: center;
 }
 
+/* select {
+    color: var(--light);
+    background-color: var(--darkish);
+    border: 1px solid var(--light);
+    border-radius: 5px;
+} */
+
+select option {
+    color: var(--light);
+    background-color: var(--darkish);
+}

@@ -1,6 +1,6 @@
 .form-check-input {
 	background-color: var(--dark);
-	border: 1px solid var(--accent);
+	border: 1px solid var(--light);
 }
 
 /* .form-check-input {

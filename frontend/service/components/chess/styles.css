@@ -409,10 +409,10 @@
 }
 
 
-.option select {
-  background-color: var(--darkish);
-  color: var(--light);
-  border: 1px solid var(--light);
+select {
+  background-color: var(--darkish) !important;
+  color: var(--light) !important;
+  border: 1px solid var(--light) !important;
   border-radius: 5px;
   padding: 3px;
 }

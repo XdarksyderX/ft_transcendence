@@ -1,108 +1,112 @@
-<!-- Customization Menu -->
-<div id="customizationMenu">
-    <h2>Game Customization</h2>
-    <form id="customizationForm">
-        <div class="container py-3">
-            <div class="row py-3">
-                <div class="col-sm text-start">
-                    <label for="playerSize">Paddle Size:</label>
-                    <select id="playerSize">
-                        <option value=30>Small</option>
-                        <option value=50 selected>Normal</option>
-                        <option value=70>Big</option>
-                    </select>
+
+    <!-- Customization Menu -->
+    <div id="customizationMenu" class="container p-5">
+        <h2 class="ctm-text-title text-center mb-4">Game Customization</h2>
+        <form id="customizationForm">
+            <div class="row g-4">
+                <div class="col-12">
+                    <h4>Choose your fighter</h4>
+                    <div class="switch d-flex justify-content-center">
+                        <button class="switch-btn switch-btn-left flex-grow-1 mx-1 active" data-mode="local">Play Local</button>
+                        <button class="switch-btn switch-btn-right flex-grow-1 mx-1" data-mode="ai">
+                            <span>Play against the machine</span>
+                            <div class="mt-2">
+                                <label for="AIdifficulty" class="me-2">AI level:</label>
+                                <select id="AIdifficulty" class="d-inline-block w-auto">
+                                    <option value="easy">Easy</option>
+                                    <option value="normal" selected>Normal</option>
+                                    <option value="hard">Hard</option>
+                                    <option value="impossible">Impossible</option>
+                                </select>
+                            </div>
+                        </button>   
+                    </div>
                 </div>
-                <div class="col-sm text-start">
-                    <label for="ballSpeed">Ball Start Speed:</label>
-                    <select id="ballSpeed">
-                        <option value=6>Slow</option>
-                        <option value=7.5 selected>Normal</option>
-                        <option value=10>Fast</option>
-                    </select>
+                <div class="col-12">
+                    <h4>Game options</h4>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <label for="playerSize">Paddle Size:</label>
+                        <select id="playerSize" class="w-auto">
+                            <option value=30>Small</option>
+                            <option value=50 selected>Normal</option>
+                            <option value=70>Big</option>
+                        </select>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <label for="playerSpeed">Paddle Speed:</label>
+                        <select id="playerSpeed" class="w-auto">
+                            <option value=3>Slow</option>
+                            <option value=5 selected>Normal</option>
+                            <option value=7>Fast</option>
+                        </select>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <label for="pointsToWin">Points to win:</label>
+                        <select id="pointsToWin" class="w-auto">
+                            <option value=1>1</option>
+                            <option value=3 selected>3</option>
+                            <option value=5>5</option>
+                            <option value=10>10</option>
+                        </select>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <label for="boardSize">Board size:</label>
+                        <select id="boardSize" class="w-auto">
+                            <option value="small">Small</option>
+                            <option value="normal" selected>Normal</option>
+                            <option value="big">Big</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <label for="ballSpeed">Ball Start Speed:</label>
+                        <select id="ballSpeed" class="w-auto">
+                            <option value=6>Slow</option>
+                            <option value=7.5 selected>Normal</option>
+                            <option value=10>Fast</option>
+                        </select>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <label for="ballSpeedUp">Ball speed up:</label>
+                        <select id="ballSpeedUp" class="w-auto">
+                            <option value=1>None</option>
+                            <option value=1.02 selected>Normal (2%)</option>
+                            <option value=1.05>Fast (5%)</option>
+                        </select>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <label for="ballSize">Ball size:</label>
+                        <select id="ballSize" class="w-auto">
+                            <option value=8>Small</option>
+                            <option value=10 selected>Normal</option>
+                            <option value=13>Big</option>
+                        </select>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <label for="allowFreezeFlip">Allow power ups:</label>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="allowFreezeFlip">
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="row py-3">
-                <div class="col-sm text-start">
-                    <label for="playerSpeed">Paddle Speed:</label>
-                    <select id="playerSpeed">
-                        <option value=3>Slow</option>
-                        <option value=5 selected>Normal</option>
-                        <option value=7>Fast</option>
-                    </select>
-                </div>
-                <div class="col-sm text-start">
-                    <label for="ballSpeedUp">Ball speed up:</label>
-                    <select id="ballSpeedUp">
-                        <option value=1>None</option>
-                        <option value=1.02 selected>Normal (2%)</option>
-                        <option value=1.05>Fast (5%)</option>
-                    </select>
-                </div>
-            </div>
-            <div class="row py-3">
-                <div class="col-sm text-start">
-                    <label for="pointsToWin">Points to win:</label>
-                    <select id="pointsToWin">
-                        <option value=1>1</option>
-                        <option value=3 selected>3</option>
-                        <option value=5>5</option>
-                        <option value=10>10</option>
-                    </select>
-                </div>
-                <div class="col-sm text-start">
-                    <label for="ballSize">Ball size:</label>
-                    <select id="ballSize">
-                        <option value=8>Small</option>
-                        <option value=10 selected>Normal</option>
-                        <option value=13>Big</option>
-                    </select>
-                </div>
-            </div>
-            <div class="row py-3">
-                <div class="col-sm text-start">
-                    <label for="boardSize">Board size:</label>
-                    <select id="boardSize">
-                        <option value="small">Small</option>
-                        <option value="normal" selected>Normal</option>
-                        <option value="big">Big</option>
-                    </select>
-                </div>
-                <div class="col-sm text-start">
-                    <label for="allowFreezeFlip">Allow Freeze Flip power up:</label>
-                    <input type="checkbox" id="allowFreezeFlip" />
-                </div>
-            </div>
-            <div class="row py-3">
-                <div class="col-sm text-start">
-                    <label for="AIopponent">Play against AI:</label>
-                    <input type="checkbox" id="AIopponent" />
-                </div>
-                <div class="col-sm text-start">
-                    <label for="AIdifficulty">AI Difficulty:</label>
-                    <select id="AIdifficulty">
-                        <option value="easy">Easy</option>
-                        <option value="normal" selected>Normal</option>
-                        <option value="hard">Hard</option>
-                        <option value="impossible">Impossible</option>
-                    </select>
-                </div>
-            </div>
+        </form>
+        <button id="startGameButton" class="btn ctm-btn mt-4">Start Game</button>
+        <div class="instructions mt-4" id="instructions">
+            <h5 class="ctm-text-title">Controls</h5>
+            <p>W and S or arrows up and down to move</p>
+            <p>D or left arrow for powerups<i class="px-2 fas fa-question-circle ms-2" data-bs-toggle="tooltip" data-bs-placement="top"></i></p>
         </div>
-    </form>
-    <button id="startGameButton">Start Game</button>
-    <div class="instructions" id="instructions">
-        <h5 class="ctm-text-title">Controls</h5>
-        <p>W and S or arrows up and down to move</p>
-        <p>D or left arrow for powerups<i class="px-2 fas fa-question-circle ms-auto" data-bs-toggle="tooltip" data-bs-placement="top"></i>
-        </p>
     </div>
-</div>
 
-<!-- Game Board Container (Hidden Initially) -->
-<div id="board-container">
-    <div class="blinking-neon-frame p-3" id="neonFrame" hidden>
-        <canvas id="board" hidden></canvas>  <!-- Initially hidden -->
+    <!-- Game Board Container (Hidden Initially) -->
+    <div id="board-container" class="mt-4">
+        <div class="blinking-neon-frame p-3" id="neonFrame" hidden>
+            <canvas id="board" hidden></canvas>  <!-- Initially hidden -->
+        </div>
     </div>
-</div>
 
-<script type="module" src="app.js"></script>

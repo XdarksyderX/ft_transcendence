@@ -78,9 +78,12 @@ class ChangeAvatarView(APIView):
         user.avatar = avatar
         user.save()
 
-        publish_event("social", "social.avatar_changed", {"user_id": user.id, "new_avatar": avatar.url})
+        # Access the URL after saving the avatar
+        avatar_url = user.avatar.url
 
-        return Response({'status': 'success', 'message': 'Avatar updated successfully.', 'avatar': user.avatar.url}, status=status.HTTP_200_OK)
+        publish_event("social", "social.avatar_changed", {"user_id": user.id, "new_avatar": avatar_url})
+
+        return Response({'status': 'success', 'message': 'Avatar updated successfully.', 'avatar': avatar_url}, status=status.HTTP_200_OK)
 
 class UpdateOnlineStatusView(APIView):
     permission_classes = [IsAuthenticated]
