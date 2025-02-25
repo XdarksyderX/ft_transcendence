@@ -12,7 +12,7 @@ urlpatterns = [
 let notiSocket = null;
 
 export function initializeNotificationEvents() {
-	//initializeNotificationsSocket();
+	initializeNotificationsSocket();
 	document.getElementById("notifications-toggle").addEventListener('click', renderNotifications);	
 }
 
@@ -54,7 +54,8 @@ function handleReceivedNotification(event) {
 
 export async function renderNotifications() {
 	console.log("renderNotifications function called");
-	const notifications = await hardGetNotifications();
+	//const notifications = await hardGetNotifications();
+	const notifications = await handleGetNotifications();
 	const container = document.getElementById('notifications-container');
 	const bell = document.getElementById('bell');
 
@@ -89,7 +90,7 @@ async function handleGetNotifications() {
     try {
         const response = await getNotifications();
         if (response.status === 'success') {
-            console.log(response);
+            return (response);
         }
     } catch (error) {
         console.error('Error fetching pending notifications:', error);
