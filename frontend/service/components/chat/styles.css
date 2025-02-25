@@ -40,28 +40,17 @@
 
 #chat-messages {
     display: flex;
+	background: url("../../resources/chat-bg.png");
+	background-size: 100% auto;
     flex-direction: column;
     flex-grow: 1;
     overflow-y: auto;
     padding: 10px;
     position: relative; /* Ensure the parent element is positioned */
+
 	z-index: 1;
 }
 
-#chat-messages::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: url('../../resources/chat-bg.png');
-    background-size: cover; /* Ensures the image covers the entire element */
-    background-position: center; /* Centers the image */
-    background-repeat: no-repeat; /* Prevents the image from repeating */
-    opacity: 0.7; /* Adjust the opacity as needed */
-    z-index: -1; /* Ensure the background is behind the content */
-}
 
 #recent-chats-list, #friends-list {
 	flex-grow: 1;
