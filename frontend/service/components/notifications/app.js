@@ -59,6 +59,8 @@ export async function renderNotifications() {
 	const container = document.getElementById('notifications-container');
 	const bell = document.getElementById('bell');
 
+	console.log("Hello " + notifications)
+
 	if(notifications.lenght === 0) {
 		container.innerText = 'you dont have any notification';
 	} else {
@@ -89,8 +91,9 @@ async function hardGetNotifications() {
 async function handleGetNotifications() {
     try {
         const response = await getNotifications();
+		console.log(response)
         if (response.status === 'success') {
-            return (response);
+            return (response.notifications);
         }
     } catch (error) {
         console.error('Error fetching pending notifications:', error);

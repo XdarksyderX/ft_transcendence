@@ -1,7 +1,7 @@
 import socket
 import datetime
 import uuid
-from events.utils.rabbitmq_client import RabbitMQClient
+from core.utils.rabbitmq_client import RabbitMQClient
 from django.conf import settings
 
 def wrap_event_data(data: dict, event_type: str, aggregate_id: str, meta: dict = None, event_id = str(uuid.uuid4())) -> dict:

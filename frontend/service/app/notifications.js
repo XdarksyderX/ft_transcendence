@@ -3,7 +3,7 @@ export async function getNotifications() {
 }
 
 export async function markNotification(notificationId) {
-    return await sendRequest('POST', 'notifications/mark/', { notification_id: notificationId });
+    return await sendRequest('POST', `notifications/mark/${notificationId}`);
 }
 
 async function sendRequest(method, endpoint, body = null) {

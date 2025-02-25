@@ -16,7 +16,7 @@ class PendingNotificationsView(APIView):
 			"status": "success",
 			"notifications": data
 		}
-		return Response(data)
+		return Response(response)
 
 class MarkNotification(APIView):
 	permission_classes = [IsAuthenticated]
