@@ -17,7 +17,7 @@ import { initializeSettingsEvents } from '../components/settings/app.js';
 import { getUsername } from './auth.js';
 import { initializeResetPasswordEvents } from '../components/login/reset-pw.js';
 import { initializePongEvents } from '../components/pong/app.js';
-import { renderNotifications } from '../components/notifications/app.js';
+import { initializeNotificationEvents } from '../components/notifications/app.js';
 import { stopBackgroundMusic, toggleBackgroundMusic } from '../components/chess/index.js';
 
 const routes = [
@@ -183,7 +183,7 @@ function updateNavbar(url) {
 
     if (!allowed) {
         toggleNavbarContent(loggedContent, unloggedContent);
-        renderNotifications();
+        initializeNotificationEvents(); // this should be called only once, when you log in I guess or not bc I have to habdle refreshes
         if (url === "/home") {
             lcText.innerHTML = `<div>Welcome ${getUsername()}</div>`;
         } else {
