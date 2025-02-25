@@ -2,6 +2,7 @@ import os
 import json
 import uuid
 import pika
+import time
 
 DEFAULT_CONFIG = {
     "AMQP_ENABLED": os.getenv("AMQP_ENABLED", "false").lower() == "true",
@@ -27,7 +28,6 @@ class RabbitMQClient:
             if config is None:
                 config = DEFAULT_CONFIG
             self.config = config
-            # If AMQP_ENABLED is True, attempt to connect; otherwise, activate mock mode.
             self.mock_enabled = not self.config.get("AMQP_ENABLED", False)
             self._connect()
             self.initialized = True
@@ -79,35 +79,47 @@ class RabbitMQClient:
             self._declared_queues[queue_name] = True
             print(f"Queue '{queue_name}' declared with TTL={ttl}ms and bound to exchange '{exchange}'.")
 
-    def publish(self, exchange, routing_key, message, event_id=None, ttl=None):
+    def publish(self, exchange, routing_key, message, event_id=None, ttl=None, max_retries=5, retry_delay=2):
         self._ensure_connection()
         event_id = event_id or str(uuid.uuid4())
 
-        if self.mock_enabled:
-            print(f"[MOCK] Publishing message to exchange '{exchange}' with routing key '{routing_key}': {json.dumps(message)}")
-        elif self.connection and self.connection.is_open and self.channel:
+        for attempt in range(1, max_retries + 1):
             try:
-                self.declare_exchange(exchange)
-                message_payload = {
-                    "task": routing_key,
-                    "id": event_id,
-                    "args": [message],
-                    "kwargs": {},
-                }
-                properties = pika.BasicProperties(
-                    delivery_mode=2,
-                    content_type="application/json",
-                    expiration=str(ttl) if ttl else None
-                )
-                self.channel.basic_publish(
-                    exchange=exchange,
-                    routing_key=routing_key,
-                    body=json.dumps(message_payload),
-                    properties=properties
-                )
-                print(f"Message sent to exchange '{exchange}' with routing key '{routing_key}' (TTL={ttl}ms): {message_payload}")
-            except pika.exceptions.AMQPError as e:
-                print(f"Error sending message to RabbitMQ: {e}")
+                if self.mock_enabled:
+                    print(f"[MOCK] Publishing message to exchange '{exchange}' with routing key '{routing_key}': {json.dumps(message)}")
+                    return
+
+                if self.connection and self.connection.is_open and self.channel:
+                    self.declare_exchange(exchange)
+                    message_payload = {
+                        "task": routing_key,
+                        "id": event_id,
+                        "args": [message],
+                        "kwargs": {},
+                    }
+                    properties = pika.BasicProperties(
+                        delivery_mode=2,
+                        content_type="application/json",
+                        expiration=str(ttl) if ttl else None
+                    )
+                    self.channel.basic_publish(
+                        exchange=exchange,
+                        routing_key=routing_key,
+                        body=json.dumps(message_payload),
+                        properties=properties
+                    )
+                    print(f"Message sent to exchange '{exchange}' with routing key '{routing_key}' (TTL={ttl}ms): {message_payload}")
+                    return
+                else:
+                    raise pika.exceptions.AMQPConnectionError("Connection is not open.")
+
+            except:
+                print(f"Attempt {attempt}/{max_retries} - Error sending message to RabbitMQ")
+                if attempt < max_retries:
+                    time.sleep(retry_delay)
+                    self._ensure_connection()
+                else:
+                    print("Max retries reached. Failed to send message.")
 
     def close(self):
         if not self.mock_enabled and self.connection and self.connection.is_open:
