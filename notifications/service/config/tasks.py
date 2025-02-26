@@ -134,3 +134,32 @@ def handle_avatar_changed(event):
     }
     send_notification(user_id, notification)
     return f"Notified user_{user_id} that their avatar has been changed"
+
+@shared_task(name="pong.match_invitation")
+def handle_friend_removed(event):
+    event_data = event["data"]["data"]["attributes"]
+    sender_id = event_data["sender_id"]
+    receiver_id = event_data["receiver_id"]
+    notification = {
+        "event_type": "match_invitation",
+        "sender_id": sender_id,
+        "receiver_id": receiver_id
+    }
+    send_notification(receiver_id, notification)
+    send_notification(sender_id, notification)
+    return f"Notified both users that user_{sender_id} invited user_{receiver_id} to a match"
+
+
+@shared_task(name="pong.tournament_invitation")
+def handle_friend_removed(event):
+    event_data = event["data"]["data"]["attributes"]
+    sender_id = event_data["sender_id"]
+    receiver_id = event_data["receiver_id"]
+    notification = {
+        "event_type": "tournament_invitation",
+        "sender_id": sender_id,
+        "receiver_id": receiver_id
+    }
+    send_notification(receiver_id, notification)
+    send_notification(sender_id, notification)
+    return f"Notified both users that user_{sender_id} invited user_{receiver_id} to a tournament"

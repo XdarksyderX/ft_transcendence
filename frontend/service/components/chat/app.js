@@ -300,4 +300,4 @@ export function renderChat(elements) {
 	}
 }
 
-export {currentChat, currentView}
+export {currentChat, currentView, isExpanded}
