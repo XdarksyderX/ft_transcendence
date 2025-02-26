@@ -88,7 +88,7 @@ class GlobalChatConsumer(AsyncWebsocketConsumer):
         }))
 
     async def pong_new_match_invitation(self, event):
-        await self.send(text_data=json.dumps(event))
+        await self.send(text_data=json.dumps(event["event"]))
 
     async def pong_new_tournament_invitation(self, event):
-        await self.send(text_data=json.dumps(event))
+        await self.send(text_data=json.dumps(event["event"]))
