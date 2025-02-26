@@ -1,5 +1,6 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 from core.utils.event_domain import publish_event
+import json
 
 class NotificationConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -20,4 +21,4 @@ class NotificationConsumer(AsyncWebsocketConsumer):
             print("disconnect called without room_group_name")
 
     async def notification(self, event):
-        await self.send_json(event["data"])
+        await self.send(text_data=json.dumps(event["data"]))

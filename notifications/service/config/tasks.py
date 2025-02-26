@@ -28,7 +28,7 @@ def send_notification(user_id, notification):
             room_group_name,
             {
                 "type": "notification",
-                "message": notification
+                "data": notification
             }
         )
     except User.DoesNotExist:
