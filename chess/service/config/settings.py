@@ -93,11 +93,11 @@ CHANNEL_LAYERS = { # CHANGE TO RABBITMQ
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('AUTHDB_NAME'),
-        'USER': os.getenv('AUTHDB_USER'),
-        'PASSWORD': os.getenv('AUTHDB_PASSWORD'),
-        'HOST': os.getenv('AUTHDB_HOST', 'localhost'),
-        'PORT': os.getenv('AUTHDB_PORT', '5432'),
+        'NAME': os.getenv('CHESSDB_NAME'),
+        'USER': os.getenv('CHESSDB_USER'),
+        'PASSWORD': os.getenv('CHESSDB_PASSWORD'),
+        'HOST': os.getenv('CHESSDB_HOST', 'localhost'),
+        'PORT': os.getenv('CHESSDB_PORT', '5432'),
     }
 }
 
