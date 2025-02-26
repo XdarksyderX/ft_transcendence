@@ -99,7 +99,7 @@ async function sendPongInvitation(friendName) {
 export async function handleAcceptInvitation(token) {
     const response = await acceptInvitation(token);
     if (response.status === "success") {
-        console.log("/pong");
+        navigateTo("/pong");
     } else {
         console.error('Failed to accept invitation:', response.message);
     }
