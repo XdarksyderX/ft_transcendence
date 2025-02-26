@@ -69,7 +69,7 @@ async function toggleChat(elements) {
 }
 
 export async function updateNotificationIndicator(indicator, recentChats = null) {
-    console.log("Updating notification indicator...");  
+    //console.log("Updating notification indicator...");  
 
     if (!recentChats) {
         recentChats = await getRecentChats();
@@ -77,15 +77,15 @@ export async function updateNotificationIndicator(indicator, recentChats = null)
     let hasUnreadMessages = false;
 
     for (let [username, chatData] of Object.entries(recentChats)) {
-        console.log(`Checking chat with ${username}: is_read=${chatData.is_read}, sender=${chatData.sender}`);
+        //console.log(`Checking chat with ${username}: is_read=${chatData.is_read}, sender=${chatData.sender}`);
         if (!chatData.is_read && chatData.sender === 'in') {
             hasUnreadMessages = true;
             break;
         }
     }
 
-    console.log("Has unread messages:", hasUnreadMessages);
-    console.log("Is chat expanded:", isExpanded);
+    //console.log("Has unread messages:", hasUnreadMessages);
+    //console.log("Is chat expanded:", isExpanded);
     indicator.style.display = hasUnreadMessages && !isExpanded ? 'block' : 'none';
 }
 
@@ -102,7 +102,7 @@ async function showRecentChats(elements) {
 
 // Renders the recent chats list
 export async function renderRecentChats(elements) {
-	console.log("render recent chats function called");
+	//console.log("render recent chats function called");
 	const recentChats = await getRecentChats();
 	chats = { ... recentChats};
 
@@ -229,7 +229,7 @@ function handleFriendListClick(event, elements) {
 
 // Open a chat with a specific friend
 async function openChat(friendUsername, elements, empty = false) {
-	console.log("Opening chat with:", friendUsername);
+	//console.log("Opening chat with:", friendUsername);
 	currentChat = { username: friendUsername, messages: [] };
 	if (!empty) {
 		await fetchChatMessages(friendUsername);
@@ -243,7 +243,7 @@ async function openChat(friendUsername, elements, empty = false) {
 async function fetchChatMessages(friendUsername) {
 	try {
 		const messagesResponse = await getMessages(friendUsername);
-		console.log("on fetch chat messages: ", messagesResponse.messages)
+		//console.log("on fetch chat messages: ", messagesResponse.messages)
 		if (messagesResponse.status === "success" && messagesResponse.messages) {
 			currentChat.messages = messagesResponse.messages.map((msg, index) => ({
 				id: index + 1,
@@ -254,7 +254,7 @@ async function fetchChatMessages(friendUsername) {
 				is_special: msg.is_special,
 				is_read: msg.is_read
 			}));
-			console.log("Messages history:", currentChat.messages);
+			//console.log("Messages history:", currentChat.messages);
 		}
 	} catch (error) {
 		console.error("Error fetching messages:", error);
@@ -284,10 +284,10 @@ function showChatWindow(elements, friendUsername) {
 
 export function renderChat(elements) {
 	if (currentChat) {
-		console.log("current CHAT: ", currentChat);
+		//console.log("current CHAT: ", currentChat);
 		elements.chatMessages.innerHTML = ''; // Clear previous messages
 		currentChat.messages.forEach(message => {
-			console.log("ON RENDER CHAT: ", message);
+			//console.log("ON RENDER CHAT: ", message);
 			let messageElement;
 			if (message.is_special) {
 				messageElement = createSpecialBubble(message);

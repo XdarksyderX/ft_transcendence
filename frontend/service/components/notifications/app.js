@@ -53,26 +53,27 @@ function handleReceivedNotification(event) {
 }
 
 export async function renderNotifications() {
-	console.log("renderNotifications function called");
-	//const notifications = await hardGetNotifications();
-	const notifications = await handleGetNotifications();
-	const container = document.getElementById('notifications-container');
-	const bell = document.getElementById('bell');
+    console.log("renderNotifications function called");
+    //const notifications = await hardGetNotifications();
+    const notifications = await handleGetNotifications();
+    const container = document.getElementById('notifications-container');
+    const bell = document.getElementById('bell');
 
-	console.log("Hello " + notifications)
-
-	if(notifications.lenght === 0) {
-		container.innerText = 'you dont have any notification';
-	} else {
-		bell.style.color = 'var(--accent)';
-	}
-	notifications.forEach(notifi => {
-		const card = document.createElement('li');
-		card.className = "notification-card";
-		card.innerText = notifi.message;
-		card.addEventListener('click', () => handleMarkNotification(event, notifi.id, card));
-		container.appendChild(card);
-	})
+    console.log("Hello " + notifications)
+    container.innerHTML = '';
+    if(notifications.length === 0) {
+        container.innerText = 'you dont have any notification';
+    } else {
+        bell.style.color = 'var(--accent)';
+    }
+    notifications.forEach(notifi => {
+        const content = JSON.parse(notifi.content);
+        const card = document.createElement('li');
+        card.className = "notification-card";
+        card.innerText = content.event_type; // Adjust this to display the desired message
+        card.addEventListener('click', () => handleMarkNotification(event, notifi.id, card));
+        container.appendChild(card);
+    })
 }
 
 async function hardGetNotifications() {
