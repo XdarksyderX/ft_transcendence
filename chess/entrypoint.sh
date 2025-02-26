@@ -3,14 +3,16 @@
 service postgresql start
 sleep 5
 
-su postgres -c "psql -c \"CREATE USER $AUTHDB_USER WITH PASSWORD '$AUTHDB_PASSWORD';\""
-su postgres -c "psql -c \"CREATE DATABASE $AUTHDB_NAME OWNER $AUTHDB_USER;\""
-su postgres -c "psql -c \"ALTER USER $AUTHDB_USER CREATEDB;\""
-
-redis-server &  # Run redis-server in the background # TODO Ver si asi se ejecuta bien redis
+su postgres -c "psql -c \"CREATE USER $CHESSDB_USER WITH PASSWORD '$CHESSDB_PASSWORD';\""
+su postgres -c "psql -c \"CREATE DATABASE $CHESSDB_NAME OWNER $CHESSDB_USER;\""
+su postgres -c "psql -c \"ALTER USER $CHESSDB_USER CREATEDB;\""
 
 python3 service/manage.py makemigrations core
-python3 service/manage.py makemigrations
 python3 service/manage.py migrate
 
-exec python service/manage.py runserver 0.0.0.0:5000
+cd service
+
+celery -A config worker --loglevel=info --queues=CHESS.user_registered,CHESS.user_deleted,CHESS.username_changed,CHESS.friend_added,CHESS.friend_removed &
+
+celery -A config flower --port=5555 &
+exec python manage.py runserver 0.0.0.0:5053

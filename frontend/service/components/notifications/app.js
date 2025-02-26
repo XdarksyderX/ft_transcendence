@@ -12,7 +12,7 @@ urlpatterns = [
 let notiSocket = null;
 
 export function initializeNotificationEvents() {
-	//initializeNotificationsSocket();
+	initializeNotificationsSocket();
 	document.getElementById("notifications-toggle").addEventListener('click', renderNotifications);	
 }
 
