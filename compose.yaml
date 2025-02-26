@@ -95,19 +95,19 @@ services:
       - pong-data:/var/lib/postgresql/data
     depends_on:
       - auth
-  # chess:
-  #   build:
-  #     context: pong
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "5053:5053"
-  #   env_file:
-  #     - .env
-  #     - pong/service/.env
-  #   volumes:
-  #     - chess-data:/var/lib/postgresql/data
-  #   depends_on:
-  #     - auth
+  chess:
+    build:
+      context: pong
+      dockerfile: Dockerfile
+    ports:
+      - "5053:5053"
+    env_file:
+      - .env
+      - chess/service/.env
+    volumes:
+      - chess-data:/var/lib/postgresql/data
+    depends_on:
+      - auth
 
   notifications:
     build:
