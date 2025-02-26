@@ -22,6 +22,7 @@ class MarkNotification(APIView):
 	permission_classes = [IsAuthenticated]
 
 	def post(self, request):
+		print(request.data)
 		notification_id = request.data.get('notification_id')
 		if not notification_id:
 			return Response({'status': 'error', 'message': 'Notification ID is required'}, status=400)
