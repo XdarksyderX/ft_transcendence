@@ -19,7 +19,7 @@ export function initializeNotificationEvents() {
 
 function initializeNotificationsSocket() {
     if (notiSocket) {
-        notiSocket.close(); // Cierra el socket antes de iniciar uno nuevo
+        return ;
     }
 
     notiSocket = new WebSocket(`ws://localhost:5054/ws/events/`);
