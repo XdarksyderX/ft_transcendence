@@ -1,5 +1,5 @@
 import { getNotifications, markNotification } from "../../app/notifications.js";
-
+import { getUserId } from "../../app/auth.js";
 /*
 urlpatterns = [
     path('notifications/', PendingNotificationsView.as_view(), name='pending-notifications'),
@@ -72,25 +72,55 @@ function handleReceivedNotification(event) {
         console.error("[WebSocket] Error parsing message:", error);
     }
 }
+function getNotificationText(content) {
+    const data = JSON.parse(content);
+    const type = data.event_type;
+
+    switch (type) {
+        case 'request_sent':
+            return 'You have a new friend request'
+        case 'friend_added':
+            return 'One of your friend request has been approved, go check ;)'
+        case 'friend_removed':
+            return (null);
+        default:
+            return type;
+    }
+}
+
+function filterNotifications(all) {
+    const userId = getUserId();
+    console.log("USER ID: ", userId);
+    return all
+        .filter(notifi => {
+            const { user_id } = JSON.parse(notifi.content);
+            return user_id != userId;
+        })
+        .map(notifi => {
+            let displayText = getNotificationText(notifi.content);
+            return {
+                ...notifi,
+                displayText
+            };
+        })
+        .filter(notifi => notifi.displayText !== null);
+}
 
 export async function renderNotifications() {
-    console.log("[UI] Rendering notifications...");
-    const notifications = await handleGetNotifications();
+    const allNotifications = await handleGetNotifications();
+    const notifications = filterNotifications(allNotifications);
     const container = document.getElementById('notifications-container');
     const bell = document.getElementById('bell');
-
     container.innerHTML = '';
     if (notifications.length === 0) {
         container.innerText = "You don't have any notifications";
     } else {
         bell.style.color = 'var(--accent)';
     }
-
     notifications.forEach(notifi => {
-        const content = JSON.parse(notifi.content);
         const card = document.createElement('li');
         card.className = "notification-card";
-        card.innerText = content.event_type;
+        card.innerText = notifi.displayText;
         card.addEventListener('click', (event) => handleMarkNotification(event, notifi.id, card));
         container.appendChild(card);
     });
