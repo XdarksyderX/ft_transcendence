@@ -57,7 +57,7 @@ function bindEventListeners(elements) {
 }
 
 // Toggle the chat window between expanded and collapsed states
-async function toggleChat(elements) {
+export async function toggleChat(elements) {
 	isExpanded = !isExpanded;
 	elements.chatBody.style.display = isExpanded ? 'block' : 'none';
 	elements.toggleIcon.className = isExpanded ? 'fas fa-chevron-down' : 'fas fa-chevron-up';
@@ -228,7 +228,7 @@ function handleFriendListClick(event, elements) {
 /* * * * * * * * * * * * * * * * * * * *  CHATS TAB  * * * * * * * * * * * * * * * * * * * */
 
 // Open a chat with a specific friend
-async function openChat(friendUsername, elements, empty = false) {
+export async function openChat(friendUsername, elements, empty = false) {
 	//console.log("Opening chat with:", friendUsername);
 	currentChat = { username: friendUsername, messages: [] };
 	if (!empty) {
