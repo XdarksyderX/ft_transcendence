@@ -1,6 +1,6 @@
 import { getNotifications, markNotification } from "../../app/notifications.js";
-
-/* 
+import { getUserId } from "../../app/auth.js";
+/*
 urlpatterns = [
     path('notifications/', PendingNotificationsView.as_view(), name='pending-notifications'),
     path('notifications/mark/', MarkNotification.as_view(), name='mark-notification')
@@ -11,6 +11,8 @@ websocket_urlpatterns = [
 */
 
 let notiSocket = null;
+let reconnectAttempts = 0;
+const MAX_RECONNECT_DELAY = 30000; // Máximo 30s de espera entre reconexiones
 
 export function initializeNotificationEvents() {
     initializeNotificationsSocket();
@@ -18,93 +20,126 @@ export function initializeNotificationEvents() {
 }
 
 function initializeNotificationsSocket() {
-    if (notiSocket) {
-        return ;
+    if (notiSocket && notiSocket.readyState !== WebSocket.CLOSED) {
+        console.log("[WebSocket] Already connected or connecting...");
+        return;
     }
 
     notiSocket = new WebSocket(`ws://localhost:5054/ws/events/`);
 
     notiSocket.onopen = () => {
-        console.log("Notifications WebSocket connected");
+        console.log("[WebSocket] Notifications connected");
+        reconnectAttempts = 0; // Reset reconnection attempts
+        startKeepAlive(); // Inicia el keepalive pings
     };
 
     notiSocket.onmessage = (event) => {
-        console.log(event);
         handleReceivedNotification(event);
     };
 
     notiSocket.onerror = (error) => {
-        console.error("WebSocket error:", error);
+        console.error("[WebSocket] Error:", error);
     };
 
     notiSocket.onclose = () => {
-        console.log("WebSocket cerrado, intentando reconectar...");
-        setTimeout(initializeNotificationsSocket, 5000); // Siempre reintenta conectar
+        console.warn("[WebSocket] Disconnected, attempting to reconnect...");
+        scheduleReconnect();
     };
+}
+
+function scheduleReconnect() {
+    const delay = Math.min(1000 * (2 ** reconnectAttempts), MAX_RECONNECT_DELAY);
+    console.log(`[WebSocket] Reconnecting in ${delay / 1000} seconds...`);
+    setTimeout(initializeNotificationsSocket, delay);
+    reconnectAttempts++;
+}
+
+function startKeepAlive() {
+    setInterval(() => {
+        if (notiSocket.readyState === WebSocket.OPEN) {
+            notiSocket.send(JSON.stringify({ type: "ping" }));
+            console.log("[WebSocket] Sent keepalive ping");
+        }
+    }, 30000); // Every 30 seconds
 }
 
 function handleReceivedNotification(event) {
     try {
         const data = JSON.parse(event.data);
-        console.log("Notification received: ", data);
-        renderNotifications(); // Refresca la UI automáticamente
+        console.log("[WebSocket] Notification received:", data);
+        renderNotifications();
     } catch (error) {
-        console.error("Error parsing WS message:", error);
+        console.error("[WebSocket] Error parsing message:", error);
+    }
+}
+function getNotificationText(content) {
+    const data = JSON.parse(content);
+    const type = data.event_type;
+
+    switch (type) {
+        case 'request_sent':
+            return 'You have a new friend request'
+        case 'friend_added':
+            return 'One of your friend request has been approved, go check ;)'
+        case 'friend_removed':
+            return (null);
+        default:
+            return type;
     }
 }
 
+function filterNotifications(all) {
+    const userId = getUserId();
+    console.log("USER ID: ", userId);
+    return all
+        .filter(notifi => {
+            const { user_id } = JSON.parse(notifi.content);
+            return user_id != userId;
+        })
+        .map(notifi => {
+            let displayText = getNotificationText(notifi.content);
+            return {
+                ...notifi,
+                displayText
+            };
+        })
+        .filter(notifi => notifi.displayText !== null);
+}
+
 export async function renderNotifications() {
-    console.log("renderNotifications function called");
-    const notifications = await handleGetNotifications();
+    const allNotifications = await handleGetNotifications();
+    const notifications = filterNotifications(allNotifications);
     const container = document.getElementById('notifications-container');
     const bell = document.getElementById('bell');
-
-    console.log("Hello " + notifications);
     container.innerHTML = '';
     if (notifications.length === 0) {
-        container.innerText = 'You don\'t have any notifications';
+        container.innerText = "You don't have any notifications";
     } else {
         bell.style.color = 'var(--accent)';
     }
-
     notifications.forEach(notifi => {
-        const content = JSON.parse(notifi.content);
         const card = document.createElement('li');
         card.className = "notification-card";
-        card.innerText = content.event_type; // Muestra el mensaje correcto
+        card.innerText = notifi.displayText;
         card.addEventListener('click', (event) => handleMarkNotification(event, notifi.id, card));
         container.appendChild(card);
     });
 }
 
-// Simulación de notificaciones para pruebas
-async function hardGetNotifications() {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve([
-                { id: 1, content: '{"event_type": "Friend request accepted!"}' },
-                { id: 2, content: '{"event_type": "Tournament started!"}' },
-                { id: 3, content: '{"event_type": "New match invitation!"}' }
-            ]);
-        }, 100);
-    });
-}
-
-// Obtiene las notificaciones pendientes desde la API
+// API Request: Get pending notifications
 async function handleGetNotifications() {
     try {
         const response = await getNotifications();
-        console.log(response);
         if (response.status === 'success') {
             return response.notifications;
         }
     } catch (error) {
-        console.error('Error fetching pending notifications:', error);
+        console.error('[API] Error fetching notifications:', error);
     }
-    return []; // Si hay un error, devuelve un array vacío
+    return [];
 }
 
-// Marca una notificación como leída y la elimina del HTML
+// API Request: Mark a notification as read
 async function handleMarkNotification(event, notificationId, card) {
     event.preventDefault();
     try {
@@ -113,6 +148,6 @@ async function handleMarkNotification(event, notificationId, card) {
             card.remove();
         }
     } catch (error) {
-        console.error('Error marking notification as read:', error);
+        console.error('[API] Error marking notification as read:', error);
     }
 }

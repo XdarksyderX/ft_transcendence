@@ -1,5 +1,5 @@
 import { updateNotificationIndicator, getElements, renderChat, renderRecentChats, 
-markMessagesAsRead, currentChat, currentView, isExpanded } from "./app.js";
+markMessagesAsRead, currentChat, currentView, isExpanded, toggleChat, openChat } from "./app.js";
 import { getUsername } from "../../app/auth.js";
 
 let chatSocket = null;
