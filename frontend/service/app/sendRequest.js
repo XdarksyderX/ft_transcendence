@@ -4,7 +4,6 @@ const SERVICE_HOSTS = {
     auth: 'http://localhost:5050',
     social: 'http://localhost:5051',
     pong: 'http://localhost:5052',
-    chess: 'http://localhost:5053',
     notifications: 'http://localhost:5054'
 };
 
@@ -105,10 +104,6 @@ export async function sendRequestSocial(method, endpoint, body = null, isFormDat
 
 export async function sendRequestPong(method, endpoint, body = null, isFormData = false) {
     return sendRequest('pong', method, endpoint, body, isFormData);
-}
-
-export async function sendRequestChess(method, endpoint, body = null, isFormData = false) {
-    return sendRequest('chess', method, endpoint, body, isFormData);
 }
 
 export async function sendRequestNotifications(method, endpoint, body = null, isFormData = false) {
