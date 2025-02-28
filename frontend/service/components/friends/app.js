@@ -43,7 +43,19 @@ export async function handleGetFriendList() {
     }
 }
 
-async function renderFriendList(container, dataContainer) {
+export function refreshFriendsFriendlist(changedFriend) {
+    const friendsContainer= document.getElementById('friends-container');
+    const dataContainer = document.getElementById('friend-data');
+
+    let refresh = false; // if there are changes on the selected friend ill need to refresh the data container too
+    const selectedFriend = dataContainer.querySelector('#friend-name').innerText; // check if we had open their data
+    refresh = selectedFriend === changedFriend ? true : false; // and refresh it if needed
+    // there I could handle avatar cand status hanges but too much for now
+    renderFriendList(friendsContainer, dataContainer, refresh);
+}
+
+async function renderFriendList(container, dataContainer, refreshData = true) {
+    container.innerHTML = '';
     const friends = await handleGetFriendList();
     if (friends.length === 0) {
         container.innerHTML = `
@@ -55,21 +67,26 @@ async function renderFriendList(container, dataContainer) {
             </div>
         </div>
         `;
-        dataContainer.innerHTML = `
-        <img src="../../resources/rain.gif" class="img-fluid rounded mx-auto d-block" >
-        `;
+        if (refreshData) {
+            dataContainer.innerHTML = `
+            <img src="../../resources/rain.gif" class="img-fluid rounded mx-auto d-block" >
+            `;
+        }
     } else {
-        dataContainer.innerHTML = `
-        <div id="friend-data" class="h-100 flex-column ctm-text-light text-center">
-                click on a friend to see their data!
-        </div>
-        `;
+        if (refreshData) {
+            dataContainer.innerHTML = `
+            <div id="friend-data" class="h-100 flex-column ctm-text-light text-center">
+                    click on a friend to see their data!
+            </div>
+            `;
+        }
         for (const friend of friends) {
             const friendBtn = await createFriendBtn(friend, dataContainer);
             container.appendChild(friendBtn);
         }
     }
 }
+
 async function createFriendBtn(friend, dataContainer) {
 	const friendBtn = document.createElement('div');
 	const avatar = await getAvatar(null, null, friend.avatar);
@@ -90,6 +107,8 @@ async function createFriendBtn(friend, dataContainer) {
 	friendBtn.addEventListener('click', () => renderFriendData(friend, avatar, dataContainer));
 	return friendBtn;
 }
+
+
 
 function renderFriendData(friend, avatar, dataContainer) {
 	let color = friend.is_online ? 'var(--accent)' : '#808080'
