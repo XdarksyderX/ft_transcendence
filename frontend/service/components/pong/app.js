@@ -70,7 +70,7 @@ export async function initializePongEvents()
         console.log("Trying to find online match...");
         const data = await response.json();
         console.log(data)
-        if (data && data?.match.game_key) 
+        if (data && data?.match?.game_key) 
         {
             console.log("Online match found. Connecting...");
             return connectToOnlineGame(data?.match.game_key);
@@ -95,7 +95,34 @@ function connectToOnlineGame(gameKey)
     board.width = boardWidth;
     board.height = boardHeight;
     context = board.getContext("2d");
-
+    updateGameState({
+        "type": "game_update",
+        "status": "game_update",
+        "state": {
+            "players": {
+                "player1": {
+                    "username": "player 2",
+                    "x": 12,
+                    "y": 225,
+                    "score": 0
+                },
+                "player2": {
+                    "username": "player 1",
+                    "x": 676,
+                    "y": 225,
+                    "score": 0
+                }
+            },
+            "ball": {
+                "x": boardWidth,
+                "y": boardHeight,
+                "xVel": 6.130611304052482,
+                "yVel": -4.827257403394182,
+                "speed": 7.803000000000001
+            },
+            "status": "in_progress"
+        }
+    })
     socket.onopen = () =>
     {
         console.log("WebSocket connected to game:", gameKey);
@@ -391,6 +418,34 @@ function startGame(gameConfig)
 	// Stop the game when the back/forward button is clicked
 	window.addEventListener("popstate", () => {stop()});
 }
+/* {
+    "type": "game_update",
+    "status": "game_update",
+    "state": {
+        "players": {
+            "player1": {
+                "username": "pepe17271",
+                "x": 12,
+                "y": 225,
+                "score": 2
+            },
+            "player2": {
+                "username": "paco29770",
+                "x": 676,
+                "y": 225,
+                "score": 2
+            }
+        },
+        "ball": {
+            "x": boardWidth,
+            "y": boardHeight
+            "xVel": 6.130611304052482,
+            "yVel": -4.827257403394182,
+            "speed": 7.803000000000001
+        },
+        "status": "in_progress"
+    }
+} */
 
 function initGame(gameConfig)
 {

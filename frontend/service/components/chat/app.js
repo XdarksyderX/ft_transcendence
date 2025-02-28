@@ -57,7 +57,7 @@ function bindEventListeners(elements) {
 }
 
 // Toggle the chat window between expanded and collapsed states
-async function toggleChat(elements) {
+export async function toggleChat(elements) {
 	isExpanded = !isExpanded;
 	elements.chatBody.style.display = isExpanded ? 'block' : 'none';
 	elements.toggleIcon.className = isExpanded ? 'fas fa-chevron-down' : 'fas fa-chevron-up';
@@ -202,12 +202,19 @@ async function showFriendList(elements, hasChats = true) {
 	await renderFriendList(elements);
 }
 
+export function refreshChatFriendList() {
+	if (isExpanded && currentView === 'friend-list') {
+		renderFriendList();
+	}
+}
+
 // Render the friend list
-export async function renderFriendList(elements) {
+export async function renderFriendList(elements = null) {
+	const friendList = elements ? elements.friendList : document.getElementById('friends-list');
 	const friends = await handleGetFriendList();
 	const newChatFriends = friends.filter(friend => !chats[friend.username]);
 
-	elements.friendList.innerHTML = newChatFriends.map(friend => `
+	friendList.innerHTML = newChatFriends.map(friend => `
 		<div  class="list-group-item list-group-item-action friend-item" 
 		   data-friend-username="${friend.username}">
 			<h6 class="mb-1">${friend.username}</h6>
@@ -228,7 +235,7 @@ function handleFriendListClick(event, elements) {
 /* * * * * * * * * * * * * * * * * * * *  CHATS TAB  * * * * * * * * * * * * * * * * * * * */
 
 // Open a chat with a specific friend
-async function openChat(friendUsername, elements, empty = false) {
+export async function openChat(friendUsername, elements, empty = false) {
 	//console.log("Opening chat with:", friendUsername);
 	currentChat = { username: friendUsername, messages: [] };
 	if (!empty) {

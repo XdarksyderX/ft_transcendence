@@ -43,7 +43,47 @@ export async function handleGetFriendList() {
     }
 }
 
-async function renderFriendList(container, dataContainer) {
+export function refreshFriendsFriendlist(changedFriend, add) {
+    const friendsContainer= document.getElementById('friends-container');
+    const dataContainer = document.getElementById('friend-data');
+    let refresh = false;
+
+    if (add === 0) { // if my number of friends is not changing
+        const selectedFriend = dataContainer.querySelector('#friend-name');
+        const selectedFriendName = selectedFriend ? selectedFriend.innerText : null; // check if we had open their data
+        refresh = selectedFriendName === changedFriend ? true : false;
+    } else {
+        const actualFriends = friendsContainer.children.length - 1 + add;
+        if (actualFriends === -1 || actualFriends === 1) { // if its my first friend or Im losting my only friend (drama)
+            refresh = true;
+        } else if (add === -1) { // if I have more friends but I had selected the one I lost
+            const selectedFriend = dataContainer.querySelector('#friend-name');
+            const selectedFriendName = selectedFriend ? selectedFriend.innerText : null; // check if we had open their data
+            console.log("selected friend: ", selectedFriendName, "changed friend: ", changedFriend);
+            refresh = selectedFriendName === changedFriend ? true : false;
+        }
+
+    }
+    if (add === 1) {
+        cleanSearchList(changedFriend);
+    }
+    // there I could handle avatar cand status hanges but too much for now
+    renderFriendList(friendsContainer, dataContainer, refresh);
+}
+
+// if the user is still present on search list when accepts the friend request,
+// erases the element from the DOM 
+function cleanSearchList(username) {
+    
+    const searchList = document.getElementById('search-list');
+    const userCard = searchList.querySelector(`[data-username="${username}"]`);
+    if (userCard) {
+        searchList.removeChild(userCard);
+    }
+}
+
+async function renderFriendList(container, dataContainer, refreshData = true) {
+    container.innerHTML = '';
     const friends = await handleGetFriendList();
     if (friends.length === 0) {
         container.innerHTML = `
@@ -55,27 +95,32 @@ async function renderFriendList(container, dataContainer) {
             </div>
         </div>
         `;
-        dataContainer.innerHTML = `
-        <img src="../../resources/rain.gif" class="img-fluid rounded mx-auto d-block" >
-        `;
+        if (refreshData) {
+            dataContainer.innerHTML = `
+            <img src="../../resources/rain.gif" class="img-fluid rounded mx-auto d-block" >
+            `;
+        }
     } else {
-        dataContainer.innerHTML = `
-        <div id="friend-data" class="h-100 flex-column ctm-text-light text-center">
-                click on a friend to see their data!
-        </div>
-        `;
+        if (refreshData) {
+            dataContainer.innerHTML = `
+            <div id="friend-data" class="h-100 flex-column ctm-text-light text-center">
+                    click on a friend to see their data!
+            </div>
+            `;
+        }
         for (const friend of friends) {
             const friendBtn = await createFriendBtn(friend, dataContainer);
             container.appendChild(friendBtn);
         }
     }
 }
+
 async function createFriendBtn(friend, dataContainer) {
 	const friendBtn = document.createElement('div');
 	const avatar = await getAvatar(null, null, friend.avatar);
 
 	friendBtn.className = 'friend-btn d-flex align-items-center';
-	friendBtn.setAttribute('data-friend-id', friend.id); //this probably will change when its connected w API
+	friendBtn.setAttribute('data-username', friend.username); //this probably will change when its connected w API
 	//let color = friend.is_online ? 'var(--accent)' : '#808080'
 	friendBtn.innerHTML = `
 		<img src="${avatar}" alt="${friend.username}" class="friend-picture">
@@ -89,6 +134,17 @@ async function createFriendBtn(friend, dataContainer) {
 	friendBtn.style.border = `1px solid var(--light)`;
 	friendBtn.addEventListener('click', () => renderFriendData(friend, avatar, dataContainer));
 	return friendBtn;
+}
+
+export function refreshFriendData(friendName) {
+    const selectedFriend = document.querySelector('#friend-name');
+    const selectedFriendName = selectedFriend ? selectedFriend.innerText : null; // check if we had open their data
+    if (friendName === selectedFriendName) {
+        const friendBtn = document.querySelector(`.friend-btn[data-friend-username="${friendName}"]`);
+        if (friendBtn) {
+            friendBtn.click();
+        }
+    }
 }
 
 function renderFriendData(friend, avatar, dataContainer) {

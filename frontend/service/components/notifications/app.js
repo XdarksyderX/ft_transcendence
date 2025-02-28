@@ -1,109 +1,33 @@
 import { getNotifications, markNotification } from "../../app/notifications.js";
-import { refreshAccessToken } from "../../app/auth.js";
-
-let notiSocket = null;
-let reconnectAttempts = 0;
-const MAX_RECONNECT_DELAY = 30000; // Máximo 30s de espera entre reconexiones
-let attemptedReconnection = false;  // Para evitar bucles infinitos de refresh
+import { initializeNotificationsSocket } from "./socket.js";
+import { getUsername } from "../../app/auth.js";
 
 export function initializeNotificationEvents() {
     initializeNotificationsSocket();
     document.getElementById("notifications-toggle").addEventListener('click', renderNotifications);
 }
 
-function initializeNotificationsSocket() {
-    if (notiSocket && notiSocket.readyState !== WebSocket.CLOSED) {
-        console.log("[WebSocket] Already connected or connecting...");
-        return;
-    }
-
-    notiSocket = new WebSocket(`ws://localhost:5054/ws/events/`);
-
-    notiSocket.onopen = () => {
-        console.log("[WebSocket] Notifications connected");
-        reconnectAttempts = 0; // Reset reconnection attempts
-        attemptedReconnection = false; // Reset after successful connection
-        startKeepAlive();
-    };
-
-    notiSocket.onmessage = (event) => {
-        handleReceivedNotification(event);
-    };
-
-    notiSocket.onerror = (error) => {
-        console.error("[WebSocket] Error:", error);
-    };
-
-    notiSocket.onclose = async (event) => {
-        console.warn(`[WebSocket] Disconnected (code ${event.code}), attempting to reconnect...`);
-
-        // Intentar refresh si es un cierre rápido (asumiendo que podría ser por auth)
-        if (!attemptedReconnection) {
-            attemptedReconnection = true;
-            const refreshed = await refreshAccessToken();
-
-            if (refreshed) {
-                console.log("[WebSocket] Token refreshed, retrying notifications WebSocket connection...");
-                setTimeout(initializeNotificationsSocket, 1000);  // Reintenta tras 1 segundo si refresh tuvo éxito
-                return;
-            } else {
-                console.warn("[WebSocket] Token refresh failed, continuing with regular reconnect strategy...");
-            }
-        }
-
-        scheduleReconnect();
-    };
-}
-
-function scheduleReconnect() {
-    const delay = Math.min(1000 * (2 ** reconnectAttempts), MAX_RECONNECT_DELAY);
-    console.log(`[WebSocket] Reconnecting in ${delay / 1000} seconds...`);
-    setTimeout(initializeNotificationsSocket, delay);
-    reconnectAttempts++;
-}
-
-function startKeepAlive() {
-    setInterval(() => {
-        if (notiSocket.readyState === WebSocket.OPEN) {
-            notiSocket.send(JSON.stringify({ type: "ping" }));
-            console.log("[WebSocket] Sent keepalive ping");
-        }
-    }, 30000);
-}
-
-function handleReceivedNotification(event) {
-    try {
-        const data = JSON.parse(event.data);
-        console.log("[WebSocket] Notification received:", data);
-        renderNotifications();
-    } catch (error) {
-        console.error("[WebSocket] Error parsing message:", error);
-    }
-}
-
 export async function renderNotifications() {
-    console.log("[UI] Rendering notifications...");
-    const notifications = await handleGetNotifications();
+    const allNotifications = await handleGetNotifications();
+    const notifications = filterNotifications(allNotifications);
     const container = document.getElementById('notifications-container');
     const bell = document.getElementById('bell');
-
     container.innerHTML = '';
     if (notifications.length === 0) {
         container.innerText = "You don't have any notifications";
     } else {
         bell.style.color = 'var(--accent)';
     }
-
     notifications.forEach(notifi => {
-        const content = JSON.parse(notifi.content);
         const card = document.createElement('li');
         card.className = "notification-card";
-        card.innerText = content.event_type;
+        card.innerText = notifi.displayText;
         card.addEventListener('click', (event) => handleMarkNotification(event, notifi.id, card));
         container.appendChild(card);
     });
 }
 
+// API Request: Get pending notifications
 async function handleGetNotifications() {
     try {
         const response = await getNotifications();
@@ -116,6 +40,40 @@ async function handleGetNotifications() {
     return [];
 }
 
+function filterNotifications(all) {
+    const username = getUsername();
+    return all
+        .filter(notifi => { // filters notifications you generated
+            const { user } = JSON.parse(notifi.content);
+            return user != username;
+        })
+        .map(notifi => { // creates a map with the display text of each one
+            let displayText = getNotificationText(notifi.content);
+            return {
+                ...notifi,
+                displayText
+            };
+        }) // filters notifications without display text
+        .filter(notifi => notifi.displayText !== null);
+}
+
+function getNotificationText(content) {
+    const data = JSON.parse(content);
+    const type = data.event_type;
+
+    switch (type) {
+        case 'request_sent':
+            return 'You have a new friend request';
+        case 'friend_added':
+            return 'One of your friend requests has been approved, go check ;)';
+        case 'tournament_started':
+            return 'esto no existe todavía';
+        default: // 'friend_removed' 'request_declined' 'request_cancelled'  'avatar_changed' shouldnt generate notification
+            return null;
+    }
+}
+
+// API Request: Mark a notification as read
 async function handleMarkNotification(event, notificationId, card) {
     event.preventDefault();
     try {
