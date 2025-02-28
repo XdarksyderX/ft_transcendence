@@ -43,13 +43,45 @@ export async function handleGetFriendList() {
     }
 }
 
-export function refreshFriendsFriendlist(changedFriend, erase = false) {
+/* export function refreshFriendsFriendlist(changedFriend, add) {
     const friendsContainer= document.getElementById('friends-container');
     const dataContainer = document.getElementById('friend-data');
+
     let refresh = false; // if there are changes on the selected friend ill need to refresh the data container too
-    if (erase) {
-        const selectedFriend = dataContainer.querySelector('#friend-name').innerText; // check if we had open their data
-        refresh = selectedFriend === changedFriend ? true : false; // and refresh it if needed
+    if (add === -1) { // if Im erasing a friend
+        if (friendsContainer.children.length === 1) { // if Im losting my only friend (drama)
+            refresh = true ; // i'll have to refresh
+        } else { // else if I'm already showing the frieng to change data
+            const selectedFriend = dataContainer.querySelector('#friend-name');
+            const selectedFriendName = selectedFriend ? selectedFriend.innerText : null; // check if we had open their data
+            refresh = selectedFriendName === changedFriend ? true : false; // and refresh it if needed
+        }
+    } else if (add === 1 && friendsContainer.children.length === 0) { // if Im adding my first friend
+        refresh = true;
+    }
+    // there I could handle avatar cand status hanges but too much for now
+    renderFriendList(friendsContainer, dataContainer, refresh);
+} */
+export function refreshFriendsFriendlist(changedFriend, add) {
+    const friendsContainer= document.getElementById('friends-container');
+    const dataContainer = document.getElementById('friend-data');
+    let refresh = false;
+
+    if (add === 0) { // if my number of friends is not changing
+        const selectedFriend = dataContainer.querySelector('#friend-name');
+        const selectedFriendName = selectedFriend ? selectedFriend.innerText : null; // check if we had open their data
+        refresh = selectedFriendName === changedFriend ? true : false;
+    } else {
+        const actualFriends = friendsContainer.children.length - 1 + add;
+        if (actualFriends === -1 || actualFriends === 1) { // if its my first friend or Im losting my only friend (drama)
+            refresh = true;
+        } else if (add === -1) { // if I have more friends but I had selected the one I lost
+            const selectedFriend = dataContainer.querySelector('#friend-name');
+            const selectedFriendName = selectedFriend ? selectedFriend.innerText : null; // check if we had open their data
+            console.log("selected friend: ", selectedFriendName, "changed friend: ", changedFriend);
+            refresh = selectedFriendName === changedFriend ? true : false;
+        }
+
     }
     // there I could handle avatar cand status hanges but too much for now
     renderFriendList(friendsContainer, dataContainer, refresh);
@@ -110,8 +142,9 @@ async function createFriendBtn(friend, dataContainer) {
 }
 
 export function refreshFriendData(friendName) {
-    const selectedFriend = dataContainer.querySelector('#friend-name').innerText; // check if we had open their data
-    if (friend === selectedFriend) {
+    const selectedFriend = document.querySelector('#friend-name');
+    const selectedFriendName = selectedFriend ? selectedFriend.innerText : null; // check if we had open their data
+    if (friendName === selectedFriendName) {
         const friendBtn = document.querySelector(`.friend-btn[data-friend-username="${friendName}"]`);
         if (friendBtn) {
             friendBtn.click();
