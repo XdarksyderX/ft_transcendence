@@ -1,6 +1,6 @@
 import { getUsername } from '../../app/auth.js';
 import { handleAcceptInvitation, handleDeclineInvitation } from '../home/game-invitation.js';
-import { formatTime } from './app.js';
+import { formatTime, toggleChat, getElements } from './app.js';
 /* * * * * * * * * * * * * * * * * * *  NORMAL MESSAGE BUBBLE  * * * * * * * * * * * * * * * * * * */
 
 export function createMessageBubble(message) {
@@ -54,8 +54,8 @@ function createQuickGameSent(game, friend) {
             </div>
         </div>`;
 	return (card);
-
 }
+
 export function createQuickGameInvitation(message) {
 	const card = document.createElement('div');
 	const remainingTime = calculateTimeRemaining(message.sent_at); 
@@ -85,7 +85,10 @@ export function createQuickGameInvitation(message) {
 	const messageContent = JSON.parse(message.message);
 	const token = messageContent.invitation_token;
 	startProgressBar(remainingTime, progressBar, btns, token);
-	btns.accept.addEventListener('click', () => handleAcceptInvitation(token));
+	btns.accept.addEventListener('click', () => {
+		if (handleAcceptInvitation(token))
+			toggleChat(getElements());
+	});
 	return card; // Return the card element
 }
 

@@ -4,7 +4,7 @@ import { register } from '../../app/auth.js';
 import { verifyEmail } from '../../app/auth.js';
 
 async function hardcodedSingup() {
-    const hardCredentials = { username : "Vicenta" , email : "vicenta@invent.com", password: "Octubre10"}
+    const hardCredentials = { username : "Vicenta" , email : "vicenta@invent.com", password: "12345678"}
     if (await register(hardCredentials))
         {
             throwAlert('Account created successfully. Verify your email to login!');
