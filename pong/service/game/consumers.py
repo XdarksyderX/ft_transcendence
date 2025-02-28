@@ -1,187 +1,275 @@
 import json
-import uuid
 import asyncio
+import random
+import math
+import uuid
 from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.db import database_sync_to_async
 from core.models import PongGame
-from asgiref.sync import sync_to_async
-from .logic import Game  # Lógica básica del juego
+from core.utils.event_domain import publish_event
 
-class GameManager:
-    def __init__(self, game, broadcast_callback):
-        self.game = game
-        self.in_progress = False
-        self.broadcast = broadcast_callback
-        self.event_queue = asyncio.Queue()  # Cola para los eventos
+# In-memory dictionary to store game states
+games = {}
 
-    async def add_event(self, event):
-        await self.event_queue.put(event)
+@database_sync_to_async
+def get_game_and_role(game_key, user):
+    """
+    Retrieves the PongGame object and determines the user's role.
+    Returns (game_obj, role) where role is "player1" or "player2".
+    If the user is not part of the game or doesn't exist, returns (None, None).
+    """
+    try:
+        game_obj = PongGame.objects.get(game_key=game_key)
+    except PongGame.DoesNotExist:
+        return None, None
 
-    async def process_pending_events(self):
-        while not self.event_queue.empty():
-            event = await self.event_queue.get()
-            # Procesa el evento; por ejemplo, actualizar la posición del jugador,
-            # manejar colisiones, etc.
-            await self.handle_event(event)
+    if game_obj.player1 == user:
+        return game_obj, "player1"
+    elif game_obj.player2 == user:
+        return game_obj, "player2"
+    else:
+        return None, None
 
-    async def handle_event(self, event):
-        # Aquí iría la lógica para procesar cada evento
-        pass
+@database_sync_to_async
+def update_score_in_db(game_obj, player, new_score):
+    """
+    Updates the score in the database for the specified player.
+    """
+    if player == "player1":
+        game_obj.score_player1 = new_score
+    elif player == "player2":
+        game_obj.score_player2 = new_score
+    game_obj.save()
 
-    async def update_game_state(self):
-        # Actualiza la posición de la bola, colisiones, etc.
-        game_logic = Game(self.game)
-        await sync_to_async(game_logic.update_ball_position)()
-        state = await self.get_game_state()
-        await self.broadcast({
-            'type': 'game_update',
-            'status': 'game_update',
-            'state': state
-        })
+@database_sync_to_async
+def finish_game_in_db(game_obj, winner):
+    """
+    Marks the game as finished and sets the winner in the database.
+    """
+    game_obj.winner = winner
+    game_obj.status = 'finished'
+    publish_event("pong.match_finished", {
+        "game_id": str(game_obj.id),
+        "winner": winner.username,
+        "loser": game_obj.player1.username if winner == game_obj.player2 else game_obj.player2.username
+    })
 
-    async def get_game_state(self):
-        return {
-            "players": {
-                "player1": {
-                    "username": self.game.player1.username,
-                    **self.game.player_positions.get("player1", {"x": self.game.x_margin, "y": self.game.p_y_mid}),
-                    "score": self.game.player1_score
-                },
-                "player2": {
-                    "username": self.game.player2.username,
-                    **self.game.player_positions.get("player2", {"x": self.game.p2_xpos, "y": self.game.p_y_mid}),
-                    "score": self.game.player2_score
-                }
-            },
-            "ball": self.game.ball_position,
-            "status": "in_progress" if self.in_progress else "waiting"
-        }
-
-    async def start_game(self):
-        self.in_progress = True
-        await self.broadcast({
-            'type': 'game_start',
-            'status': 'game_starting',
-            'message': 'Both players are ready. Game is starting!'
-        })
-        tick_interval = 0.1  # Intervalo ajustable, por ejemplo, 10 ms
-        while self.in_progress:
-            await self.process_pending_events()  # Procesa los eventos encolados
-            await self.update_game_state()         # Actualiza el estado del juego
-            await asyncio.sleep(tick_interval)       # Cede control para procesar otros eventos
+    game_obj.save()
 
 class GameConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        self.game_key = self.scope['url_route']['kwargs']['game_key']
-        self.room_group_name = f'game_{self.game_key}'
+        self.game_key = self.scope["url_route"]["kwargs"]["game_key"]
+        self.group_name = f"game_{self.game_key}"
         self.user = self.scope["user"]
 
+        # Check if the user is authenticated
         if not self.user.is_authenticated:
-            await self.accept()
-            await self.send(json.dumps({"status": "error", "message": "Authentication required"}))
             await self.close()
             return
 
-        self.game = await self.get_game_by_key(self.game_key)
-        if not self.game:
-            await self.accept()
-            await self.send(json.dumps({"status": "error", "message": "Game not found"}))
+        self.game_obj, role = await get_game_and_role(self.game_key, self.user)
+        if not self.game_obj:
             await self.close()
             return
 
-        # Validar que el usuario forme parte de la partida y gestionar conexiones
-        # ...
+        self.player = role
 
+        await self.channel_layer.group_add(self.group_name, self.channel_name)
         await self.accept()
-        await self.channel_layer.group_add(self.room_group_name, self.channel_name)
 
-        # Crear el GameManager pasando un callback para emitir mensajes a la grupo
-        self.game_manager = GameManager(self.game, self.group_broadcast)
+        # Initialize in-memory game state if it doesn't exist yet
+        if self.game_key not in games:
+            games[self.game_key] = {
+                "players": {},
+                "ready": {},
+                "ball": {
+                    "x": self.game_obj.board_width / 2,
+                    "y": self.game_obj.board_height / 2,
+                    "xVel": random.choice([-self.game_obj.start_speed, self.game_obj.start_speed]),
+                    "yVel": 0,
+                    "serve": True,
+                },
+            }
+        game = games[self.game_key]
+        if self.player in game["players"]:
+            # Mark the player as connected and reset direction upon reconnection
+            game["players"][self.player]["connected"] = True
+            game["players"][self.player]["direction"] = None
+        else:
+            if self.player == "player1":
+                game["players"]["player1"] = {
+                    "username": self.user.username,
+                    "x": 20,
+                    "y": (self.game_obj.board_height - self.game_obj.player_height) / 2,
+                    "score": self.game_obj.score_player1,
+                    "direction": None,
+                    "connected": True,
+                }
+            else:  # player2
+                game["players"]["player2"] = {
+                    "username": self.user.username,
+                    "x": self.game_obj.board_width - 20 - 12,
+                    "y": (self.game_obj.board_height - self.game_obj.player_height) / 2,
+                    "score": self.game_obj.score_player2,
+                    "direction": None,
+                    "connected": True,
+                }
 
     async def disconnect(self, close_code):
-        # Remover la conexión del grupo y gestionar estado
-        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+        game = games.get(self.game_key)
+        if game and self.player in game["players"]:
+            # Instead of removing the player, mark them as disconnected
+            game["players"][self.player]["connected"] = False
+        await self.channel_layer.group_discard(self.group_name, self.channel_name)
 
     async def receive(self, text_data):
-        try:
-            data = json.loads(text_data)
-            action = data.get('action')
+        data = json.loads(text_data)
+        action = data.get("action")
+        game = games[self.game_key]
 
-            if action == 'move':
-                if not self.game_manager.in_progress:
-                    await self.send(json.dumps({"status": "error", "message": "Game has not started yet."}))
-                    return
-                direction = data.get('direction')
-                if not direction:
-                    await self.send(json.dumps({"status": "error", "message": "Direction is required"}))
-                    return
-                await self.update_player_movement(self.user, direction)
+        if action == "ready":
+            game["ready"][self.player] = True
+            if len(game["ready"]) == 2:
+                await self.channel_layer.group_send(
+                    self.group_name,
+                    {
+                        "type": "game.message",
+                        "message": json.dumps({"status": "game_starting"}),
+                    },
+                )
+                if "task" not in game:
+                    game["task"] = asyncio.create_task(self.game_loop())
+        elif action == "move":
+            direction = data.get("direction")
+            if self.player in game["players"]:
+                game["players"][self.player]["direction"] = direction
 
-            elif action == 'ready':
-                # Una vez que ambos jugadores están listos, se inicia el juego.
-                await self.mark_player_ready(self.user)
+    async def game_loop(self):
+        game = games[self.game_key]
+        ball = game["ball"]
 
-            else:
-                await self.send(json.dumps({"status": "error", "message": f"Unknown action: {action}"}))
-        except Exception as e:
-            await self.send(json.dumps({"status": "error", "message": f"Unexpected error: {str(e)}"}))
+        board_width   = self.game_obj.board_width
+        board_height  = self.game_obj.board_height
+        ball_side     = self.game_obj.ball_side
+        paddle_height = self.game_obj.player_height
+        player_speed  = self.game_obj.player_speed
+        start_speed   = self.game_obj.start_speed
+        paddle_width  = 12
 
-    async def mark_player_ready(self, user):
-        if user.username not in self.game.ready_players:
-            self.game.ready_players.append(user.username)
-            await sync_to_async(self.game.save)()
-        if len(self.game.ready_players) == 2 and not self.game_manager.in_progress:
-            # Establecemos el flag antes de iniciar el loop para evitar la condición de carrera
-            self.game_manager.in_progress = True
-            asyncio.create_task(self.game_manager.start_game())
+        while True:
+            # Update ball position
+            ball["x"] += ball["xVel"]
+            ball["y"] += ball["yVel"]
 
+            # Bounce off top and bottom edges
+            if ball["y"] <= 0 or ball["y"] >= board_height - ball_side:
+                ball["yVel"] *= -1
 
-    async def group_broadcast(self, message):
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            message
-        )
+            # Collision with player1's paddle (left)
+            p1 = game["players"].get("player1")
+            if p1:
+                if (ball["x"] <= p1["x"] + paddle_width and 
+                    ball["x"] + ball_side >= p1["x"] and 
+                    ball["y"] + ball_side >= p1["y"] and 
+                    ball["y"] <= p1["y"] + paddle_height):
+                    
+                    collision_point = (ball["y"] + ball_side / 2) - (p1["y"] + paddle_height / 2)
+                    normalized = collision_point / (paddle_height / 2)
+                    rebound_angle = normalized * (math.pi / 4)
+                    speed = math.hypot(ball["xVel"], ball["yVel"])
+                    ball["xVel"] = abs(speed * math.cos(rebound_angle))
+                    ball["yVel"] = speed * math.sin(rebound_angle)
 
-    @sync_to_async
-    def get_game_by_key(self, game_key):
-        try:
-            return PongGame.objects.select_related('player1', 'player2').get(game_key=uuid.UUID(game_key))
-        except (PongGame.DoesNotExist, ValueError):
-            return None
+            # Collision with player2's paddle (right)
+            p2 = game["players"].get("player2")
+            if p2:
+                if (ball["x"] + ball_side >= p2["x"] and 
+                    ball["x"] <= p2["x"] + paddle_width and 
+                    ball["y"] + ball_side >= p2["y"] and 
+                    ball["y"] <= p2["y"] + paddle_height):
+                    
+                    collision_point = (ball["y"] + ball_side / 2) - (p2["y"] + paddle_height / 2)
+                    normalized = collision_point / (paddle_height / 2)
+                    rebound_angle = normalized * (math.pi / 4)
+                    speed = math.hypot(ball["xVel"], ball["yVel"])
+                    ball["xVel"] = -abs(speed * math.cos(rebound_angle))
+                    ball["yVel"] = speed * math.sin(rebound_angle)
 
-    @sync_to_async
-    def update_player_movement(self, user, direction):
-        # Lógica de movimiento del jugador
-        player_key = "player1" if user == self.game.player1 else "player2" if user == self.game.player2 else None
-        if not player_key:
-            return
+            # Move players based on received direction
+            for player in game["players"].values():
+                direction = player.get("direction")
+                if direction == "UP":
+                    player["y"] = max(0, player["y"] - player_speed)
+                elif direction == "DOWN":
+                    player["y"] = min(board_height - paddle_height, player["y"] + player_speed)
 
-        player_positions = self.game.player_positions or {}
-        current_y = player_positions.get(player_key, {}).get("y", self.game.p_y_mid)
+            # Detect scoring and reset the ball position
+            if ball["x"] < 0:
+                new_score = game["players"]["player2"]["score"] + 1
+                game["players"]["player2"]["score"] = new_score
+                await update_score_in_db(self.game_obj, "player2", new_score)
+                ball.update({
+                    "x": board_width / 2,
+                    "y": board_height / 2,
+                    "xVel": abs(start_speed),
+                    "yVel": 0,
+                    "serve": True
+                })
+                # Check if the score limit has been reached to end the game
+                if new_score >= self.game_obj.points_to_win:
+                    await finish_game_in_db(self.game_obj, self.game_obj.player2)
+                    await self.channel_layer.group_send(
+                        self.group_name,
+                        {
+                            "type": "game.message",
+                            "message": json.dumps({
+                                "status": "game_over",
+                                "winner": game["players"]["player2"]["username"]
+                            }),
+                        },
+                    )
+                    break
 
-        if direction == "UP":
-            new_y = max(0, current_y - self.game.player_speed)
-        elif direction == "DOWN":
-            new_y = min(self.game.board_height - self.game.player_height, current_y + self.game.player_speed)
-        else:
-            new_y = current_y
+            elif ball["x"] > board_width - ball_side:
+                new_score = game["players"]["player1"]["score"] + 1
+                game["players"]["player1"]["score"] = new_score
+                await update_score_in_db(self.game_obj, "player1", new_score)
+                ball.update({
+                    "x": board_width / 2,
+                    "y": board_height / 2,
+                    "xVel": -abs(start_speed),
+                    "yVel": 0,
+                    "serve": True
+                })
+                # Check if the score limit has been reached to end the game
+                if new_score >= self.game_obj.points_to_win:
+                    await finish_game_in_db(self.game_obj, self.game_obj.player1)
+                    await self.channel_layer.group_send(
+                        self.group_name,
+                        {
+                            "type": "game.message",
+                            "message": json.dumps({
+                                "status": "game_over",
+                                "winner": game["players"]["player1"]["username"]
+                            }),
+                        },
+                    )
+                    break
 
-        player_positions[player_key] = {
-            "x": self.game.x_margin if player_key == "player1" else self.game.p2_xpos,
-            "y": new_y
-        }
-        self.game.player_positions = player_positions
-        self.game.save()
+            # Send the updated state to all players
+            state = {
+                "players": game["players"],
+                "ball": {"x": ball["x"], "y": ball["y"]},
+            }
+            await self.channel_layer.group_send(
+                self.group_name,
+                {
+                    "type": "game.message",
+                    "message": json.dumps({"status": "game_update", "state": state}),
+                },
+            )
+            await asyncio.sleep(0.03)
 
-    # Los métodos game_update, game_start, player_disconnect y player_reconnect
-    # se mantienen para reenviar los mensajes recibidos desde el canal.
-    async def game_update(self, event):
-        await self.send(text_data=json.dumps(event))
-
-    async def game_start(self, event):
-        await self.send(text_data=json.dumps(event))
-
-    async def player_disconnect(self, event):
-        await self.send(text_data=json.dumps(event))
-
-    async def player_reconnect(self, event):
-        await self.send(text_data=json.dumps(event))
+    async def game_message(self, event):
+        message = event["message"]
+        await self.send(text_data=message)
