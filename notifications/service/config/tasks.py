@@ -205,3 +205,35 @@ def handle_pong_tournament_invitation(event):
     send_notification(receiver_id, notification)
     send_notification(sender_id, notification)
     return f"Notified both users that {sender.username} invited {receiver.username} to a tournament"
+
+@shared_task(name="pong.match_accepted")
+def handle_pong_match_invitation(event):
+    event_data = event["data"]["data"]["attributes"]
+    sender_id = event_data["accepted_by"]
+    receiver_id = event_data["invited_by"]
+    sender = User.objects.get(id=sender_id)
+    receiver = User.objects.get(id=receiver_id)
+    notification = {
+        "event_type": "pong.match_accepted",
+        "user": sender.username,
+        "other": receiver.username
+    }
+    send_notification(receiver_id, notification)
+    send_notification(sender_id, notification)
+    return f"Notified both users that {sender.username} invited {receiver.username} to a match"
+
+@shared_task(name="pong.tournament_accepted")
+def handle_pong_match_invitation(event):
+    event_data = event["data"]["data"]["attributes"]
+    sender_id = event_data["accepted_by"]
+    receiver_id = event_data["invited_by"]
+    sender = User.objects.get(id=sender_id)
+    receiver = User.objects.get(id=receiver_id)
+    notification = {
+        "event_type": "pong.tournament_accepted",
+        "user": sender.username,
+        "other": receiver.username
+    }
+    send_notification(receiver_id, notification)
+    send_notification(sender_id, notification)
+    return f"Notified both users that {sender.username} invited {receiver.username} to a match"

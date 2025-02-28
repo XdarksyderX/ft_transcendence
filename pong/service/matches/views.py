@@ -155,6 +155,12 @@ class JoinMatchView(APIView):
         game.status = 'in_progress'
         game.save()
         invitation.delete()
+        event = {
+            'game_id': game.id,
+            'accepted_by': request.user.id,
+            'invited_by': game.player1.id
+        }
+        publish_event('pong', 'pong.match_accepted', event)
 
         return Response({
             "status": "success",
