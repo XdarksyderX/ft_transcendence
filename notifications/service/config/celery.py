@@ -21,7 +21,13 @@ app.conf.task_queues = (
 	Queue("notifications.social.request_cancelled", Exchange("social"), routing_key="social.request_cancelled"),
 	Queue("notifications.social.request_sent", Exchange("social"), routing_key="social.request_sent"),
 	Queue('notifications.auth.user_registered', Exchange('auth'), routing_key='auth.user_registered'),
-    Queue('notifications.auth.user_deleted', Exchange('auth'), routing_key='auth.user_deleted')
+    Queue('notifications.auth.user_deleted', Exchange('auth'), routing_key='auth.user_deleted'),
+	Queue('notifications.pong.match_accepted', Exchange('pong'), routing_key='pong.match_accepted'),
+	Queue('notifications.pong.invitation_cancelled', Exchange('pong'), routing_key='pong.invitation_cancelled'),
+	Queue('notifications.pong.invitation_decline', Exchange('pong'), routing_key='pong.invitation_decline'),
+	Queue('notifications.pong.tournament_invitation', Exchange('pong'), routing_key='pong.tournament_invitation'),
+	Queue('notifications.pong.tournament_cancelled', Exchange('pong'), routing_key='pong.tournament_cancelled'),
+	Queue('notifications.pong.tournament_decline', Exchange('pong'), routing_key='pong.tournament_decline'),
 )
 
 app.conf.task_routes = {
@@ -32,7 +38,14 @@ app.conf.task_routes = {
 	"social.request_sent": {"queue": "notifications.social.request_sent"},
 	"social.avatar_changed": {"queue": "notifications.social.avatar_changed"},
 	"auth.user_registered": {"queue": "notifications.auth.user_registered"},
-	"auth.user_deleted": {"queue": "notifications.auth.user_deleted"}
+	"auth.user_deleted": {"queue": "notifications.auth.user_deleted"},
+	"pong.match_accepted": {"queue": "notifications.pong.match_accepted"},
+	"pong.invitation_cancelled": {"queue": "notifications.pong.invitation_cancelled"},
+	"pong.invitation_decline": {"queue": "notifications.pong.invitation_decline"},
+	"pong.tournament_invitation": {"queue": "notifications.pong.tournament_invitation"},
+	"pong.tournament_cancelled": {"queue": "notifications.pong.tournament_cancelled"},
+	"pong.tournament_decline": {"queue": "notifications.pong.tournament_decline"},
+
 }
 
 app.autodiscover_tasks(["config.tasks"])
