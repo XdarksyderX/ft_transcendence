@@ -24,8 +24,10 @@ export function initSearchFriendEvents(elements) {
 		searchNewFriend(elements);
 	});
 }
+
+/* * * * * * * * * * * * * * * RECEIVED REQUESTS  * * * * * * * * * * * * * * */
 // renders all pending friend request once you open /friends
-export async function renderPendingFriendRequests(container) {
+export async function renderPendingFriendRequests(container = null) {
     if (!container) {
         container = document.getElementById('requests-container');
     }
@@ -40,8 +42,6 @@ export async function renderPendingFriendRequests(container) {
         }
     }
 }
-
-/* * * * * * * * * * * * * * * RECEIVED REQUESTS  * * * * * * * * * * * * * * */
 
 async function handleGetPendingReceivedRequests() {
     const response = await getPendingReceivedRequests();
@@ -174,6 +174,8 @@ async function getUserStatusMap(users) {
     }
     return userStatusMap;
 }
+
+
 // displays the search results
 async function renderSearchList(users, elements) {
     elements.searchList.innerHTML = '';
@@ -200,7 +202,7 @@ async function createAddFriendCard(user, status, invitationId) {
         const btns = createCardBtns(card, user, invitationId);
         const avatar = await getAvatar(null, user);
         console.log('avatar: ', avatar);
-        card.setAttribute('data-user-id', user.user_id);
+        card.setAttribute('data-username', user.username);
         card.innerHTML = `
         <div class="d-flex align-items-center mb-2 mb-md-0">
             <img src="${avatar}" alt="${user.username}" class="friend-picture">
@@ -219,6 +221,7 @@ function createEmptyUserCard(card) {
         No matches found :c
     </div>`;
 }
+
 function createCardBtns(card, user, invitationId = null) {
     const btnsContainer = document.createElement('div');
     btnsContainer.className = 'card-btns d-flex aling-items-center';
@@ -262,6 +265,18 @@ function createCardBtns(card, user, invitationId = null) {
     btnsContainer.appendChild(pendantBtn);
 
     return btnsContainer;
+}
+
+// if the user is still present on search list when declines the friend request, 
+// toggles the btns to default on the invitation sender
+export function refreshIfDeclined(username) {
+    const searchList = document.getElementById('search-list');
+    const userCard = searchList.querySelector(`[data-username="${username}"]`);
+    console.log("refreshIfDeclined function called");
+    if (userCard) {
+        console.log("refreshIfDeclined function called here too");
+        toggleBtns(userCard, 'default');
+    }
 }
 
 function toggleBtns(card, status, invitationId = null) {

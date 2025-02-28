@@ -1,5 +1,8 @@
 import { getUsername } from "../../app/auth.js";
 import { refreshFriendsFriendlist, refreshFriendData } from "../friends/app.js";
+import { refreshTournamentFriendList } from "../tournament/new.js";
+import { refreshChatFriendList } from "../chat/app.js";
+import { renderPendingFriendRequests, refreshIfDeclined } from "../friends/requests.js";
 
 let notiSocket = null;
 let reconnectAttempts = 0;
@@ -14,9 +17,9 @@ const notificationHandlers = {
     deleted_account: (data) => handleFriendChanges('deleted_account', data, -1),
 
     // Friend requests
-    request_sent: () => console.log("[WebSocket] Friend request sent"), // handleFriendRequestChanges(),
-    request_declined: () => console.log("[WebSocket] Friend request declined"),
-    request_cancelled: () => console.log("[WebSocket] Friend request cancelled"),
+    request_sent: () => handleFriendRequestChanges('request_sent'),
+    request_declined: (data) => handleFriendRequestChanges('request_declined', data),
+    request_cancelled: () => handleFriendRequestChanges('request_cancelled'),
 
     // Pong Match Events
     match_invitation: () => console.log("[WebSocket] You have a match invitation"),
@@ -72,32 +75,15 @@ function startKeepAlive() {
     }, 30000); // Every 30 seconds
 }
 
-function handleFriendChanges(type, data, add = 0) {
-    const path = window.location.pathname;
-    if (path === '/friends') {
-        refreshFriendsFriendlist(data.user, add); // aquí debo mandar el username del amigo
-		if (add === 0) {
-			refreshFriendData(data.user);
-		}
-    }
-    else if (type !== 'avatar_changed') { // we only see avatars on /friends
-        refreshChatFriendlist(data.user); // chat refreshes in all paths
-        if (path === '/new-tournament') {
-            //refreshTournamentFriendList();
-        }
-    } else {
-		//refreshFriendsDataAvatar();
-	}
-}
-
 function handleReceivedNotification(event) {
 	console.log("[WebSocket] Notification received:", event.data);
     try {
         const data = JSON.parse(event.data);
-        
-        const type = data.event_type;
-        const handler = notificationHandlers[type];
-
+		if (data.user === getUsername) {
+			return ;
+		}
+		const type = data.event_type;
+		const handler = notificationHandlers[type];
         if (handler) {
             handler(data);
         } else if (type != 'ping') {
@@ -107,3 +93,30 @@ function handleReceivedNotification(event) {
         console.error("[WebSocket] Error parsing message:", error);
     }
 }
+
+function handleFriendChanges(type, data, add = 0) {
+    const path = window.location.pathname;
+    if (path === '/friends') {
+        refreshFriendsFriendlist(data.user, add); // aquí debo mandar el username del amigo
+		if (add === 0) {
+			refreshFriendData(data.user);
+		}
+    }
+    if (add) { // we dont see avatar or status on chat or tournament
+        refreshChatFriendList(); // chat refreshes in all paths
+        if (path === '/new-tournament') {
+            refreshTournamentFriendList();
+        }
+	}
+}
+
+function handleFriendRequestChanges(type, data = null) {
+//	request_sent, 	request_declined,     request_cancelled
+	if (type === 'request_sent' || type === 'request_cancelled') {
+		renderPendingFriendRequests();
+	} else {
+		refreshIfDeclined(data.user);
+	}
+}
+
+

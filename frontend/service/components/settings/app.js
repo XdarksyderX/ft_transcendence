@@ -339,7 +339,7 @@ async function createBlockedUserCard(username) {
     `;
 
     const unblockBtn = card.querySelector('button');
-    unblockBtn.addEventListener('click', () => handleUnblockUser(user));
+    unblockBtn.addEventListener('click', () => handleUnblockUser(username));
 
     return card;
 }
@@ -347,6 +347,7 @@ async function createBlockedUserCard(username) {
 export async function handleUnblockUser(username) {
 	const response = await unblockUser(username);
 	if (response.status === "success") {
+		throwToast(`${username} is now unblocked`);
 		document.getElementById('blocked-users-list').innerHTML = '';
 		renderBlockedUsers();
 	} else {

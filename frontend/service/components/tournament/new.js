@@ -47,9 +47,17 @@ function updateRequiredParticipants(total, elements) {
   }
 }
 
+export function refreshTournamentFriendList() {
+  if (requiredParticipants) {
+    const elements = getElements();
+    renderFriendList(elements);
+  }
+}
+
 async function renderFriendList(elements) {
+  elements.friendsContainer.innerHTML = '';
   const friends = await handleGetFriendList(); 
-  if (friends.length < 4) {
+  if (friends.length < 0) {
     elements.friendsContainer.innerText = `you dont have enough friends to start a tournament`
     //elements.friendsContainer.innerText = `you dont have enough friends to start a ${requiredParticipants} players tournament`
     return ;

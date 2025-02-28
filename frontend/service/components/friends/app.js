@@ -43,25 +43,6 @@ export async function handleGetFriendList() {
     }
 }
 
-/* export function refreshFriendsFriendlist(changedFriend, add) {
-    const friendsContainer= document.getElementById('friends-container');
-    const dataContainer = document.getElementById('friend-data');
-
-    let refresh = false; // if there are changes on the selected friend ill need to refresh the data container too
-    if (add === -1) { // if Im erasing a friend
-        if (friendsContainer.children.length === 1) { // if Im losting my only friend (drama)
-            refresh = true ; // i'll have to refresh
-        } else { // else if I'm already showing the frieng to change data
-            const selectedFriend = dataContainer.querySelector('#friend-name');
-            const selectedFriendName = selectedFriend ? selectedFriend.innerText : null; // check if we had open their data
-            refresh = selectedFriendName === changedFriend ? true : false; // and refresh it if needed
-        }
-    } else if (add === 1 && friendsContainer.children.length === 0) { // if Im adding my first friend
-        refresh = true;
-    }
-    // there I could handle avatar cand status hanges but too much for now
-    renderFriendList(friendsContainer, dataContainer, refresh);
-} */
 export function refreshFriendsFriendlist(changedFriend, add) {
     const friendsContainer= document.getElementById('friends-container');
     const dataContainer = document.getElementById('friend-data');
@@ -83,8 +64,22 @@ export function refreshFriendsFriendlist(changedFriend, add) {
         }
 
     }
+    if (add === 1) {
+        cleanSearchList(changedFriend);
+    }
     // there I could handle avatar cand status hanges but too much for now
     renderFriendList(friendsContainer, dataContainer, refresh);
+}
+
+// if the user is still present on search list when accepts the friend request,
+// erases the element from the DOM 
+function cleanSearchList(username) {
+    
+    const searchList = document.getElementById('search-list');
+    const userCard = searchList.querySelector(`[data-username="${username}"]`);
+    if (userCard) {
+        searchList.removeChild(userCard);
+    }
 }
 
 async function renderFriendList(container, dataContainer, refreshData = true) {
