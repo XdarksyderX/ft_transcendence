@@ -43,13 +43,14 @@ export async function handleGetFriendList() {
     }
 }
 
-export function refreshFriendsFriendlist(changedFriend) {
+export function refreshFriendsFriendlist(changedFriend, erase = false) {
     const friendsContainer= document.getElementById('friends-container');
     const dataContainer = document.getElementById('friend-data');
-
     let refresh = false; // if there are changes on the selected friend ill need to refresh the data container too
-    const selectedFriend = dataContainer.querySelector('#friend-name').innerText; // check if we had open their data
-    refresh = selectedFriend === changedFriend ? true : false; // and refresh it if needed
+    if (erase) {
+        const selectedFriend = dataContainer.querySelector('#friend-name').innerText; // check if we had open their data
+        refresh = selectedFriend === changedFriend ? true : false; // and refresh it if needed
+    }
     // there I could handle avatar cand status hanges but too much for now
     renderFriendList(friendsContainer, dataContainer, refresh);
 }
@@ -92,7 +93,7 @@ async function createFriendBtn(friend, dataContainer) {
 	const avatar = await getAvatar(null, null, friend.avatar);
 
 	friendBtn.className = 'friend-btn d-flex align-items-center';
-	friendBtn.setAttribute('data-friend-id', friend.id); //this probably will change when its connected w API
+	friendBtn.setAttribute('data-username', friend.username); //this probably will change when its connected w API
 	//let color = friend.is_online ? 'var(--accent)' : '#808080'
 	friendBtn.innerHTML = `
 		<img src="${avatar}" alt="${friend.username}" class="friend-picture">
@@ -108,7 +109,15 @@ async function createFriendBtn(friend, dataContainer) {
 	return friendBtn;
 }
 
-
+export function refreshFriendData(friendName) {
+    const selectedFriend = dataContainer.querySelector('#friend-name').innerText; // check if we had open their data
+    if (friend === selectedFriend) {
+        const friendBtn = document.querySelector(`.friend-btn[data-friend-username="${friendName}"]`);
+        if (friendBtn) {
+            friendBtn.click();
+        }
+    }
+}
 
 function renderFriendData(friend, avatar, dataContainer) {
 	let color = friend.is_online ? 'var(--accent)' : '#808080'

@@ -1,5 +1,5 @@
-import { getUserId } from "../../app/auth.js";
-import { refreshFriendsFriendlist } from "../friends/app.js";
+import { getUsername } from "../../app/auth.js";
+import { refreshFriendsFriendlist, refreshFriendData } from "../friends/app.js";
 
 let notiSocket = null;
 let reconnectAttempts = 0;
@@ -7,14 +7,14 @@ const MAX_RECONNECT_DELAY = 30000; // Máximo 30s de espera entre reconexiones
 
 const notificationHandlers = {
     // Friends changes
-    friend_added: () => handleFriendChanges('friend_added'),
+    friend_added: (data) => handleFriendChanges('friend_added',),
     friend_removed: (data) => handleFriendChanges('friend_removed', data),
-    avatar_changed: () => handleFriendChanges('avatar_changed', data),
+    avatar_changed: (data) => handleFriendChanges('avatar_changed', data),
 	status_changed: (data) => handleFriendChanges('avatar_changed', data),
-    erased_account: (data) => handleFriendChanges('erased_account', data),
+    deleted_account: (data) => handleFriendChanges('deleted_account', data),
 
     // Friend requests
-    request_sent: () => handleFriendRequestChanges(),
+    request_sent: () => console.log("[WebSocket] Friend request sent"), // handleFriendRequestChanges(),
     request_declined: () => console.log("[WebSocket] Friend request declined"),
     request_cancelled: () => console.log("[WebSocket] Friend request cancelled"),
 
@@ -75,7 +75,11 @@ function startKeepAlive() {
 function handleFriendChanges(type, data) {
     const path = window.location.pathname;
     if (path === '/friends') {
-        refreshFriendsFriendlist(data.other); // aquí debo mandar el username del amigo
+    	const erase = type === 'friend_removed' || type === 'deleted_account';
+        refreshFriendsFriendlist(data.other, erase); // aquí debo mandar el username del amigo
+		if (!erase) {
+			refreshFriendData(data.other);
+		}
     }
     else if (type !== 'avatar_changed') { // we only see avatars on /friends
         refreshChatFriendlist(data.other); // chat refreshes in all paths
