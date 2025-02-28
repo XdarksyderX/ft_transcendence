@@ -7,11 +7,11 @@ const MAX_RECONNECT_DELAY = 30000; // Máximo 30s de espera entre reconexiones
 
 const notificationHandlers = {
     // Friends changes
-    friend_added: (data) => handleFriendChanges('friend_added',),
-    friend_removed: (data) => handleFriendChanges('friend_removed', data),
+    friend_added: (data) => handleFriendChanges('friend_added', data, 1),
+    friend_removed: (data) => handleFriendChanges('friend_removed', data, -1),
     avatar_changed: (data) => handleFriendChanges('avatar_changed', data),
-	status_changed: (data) => handleFriendChanges('avatar_changed', data),
-    deleted_account: (data) => handleFriendChanges('deleted_account', data),
+	friend_status_updated: (data) => handleFriendChanges('avatar_changed', data),
+    deleted_account: (data) => handleFriendChanges('deleted_account', data, -1),
 
     // Friend requests
     request_sent: () => console.log("[WebSocket] Friend request sent"), // handleFriendRequestChanges(),
@@ -66,23 +66,22 @@ function scheduleReconnect() {
 function startKeepAlive() {
     setInterval(() => {
         if (notiSocket.readyState === WebSocket.OPEN) {
-            notiSocket.send(JSON.stringify({ type: "ping" }));
+            notiSocket.send(JSON.stringify({ notification_type: "ping" }));
             console.log("[WebSocket] Sent keepalive ping");
         }
     }, 30000); // Every 30 seconds
 }
 
-function handleFriendChanges(type, data) {
+function handleFriendChanges(type, data, add = 0) {
     const path = window.location.pathname;
     if (path === '/friends') {
-    	const erase = type === 'friend_removed' || type === 'deleted_account';
-        refreshFriendsFriendlist(data.other, erase); // aquí debo mandar el username del amigo
-		if (!erase) {
-			refreshFriendData(data.other);
+        refreshFriendsFriendlist(data.user, add); // aquí debo mandar el username del amigo
+		if (add === 0) {
+			refreshFriendData(data.user);
 		}
     }
     else if (type !== 'avatar_changed') { // we only see avatars on /friends
-        refreshChatFriendlist(data.other); // chat refreshes in all paths
+        refreshChatFriendlist(data.user); // chat refreshes in all paths
         if (path === '/new-tournament') {
             //refreshTournamentFriendList();
         }
@@ -92,16 +91,16 @@ function handleFriendChanges(type, data) {
 }
 
 function handleReceivedNotification(event) {
+	console.log("[WebSocket] Notification received:", event.data);
     try {
         const data = JSON.parse(event.data);
-        console.log("[WebSocket] Notification received:", data);
         
-        const type = data.content.event_type;
+        const type = data.event_type;
         const handler = notificationHandlers[type];
 
         if (handler) {
-            handler(data.content);
-        } else {
+            handler(data);
+        } else if (type != 'ping') {
             console.warn("[WebSocket] Unhandled notification type:", type);
         }
     } catch (error) {
