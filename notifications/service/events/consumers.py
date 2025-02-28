@@ -7,7 +7,6 @@ from asgiref.sync import sync_to_async
 
 class NotificationConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        """Handles WebSocket connection and registers the user."""
         self.user = self.scope.get("user", None)
 
         if self.user and self.user.is_authenticated:
