@@ -74,7 +74,7 @@ def handle_pong_match_accepted(event):
 	sender = User.objects.get(id=sender_id)
 	receiver = User.objects.get(id=receiver_id)
 	notification = {
-		"event_type": "pong_match_accepted",
+		"event_type": "pong_match_invitation",
 		"user": sender.username,
 		"other": receiver.username
 	}

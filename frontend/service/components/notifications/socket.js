@@ -3,6 +3,7 @@ import { refreshFriendsFriendlist, refreshFriendData } from "../friends/app.js";
 import { refreshTournamentFriendList } from "../tournament/new.js";
 import { refreshChatFriendList } from "../chat/app.js";
 import { renderPendingFriendRequests, refreshIfDeclined } from "../friends/requests.js";
+import { navigateTo } from "../../app/router.js";
 
 let notiSocket = null;
 let reconnectAttempts = 0;
@@ -26,10 +27,12 @@ const notificationHandlers = {
     tournament_invitation: () => console.log("[WebSocket] You have a tournament invitation"),
     tournament_start: () => console.log("[WebSocket] Tournament started"),
     tournament_end: () => console.log("[WebSocket] Tournament ended"),
-    pong_match_accepted: () => window.location.href = "/pong",
-    chess_match_accepted: () => window.location.href = "/chess"
+    pong_match_accepted: () => navigateTo('/pong'),
+    //pong_match_decline: 
+    //chess_match_decline: 
+    chess_match_accepted: () => navigateTo('/chess')
 };
-
+ 
 
 export function initializeNotificationsSocket() {
     if (notiSocket && notiSocket.readyState !== WebSocket.CLOSED) {
