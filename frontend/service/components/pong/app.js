@@ -127,12 +127,13 @@ function connectToOnlineGame(gameKey)
     {
         console.log("WebSocket connected to game:", gameKey);
         socket.send(JSON.stringify({ action: "ready" })); // Send "ready" signal
+        updateGameState()
     };
 
     socket.onmessage = (event) =>
     {
         const message = JSON.parse(event.data);
-        console.log("WebSocket message:", message);
+        //console.log("WebSocket message:", message);
         if (message.status === "game_starting") 
         {
             console.log("Game is starting!");
@@ -143,8 +144,6 @@ function connectToOnlineGame(gameKey)
         }
         else if (message.status === "game_update") 
         {
-            document.addEventListener("keydown", (event) => keyDownHandlerOnline(event, socket));
-            document.addEventListener("keyup", (event) => keyUpHandlerOnline(event, socket));
             updateGameState(message.state);
         }
     };
@@ -218,78 +217,81 @@ function renderGame()
     context.fillRect(Rplayer.x, Rplayer.y, playerWidth, playerHeight);
 }
 
-function keyDownHandlerOnline(event, socket)
-{
-    if (["KeyW", "KeyS", "ArrowUp", "ArrowDown"].includes(event.code)) 
-        event.preventDefault(); // Avoid page moving up & down when using arrows
+let moveMessageQueue = null;
+let sendingMove = false;
+const MOVE_INTERVAL = 50;
 
-    if (socket.readyState !== WebSocket.OPEN) 
-        return; // Prevent sending messages if WebSocket is closed
+function queueMoveMessage(direction, socket) {
+    moveMessageQueue = direction;
+    if (!sendingMove) {
+        sendingMove = true;
+        setTimeout(() => {
+            if (socket.readyState === WebSocket.OPEN && moveMessageQueue !== null) {
+                socket.send(JSON.stringify({ action: "move", direction: moveMessageQueue }));
+            }
+            moveMessageQueue = null;
+            sendingMove = false;
+        }, MOVE_INTERVAL);
+    }
+}
+
+function keyDownHandlerOnline(event, socket) {
+    if (["KeyW", "KeyS", "ArrowUp", "ArrowDown"].includes(event.code))
+        event.preventDefault();
+
+    if (socket.readyState !== WebSocket.OPEN)
+        return;
 
     let direction = null;
 
-    if (event.code == "KeyW") 
-    {
+    if (event.code === "KeyW") {
         keyState.w = true;
-        direction = "UP"; // Equivalent to Lplayer.speed = -playerSpeed;
-    }
-    else if (event.code == "KeyS")
-    {
+        direction = "UP";
+    } else if (event.code === "KeyS") {
         keyState.s = true;
-        direction = "DOWN"; // Equivalent to Lplayer.speed = playerSpeed;
-    }
-    else if (event.code == "ArrowUp")
-    {
+        direction = "DOWN";
+    } else if (event.code === "ArrowUp") {
         keyState.up = true;
-        direction = "UP"; // Equivalent to Rplayer.speed = -playerSpeed;
-    }
-    else if (event.code == "ArrowDown")
-    {
+        direction = "UP";
+    } else if (event.code === "ArrowDown") {
         keyState.down = true;
-        direction = "DOWN"; // Equivalent to Rplayer.speed = playerSpeed;
+        direction = "DOWN";
     }
 
     if (direction !== null)
-        socket.send(JSON.stringify({ action: "move", direction: direction }));
+        queueMoveMessage(direction, socket);
 }
 
-function keyUpHandlerOnline(event, socket)
-{
-    if (["KeyW", "KeyS", "ArrowUp", "ArrowDown"].includes(event.code)) 
+function keyUpHandlerOnline(event, socket) {
+    if (["KeyW", "KeyS", "ArrowUp", "ArrowDown"].includes(event.code))
         event.preventDefault();
 
-    if (socket.readyState !== WebSocket.OPEN) 
-        return; // Prevent sending messages if WebSocket is closed
+    if (socket.readyState !== WebSocket.OPEN)
+        return;
 
-    let direction = "STOP"; // Default when key is released
+    let direction = "STOP";
 
-    if (event.code == "KeyW")
-    {
+    if (event.code === "KeyW") {
         keyState.w = false;
         if (keyState.down || keyState.s)
-            direction = "DOWN"; // If Down is still pressed, move down
-    } 
-    else if (event.code == "KeyS")
-    {
+            direction = "DOWN";
+    } else if (event.code === "KeyS") {
         keyState.s = false;
         if (keyState.w)
-            direction = "UP"; // If Up is still pressed, move up
-    }
-    else if (event.code == "ArrowUp")
-    {
+            direction = "UP";
+    } else if (event.code === "ArrowUp") {
         keyState.up = false;
-        if (keyState.down || keyState.s) 
-            direction = "DOWN"; // If Down is still pressed, move down
-    } 
-    else if (event.code == "ArrowDown")
-    {
+        if (keyState.down || keyState.s)
+            direction = "DOWN";
+    } else if (event.code === "ArrowDown") {
         keyState.down = false;
         if (keyState.up || keyState.w)
-            direction = "UP"; // If Up is still pressed, move up
+            direction = "UP";
     }
 
-    socket.send(JSON.stringify({ action: "move", direction: direction }));
+    queueMoveMessage(direction, socket);
 }
+
 // ONLINE CODE END
 
 function startLocalGame() 
