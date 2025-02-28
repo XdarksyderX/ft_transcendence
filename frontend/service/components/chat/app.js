@@ -202,12 +202,19 @@ async function showFriendList(elements, hasChats = true) {
 	await renderFriendList(elements);
 }
 
+export function refreshChatFriendList() {
+	if (isExpanded && currentView === 'friend-list') {
+		renderFriendList();
+	}
+}
+
 // Render the friend list
-export async function renderFriendList(elements) {
+export async function renderFriendList(elements = null) {
+	const friendList = elements ? elements.friendList : document.getElementById('friends-list');
 	const friends = await handleGetFriendList();
 	const newChatFriends = friends.filter(friend => !chats[friend.username]);
 
-	elements.friendList.innerHTML = newChatFriends.map(friend => `
+	friendList.innerHTML = newChatFriends.map(friend => `
 		<div  class="list-group-item list-group-item-action friend-item" 
 		   data-friend-username="${friend.username}">
 			<h6 class="mb-1">${friend.username}</h6>
