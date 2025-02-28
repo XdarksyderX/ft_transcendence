@@ -2,6 +2,7 @@ import asyncio
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from core.utils.event_domain import publish_event
+from core.utils.notifications import send_notification
 
 class NotificationConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -16,6 +17,17 @@ class NotificationConsumer(AsyncWebsocketConsumer):
                 print(f"[WebSocket] Connected: user {self.user.id}")
                 
                 publish_event("events", "events.user_connected", {"user_id": self.user.id})
+                for friend in self.user.friends.all():
+                    notification = {
+                        "event_type": "friend_status_updated",
+                        "user": self.user.username,
+                        "other": friend.username,
+                        "is_online": True
+                    }
+                    await send_notification(
+                        friend.id,
+                        notification
+                    )
 
                 self.keepalive_task = asyncio.create_task(self.keepalive())
 
@@ -33,6 +45,22 @@ class NotificationConsumer(AsyncWebsocketConsumer):
                 await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
                 print(f"[WebSocket] Disconnected: user {self.user.id}")
                 publish_event("events", "events.user_disconnected", {"user_id": self.user.id})
+                notification = {
+                    "event_type": "friend_status_updated",
+                    "user": self.user.username,
+                    "is_online": False
+                }
+                for friend in self.user.friends.all():
+                    notification = {
+                        "event_type": "friend_status_updated",
+                        "user": self.user.username,
+                        "other": friend.username,
+                        "is_online": False
+                    }
+                    await send_notification(
+                        friend.id,
+                        notification
+                    )
             except Exception as e:
                 print(f"[WebSocket] Error during disconnection: {e}")
 
