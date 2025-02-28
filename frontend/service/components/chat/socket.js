@@ -1,18 +1,21 @@
 import { updateNotificationIndicator, getElements, renderChat, renderRecentChats, 
 markMessagesAsRead, currentChat, currentView, isExpanded } from "./app.js";
 import { getUsername } from "../../app/auth.js";
+import { refreshAccessToken } from "../../app/auth.js";
 
 let chatSocket = null;
+let attemptedReconnection = false;
 
-//initializes a global socket for all the chat
 export function initializeGlobalChatSocket() {
     if (chatSocket) {
         chatSocket.close();
     }
+
     chatSocket = new WebSocket(`ws://localhost:5051/ws/chat/`);
 
     chatSocket.onopen = () => {
-        console.log("Chat WebSocket conected");
+        console.log("Chat WebSocket connected");
+        attemptedReconnection = false;
     };
 
     chatSocket.onmessage = (event) => {
@@ -23,9 +26,21 @@ export function initializeGlobalChatSocket() {
         console.error("WebSocket error:", error);
     };
 
-    chatSocket.onclose = () => {
-        console.log("WebSocket cerrado, intentando reconectar...");
-        setTimeout(initializeGlobalChatSocket, 5000); // Reintentar conexión tras 5 segundos
+    chatSocket.onclose = async (event) => {
+        console.log("WebSocket cerrado, código:", event.code);
+        if (!attemptedReconnection) {
+            attemptedReconnection = true;
+            const refreshed = await refreshAccessToken();
+
+            if (refreshed) {
+                console.log("Token refreshed, retrying WebSocket connection...");
+                setTimeout(initializeGlobalChatSocket, 1000);
+                return;
+            } else {
+                console.warn("Failed to refresh token, staying disconnected");
+            }
+        }
+        setTimeout(initializeGlobalChatSocket, 5000); 
     };
 }
 

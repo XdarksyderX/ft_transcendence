@@ -1,92 +1,57 @@
+import { sendRequestPong } from './sendRequest.js';
+
 export async function getMatchHistory() {
-    return await sendRequest('GET', 'match/history');
+    return await sendRequestPong('GET', 'match/history');
 }
 
 export async function getMatchDetail(matchId) {
-    return await sendRequest('GET', `match/detail/${matchId}`);
+    return await sendRequestPong('GET', `match/detail/${matchId}`);
 }
 
 export async function getPendingInvitationsOutgoing() {
-    return await sendRequest('GET', 'invitation/outgoing/list/');
+    return await sendRequestPong('GET', 'invitation/outgoing/list/');
 }
 
 export async function getPendingInvitationsIncoming() {
-    return await sendRequest('GET', 'invitation/incoming/list/');
+    return await sendRequestPong('GET', 'invitation/incoming/list/');
 }
 
 export async function createPongMatchInvitation(friendName) {
-    return await sendRequest('POST', 'invitation/create/', {receiver: friendName});
+    return await sendRequestPong('POST', 'invitation/create/', { receiver: friendName });
 }
 
 export async function getInvitationDetail(token) {
-    return await sendRequest('GET', `invitation/detail/${token}`);
+    return await sendRequestPong('GET', `invitation/detail/${token}`);
 }
-// denys an invitation you've received
+
 export async function denyInvitation(token) {
-    return await sendRequest('POST', `invitation/deny/${token}`);
+    return await sendRequestPong('POST', `invitation/deny/${token}`);
 }
-//cancels an invitation you've sent
+
 export async function cancelInvitation(token) {
-    return await sendRequest('POST', `invitation/cancel/${token}`);
+    return await sendRequestPong('POST', `invitation/cancel/${token}`);
 }
 
 export async function acceptInvitation(token) {
-    return await sendRequest('GET', `match/join/${token}/`);
+    return await sendRequestPong('GET', `match/join/${token}/`);
 }
 
 export async function getPendingMatches() {
-    return await sendRequest('GET', 'match/pending/');
+    return await sendRequestPong('GET', 'match/pending/');
 }
 
 export async function getTournaments() {
-    return await sendRequest('GET', 'tournaments/');
+    return await sendRequestPong('GET', 'tournaments/');
 }
 
 export async function editTournament(tournamentId, data) {
-    return await sendRequest('POST', `tournaments/${tournamentId}/edit/`, data);
+    return await sendRequestPong('POST', `tournaments/${tournamentId}/edit/`, data);
 }
 
 export async function startTournament(tournamentId) {
-    return await sendRequest('POST', `tournaments/${tournamentId}/start/`);
+    return await sendRequestPong('POST', `tournaments/${tournamentId}/start/`);
 }
 
 export async function getTournamentGames(tournamentId) {
-    return await sendRequest('GET', `tournaments/${tournamentId}/games/`);
-}
-
-async function sendRequest(method, endpoint, body = null, isFormData = false) {
-    console.log("endpoint: ", endpoint);
-    try {
-       // if (body && !isFormData) console.log('Payload:', JSON.stringify(body));
-        
-        const headers = isFormData ? {} : { 'Content-Type': 'application/json' };
-        const response = await fetch(`http://localhost:5052/${endpoint}`, {
-            method,
-            credentials: 'include',
-            headers,
-            body: body ? (isFormData ? body : JSON.stringify(body)) : null
-        });
-
-        let responseData = null;
-
-        if (response.status !== 204) {
-            try {
-                responseData = await response.json();
-            } catch (parseError) {
-                console.error('Error parsing response JSON:', parseError);
-            }
-        }
-
-        if (!response.ok) {
-            console.error('Request failed with status:', response.status);
-            console.error('Error details:', responseData);
-            return { status: "error", message: responseData?.message || "Request failed" };
-        }
-
-        console.log('Response:', response.status, responseData);
-        return responseData || { status: "success", message: "No content" };
-    } catch (error) {
-        console.error(`Error en ${method} ${endpoint}:`, error);
-        return { status: "error", message: "An unexpected error occurred" };
-    }
+    return await sendRequestPong('GET', `tournaments/${tournamentId}/games/`);
 }

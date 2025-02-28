@@ -1,18 +1,10 @@
 import { getNotifications, markNotification } from "../../app/notifications.js";
-
-/*
-urlpatterns = [
-    path('notifications/', PendingNotificationsView.as_view(), name='pending-notifications'),
-    path('notifications/mark/', MarkNotification.as_view(), name='mark-notification')
-]
-websocket_urlpatterns = [
-    path('ws/events/', NotificationConsumer.as_asgi())
-]
-*/
+import { refreshAccessToken } from "../../app/auth.js";
 
 let notiSocket = null;
 let reconnectAttempts = 0;
 const MAX_RECONNECT_DELAY = 30000; // Máximo 30s de espera entre reconexiones
+let attemptedReconnection = false;  // Para evitar bucles infinitos de refresh
 
 export function initializeNotificationEvents() {
     initializeNotificationsSocket();
@@ -30,7 +22,8 @@ function initializeNotificationsSocket() {
     notiSocket.onopen = () => {
         console.log("[WebSocket] Notifications connected");
         reconnectAttempts = 0; // Reset reconnection attempts
-        startKeepAlive(); // Inicia el keepalive pings
+        attemptedReconnection = false; // Reset after successful connection
+        startKeepAlive();
     };
 
     notiSocket.onmessage = (event) => {
@@ -41,8 +34,23 @@ function initializeNotificationsSocket() {
         console.error("[WebSocket] Error:", error);
     };
 
-    notiSocket.onclose = () => {
-        console.warn("[WebSocket] Disconnected, attempting to reconnect...");
+    notiSocket.onclose = async (event) => {
+        console.warn(`[WebSocket] Disconnected (code ${event.code}), attempting to reconnect...`);
+
+        // Intentar refresh si es un cierre rápido (asumiendo que podría ser por auth)
+        if (!attemptedReconnection) {
+            attemptedReconnection = true;
+            const refreshed = await refreshAccessToken();
+
+            if (refreshed) {
+                console.log("[WebSocket] Token refreshed, retrying notifications WebSocket connection...");
+                setTimeout(initializeNotificationsSocket, 1000);  // Reintenta tras 1 segundo si refresh tuvo éxito
+                return;
+            } else {
+                console.warn("[WebSocket] Token refresh failed, continuing with regular reconnect strategy...");
+            }
+        }
+
         scheduleReconnect();
     };
 }
@@ -60,7 +68,7 @@ function startKeepAlive() {
             notiSocket.send(JSON.stringify({ type: "ping" }));
             console.log("[WebSocket] Sent keepalive ping");
         }
-    }, 30000); // Every 30 seconds
+    }, 30000);
 }
 
 function handleReceivedNotification(event) {
@@ -96,7 +104,6 @@ export async function renderNotifications() {
     });
 }
 
-// API Request: Get pending notifications
 async function handleGetNotifications() {
     try {
         const response = await getNotifications();
@@ -109,7 +116,6 @@ async function handleGetNotifications() {
     return [];
 }
 
-// API Request: Mark a notification as read
 async function handleMarkNotification(event, notificationId, card) {
     event.preventDefault();
     try {
