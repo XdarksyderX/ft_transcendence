@@ -20,8 +20,6 @@ su postgres -c "psql -c \"ALTER USER $SOCIALDB_USER CREATEDB;\""
 python3 service/manage.py makemigrations core
 python3 service/manage.py migrate
 
-redis-server &
-
 cd service
 
 celery -A config worker --loglevel=info --queues=social.user_registered,social.user_deleted,social.username_changed,social.pong.match_invitation,social.pong.tournament_invitation,social.pong.tournament_invitation &
