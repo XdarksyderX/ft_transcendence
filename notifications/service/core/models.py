@@ -3,11 +3,7 @@ from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
     username = models.CharField(max_length=20, unique=True, verbose_name='Username')
-    friends = models.ManyToManyField(
-        'User',
-        blank=True,
-        related_name='friends'
-    )
+    friends = models.ManyToManyField('self', symmetrical=True, blank=True)
     notifications = models.ManyToManyField(
         'Notification',
         blank=True,
