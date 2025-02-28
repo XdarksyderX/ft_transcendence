@@ -201,7 +201,13 @@ class PendingInvitationDenyView(APIView):
                     "status": "error",
                     "message": "You are not authorized to deny this invitation"
                 }, status=status.HTTP_403_FORBIDDEN)
+            event = {
+                'invitation_token': invitation.token,
+                'denied_by': invitation.receiver.id,
+                'invited_by': invitation.sender.id
+            }
             invitation.delete()
+            publish_event('pong', 'pong.invitation_deny', {})
             return Response({
                 "status": "success",
                 "message": "Invitation cancelled successfully"
@@ -223,6 +229,12 @@ class PendingInvitationCancelView(APIView):
                     "message": "You are not authorized to cancel this invitation"
                 }, status=status.HTTP_403_FORBIDDEN)
             invitation.delete()
+            event = {
+                'invitation_token': invitation.token,
+                'cancelled_by': invitation.sender.id,
+                'invited_user': invitation.receiver.id
+            }
+            publish_event('pong', 'pong.invitation_cancel', event)
             return Response({
                 "status": "success",
                 "message": "Invitation cancelled successfully"
