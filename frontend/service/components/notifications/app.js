@@ -27,6 +27,7 @@ export async function renderNotifications() {
     });
 }
 
+// API Request: Get pending notifications
 async function handleGetNotifications() {
     try {
         const response = await getNotifications();
