@@ -7,6 +7,60 @@ export function initializeNotificationEvents() {
     document.getElementById("notifications-toggle").addEventListener('click', renderNotifications);
 }
 
+function initializeNotificationsSocket() {
+    if (notiSocket && notiSocket.readyState !== WebSocket.CLOSED) {
+        console.log("[WebSocket] Already connected or connecting...");
+        return;
+    }
+
+    notiSocket = new WebSocket(`ws://localhost:5054/ws/events/`);
+
+    notiSocket.onopen = () => {
+        console.log("[WebSocket] Notifications connected");
+        reconnectAttempts = 0; // Reset reconnection attempts
+        startKeepAlive(); // Inicia el keepalive pings
+    };
+
+    notiSocket.onmessage = (event) => {
+        handleReceivedNotification(event);
+    };
+
+    notiSocket.onerror = (error) => {
+        console.error("[WebSocket] Error:", error);
+    };
+
+    notiSocket.onclose = () => {
+        console.warn("[WebSocket] Disconnected, attempting to reconnect...");
+        scheduleReconnect();
+    };
+}
+
+function scheduleReconnect() {
+    const delay = Math.min(1000 * (2 ** reconnectAttempts), MAX_RECONNECT_DELAY);
+    console.log(`[WebSocket] Reconnecting in ${delay / 1000} seconds...`);
+    setTimeout(initializeNotificationsSocket, delay);
+    reconnectAttempts++;
+}
+
+function startKeepAlive() {
+    setInterval(() => {
+        if (notiSocket.readyState === WebSocket.OPEN) {
+            notiSocket.send(JSON.stringify({ type: "ping" }));
+            console.log("[WebSocket] Sent keepalive ping");
+        }
+    }, 30000); // Every 30 seconds
+}
+
+function handleReceivedNotification(event) {
+    try {
+        const data = JSON.parse(event.data);
+        console.log("[WebSocket] Notification received:", data);
+        renderNotifications();
+    } catch (error) {
+        console.error("[WebSocket] Error parsing message:", error);
+    }
+}
+
 export async function renderNotifications() {
     const allNotifications = await handleGetNotifications();
     const notifications = filterNotifications(allNotifications);
@@ -27,7 +81,6 @@ export async function renderNotifications() {
     });
 }
 
-// API Request: Get pending notifications
 async function handleGetNotifications() {
     try {
         const response = await getNotifications();
@@ -78,7 +131,6 @@ function getNotificationText(content) {
 
 
 
-// API Request: Mark a notification as read
 async function handleMarkNotification(event, notificationId, card) {
     event.preventDefault();
     try {

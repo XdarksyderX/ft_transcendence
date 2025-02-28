@@ -1,125 +1,80 @@
-
-import { navigateTo } from './router.js';
 import { handleSearchUsers } from '../components/friends/requests.js';
-
-export const ONLINE = true;
-export const OFFLINE = false;
-
-export async function setOnlineStatus(status) {
-    return await sendRequest('POST', 'online-status', { is_online: status });
-}
+import { sendRequestSocial } from './sendRequest.js';
 
 export async function getFriendsList() {
-    return await sendRequest('GET', 'friends/list/');
+    return await sendRequestSocial('GET', 'friends/list/');
 }
 
 export async function removeFriend(username) {
-    return await sendRequest('POST', `friends/remove/${username}/`);
+    return await sendRequestSocial('POST', `friends/remove/${username}/`);
 }
 
 export async function getPendingReceivedRequests() {
-    return await sendRequest('GET', 'requests/pending/received/');
+    return await sendRequestSocial('GET', 'requests/pending/received/');
 }
 
 export async function getPendingSentRequests() {
-    return await sendRequest('GET', 'requests/pending/sent/');
+    return await sendRequestSocial('GET', 'requests/pending/sent/');
 }
 
 export async function acceptFriendRequest(invitationId) {
-    return await sendRequest('POST', `requests/accept/${invitationId}/`);
+    return await sendRequestSocial('POST', `requests/accept/${invitationId}/`);
 }
 
 export async function declineFriendRequest(invitationId) {
-    return await sendRequest('POST', `requests/decline/${invitationId}/`);
+    return await sendRequestSocial('POST', `requests/decline/${invitationId}/`);
 }
 
 export async function sendFriendRequest(username) {
-    return await sendRequest('POST', `requests/send/${username}/`);
+    return await sendRequestSocial('POST', `requests/send/${username}/`);
 }
 
 export async function cancelFriendRequest(invitationId) {
-    return await sendRequest('POST', `requests/cancel/${invitationId}/`);
+    return await sendRequestSocial('POST', `requests/cancel/${invitationId}/`);
 }
 
 export async function blockUser(username) {
-    return await sendRequest('POST', `block/user/${username}/`);
+    return await sendRequestSocial('POST', `block/user/${username}/`);
 }
 
 export async function unblockUser(username) {
-    return await sendRequest('POST', `block/unblock/${username}/`);
+    return await sendRequestSocial('POST', `block/unblock/${username}/`);
 }
 
 export async function isUserBlocked(username) {
-    return await sendRequest('GET', `block/is-blocked/${username}/`);
+    return await sendRequestSocial('GET', `block/is-blocked/${username}/`);
 }
 
 export async function getBlockedList() {
-    return await sendRequest('GET', 'block/list/');
+    return await sendRequestSocial('GET', 'block/list/');
 }
 
 export async function getProfile() {
-    return await sendRequest('GET', 'profile/');
+    return await sendRequestSocial('GET', 'profile/');
 }
 
 export async function searchUsers(username) {
-    return await sendRequest('GET', `search/${username}/`);
+    return await sendRequestSocial('GET', `search/${username}/`);
 }
 
 export async function changeAvatar(formData) {
-    return await sendRequest('POST', 'change-avatar', formData, true);
+    return await sendRequestSocial('POST', 'change-avatar', formData, true);
 }
 
 export async function getAllChats() {
-    return await sendRequest('GET', 'history/all/');
+    return await sendRequestSocial('GET', 'history/all/');
 }
 
 export async function getMessages(user_id) {
-    return await sendRequest('GET', `messages/${user_id}/`);
+    return await sendRequestSocial('GET', `messages/${user_id}/`);
 }
 
 export async function markAsReadMessage(user_id) {
-    return await sendRequest('POST', `messages/read/${user_id}/`);
-}
-
-async function sendRequest(method, endpoint, body = null, isFormData = false) {
-    console.log("endpoint: ", endpoint);
-    try {
-        if (body && !isFormData) console.log('Payload:', JSON.stringify(body));
-        
-        const headers = isFormData ? {} : { 'Content-Type': 'application/json' };
-        const response = await fetch(`http://localhost:5051/${endpoint}`, {
-            method,
-            credentials: 'include',
-            headers,
-            body: body ? (isFormData ? body : JSON.stringify(body)) : null
-        });
-
-        let responseData = null;
-
-        if (response.status !== 204) {
-            try {
-                responseData = await response.json();
-            } catch (parseError) {
-                console.error('Error parsing response JSON:', parseError);
-            }
-        }
-
-        if (!response.ok) {
-            console.error('Request failed with status:', response.status);
-            console.error('Error details:', responseData);
-            return { status: "error", message: responseData?.message || "Request failed" };
-        }
-
-        console.log('Response:', response.status, responseData);
-        return responseData || { status: "success", message: "No content" };
-    } catch (error) {
-        console.error(`Error en ${method} ${endpoint}:`, error);
-        return { status: "error", message: "An unexpected error occurred" };
-    }
+    return await sendRequestSocial('POST', `messages/read/${user_id}/`);
 }
 
 /**
- * Retrieves the avatar URL for a user. It will work with the username, the user object, or the path
+ * Retrieves the avatar URL for a user. It will work with the username, the user object, or the path.
  *
  * @param {string|null} username - The username of the user (optional).
  * @param {object|null} user - The user object containing user details (optional).
@@ -129,7 +84,6 @@ async function sendRequest(method, endpoint, body = null, isFormData = false) {
  * @throws {Error} - If the user is not found.
  * @throws {Error} - If the avatar path is invalid.
  */
-
 export async function getAvatar(username = null, user = null, path = null) {
     if (!path) {
         if (!user) {
@@ -137,7 +91,6 @@ export async function getAvatar(username = null, user = null, path = null) {
                 throw new Error("Username, user object, or path must be provided");
             }
             console.log('username: ', username);
-            // Perform an asynchronous search for the user.
             const search = await handleSearchUsers(username);
             if (search) {
                 user = search.find(u => u.username === username);
