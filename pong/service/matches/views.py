@@ -14,6 +14,7 @@ from .serializers import (
     PendingMatchesSerializer
 )
 
+
 class MatchHistoryView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -26,6 +27,7 @@ class MatchHistoryView(APIView):
             "message": "Match history retrieved successfully",
             "matches": serializer.data
         })
+
 
 class MatchDetailView(APIView):
     permission_classes = [IsAuthenticated]
@@ -46,6 +48,7 @@ class MatchDetailView(APIView):
             "match": serializer.data
         })
 
+
 class PendingInvitationCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -56,6 +59,7 @@ class PendingInvitationCreateView(APIView):
                 "status": "error",
                 "message": "The 'receiver' field is required."
             }, status=status.HTTP_400_BAD_REQUEST)
+
         try:
             receiver_user = User.objects.get(username=receiver_username)
         except User.DoesNotExist:
@@ -63,18 +67,19 @@ class PendingInvitationCreateView(APIView):
                 "status": "error",
                 "message": "The receiver does not exist."
             }, status=status.HTTP_400_BAD_REQUEST)
+
         if receiver_user not in request.user.friends.all():
             return Response({
                 "status": "error",
                 "message": "The user is not your friend."
             }, status=status.HTTP_400_BAD_REQUEST)
+
         sender = request.user
         game = PongGame.objects.create(
             player1=sender,
             player2=receiver_user,
             status='pending',
             available=True,
-            
         )
         invitation = PendingInvitation.objects.create(
             sender=sender,
@@ -82,13 +87,15 @@ class PendingInvitationCreateView(APIView):
             game=game,
             token=str(uuid.uuid4())
         )
+
         event = {
             'sender_id': invitation.sender.id,
             'receiver_id': invitation.receiver.id,
             'invitation_token': invitation.token
         }
         publish_event('pong', 'pong.match_invitation', event)
-        invitation = {
+
+        invitation_data = {
             "sender": invitation.sender.username,
             "receiver": invitation.receiver.username,
             "token": invitation.token,
@@ -97,7 +104,7 @@ class PendingInvitationCreateView(APIView):
         return Response({
             "status": "success",
             "message": "Invitation created successfully",
-            "invitation": invitation
+            "invitation": invitation_data
         }, status=status.HTTP_201_CREATED)
 
 
@@ -112,11 +119,12 @@ class PendingInvitationDetailView(APIView):
                 "status": "error",
                 "message": "Invitation not found"
             }, status=status.HTTP_404_NOT_FOUND)
-        
+
         serializer = PendingInvitationDetailSerializer(invitation, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response({"status": "success", "data": serializer.data})
+
         return Response({
             "status": "error",
             "message": "Invalid data provided",
@@ -126,12 +134,13 @@ class PendingInvitationDetailView(APIView):
 
 class JoinMatchView(APIView):
     permission_classes = [IsAuthenticated]
+
     def get(self, request, token):
         existing_game = PongGame.objects.filter(
-            (Q(player1=request.user) | Q(player2=request.user)) & 
+            (Q(player1=request.user) | Q(player2=request.user)) &
             Q(status='in_progress')
         ).first()
-        
+
         if existing_game:
             return Response({
                 "status": "error",
@@ -155,6 +164,7 @@ class JoinMatchView(APIView):
         game.status = 'in_progress'
         game.save()
         invitation.delete()
+
         event = {
             'game_id': game.id,
             'accepted_by': request.user.id,
@@ -178,7 +188,7 @@ class InProgressMatchesView(APIView):
             status='in_progress',
             available=True
         ).filter(Q(player1=user) | Q(player2=user)).first()
-        
+
         if in_progress_match:
             serializer = PendingMatchesSerializer(in_progress_match, context={'request': request})
             match_data = serializer.data
@@ -191,8 +201,10 @@ class InProgressMatchesView(APIView):
             "match": match_data
         })
 
+
 class PendingInvitationDenyView(APIView):
     permission_classes = [IsAuthenticated]
+
     def post(self, request, token):
         try:
             invitation = PendingInvitation.objects.get(token=token)
@@ -201,25 +213,29 @@ class PendingInvitationDenyView(APIView):
                     "status": "error",
                     "message": "You are not authorized to deny this invitation"
                 }, status=status.HTTP_403_FORBIDDEN)
+
             event = {
                 'invitation_token': invitation.token,
                 'denied_by': invitation.receiver.id,
                 'invited_by': invitation.sender.id
             }
             invitation.delete()
-            publish_event('pong', 'pong.invitation_deny', {})
+            publish_event('pong', 'pong.invitation_decline', event)
+
             return Response({
                 "status": "success",
-                "message": "Invitation cancelled successfully"
+                "message": "Invitation declined successfully"
             })
         except PendingInvitation.DoesNotExist:
             return Response({
-                "status": "error", 
+                "status": "error",
                 "message": "Invitation not found"
             }, status=status.HTTP_404_NOT_FOUND)
 
+
 class PendingInvitationCancelView(APIView):
     permission_classes = [IsAuthenticated]
+
     def post(self, request, token):
         try:
             invitation = PendingInvitation.objects.get(token=token)
@@ -228,23 +244,26 @@ class PendingInvitationCancelView(APIView):
                     "status": "error",
                     "message": "You are not authorized to cancel this invitation"
                 }, status=status.HTTP_403_FORBIDDEN)
-            invitation.delete()
+
             event = {
                 'invitation_token': invitation.token,
                 'cancelled_by': invitation.sender.id,
                 'invited_user': invitation.receiver.id
             }
-            publish_event('pong', 'pong.invitation_cancel', event)
+            invitation.delete()
+            publish_event('pong', 'pong.invitation_cancelled', event)
+
             return Response({
                 "status": "success",
                 "message": "Invitation cancelled successfully"
             })
         except PendingInvitation.DoesNotExist:
             return Response({
-                "status": "error", 
+                "status": "error",
                 "message": "Invitation not found"
             }, status=status.HTTP_404_NOT_FOUND)
-        
+
+
 class PendingInvitationOutgoingListView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -256,6 +275,7 @@ class PendingInvitationOutgoingListView(APIView):
             "message": "Outgoing invitations retrieved successfully",
             "invitations": serializer.data
         })
+
 
 class PendingInvitationIncomingListView(APIView):
     permission_classes = [IsAuthenticated]
