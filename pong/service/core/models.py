@@ -79,7 +79,7 @@ class PongGame(models.Model):
     start_speed = models.FloatField(default=7.5)
     speed_up_multiple = models.FloatField(default=1.02)
     max_speed = models.IntegerField(default=20)
-    points_to_win = models.IntegerField(default=20)
+    points_to_win = models.IntegerField(default=3)
 
     score_player1 = models.IntegerField(default=0)
     score_player2 = models.IntegerField(default=0)
