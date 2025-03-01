@@ -115,6 +115,8 @@ body::before {
   color: var(--light);
   margin-top: 60px;
   margin-right: 20px;
+  z-index: 100 !important;
+  position: absolute !important;
 }
 
 .cancel-btn {
