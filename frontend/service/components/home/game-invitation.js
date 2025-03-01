@@ -1,5 +1,5 @@
 import { createPongMatchInvitation, acceptInvitation, denyInvitation, cancelInvitation } from "../../app/pong.js";
-import { throwAlert } from "../../app/render.js";
+import { throwAlert, throwToast } from "../../app/render.js";
 import { navigateTo } from "../../app/router.js";
 
 function launchWaitModal(friendName, game, token) {
@@ -9,10 +9,9 @@ function launchWaitModal(friendName, game, token) {
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title ctm-text-title" id="waitGameLabel">Waiting for ${friendName}</h5>
-                        <button type="button" class="close-modal" data-bs-dismiss="modal" aria-label="Close">x</button>
                     </div>
                     <div class="modal-body">
-                        <p id="modal-text">Waiting for ${friendName} to start a game of ${game}...</p>
+                        <p id="modal-text" data-username=${friendName}>Waiting for ${friendName} to start a game of ${game}...</p>
                         <div class="progress mt-3 position-relative" style="height: 30px;">
                             <div id="progress-bar" class="progress-bar" style="width: 100%" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                             <span id="timer" class="position-absolute top-50 start-50 translate-middle"></span>
@@ -30,7 +29,10 @@ function launchWaitModal(friendName, game, token) {
     modalElement.innerHTML = modalHTML;
     document.body.appendChild(modalElement);
 
-    const modal = new bootstrap.Modal(modalElement.querySelector('#wait-game'));
+    const modal = new bootstrap.Modal(modalElement.querySelector('#wait-game'), {
+        backdrop: 'static', // Evita cerrar la modal al hacer clic fuera
+        keyboard: false     // Evita cerrar la modal con la tecla escape
+    });
     modal.show();
 
 
@@ -41,6 +43,29 @@ function launchWaitModal(friendName, game, token) {
 		handleCancelInvitation(token);
         modal.hide();
     });
+}
+
+export function handleAcceptedInvitation(game) {
+    const modalElement = document.getElementById('wait-game');
+    if (modalElement) {
+        const modalInstance = bootstrap.Modal.getInstance(modalElement);
+        if (modalInstance) {
+            modalInstance.hide();
+        }
+    }
+    navigateTo(`/${game}`);
+}
+
+export function handleDeclinedInvitation() {
+    const modalElement = document.getElementById('wait-game');
+    if (modalElement) {
+        const modalInstance = bootstrap.Modal.getInstance(modalElement);
+        if (modalInstance) {
+            modalInstance.hide();
+        }
+        const name = modalElement.querySelector('#modal-text').dataset.username;
+        throwToast(`${name} declined your invitation`);
+    }
 }
 
 function handleProgressBar(modal, modalElement, token) {
@@ -57,6 +82,7 @@ function handleProgressBar(modal, modalElement, token) {
         timer.textContent = `${time}`;
         if (progress <= 0) {
             clearInterval(interval);
+            handleCancelInvitation(token);
             modal.hide();
         }
         if (progress < 50) {
@@ -67,7 +93,6 @@ function handleProgressBar(modal, modalElement, token) {
     }, 300);
     waitGame.addEventListener('hidden.bs.modal', () => {
         clearInterval(interval);
-		handleCancelInvitation(token);
         progressBar.style.width = '100%';
         progressBar.setAttribute('aria-valuenow', 100);
         timer.textContent = '30s';

@@ -1,11 +1,12 @@
 import { getUsername } from "../../app/auth.js";
+import { throwToast } from "../../app/render.js";
 import { refreshFriendsFriendlist, refreshFriendData } from "../friends/app.js";
 import { refreshTournamentFriendList } from "../tournament/new.js";
 import { refreshChatFriendList, updateNotificationIndicator } from "../chat/app.js";
 import { renderPendingFriendRequests, refreshIfDeclined } from "../friends/requests.js";
 import { navigateTo } from "../../app/router.js";
 import { getNotificationText, updateNotificationBell } from "./app.js";
-import { throwToast } from "../../app/render.js";
+import { handleAcceptedInvitation, handleDeclinedInvitation } from "../home/game-invitation.js";
 
 let notiSocket = null;
 let reconnectAttempts = 0;
@@ -29,10 +30,10 @@ const notificationHandlers = {
     tournament_invitation: () => console.log("[WebSocket] You have a tournament invitation"),
     tournament_start: () => console.log("[WebSocket] Tournament started"),
     tournament_end: () => console.log("[WebSocket] Tournament ended"),
-    pong_match_accepted: () => navigateTo('/pong'),
-    //pong_match_decline: 
-    //chess_match_decline: 
-    chess_match_accepted: () => navigateTo('/chess')
+    pong_match_accepted: () => handleAcceptedInvitation('pong'),
+    pong_match_decline: () => handleDeclinedInvitation(),
+    chess_match_decline: () => handleDeclinedInvitation(),
+    chess_match_accepted: () => handleAcceptedInvitation('chess')
 };
  
 
@@ -74,7 +75,7 @@ function scheduleReconnect() {
 function startKeepAlive() {
     setInterval(() => {
         if (notiSocket.readyState === WebSocket.OPEN) {
-            notiSocket.send(JSON.stringify({ notification_type: "ping" }));
+            notiSocket.send(JSON.stringify({ event_type: "ping" }));
             console.log("[WebSocket] Sent keepalive ping");
         }
     }, 30000); // Every 30 seconds
@@ -86,7 +87,6 @@ function handleReceivedNotification(event) {
         const data = JSON.parse(event.data);
 		const type = data.event_type;
 		if (data.user === getUsername() || type == 'ping') {
-            console.log("NOPE");
 			return ;
 		}
 		const handler = notificationHandlers[type];
