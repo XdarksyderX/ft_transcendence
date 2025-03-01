@@ -1,7 +1,8 @@
-import { getNotifications, markNotification } from "../../app/notifications.js";
+import { getNotifications, markNotification, hasPendingNotification } from "../../app/notifications.js";
 import { initializeNotificationsSocket } from "./socket.js";
 import { getUsername } from "../../app/auth.js";
 
+const bell = document.getElementById('bell');
 export function initializeNotificationEvents() {
     initializeNotificationsSocket();
     document.getElementById("notifications-toggle").addEventListener('click', renderNotifications);
@@ -11,7 +12,7 @@ export async function renderNotifications() {
     const allNotifications = await handleGetNotifications();
     const notifications = filterNotifications(allNotifications);
     const container = document.getElementById('notifications-container');
-    const bell = document.getElementById('bell');
+
     container.innerHTML = '';
     if (notifications.length === 0) {
         container.innerText = "You don't have any notifications";
@@ -25,6 +26,21 @@ export async function renderNotifications() {
         card.addEventListener('click', (event) => handleMarkNotification(event, notifi.id, card));
         container.appendChild(card);
     });
+}
+
+export async function updateNotificationBell(on = null) {
+    const loggedContent = document.getElementById('logged-content');
+    if (loggedContent.classList.contains('hidden')) {
+        return ;
+    }
+    if (!on) {
+        const response = await hasPendingNotification();
+        if (response.status === "success") {
+            on = response.has_pending_notifications;
+        }
+    }
+    const color = on ? 'var(--accent)' : 'var(--light)';
+    bell.style.color = color;
 }
 
 // API Request: Get pending notifications
@@ -48,7 +64,7 @@ function filterNotifications(all) {
             return user != username;
         })
         .map(notifi => { // creates a map with the display text of each one
-            let displayText = getNotificationText(notifi.content);
+            let displayText = getNotificationText(JSON.parse(notifi.content));
             return {
                 ...notifi,
                 displayText
@@ -57,17 +73,16 @@ function filterNotifications(all) {
         .filter(notifi => notifi.displayText !== null);
 }
 
-function getNotificationText(content) {
-    const data = JSON.parse(content);
-    const type = data.event_type;
+export function getNotificationText(notiContent) {
+    const { event_type, user} = notiContent;
 
-    switch (type) {
+    switch (event_type) {
         case 'request_sent':
             return 'You have a new friend request';
         case 'friend_added':
-            return 'One of your friend requests has been approved, go check ;)';
-        case 'tournament_started':
-            return 'esto no existe todavía';
+            return `${user} has accepted your friend request c:`;
+        case 'tournament_start':
+            return 'A tournament you signed in is ready to start!';
         default: // 'friend_removed' 'request_declined' 'request_cancelled'  'avatar_changed' shouldnt generate notification
             return null;
     }
@@ -76,10 +91,16 @@ function getNotificationText(content) {
 // API Request: Mark a notification as read
 async function handleMarkNotification(event, notificationId, card) {
     event.preventDefault();
+    event.stopPropagation();
     try {
         const response = await markNotification(notificationId);
         if (response.status === 'success') {
             card.remove();
+            const container = document.getElementById('notifications-container');
+            if (container.children.length === 0) {
+                const dropdown = bootstrap.Dropdown.getInstance(document.getElementById('notifications-toggle'));
+                dropdown.hide();
+            }
         }
     } catch (error) {
         console.error('[API] Error marking notification as read:', error);
