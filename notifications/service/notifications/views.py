@@ -18,6 +18,18 @@ class PendingNotificationsView(APIView):
 		}
 		return Response(response)
 
+class HasPendingNotificationsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        has_pending_notifications = Notification.objects.filter(receiver=user).exists()
+        response = {
+            "status": "success",
+            "has_pending_notifications": has_pending_notifications
+        }
+        return Response(response)
+
 class MarkNotification(APIView):
 	permission_classes = [IsAuthenticated]
 
