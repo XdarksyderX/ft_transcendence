@@ -81,7 +81,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
     async def keepalive(self):
         while True:
             try:
-                await self.send(json.dumps({"type": "ping"}))
+                await self.send(json.dumps({"notification_type": "ping"}))
             except Exception as e:
                 print(f"[WebSocket] Connection lost: {e}")
                 break

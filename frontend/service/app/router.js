@@ -19,6 +19,7 @@ import { initializeResetPasswordEvents } from '../components/login/reset-pw.js';
 import { initializePongEvents } from '../components/pong/app.js';
 import { initializeNotificationEvents } from '../components/notifications/app.js';
 import { stopBackgroundMusic, toggleBackgroundMusic } from '../components/chess/index.js';
+import { updateNotificationBell } from '../components/notifications/app.js';
 
 const routes = [
     { url: "/404", file: "./components/error/404.html", allowed: true },
@@ -209,6 +210,7 @@ async function initRouteEvents() {
     console.log("initRouteEvents function called");
     await navigateTo(window.location.pathname);
     router();
+    updateNotificationBell();
     document.body.addEventListener("click", (e) => {
         if (e.target.matches("[data-link]") || e.target.tagName === 'A') {
             e.preventDefault();

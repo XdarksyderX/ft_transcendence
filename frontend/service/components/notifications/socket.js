@@ -1,9 +1,11 @@
 import { getUsername } from "../../app/auth.js";
 import { refreshFriendsFriendlist, refreshFriendData } from "../friends/app.js";
 import { refreshTournamentFriendList } from "../tournament/new.js";
-import { refreshChatFriendList } from "../chat/app.js";
+import { refreshChatFriendList, updateNotificationIndicator } from "../chat/app.js";
 import { renderPendingFriendRequests, refreshIfDeclined } from "../friends/requests.js";
 import { navigateTo } from "../../app/router.js";
+import { getNotificationText, updateNotificationBell } from "./app.js";
+import { throwToast } from "../../app/render.js";
 
 let notiSocket = null;
 let reconnectAttempts = 0;
@@ -82,16 +84,24 @@ function handleReceivedNotification(event) {
 	console.log("[WebSocket] Notification received:", event.data);
     try {
         const data = JSON.parse(event.data);
-		if (data.user === getUsername) {
+		const type = data.event_type;
+		if (data.user === getUsername() || type == 'ping') {
+            console.log("NOPE");
 			return ;
 		}
-		const type = data.event_type;
 		const handler = notificationHandlers[type];
         if (handler) {
+            console.log("handler :D");
             handler(data);
-        } else if (type != 'ping') {
+        } else {
             console.warn("[WebSocket] Unhandled notification type:", type);
         }
+        const text = getNotificationText(data);
+        if (text) {
+            throwToast(text);
+            updateNotificationBell(true);
+        }
+
     } catch (error) {
         console.error("[WebSocket] Error parsing message:", error);
     }
