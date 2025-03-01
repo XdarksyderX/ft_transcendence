@@ -123,44 +123,56 @@ function connectToOnlineGame(gameKey)
             "status": "in_progress"
         }
     })
+    
+    // Define event handler functions for consistent reference
+    function handleKeyDown(event) {
+        keyDownHandlerOnline(event, socket);
+    }
+
+    function handleKeyUp(event) {
+        keyUpHandlerOnline(event, socket);
+    }
+
     socket.onopen = () =>
     {
         console.log("WebSocket connected to game:", gameKey);
         socket.send(JSON.stringify({ action: "ready" })); // Send "ready" signal
-        updateGameState()
+
+        // Attach event listeners once when the connection opens
+        document.addEventListener("keydown", handleKeyDown);
+        document.addEventListener("keyup", handleKeyUp);
     };
 
     socket.onmessage = (event) =>
     {
         const message = JSON.parse(event.data);
-        //console.log("WebSocket message:", message);
-        if (message.status === "game_starting") 
+        console.log("WebSocket message:", message);
+        
+        if (message.status === "game_starting")
         {
             console.log("Game is starting!");
-            // Attach key_hooks
-            document.addEventListener("keydown", (event) => keyDownHandlerOnline(event, socket));
-            document.addEventListener("keyup", (event) => keyUpHandlerOnline(event, socket));
             hideMenu();
         }
-        else if (message.status === "game_update") 
+        else if (message.status === "game_update")
         {
             updateGameState(message.state);
         }
     };
 
-    window.addEventListener("beforeunload", () => 
+    window.addEventListener("beforeunload", () =>
     {
         if (socket.readyState === WebSocket.OPEN) 
-            socket.send(JSON.stringify({ action: "move", direction: "STOP" })); // Send player STOP upon disconnection
+        {
+            socket.send(JSON.stringify({ action: "move", direction: "STOP" }));
+        }
     });
 
-    socket.onclose = () => 
+    socket.onclose = () =>
     {
         console.log("WebSocket Closed.");
-        
-        // Remove event listeners to avoid issues on reconnection
-        document.removeEventListener("keydown", keyDownHandlerOnline); // Dont know how to handle reinstating keyhooks on reconnection but leaving it like this for now
-        document.removeEventListener("keyup", keyUpHandlerOnline);
+        // Remove event listeners using the same function references
+        document.removeEventListener("keydown", handleKeyDown);
+        document.removeEventListener("keyup", handleKeyUp);
     };
 
     socket.onerror = (error) => console.error("WebSocket Error:", error);
@@ -191,7 +203,10 @@ function updateGameState(state)
     ball.y = state.ball.y;
 
     // Render the updated positions
-    renderGame();
+    requestAnimationFrame(() =>
+    {
+        renderGame(); // Assuming renderGame is defined elsewhere
+    });
 }
 
 function renderGame()
@@ -221,9 +236,11 @@ let moveMessageQueue = null;
 let sendingMove = false;
 const MOVE_INTERVAL = 50;
 
-function queueMoveMessage(direction, socket) {
+function queueMoveMessage(direction, socket)
+{
     moveMessageQueue = direction;
-    if (!sendingMove) {
+    if (!sendingMove)
+    {
         sendingMove = true;
         setTimeout(() => {
             if (socket.readyState === WebSocket.OPEN && moveMessageQueue !== null) {
