@@ -3,7 +3,6 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import ArrayField
 import uuid
 import random
-import math
 
 class User(AbstractUser):
     username = models.CharField(max_length=150, unique=True)
@@ -27,8 +26,6 @@ class User(AbstractUser):
     def __str__(self):
         return self.username
 
-
-# Definición del modelo PongGame
 class PongGame(models.Model):
     """
     Modelo que representa una instancia de juego de Pong.
@@ -86,10 +83,6 @@ class PongGame(models.Model):
 
     def __str__(self):
         return f"Game {self.id}: {self.player1} vs {self.player2} (Key: {self.game_key})"
-
-
-
-
 
 class PongStatistics(models.Model):
     """
