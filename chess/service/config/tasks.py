@@ -16,11 +16,11 @@ def mark_event_as_processed(event_id, event_type):
         event_type=event_type
     )
 
-@shared_task(name="consistency.subscribe_now.pong")
+@shared_task(name="consistency.subscribe_now.chess")
 def handle_subscribe_now():
     try:
         subscription_event = {
-            "service": "pong",
+            "service": "chess",
             "subscribed_events": [
                 "auth.user_registered",
                 "auth.user_deleted",
@@ -53,7 +53,7 @@ def handle_user_registered(event):
     user, created = User.objects.get_or_create(id=event_data["user_id"], defaults={"username": event_data["username"]})
 
     mark_event_as_processed(event_id, event["event_type"])
-    return f"User {event_data['username']} {'created' if created else 'already exists'} in pong service."
+    return f"User {event_data['username']} {'created' if created else 'already exists'} in chess service."
 
 @shared_task(name="auth.user_deleted")
 def handle_user_deleted(event):
@@ -66,7 +66,7 @@ def handle_user_deleted(event):
         user = User.objects.get(id=event_data["user_id"])
         user.delete()
         mark_event_as_processed(event_id, event["event_type"])
-        return f"User {user.username} deleted from pong service."
+        return f"User {user.username} deleted from chess service."
     except User.DoesNotExist:
         return f"User with ID {event_data['id']} does not exist."
 
@@ -82,7 +82,7 @@ def handle_username_changed(event):
         user.username = event_data["username"]
         user.save()
         mark_event_as_processed(event_id, event["event_type"])
-        return f"Username updated to {event_data['username']} in pong service."
+        return f"Username updated to {event_data['username']} in chess service."
     except User.DoesNotExist:
         return f"User with ID {event_data['id']} does not exist."
 

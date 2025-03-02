@@ -51,7 +51,7 @@ def handle_user_registered(event):
     if event_already_processed(event_id):
         return f"Event {event_id} already processed."
 
-    event_data = event["data"]["data"]["attributes"]
+    event_data = event["data"]["attributes"]
     user, created = User.objects.get_or_create(id=event_data["user_id"], defaults={"username": event_data["username"]})
 
     mark_event_as_processed(event_id, event["event_type"])
@@ -64,7 +64,7 @@ def handle_user_deleted(event):
         return f"Event {event_id} already processed."
 
     try:
-        event_data = event["data"]["data"]["attributes"]
+        event_data = event["data"]["attributes"]
         user = User.objects.get(id=event_data["user_id"])
         user.delete()
         mark_event_as_processed(event_id, event["event_type"])
@@ -79,7 +79,7 @@ def handle_username_changed(event):
         return f"Event {event_id} already processed."
 
     try:
-        event_data = event["data"]["data"]["attributes"]
+        event_data = event["data"]["attributes"]
         user = User.objects.get(id=event_data["user_id"])
         user.username = event_data["username"]
         user.save()
@@ -97,7 +97,7 @@ def handle_match_invitation(event):
         return f"Event {event_id} already processed."
 
     try:
-        event_data = event["data"]["data"]["attributes"]
+        event_data = event["data"]["attributes"]
         sender = User.objects.get(id=event_data["sender_id"])
         receiver = User.objects.get(id=event_data["receiver_id"])
         invitation_token = event_data["invitation_token"]
@@ -153,7 +153,7 @@ def handle_tournament_invitation(event):
         return f"Event {event_id} already processed."
 
     try:
-        event_data = event["data"]["data"]["attributes"]
+        event_data = event["data"]["attributes"]
         sender = User.objects.get(id=event_data["sender_id"])
         receiver = User.objects.get(id=event_data["receiver_id"])
         tournament_id = event_data["tournament_id"]
@@ -207,7 +207,7 @@ def handle_user_connected(event):
     if event_already_processed(event_id):
         return f"Event {event_id} already processed."
 
-    event_data = event["data"]["data"]["attributes"]
+    event_data = event["data"]["attributes"]
     user = User.objects.get(id=event_data["user_id"])
     user.is_active = True
     user.save()
@@ -221,7 +221,7 @@ def handle_user_disconnected(event):
     if event_already_processed(event_id):
         return f"Event {event_id} already processed."
 
-    event_data = event["data"]["data"]["attributes"]
+    event_data = event["data"]["attributes"]
     user = User.objects.get(id=event_data["user_id"])
     user.is_active = False
     user.save()

@@ -9,7 +9,6 @@ def wrap_event_data(data: dict, event_type: str, aggregate_id: str, meta: dict =
     host = socket.gethostname()
 
     wrapped_event = {
-        "data": {
             "id": event_id,
             "type": event_type,
             "occurred_on": occurred_on,
@@ -21,7 +20,6 @@ def wrap_event_data(data: dict, event_type: str, aggregate_id: str, meta: dict =
                 **(meta or {}),
                 "host": host
             }
-        }
     }
     return wrapped_event
 

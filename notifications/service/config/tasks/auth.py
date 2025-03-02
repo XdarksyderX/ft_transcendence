@@ -9,7 +9,7 @@ def handle_user_registered(event):
     if event_already_processed(event_id):
         return f"Event {event_id} already processed."
 
-    event_data = event["data"]["data"]["attributes"]
+    event_data = event["data"]["attributes"]
     user_data = {
         "id": event_data["user_id"],
         "username": event_data.get("username", f"user_{event_data['user_id']}")
@@ -30,7 +30,7 @@ def handle_user_deleted(event):
         return f"Event {event_id} already processed."
 
     try:
-        event_data = event["data"]["data"]["attributes"]
+        event_data = event["data"]["attributes"]
         user = User.objects.get(id=event_data["user_id"])
         notification = {
             "event_type": "user_deleted",
@@ -51,7 +51,7 @@ def handle_username_changed(event):
         return f"Event {event_id} already processed."
 
     try:
-        event_data = event["data"]["data"]["attributes"]
+        event_data = event["data"]["attributes"]
         user = User.objects.get(id=event_data["user_id"])
         user.username = event_data["username"]
         user.save()

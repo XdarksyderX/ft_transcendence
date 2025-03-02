@@ -10,7 +10,7 @@ def handle_friend_added(event):
         return f"Event {event_id} already processed."
 
     try:
-        event_data = event["data"]["data"]["attributes"]
+        event_data = event["data"]["attributes"]
         user_id = event_data["user_id"]
         other_id = event_data["friend_id"]
         user = User.objects.get(id=user_id)
@@ -38,7 +38,7 @@ def handle_friend_removed(event):
         return f"Event {event_id} already processed."
 
     try:
-        event_data = event["data"]["data"]["attributes"]
+        event_data = event["data"]["attributes"]
         user_id = event_data["user_id"]
         other_id = event_data["friend_id"]
         user = User.objects.get(id=user_id)
@@ -65,7 +65,7 @@ def handle_request_declined(event):
     if event_already_processed(event_id):
         return f"Event {event_id} already processed."
 
-    event_data = event["data"]["data"]["attributes"]
+    event_data = event["data"]["attributes"]
     user_id = event_data["user_id"]
     other_id = event_data["friend_id"]
     user = User.objects.get(id=user_id)
@@ -86,7 +86,7 @@ def handle_request_cancelled(event):
     if event_already_processed(event_id):
         return f"Event {event_id} already processed."
 
-    event_data = event["data"]["data"]["attributes"]
+    event_data = event["data"]["attributes"]
     user_id = event_data["user_id"]
     other_id = event_data["friend_id"]
     user = User.objects.get(id=user_id)
@@ -107,7 +107,7 @@ def handle_request_sent(event):
     if event_already_processed(event_id):
         return f"Event {event_id} already processed."
 
-    event_data = event["data"]["data"]["attributes"]
+    event_data = event["data"]["attributes"]
     user_id = event_data["user_id"]
     other_id = event_data["friend_id"]
     user = User.objects.get(id=user_id)
@@ -127,7 +127,7 @@ def handle_avatar_changed(event):
 	event_id = event["event_id"]
 	if event_already_processed(event_id):
 		return f"Event {event_id} already processed."
-	event_data = event["data"]["data"]["attributes"]
+	event_data = event["data"]["attributes"]
 	user_id = event_data["user_id"]
 	user = User.objects.get(id=user_id)
 	notification = {
