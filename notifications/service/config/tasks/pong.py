@@ -8,7 +8,7 @@ def handle_pong_invitation_decline(event):
 	event_id = event["event_id"]
 	if event_already_processed(event_id):
 		return f"Event {event_id} already processed."
-	event_data = event["data"]["data"]["attributes"]
+	event_data = event["data"]["attributes"]
 	sender_id = event_data["denied_by"]
 	receiver_id = event_data["invited_by"]
 	sender = User.objects.get(id=sender_id)
@@ -28,13 +28,15 @@ def handle_pong_invitation_cancelled(event):
 	event_id = event["event_id"]
 	if event_already_processed(event_id):
 		return f"Event {event_id} already processed."
-	event_data = event["data"]["data"]["attributes"]
+	event_data = event["data"]["attributes"]
 	sender_id = event_data["cancelled_by"]
 	receiver_id = event_data["invited_user"]
+	invitation_token = event_data["invitation_token"]
 	sender = User.objects.get(id=sender_id)
 	receiver = User.objects.get(id=receiver_id)
 	notification = {
 		"event_type": "pong_match_cancelled",
+		"invitation_token": invitation_token,
 		"user": sender.username,
 		"other": receiver.username
 	}
@@ -48,13 +50,17 @@ def handle_pong_match_accepted(event):
 	event_id = event["event_id"]
 	if event_already_processed(event_id):
 		return f"Event {event_id} already processed."
-	event_data = event["data"]["data"]["attributes"]
+	event_data = event["data"]["attributes"]
 	sender_id = event_data["accepted_by"]
 	receiver_id = event_data["invited_by"]
+	invitation_token = event_data["invitation_token"]
+	game_token = event_data["game_token"]
 	sender = User.objects.get(id=sender_id)
 	receiver = User.objects.get(id=receiver_id)
 	notification = {
 		"event_type": "pong_match_accepted",
+		"invitation_token": invitation_token,
+		"game_token": game_token,
 		"user": sender.username,
 		"other": receiver.username
 	}
@@ -68,13 +74,15 @@ def handle_pong_match_accepted(event):
 	event_id = event["event_id"]
 	if event_already_processed(event_id):
 		return f"Event {event_id} already processed."
-	event_data = event["data"]["data"]["attributes"]
+	event_data = event["data"]["attributes"]
 	sender_id = event_data["sender_id"]
 	receiver_id = event_data["receiver_id"]
+	invitation_token = event_data["invitation_token"]
 	sender = User.objects.get(id=sender_id)
 	receiver = User.objects.get(id=receiver_id)
 	notification = {
 		"event_type": "pong_match_invitation",
+		"invitation_token": invitation_token,
 		"user": sender.username,
 		"other": receiver.username
 	}
@@ -88,13 +96,14 @@ def handle_pong_tournament_invitation(event):
 	event_id = event["event_id"]
 	if event_already_processed(event_id):
 		return f"Event {event_id} already processed."
-	event_data = event["data"]["data"]["attributes"]
+	event_data = event["data"]["attributes"]
 	sender_id = event_data["sender_id"]
 	receiver_id = event_data["receiver_id"]
 	sender = User.objects.get(id=sender_id)
 	receiver = User.objects.get(id=receiver_id)
 	notification = {
 		"event_type": "pong_tournament_invitation",
+
 		"user": sender.username,
 		"other": receiver.username
 	}
@@ -108,7 +117,7 @@ def handle_pong_tournament_accepted(event):
 	event_id = event["event_id"]
 	if event_already_processed(event_id):
 		return f"Event {event_id} already processed."
-	event_data = event["data"]["data"]["attributes"]
+	event_data = event["data"]["attributes"]
 	sender_id = event_data["accepted_by"]
 	receiver_id = event_data["invited_by"]
 	sender = User.objects.get(id=sender_id)

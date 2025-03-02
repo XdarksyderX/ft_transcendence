@@ -50,7 +50,6 @@ INSTALLED_APPS = [
     'core',
     'game',
     'matches',
-    'tournaments',
     'corsheaders',
 ]
 

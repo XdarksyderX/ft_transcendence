@@ -163,10 +163,12 @@ class JoinMatchView(APIView):
         game = invitation.game
         game.status = 'in_progress'
         game.save()
+        invitation_token = invitation.token
         invitation.delete()
 
         event = {
-            'game_id': game.id,
+            'game_key': game.game_key,
+            'invitation_token': token,
             'accepted_by': request.user.id,
             'invited_by': game.player1.id
         }
@@ -175,7 +177,7 @@ class JoinMatchView(APIView):
         return Response({
             "status": "success",
             "message": "Successfully joined the match",
-            "data": {"game_id": game.id}
+            "data": {"game_key": game.game_key}
         })
 
 
