@@ -14,7 +14,6 @@ class User(AbstractUser):
         null=True,
         blank=True
     )
-    
     @property
     def games(self):
         """

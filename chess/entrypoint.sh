@@ -1,12 +1,6 @@
 #!/bin/bash
 
-# Load environment variables from .env file
-if [ -f service/.env ]; then
-  export $(cat service/.env | grep -v '^#' | xargs)
-else
-  echo ".env file not found in the service directory."
-  exit 1
-fi
+
 
 # Debug: Print environment variables
 echo "CHESSDB_USER: $CHESSDB_USER"
