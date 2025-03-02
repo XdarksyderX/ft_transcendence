@@ -1,18 +1,5 @@
-# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    compose.yaml                                       :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: migarci2 <migarci2@student.42malaga.com    +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2024/08/29 16:03:17 by migarci2          #+#    #+#              #
-#    Updated: 2024/08/29 18:16:58 by migarci2         ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
-
 services:
 
-  # Servicios de infraestructura
   rabbitmq:
     image: rabbitmq:4.0.1-management
     restart: always
@@ -34,14 +21,6 @@ services:
     env_file: .env
     depends_on:
       - rabbitmq
-
-  api-gateway:
-    build:
-      context: api-gateway
-      dockerfile: Dockerfile
-    ports:
-      - "5443:443"
-      - "5081:80"
 
   auth:
     build:
@@ -95,6 +74,7 @@ services:
       - pong-data:/var/lib/postgresql/data
     depends_on:
       - auth
+
   chess:
     build:
       context: chess
@@ -122,6 +102,23 @@ services:
       - notifications-data:/var/lib/postgresql/data
     depends_on:
       - auth
+
+  gateway:
+    build:
+      context: gateway
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+      - "80:80"
+    depends_on:
+      - auth
+      - social
+      - pong
+      - chess
+      - notifications
+      - frontend
+      - consistency
+    restart: on-failure
 
 networks:
   ft_transcendence-network:

@@ -12,14 +12,14 @@ RABBITMQ_VHOST = os.getenv("RABBITMQ_VHOST", "/")
 
 BROKER_URL = f'pyamqp://{RABBITMQ_DEFAULT_USER}:{RABBITMQ_DEFAULT_PASS}@{RABBITMQ_HOST}:{RABBITMQ_PORT}/{RABBITMQ_VHOST}'
 
-app = Celery('social', broker=BROKER_URL)
+app = Celery('auth', broker=BROKER_URL)
 
 app.conf.broker_connection_retry_on_startup = True
 app.config_from_object('django.conf:settings', namespace='CELERY')
 app.conf.task_protocol = 1
 
 app.conf.task_queues = (
-	Queue('consistency.subscribe_now.auth', Exchange('consistency'), routing_key='consistency.subscribe_now.social'),
+	Queue('consistency.subscribe_now.auth', Exchange('consistency'), routing_key='consistency.subscribe_now.auth'),
 )
 
 app.conf.task_routes = {
