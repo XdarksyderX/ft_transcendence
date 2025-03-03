@@ -100,11 +100,27 @@ function handleProgressBar(modal, modalElement, token) {
     });
 }
 
-export function handleSendGameInvitation(game, elements, friend) {
+export function handleSendGameInvitation(game, friend, button) {
     //launchWaitModal(friend.username, game, elements);
     if (game === 'pong') {
         sendPongInvitation(friend.username);
     }
+    button.disabled = true;
+
+    // Re-enable the button after a few seconds
+    let countdown = 5; // Adjust the countdown duration as needed
+    button.innerText = `Please, don't spam ${countdown}s`;
+    const interval = setInterval(() => {
+        countdown -= 1;
+        button.innerText = `Please, don't spam ${countdown}s`;
+
+        if (countdown <= 0) {
+            clearInterval(interval);
+            button.disabled = false;
+            button.innerText = 'Start game with friend'; // Reset the button text
+        }
+    }, 1000);
+
 }
 
 async function sendPongInvitation(friendName) {
