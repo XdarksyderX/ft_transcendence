@@ -32,20 +32,20 @@ app.conf.task_queues = (
 
 app.conf.task_routes = {
     "auth.user_deleted": {"queue": "notifications.auth.user_deleted"},
-    "pong.match_invitation": {"queue": "notifications.pong.match_invitation"},
-    "pong.match_accepted": {"queue": "notifications.pong.match_accepted"},
-    "pong.invitation_cancelled": {"queue": "notifications.pong.invitation_cancelled"},
-    "pong.invitation_decline": {"queue": "notifications.pong.invitation_decline"},
-    "pong.tournament_invitation": {"queue": "notifications.pong.tournament_invitation"},
-    "pong.tournament_cancelled": {"queue": "notifications.pong.tournament_cancelled"},
-    "pong.tournament_decline": {"queue": "notifications.pong.tournament_decline"},
+    "auth.user_registered": {"queue": "notifications.auth.user_registered"},
+	"auth.username_changed": {"queue": "notifications.auth.username_changed"},
     "social.friend_added": {"queue": "notifications.social.friend_added"},
     "social.friend_removed": {"queue": "notifications.social.friend_removed"},
     "social.request_declined": {"queue": "notifications.social.request_declined"},
     "social.request_cancelled": {"queue": "notifications.social.request_cancelled"},
     "social.request_sent": {"queue": "notifications.social.request_sent"},
     "social.avatar_changed": {"queue": "notifications.social.avatar_changed"},
-    "auth.user_registered": {"queue": "notifications.auth.user_registered"},
+    "pong.match_accepted": {"queue": "notifications.pong.match_accepted"},
+    "pong.invitation_cancelled": {"queue": "notifications.pong.invitation_cancelled"},
+    "pong.invitation_decline": {"queue": "notifications.pong.invitation_decline"},
+    "pong.tournament_invitation": {"queue": "notifications.pong.tournament_invitation"},
+    "pong.tournament_cancelled": {"queue": "notifications.pong.tournament_cancelled"},
+    "pong.tournament_decline": {"queue": "notifications.pong.tournament_decline"},
 }
 
 app.autodiscover_tasks(["config.tasks"])

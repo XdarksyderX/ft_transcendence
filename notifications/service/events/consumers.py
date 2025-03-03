@@ -2,7 +2,7 @@ import asyncio
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from core.utils.event_domain import publish_event
-from core.utils.notifications import send_notification
+from core.utils.notifications import send_event
 from asgiref.sync import sync_to_async
 
 class NotificationConsumer(AsyncWebsocketConsumer):
@@ -28,7 +28,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
                         "other": friend["username"],
                         "is_online": True
                     }
-                    await self.send_notification_async(friend["id"], notification)
+                    await self.send_event_async(friend["id"], notification)
 
                 self.keepalive_task = asyncio.create_task(self.keepalive())
 
@@ -57,7 +57,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
                         "other": friend["username"],
                         "is_online": False
                     }
-                    await self.send_notification_async(friend["id"], notification)
+                    await self.send_event_async(friend["id"], notification)
 
             except Exception as e:
                 print(f"[WebSocket] Error during disconnection: {e}")
@@ -93,8 +93,8 @@ class NotificationConsumer(AsyncWebsocketConsumer):
                 break
             await asyncio.sleep(30)
 
-    async def send_notification_async(self, user_id, notification):
-        await sync_to_async(send_notification)(user_id, notification)
+    async def send_event_async(self, user_id, event):
+        await sync_to_async(send_event)(user_id, event)
 
     async def publish_event_async(self, exchange, event_type, data):
         await sync_to_async(publish_event)(exchange, event_type, data)
