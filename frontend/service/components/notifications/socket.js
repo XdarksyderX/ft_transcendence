@@ -8,6 +8,7 @@ import { navigateTo } from "../../app/router.js";
 import { getNotificationText, updateNotificationBell } from "./app.js";
 import { handleAcceptedInvitation, handleDeclinedInvitation } from "../home/game-invitation.js";
 import { handleCancelledInvitation } from "../chat/bubbles.js";
+import { state } from "../chat/socket.js";
 
 let notiSocket = null;
 let reconnectAttempts = 0;
@@ -62,6 +63,7 @@ export function initializeNotificationsSocket() {
     };
 
     notiSocket.onclose = () => {
+        if (state.intentionalClose) return ;
         console.warn("[WebSocket] Disconnected, attempting to reconnect...");
         scheduleReconnect();
     };
@@ -69,7 +71,7 @@ export function initializeNotificationsSocket() {
 
 function scheduleReconnect() {
     const delay = Math.min(1000 * (2 ** reconnectAttempts), MAX_RECONNECT_DELAY);
-    console.log(`[WebSocket] Reconnecting in ${delay / 1000} seconds...`);
+    console.log(`[NotiSocket] Reconnecting in ${delay / 1000} seconds...`);
     setTimeout(initializeNotificationsSocket, delay);
     reconnectAttempts++;
 }
@@ -101,7 +103,7 @@ function handleReceivedNotification(event) {
         const text = getNotificationText(data);
         if (text) {
             throwToast(text);
-            updateNotificationBell(true);
+            updateNotificationBell("on");
         }
 
     } catch (error) {
@@ -135,3 +137,4 @@ function handleFriendRequestChanges(type, data = null) {
 }
 
 
+export { notiSocket }

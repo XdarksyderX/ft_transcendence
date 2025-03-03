@@ -3,6 +3,9 @@ import { navigateTo } from './router.js';
 import { throwToast } from './render.js';
 import { sendRequestAuth } from './sendRequest.js';
 
+import { chatSocket, state } from '../components/chat/socket.js';
+import { notiSocket } from '../components/notifications/socket.js';
+
 /**
  * Obtiene el username almacenado en localStorage.
  */
@@ -49,6 +52,13 @@ export async function logout() {
     } catch (error) {
         console.error('Logout error:', error);
     } finally {
+        state.intentionalClose = true;
+        if (chatSocket) {
+            chatSocket.close();
+        } if (notiSocket) {
+            console.log("closing notisocket...");
+            notiSocket.close();
+        }
         navigateTo('/');
         localStorage.clear();
     }
