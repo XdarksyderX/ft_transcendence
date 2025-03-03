@@ -84,7 +84,7 @@ function initPongEvents(elements) {
 	elements.pong.tournament.btn.addEventListener('click', () => showTournamentOptions(elements));
 	elements.pong.tournament.ongoing.addEventListener('click', () => navigateTo("/ongoing-tournaments"));
     elements.pong.tournament.new.addEventListener('click', () => navigateTo("/new-tournament"));
-    elements.pong.quickPlay.startGameWithFriendButton.addEventListener('click', () => handleSendGameInvitation('pong', elements, selectedFriend));
+    elements.pong.quickPlay.startGameWithFriendButton.addEventListener('click', () => handleSendGameInvitation('pong', selectedFriend, elements.pong.quickPlay.startGameWithFriendButton));
 }
 // goes from initial view to pong-options
 function togglePongOptions(event, elements) { 

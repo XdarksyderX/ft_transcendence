@@ -85,6 +85,8 @@ export function createQuickGameInvitation(sent_at, sender, token) {
 		decline: card.querySelector('[data-action="decline"]'),
 		timer: card.querySelector('[data-timer]')
 	}
+	const progressBar = card.querySelector('[data-progress] .progress-bar');
+	progressBar.width = '0%';
 	startProgressBar(remainingTime, card, btns, token);
 	btns.accept.addEventListener('click', () => {
 		if (handleAcceptInvitation(token))
@@ -103,6 +105,10 @@ function calculateTimeRemaining(sentAt) {
 function startProgressBar(remainingTime, card, btns, token) {
     const expirationTime = Date.now() + (remainingTime * 1000);
     const progressBar = card.querySelector('[data-progress] .progress-bar');
+    if (remainingTime < 0.2) { // debería hacer aquí una comprobación de si la invitación está activa, pero bueno
+		cleanProgressBar(progressBar, btns, null);
+		return;
+	}
 
     const interval = setInterval(() => {
         const now = Date.now();
@@ -126,7 +132,9 @@ function startProgressBar(remainingTime, card, btns, token) {
 }
 
 function cleanProgressBar(progressBar, btns, interval) {
-	clearInterval(interval);
+	if (interval) {
+		clearInterval(interval);
+	}
 	progressBar.style.width = '0%'; // Set the progress bar width to 0%
 	btns.accept.disabled = true; // Disable the accept button
 	btns.decline.disabled = true; // Disable the decline button

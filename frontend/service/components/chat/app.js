@@ -13,6 +13,8 @@ let currentChat = {
     messages: []
 };
 
+const renderedMessages = new Set();
+
 // Initialize chat events by getting elements, binding event listeners, and showing recent chats
 export async function initializeChatEvents() {
 	const elements = getElements();
@@ -235,10 +237,12 @@ function handleFriendListClick(event, elements) {
 /* * * * * * * * * * * * * * * * * * * *  CHATS TAB  * * * * * * * * * * * * * * * * * * * */
 
 // Open a chat with a specific friend
-export async function openChat(friendUsername, elements, empty = false) {
+export async function openChat(friendUsername, elements, newChat = false) {
 	//console.log("Opening chat with:", friendUsername);
 	currentChat = { username: friendUsername, messages: [] };
-	if (!empty) {
+	renderedMessages.clear(); // Reinicia el set de mensajes renderizados
+	if (!newChat) { // si no es un chat nuevo que acabo de crear
+		elements.chatMessages.innerHTML = ''; // clears the dom before fetching messages
 		await fetchChatMessages(friendUsername);
 		await markMessagesAsRead(friendUsername);
 	}
@@ -289,20 +293,24 @@ function showChatWindow(elements, friendUsername) {
     elements.currentChatName.textContent = friendUsername;
 }
 
+const generateMessageId = (message) => `${message.sender}-${message.sent_at}`;
+
 export function renderChat(elements) {
 	if (currentChat) {
 		//console.log("current CHAT: ", currentChat);
-		elements.chatMessages.innerHTML = ''; // Clear previous messages
+
 		currentChat.messages.forEach(message => {
-			//console.log("ON RENDER CHAT: ", message);
-			let messageElement;
-			if (message.is_special) {
-				messageElement = createSpecialBubble(message);
-			} else {
-				messageElement = createMessageBubble(message);
+			const messageId = generateMessageId(message);
+			if (!renderedMessages.has(messageId)) {
+				let messageElement = message.is_special 
+					? createSpecialBubble(message) 
+					: createMessageBubble(message);
+				
+				elements.chatMessages.appendChild(messageElement);
+				renderedMessages.add(messageId);
 			}
-			elements.chatMessages.appendChild(messageElement);
 		});
+
 		elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
 	}
 }
