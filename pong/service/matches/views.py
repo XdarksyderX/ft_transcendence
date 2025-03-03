@@ -14,7 +14,6 @@ from .serializers import (
     PendingMatchesSerializer
 )
 
-
 class MatchHistoryView(APIView):
     permission_classes = [IsAuthenticated]
 
