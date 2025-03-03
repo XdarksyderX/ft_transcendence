@@ -19,6 +19,7 @@ export function initializeGlobalChatSocket() {
     };
 
     chatSocket.onmessage = (event) => {
+		console.log("[CHAT SOCKET]: ", event.data)
         handleReceivedMessage(event);
     };
 
