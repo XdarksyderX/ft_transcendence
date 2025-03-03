@@ -7,6 +7,7 @@ import { renderPendingFriendRequests, refreshIfDeclined } from "../friends/reque
 import { navigateTo } from "../../app/router.js";
 import { getNotificationText, updateNotificationBell } from "./app.js";
 import { handleAcceptedInvitation, handleDeclinedInvitation } from "../home/game-invitation.js";
+import { handleCancelledInvitation } from "../chat/bubbles.js";
 
 let notiSocket = null;
 let reconnectAttempts = 0;
@@ -32,6 +33,7 @@ const notificationHandlers = {
     tournament_end: () => console.log("[WebSocket] Tournament ended"),
     pong_match_accepted: () => handleAcceptedInvitation('pong'),
     pong_match_decline: () => handleDeclinedInvitation(),
+    pong_match_cancelled: (data) => handleCancelledInvitation(data.invitation_token),
     chess_match_decline: () => handleDeclinedInvitation(),
     chess_match_accepted: () => handleAcceptedInvitation('chess')
 };
