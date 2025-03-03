@@ -81,6 +81,45 @@ class PongGame(models.Model):
     score_player1 = models.IntegerField(default=0)
     score_player2 = models.IntegerField(default=0)
 
+    def save(self, *args, **kwargs):
+        # Check if status is changing to 'finished'
+        is_finishing = False
+        if self.pk:
+            try:
+                old_instance = PongGame.objects.get(pk=self.pk)
+                is_finishing = old_instance.status != 'finished' and self.status == 'finished'
+            except PongGame.DoesNotExist:
+                pass
+        
+        # Call the original save method
+        super().save(*args, **kwargs)
+        
+        # If the game just finished and has a winner, update statistics
+        if is_finishing and self.winner:
+            # Determine tournament positions for finals
+            player1_position = None
+            player2_position = None
+            
+            # Check if it's a tournament game
+            is_final = False
+            if self.is_tournament and hasattr(self, 'tournament_match'):
+                tournament = self.tournament_match.tournament
+                is_final = tournament.current_round == tournament.matches.count() // 2
+                if is_final:
+                    if self.winner == self.player1:
+                        player1_position = 1
+                        player2_position = 2
+                    else:
+                        player1_position = 2
+                        player2_position = 1
+            
+            # Update statistics only for quick games or tournament finals
+            if not self.is_tournament or is_final:
+                for player, position in [(self.player1, player1_position), (self.player2, player2_position)]:
+                    stats = player.statistics.first()
+                    if stats:
+                        stats.update_statistics(self, tournament_position=position)
+
     def __str__(self):
         return f"Game {self.id}: {self.player1} vs {self.player2} (Key: {self.game_key})"
 
@@ -93,27 +132,60 @@ class PongStatistics(models.Model):
         on_delete=models.CASCADE,
         related_name='statistics'
     )
-    games_played = models.IntegerField(default=0)
-    games_won = models.IntegerField(default=0)
-    games_lost = models.IntegerField(default=0)
+    # Quick game statistics
+    quick_games_played = models.IntegerField(default=0)
+    quick_games_won = models.IntegerField(default=0)
+    quick_games_lost = models.IntegerField(default=0)
+    current_streak = models.IntegerField(default=0)
     highest_score = models.IntegerField(default=0)
+    
+    # Tournament statistics
+    tournaments_played = models.IntegerField(default=0)
+    tournaments_first = models.IntegerField(default=0)
+    tournaments_second = models.IntegerField(default=0)
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
-    def update_statistics(self, outcome, score):
+    def update_statistics(self, game, tournament_position=None):
         """
-        Updates the player's statistics after a game.
+        Updates the player's statistics based on the PongGame.
+        
+        Args:
+            game: The PongGame object containing the game data
+            tournament_position: Optional position in tournament (1 for winner, 2 for runner-up)
         """
-        self.games_played += 1
-        if outcome == 'won':
-            self.games_won += 1
-            self.highest_score = max(self.highest_score, score)
-        elif outcome == 'lost':
-            self.games_lost += 1
+        is_tournament = game.is_tournament
+        is_player1 = self.user == game.player1
+        
+        # Determine if user won and their score
+        if game.winner == self.user:
+            outcome = 'won'
+        else:
+            outcome = 'lost'
+        
+        # Get user's score
+        score = game.score_player1 if is_player1 else game.score_player2
+        
+        if not is_tournament:
+            self.quick_games_played += 1
+            if outcome == 'won':
+                self.quick_games_won += 1
+                self.current_streak += 1
+                self.highest_score = max(self.highest_score, score)
+            elif outcome == 'lost':
+                self.quick_games_lost += 1
+                self.current_streak = 0
+        else:
+            self.tournaments_played += 1
+            if tournament_position == 1:
+                self.tournaments_first += 1
+            elif tournament_position == 2:
+                self.tournaments_second += 1
         self.save()
     
     def __str__(self):
-        return f"Stats for {self.user}: {self.games_played} games played"
+        return f"Stats for {self.user}: {self.quick_games_played} quick games, {self.tournaments_played} tournaments"
 
 
 class PendingInvitation(models.Model):
