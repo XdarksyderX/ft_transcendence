@@ -111,7 +111,7 @@ class PendingInvitationCreateView(APIView):
 class PendingInvitationDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def patch(self, request, token):
+    def get(self, request, token):
         try:
             invitation = PendingInvitation.objects.get(token=token)
         except PendingInvitation.DoesNotExist:
@@ -120,17 +120,11 @@ class PendingInvitationDetailView(APIView):
                 "message": "Invitation not found"
             }, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = PendingInvitationDetailSerializer(invitation, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"status": "success", "data": serializer.data})
-
+        serializer = PendingInvitationDetailSerializer(invitation)
         return Response({
-            "status": "error",
-            "message": "Invalid data provided",
-            "errors": serializer.errors
-        }, status=status.HTTP_400_BAD_REQUEST)
-
+            "status": "success",
+            "data": serializer.data
+        })
 
 class JoinMatchView(APIView):
     permission_classes = [IsAuthenticated]

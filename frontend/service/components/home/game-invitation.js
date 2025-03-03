@@ -43,6 +43,10 @@ function launchWaitModal(friendName, game, token) {
 		handleCancelInvitation(token);
         modal.hide();
     });
+
+    modalElement.querySelector('#wait-game').addEventListener('hidden.bs.modal', () => {
+        modalElement.remove();
+    });
 }
 
 export function handleAcceptedInvitation(game) {
