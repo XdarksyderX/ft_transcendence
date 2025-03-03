@@ -30,3 +30,14 @@ def send_event(user_id, event, is_notification=False):
         )
     except User.DoesNotExist:
         print(f"User with id {user_id} does not exist. Notification not sent.")
+
+def send_event(user_id, event):
+    channel_layer = get_channel_layer()
+    room_group_name = f"user_{user_id}"
+    async_to_sync(channel_layer.group_send)(
+        room_group_name,
+        {
+            "type": "notification",
+            "data": event
+        }
+    )
