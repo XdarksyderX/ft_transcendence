@@ -2,7 +2,7 @@
 import json
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
-from core.models import IncomingEvent, User, Notification
+from core.models import User, Notification
 
 def send_notification(user_id, notification):
     try:
