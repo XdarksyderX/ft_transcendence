@@ -111,7 +111,7 @@ class PendingInvitationCreateView(APIView):
 class PendingInvitationDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def patch(self, request, token):
+    def get(self, request, token):
         try:
             invitation = PendingInvitation.objects.get(token=token)
         except PendingInvitation.DoesNotExist:

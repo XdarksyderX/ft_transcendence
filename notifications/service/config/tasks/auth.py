@@ -1,6 +1,6 @@
 from celery import shared_task
-from core.models import IncomingEvent, User
-from core.utils.notifications import send_notification
+from core.models import User
+from core.utils.notifications import send_event
 from .common import event_already_processed, mark_event_as_processed
 
 @shared_task(name="auth.user_registered")
@@ -32,12 +32,12 @@ def handle_user_deleted(event):
     try:
         event_data = event["data"]["attributes"]
         user = User.objects.get(id=event_data["user_id"])
-        notification = {
+        event = {
             "event_type": "user_deleted",
             "user": user.username
         }
         for friend in user.friends.all():
-            send_notification(friend.id, notification)
+            send_event(friend.id, event)
         user.delete()
         mark_event_as_processed(event_id, event["event_type"])
         return f"User {user.username} deleted from notifications service."
