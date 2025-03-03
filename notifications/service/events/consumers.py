@@ -77,6 +77,12 @@ class NotificationConsumer(AsyncWebsocketConsumer):
             await self.send(text_data=json.dumps(event["data"]))
         except Exception as e:
             print(f"[WebSocket] Error sending notification: {e}")
+    
+    async def event(self, event):
+        try:
+            await self.send(text_data=json.dumps(event["data"]))
+        except Exception as e:
+            print(f"[WebSocket] Error sending event: {e}")
 
     async def keepalive(self):
         while True:
