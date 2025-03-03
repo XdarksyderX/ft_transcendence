@@ -1,6 +1,6 @@
 from celery import shared_task
 from core.models import User
-from core.utils.notifications import send_notification
+from core.utils.notifications import send_notification, send_event
 from .common import event_already_processed, mark_event_as_processed
 
 @shared_task(name="social.friend_added")
@@ -43,13 +43,13 @@ def handle_friend_removed(event):
         other_id = event_data["friend_id"]
         user = User.objects.get(id=user_id)
         other = User.objects.get(id=other_id)
-        notification = {
+        event = {
             "event_type": "friend_removed",
             "user": user.username,
             "other": other.username
         }
-        send_notification(user_id, notification)
-        send_notification(other_id, notification)
+        send_event(user_id, event)
+        send_event(other_id, event)
         user.friends.remove(other)
         other.friends.remove(user)
         mark_event_as_processed(event["event_id"], event["event_type"])
@@ -70,13 +70,13 @@ def handle_request_declined(event):
     other_id = event_data["friend_id"]
     user = User.objects.get(id=user_id)
     other = User.objects.get(id=other_id)
-    notification = {
+    event = {
         "event_type": "request_declined",
         "user": user.username,
         "other": other.username
     }
-    send_notification(user_id, notification)
-    send_notification(other_id, notification)
+    send_event(user_id, event)
+    send_event(other_id, event)
     mark_event_as_processed(event["event_id"], event["event_type"])
     return f"Notified both users that {user.username} declined the friend request from {other.username}"
 
@@ -91,13 +91,13 @@ def handle_request_cancelled(event):
     other_id = event_data["friend_id"]
     user = User.objects.get(id=user_id)
     other = User.objects.get(id=other_id)
-    notification = {
+    event = {
         "event_type": "request_cancelled",
         "user": user.username,
         "other": other.username
     }
-    send_notification(user_id, notification)
-    send_notification(other_id, notification)
+    send_event(user_id, event)
+    send_event(other_id, event)
     mark_event_as_processed(event["event_id"], event["event_type"])
     return f"Notified both users that {user.username} cancelled the friend request to {other.username}"
 
@@ -130,10 +130,10 @@ def handle_avatar_changed(event):
 	event_data = event["data"]["attributes"]
 	user_id = event_data["user_id"]
 	user = User.objects.get(id=user_id)
-	notification = {
+	event = {
 		"event_type": "avatar_changed",
 		"user": user.username
 	}
-	send_notification(user_id, notification)
+	send_event(user_id, event)
 	mark_event_as_processed(event["event_id"], event["event_type"])
 	return f"Notified {user.username} that their avatar has been changed"
