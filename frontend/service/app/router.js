@@ -148,7 +148,8 @@ function loadLoggedContent(isLogged) {
     updateNavbar(window.location.pathname);
 }
 
-async function navigateTo(fullUrl) {    
+async function navigateTo(fullUrl) {
+    console.log("navigating to: ", fullUrl);    
     try {
         const verify = await isLoggedIn();
         const url = redirectURL(verify, fullUrl);

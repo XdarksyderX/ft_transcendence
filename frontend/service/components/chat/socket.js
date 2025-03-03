@@ -5,10 +5,12 @@ import { refreshAccessToken } from "../../app/auth.js";
 
 let chatSocket = null;
 let attemptedReconnection = false;
+let intentionalClose = false;
 
 export function initializeGlobalChatSocket() {
-    if (chatSocket) {
-        chatSocket.close();
+    if (chatSocket && chatSocket.readyState !== WebSocket.CLOSED) {
+        console.log("[ChatSocket] Already connected or connecting...");
+        return;
     }
 
     chatSocket = new WebSocket(`ws://localhost:5051/ws/chat/`);
@@ -19,6 +21,7 @@ export function initializeGlobalChatSocket() {
     };
 
     chatSocket.onmessage = (event) => {
+		console.log("[CHAT SOCKET]: ", event.data)
         handleReceivedMessage(event);
     };
 
@@ -27,6 +30,7 @@ export function initializeGlobalChatSocket() {
     };
 
     chatSocket.onclose = async (event) => {
+		if (state.intentionalClose) return ;
         console.log("WebSocket cerrado, código:", event.code);
         if (!attemptedReconnection) {
             attemptedReconnection = true;
@@ -48,7 +52,7 @@ export function initializeGlobalChatSocket() {
 function handleReceivedMessage(event) {
 	try {
 		const data = JSON.parse(event.data);
-		console.log("WS message received:", data);
+		//console.log("WS message received:", data);
 		const currentUser = getUsername();
 		if (data.status === "success" && data.data && data.data.message) {
 			if (data.data.sender === currentUser) return;
@@ -116,3 +120,8 @@ export function handleSentMessage(event, elements) {
 		elements.messageInput.value = '';
 	}
 }
+
+export { chatSocket }
+export const state = {
+    intentionalClose: false
+};

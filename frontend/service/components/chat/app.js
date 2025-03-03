@@ -13,6 +13,8 @@ let currentChat = {
     messages: []
 };
 
+const renderedMessages = new Set();
+
 // Initialize chat events by getting elements, binding event listeners, and showing recent chats
 export async function initializeChatEvents() {
 	const elements = getElements();
@@ -116,7 +118,7 @@ export async function renderRecentChats(elements) {
 		const formattedTime = formatTime(chatData.lastUpdated);
 		const checkIcon = chatData.sender === 'out' ? (chatData.is_read ? '✔✔' : '✔') : '';
 		html += `
-			<a href="#" class="list-group-item list-group-item-action chat-item" 
+			<div class="list-group-item list-group-item-action chat-item" 
 				data-friend-username="${username}">
 				<div class="d-flex w-100 justify-content-between">
 					<h5 class="mb-1">${username}</h5>
@@ -126,7 +128,7 @@ export async function renderRecentChats(elements) {
 					<p class="mb-1 ${unreadClass}">${chatData.lastMessage}</p>
 					<span class="check-icon">${checkIcon}</span>
 				</div>
-			</a>
+			</div>
 		`;
 	}
 	elements.recentChatsList.innerHTML = html;
@@ -235,10 +237,12 @@ function handleFriendListClick(event, elements) {
 /* * * * * * * * * * * * * * * * * * * *  CHATS TAB  * * * * * * * * * * * * * * * * * * * */
 
 // Open a chat with a specific friend
-export async function openChat(friendUsername, elements, empty = false) {
+export async function openChat(friendUsername, elements, newChat = false) {
 	//console.log("Opening chat with:", friendUsername);
 	currentChat = { username: friendUsername, messages: [] };
-	if (!empty) {
+	renderedMessages.clear(); // Reinicia el set de mensajes renderizados
+	if (!newChat) { // si no es un chat nuevo que acabo de crear
+		elements.chatMessages.innerHTML = ''; // clears the dom before fetching messages
 		await fetchChatMessages(friendUsername);
 		await markMessagesAsRead(friendUsername);
 	}
@@ -289,20 +293,24 @@ function showChatWindow(elements, friendUsername) {
     elements.currentChatName.textContent = friendUsername;
 }
 
+const generateMessageId = (message) => `${message.sender}-${message.sent_at}`;
+
 export function renderChat(elements) {
 	if (currentChat) {
 		//console.log("current CHAT: ", currentChat);
-		elements.chatMessages.innerHTML = ''; // Clear previous messages
+
 		currentChat.messages.forEach(message => {
-			//console.log("ON RENDER CHAT: ", message);
-			let messageElement;
-			if (message.is_special) {
-				messageElement = createSpecialBubble(message);
-			} else {
-				messageElement = createMessageBubble(message);
+			const messageId = generateMessageId(message);
+			if (!renderedMessages.has(messageId)) {
+				let messageElement = message.is_special 
+					? createSpecialBubble(message) 
+					: createMessageBubble(message);
+				
+				elements.chatMessages.appendChild(messageElement);
+				renderedMessages.add(messageId);
 			}
-			elements.chatMessages.appendChild(messageElement);
 		});
+
 		elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
 	}
 }

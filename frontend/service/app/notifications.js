@@ -7,7 +7,3 @@ export async function getNotifications() {
 export async function markNotification(notificationId) {
     return await sendRequestNotifications('POST', 'notifications/mark/', { notification_id: notificationId });
 }
-
-export async function hasPendingNotification() {
-    return await sendRequestNotifications('GET', 'notifications/has_pending/');
-}

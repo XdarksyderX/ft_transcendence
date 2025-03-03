@@ -1,8 +1,9 @@
-import { getNotifications, markNotification, hasPendingNotification } from "../../app/notifications.js";
+import { getNotifications, markNotification } from "../../app/notifications.js";
 import { initializeNotificationsSocket } from "./socket.js";
 import { getUsername } from "../../app/auth.js";
 
 const bell = document.getElementById('bell');
+
 export function initializeNotificationEvents() {
     initializeNotificationsSocket();
     document.getElementById("notifications-toggle").addEventListener('click', renderNotifications);
@@ -12,7 +13,7 @@ export async function renderNotifications() {
     const allNotifications = await handleGetNotifications();
     const notifications = filterNotifications(allNotifications);
     const container = document.getElementById('notifications-container');
-
+    console.log(allNotifications);
     container.innerHTML = '';
     if (notifications.length === 0) {
         container.innerText = "You don't have any notifications";
@@ -28,18 +29,24 @@ export async function renderNotifications() {
     });
 }
 
-export async function updateNotificationBell(on = null) {
+async function hasPendingNotifications() {
+    const all = await handleGetNotifications();
+    const notifications = filterNotifications(all);
+    if (notifications.length === 0) {
+        return ("off");
+    }
+    return ("on");
+}
+
+export async function updateNotificationBell(turn = null) {
     const loggedContent = document.getElementById('logged-content');
     if (loggedContent.classList.contains('hidden')) {
         return ;
     }
-    if (!on) {
-        const response = await hasPendingNotification();
-        if (response.status === "success") {
-            on = response.has_pending_notifications;
-        }
+    if (!turn) {
+        turn = await hasPendingNotifications();
     }
-    const color = on ? 'var(--accent)' : 'var(--light)';
+    const color = turn === "on" ? 'var(--accent)' : 'var(--light)';
     bell.style.color = color;
 }
 
@@ -99,6 +106,7 @@ async function handleMarkNotification(event, notificationId, card) {
             const container = document.getElementById('notifications-container');
             if (container.children.length === 0) {
                 const dropdown = bootstrap.Dropdown.getInstance(document.getElementById('notifications-toggle'));
+                updateNotificationBell("off");
                 dropdown.hide();
             }
         }
