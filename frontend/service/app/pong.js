@@ -23,7 +23,6 @@ export async function createPongMatchInvitation(friendName) {
 export async function getInvitationDetail(token) {
     return await sendRequestPong('GET', `invitation/detail/${token}`);
 }
-
 export async function denyInvitation(token) {
     return await sendRequestPong('POST', `invitation/deny/${token}`);
 }

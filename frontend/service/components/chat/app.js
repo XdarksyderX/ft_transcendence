@@ -118,7 +118,7 @@ export async function renderRecentChats(elements) {
 		const formattedTime = formatTime(chatData.lastUpdated);
 		const checkIcon = chatData.sender === 'out' ? (chatData.is_read ? '✔✔' : '✔') : '';
 		html += `
-			<a href="#" class="list-group-item list-group-item-action chat-item" 
+			<div class="list-group-item list-group-item-action chat-item" 
 				data-friend-username="${username}">
 				<div class="d-flex w-100 justify-content-between">
 					<h5 class="mb-1">${username}</h5>
@@ -128,7 +128,7 @@ export async function renderRecentChats(elements) {
 					<p class="mb-1 ${unreadClass}">${chatData.lastMessage}</p>
 					<span class="check-icon">${checkIcon}</span>
 				</div>
-			</a>
+			</div>
 		`;
 	}
 	elements.recentChatsList.innerHTML = html;

@@ -1,6 +1,7 @@
 import { getUsername } from '../../app/auth.js';
 import { handleAcceptInvitation, handleDeclineInvitation } from '../home/game-invitation.js';
 import { formatTime, toggleChat, getElements } from './app.js';
+import { getInvitationDetail } from '../../app/pong.js';
 
 /* * * * * * * * * * * * * * * * * * *  NORMAL MESSAGE BUBBLE  * * * * * * * * * * * * * * * * * * */
 
@@ -101,11 +102,19 @@ function calculateTimeRemaining(sentAt) {
 	return Math.max(0, Math.floor((expirationTimestamp - Date.now()) / 1000));
 }
 
+async function checkInvitationValidity(token) {
+	const response = await getInvitationDetail(token);
+	if (response.status === 'success') {
+		return (true);
+	}
+	return (false);
+}
 
-function startProgressBar(remainingTime, card, btns, token) {
+async function startProgressBar(remainingTime, card, btns, token) {
     const expirationTime = Date.now() + (remainingTime * 1000);
     const progressBar = card.querySelector('[data-progress] .progress-bar');
-    if (remainingTime < 0.2) { // debería hacer aquí una comprobación de si la invitación está activa, pero bueno
+	const isInvitationValid = remainingTime > 0.2 && await checkInvitationValidity(token);
+    if (!isInvitationValid) {
 		cleanProgressBar(progressBar, btns, null);
 		return;
 	}
