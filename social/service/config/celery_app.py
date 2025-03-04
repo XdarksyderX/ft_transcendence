@@ -25,6 +25,9 @@ app.conf.task_queues = (
 	Queue('social.pong.match_invitation', Exchange('pong'), routing_key='pong.match_invitation'),
 	Queue('social.pong.tournament_invitation', Exchange('pong'), routing_key='pong.tournament_invitation'),
 	Queue('consistency.subscribe_now.social', Exchange('consistency'), routing_key='consistency.subscribe_now.social')
+	Queue('chess.match_invitation', Exchange('chess'), routing_key='chess.match_invitation'),
+	Queue('events.user_connected', Exchange('events'), routing_key='events.user_connected'),
+	Queue('events.user_disconnected', Exchange('events'), routing_key='events.user_disconnected')
 )
 
 app.conf.task_routes = {
@@ -33,7 +36,11 @@ app.conf.task_routes = {
     'auth.username_changed': {'queue': 'social.username_changed'},
 	'consistency.subscribe_now.social': {'queue': 'consistency.subscribe_now.social'},
 	'pong.match_invitation': {'queue': 'social.pong.match_invitation'},
-	'pong.tournament_invitation': {'queue': 'social.pong.tournament_invitation'}
+	'pong.tournament_invitation': {'queue': 'social.pong.tournament_invitation'},
+	'chess.match_invitation': {'queue': 'chess.match_invitation'},
+	'events.user_connected': {'queue': 'events.user_connected'},
+	'events.user_disconnected': {'queue': 'events.user_disconnected'}
+
 }
 
 
