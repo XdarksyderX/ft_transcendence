@@ -84,7 +84,14 @@ function initPongEvents(elements) {
 	elements.pong.tournament.btn.addEventListener('click', () => showTournamentOptions(elements));
 	elements.pong.tournament.ongoing.addEventListener('click', () => navigateTo("/ongoing-tournaments"));
     elements.pong.tournament.new.addEventListener('click', () => navigateTo("/new-tournament"));
-    elements.pong.quickPlay.startGameWithFriendButton.addEventListener('click', () => handleSendGameInvitation('pong', selectedFriend, elements.pong.quickPlay.startGameWithFriendButton));
+
+    elements.pong.quickPlay.startGameWithFriendButton.addEventListener('click', () => {
+		const gameData = {
+			game: 'pong',
+			friend: selectedFriend.username,
+		}
+		handleSendGameInvitation(gameData, elements.pong.quickPlay.startGameWithFriendButton)
+	});
 }
 // goes from initial view to pong-options
 function togglePongOptions(event, elements) { 
@@ -126,7 +133,15 @@ function initChessEvents(elements) {
 	elements.chess.variants.container.addEventListener('click', () => chooseChessVariant(elements.chess.friendsOptions));
 	elements.chess.playFriend.addEventListener('click', () => playChessWithFriend(elements));
 	elements.chess.playRandom.addEventListener("click", playChessWithRandom);
-	elements.chess.startGameWithFriendButton.addEventListener('click', () => handleSendGameInvitation('chess', selectedFriend, elements.chess.startGameWithFriendButton));
+
+	elements.chess.startGameWithFriendButton.addEventListener('click', () => {
+		const gameData = {
+			game: 'chess',
+			friend: selectedFriend.username,
+			variant: chessVariant
+		}
+		handleSendGameInvitation(gameData, elements.chess.startGameWithFriendButton)
+	});
 
 }
 // toggles from init to chess options
