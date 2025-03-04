@@ -2,7 +2,7 @@ import { getUsername } from '../../app/auth.js';
 import { handleAcceptQuickGameInvitation, handleDeclineInvitation } from '../home/game-invitation.js';
 import { formatTime, toggleChat, getElements } from './app.js';
 import { getPongInvitationDetail } from '../../app/pong.js';
-
+import { getChessInvitationDetail } from '../../app/chess.js';
 /* * * * * * * * * * * * * * * * * * *  NORMAL MESSAGE BUBBLE  * * * * * * * * * * * * * * * * * * */
 
 export function createMessageBubble(message) {
@@ -31,8 +31,8 @@ export function createSpecialBubble(message) {
                 card = createQuickGameSent('pong', message.receiver);
             } else {
                 card = createQuickGameInvitation('pong', message.sent_at, message.sender, messageContent.invitation_token);
-            }
-			case 'chess-match':
+            } break;
+		case 'chess-match':
             if (isSender) {
                 card = createQuickGameSent('chess', message.receiver);
             } else {
@@ -95,7 +95,7 @@ export function createQuickGameInvitation(game, sent_at, sender, token) {
 	}
 	const progressBar = card.querySelector('[data-progress] .progress-bar');
 	progressBar.width = '0%';
-	startProgressBar(remainingTime, card, btns, token);
+	startProgressBar(card, btns, {game: game, token: token, remainingTime: remainingTime});
 	btns.accept.addEventListener('click', () => {
 		if (handleAcceptQuickGameInvitation(game, token))
 			toggleChat(getElements());
@@ -109,18 +109,18 @@ function calculateTimeRemaining(sentAt) {
 	return Math.max(0, Math.floor((expirationTimestamp - Date.now()) / 1000));
 }
 
-async function checkInvitationValidity(token) {
-	const response = await getPongInvitationDetail(token);
+async function checkInvitationValidity(game, token) {
+	const response = game === 'pong' ? await getPongInvitationDetail(token) : await getChessInvitationDetail(token);
 	if (response.status === 'success') {
 		return (true);
 	}
 	return (false);
 }
 
-async function startProgressBar(remainingTime, card, btns, token) {
-    const expirationTime = Date.now() + (remainingTime * 1000);
+async function startProgressBar(card, btns, gameData) {
+    const expirationTime = Date.now() + (gameData.remainingTime * 1000);
     const progressBar = card.querySelector('[data-progress] .progress-bar');
-	const isInvitationValid = remainingTime > 0.2 && await checkInvitationValidity(token);
+	const isInvitationValid = gameData.remainingTime > 0.2 && await checkInvitationValidity(gameData.game, gameData.token);
     if (!isInvitationValid) {
 		cleanProgressBar(progressBar, btns, null);
 		return;
@@ -139,11 +139,11 @@ async function startProgressBar(remainingTime, card, btns, token) {
         }
     }, 100);
 
-    activeIntervals.set(token, interval);
+    activeIntervals.set(gameData.token, interval);
 
     btns.decline.addEventListener("click", () => {
         cleanProgressBar(progressBar, btns, interval);
-        handleDeclineInvitation(token);
+        handleDeclineInvitation(gameData.token);
     });
 }
 
