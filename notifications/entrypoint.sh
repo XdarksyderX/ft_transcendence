@@ -27,7 +27,7 @@ notifications.pong.invitation_cancelled,\
 notifications.pong.invitation_decline,\
 notifications.pong.tournament_invitation,\
 notifications.pong.tournament_cancelled,\
-notifications.pong.tournament_decline \
+notifications.pong.tournament_decline,\
 notifications.chess.match_invitation,\
 notifications.chess.match_accepted,\
 notifications.chess.invitation_cancelled,\
