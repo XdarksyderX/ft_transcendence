@@ -282,10 +282,10 @@ function createFriendBtn(friend, startBtn) {
 }
 
 function toggleFriendSelection(friend, btn) { // btn is for chess or for pong
-	// if (!friend.is_online) { this will go back when status is propertly setted
-	// 	throwAlert('This friend is not available to play right now.');
-	// 	return;
-	// }
+/* 	if (!friend.is_online) {// this will go back when status is propertly setted
+		throwAlert('This friend is not available to play right now.');
+		return;
+	} */
 	const newFriendBtn = currentView.querySelector(`.friend-btn[data-friend-username="${friend.username}"]`);
 	if (selectedFriend === friend) {
 		unselectFriend(true, btn);
