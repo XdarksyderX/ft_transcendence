@@ -153,7 +153,16 @@ class JoinMatchView(APIView):
         game = invitation.game
         game.status = 'in_progress'
         game.save()
+        token = invitation.token
         invitation.delete()
+
+        event = {
+            'game_key': game.game_key,
+            'invitation_token': token,
+            'accepted_by': request.user.id,
+            'invited_by': game.player1.id
+        }
+        publish_event('chess', 'chess.match_accepted', event)
 
         return Response({
             "status": "success",
@@ -194,7 +203,13 @@ class PendingInvitationDenyView(APIView):
                     "status": "error",
                     "message": "You are not authorized to deny this invitation"
                 }, status=status.HTTP_403_FORBIDDEN)
+            event = {
+                'invitation_token': invitation.token,
+                'denied_by': invitation.receiver.id,
+                'invited_by': invitation.sender.id
+            }
             invitation.delete()
+            publish_event('chess', 'chess.invitation_decline', event)
             return Response({
                 "status": "success",
                 "message": "Invitation cancelled successfully"
@@ -216,7 +231,13 @@ class PendingInvitationCancelView(APIView):
                     "status": "error",
                     "message": "You are not authorized to cancel this invitation"
                 }, status=status.HTTP_403_FORBIDDEN)
+            event = {
+                'invitation_token': invitation.token,
+                'cancelled_by': invitation.sender.id,
+                'invited_user': invitation.receiver.id
+            }
             invitation.delete()
+            publish_event('chess', 'chess.invitation_cancelled', event)
             return Response({
                 "status": "success",
                 "message": "Invitation cancelled successfully"

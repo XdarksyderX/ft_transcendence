@@ -37,4 +37,4 @@ app.conf.task_routes = {
 }
 
 
-app.autodiscover_tasks(lambda: [n for n in os.listdir('.') if os.path.isdir(n) and not n.startswith('.')])
+app.autodiscover_tasks(["config.tasks"])
