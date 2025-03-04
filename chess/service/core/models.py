@@ -209,6 +209,17 @@ class PendingInvitation(models.Model):
     def __str__(self):
         return f"PendingInvitation {self.token} from {self.sender} to {self.receiver} for game {self.game.id}"
 
+# models.py
+class MatchmakingQueue(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    game_mode = models.CharField(max_length=20, choices=ChessGame.GAME_MODES, default='classic')
+    joined_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        # Ensure a user can only be in the queue once
+        unique_together = ['user', 'game_mode']
+
+
 class OutgoingEvent(models.Model):
     """
     Model to record outgoing events.
