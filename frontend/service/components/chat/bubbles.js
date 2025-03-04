@@ -32,6 +32,13 @@ export function createSpecialBubble(message) {
             } else {
                 card = createQuickGameInvitation('pong', message.sent_at, message.sender, messageContent.invitation_token);
             }
+			case 'chess-match':
+            if (isSender) {
+                card = createQuickGameSent('chess', message.receiver);
+            } else {
+                card = createQuickGameInvitation('chess', message.sent_at, message.sender, messageContent.invitation_token);
+            }
+			
             break;
         default:
             console.warn(`Unknown invitation type: ${type}`);
