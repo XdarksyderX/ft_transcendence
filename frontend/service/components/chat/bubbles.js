@@ -1,7 +1,7 @@
 import { getUsername } from '../../app/auth.js';
-import { handleAcceptInvitation, handleDeclineInvitation } from '../home/game-invitation.js';
+import { handleAcceptPongInvitation, handleDeclineInvitation } from '../home/game-invitation.js';
 import { formatTime, toggleChat, getElements } from './app.js';
-import { getInvitationDetail } from '../../app/pong.js';
+import { getPongInvitationDetail } from '../../app/pong.js';
 
 /* * * * * * * * * * * * * * * * * * *  NORMAL MESSAGE BUBBLE  * * * * * * * * * * * * * * * * * * */
 
@@ -30,7 +30,7 @@ export function createSpecialBubble(message) {
             if (isSender) {
                 card = createQuickGameSent('Pong', message.receiver);
             } else {
-                card = createQuickGameInvitation(message.sent_at, message.sender, messageContent.invitation_token);
+                card = createQuickGameInvitation('Pong', message.sent_at, message.sender, messageContent.invitation_token);
             }
             break;
         default:
@@ -60,7 +60,7 @@ function createQuickGameSent(game, friend) {
 	return (card);
 }
 
-export function createQuickGameInvitation(sent_at, sender, token) {
+export function createQuickGameInvitation(game, sent_at, sender, token) {
 	const card = document.createElement('div');
 	const remainingTime = calculateTimeRemaining(sent_at); 
 	card.innerHTML = `
@@ -69,8 +69,8 @@ export function createQuickGameInvitation(sent_at, sender, token) {
 				<div class="progress-bar" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
 			</div>
 			<div class="card-body position-relative p-3" style="z-index: 1;">
-				<h6 class="card-title mb-2">Game Invitation</h6>
-				<p class="card-text mb-2 small">${sender} invited you!</p>
+				<h6 class="card-title mb-2 ctm-text-title">${game} Invitation</h6>
+				<p class="card-text mb-2 small ctm-text-light">${sender} invited you!</p>
 				<div class="d-flex justify-content-between align-items-center">
 					<button class="btn btn-sm ctm-btn flex-grow-1 me-1" data-action="accept">
 						Accept <span class="ms-1 badge bg-light text-dark" data-timer>${remainingTime}s</span>
@@ -90,7 +90,7 @@ export function createQuickGameInvitation(sent_at, sender, token) {
 	progressBar.width = '0%';
 	startProgressBar(remainingTime, card, btns, token);
 	btns.accept.addEventListener('click', () => {
-		if (handleAcceptInvitation(token))
+		if (handleAcceptPongInvitation(token))
 			toggleChat(getElements());
 	});
 	return card; // Return the card element
@@ -103,7 +103,7 @@ function calculateTimeRemaining(sentAt) {
 }
 
 async function checkInvitationValidity(token) {
-	const response = await getInvitationDetail(token);
+	const response = await getPongInvitationDetail(token);
 	if (response.status === 'success') {
 		return (true);
 	}

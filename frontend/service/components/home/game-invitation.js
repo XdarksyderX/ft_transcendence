@@ -1,6 +1,125 @@
-import { createPongMatchInvitation, acceptInvitation, denyInvitation, cancelInvitation } from "../../app/pong.js";
+import { createPongMatchInvitation, acceptPongInvitation, denyPongInvitation, cancelPongInvitation } from "../../app/pong.js";
+import { createChessMatchInvitation, acceptChessInvitation, denyChessInvitation, cancelChessInvitation } from "../../app/chess.js";
 import { throwAlert, throwToast } from "../../app/render.js";
 import { navigateTo } from "../../app/router.js";
+
+export async function handleSendGameInvitation(game, friend, button) {
+    let token;
+    if (game === 'pong') {
+        token = await sendPongInvitation(friend.username);
+    } else {
+        token = await sendChessInvitation(friend.username);
+    }
+    if (token < 0) {
+        return ;
+    }
+    launchWaitModal(friend.username, game, token);
+
+    button.disabled = true;
+
+    // Re-enable the button after a few seconds
+    let countdown = 5; // Adjust the countdown duration as needed
+    button.innerText = `Please, don't spam ${countdown}s`;
+    const interval = setInterval(() => {
+        countdown -= 1;
+        button.innerText = `Please, don't spam ${countdown}s`;
+
+        if (countdown <= 0) {
+            clearInterval(interval);
+            button.disabled = false;
+            button.innerText = 'Start game with friend'; // Reset the button text
+        }
+    }, 1000);
+
+}
+
+async function sendPongInvitation(friendName) {
+    try {
+        const response = await createPongMatchInvitation(friendName);
+        if (response.status === "success") {
+            console.log('Invitation sent successfully:', response);
+            return response.invitation.token;
+            //launchWaitModal(friendName, 'pong', response.invitation.token);
+        } else {
+            console.error('Failed to send invitation:', response.message);
+            return -1;
+        }
+    } catch (error) {
+        console.error('Error sending invitation:', error);
+        return -1;
+    }
+}
+
+async function sendChessInvitation(friendName) {
+    try {
+        const response = await createChessMatchInvitation(friendName);
+        if (response.status === "success") {
+            console.log('Invitation sent successfully:', response);
+            return response.invitation.token;
+            //launchWaitModal(friendName, 'pong', response.invitation.token);
+        } else {
+            console.error('Failed to send invitation:', response.message);
+            return -1;
+        }
+    } catch (error) {
+        console.error('Error sending invitation:', error);
+        return -1;
+    }
+}
+
+export function handleAcceptedInvitation(game) {
+    const modalElement = document.getElementById('wait-game');
+    if (modalElement) {
+        const modalInstance = bootstrap.Modal.getInstance(modalElement);
+        if (modalInstance) {
+            modalInstance.hide();
+        }
+    }
+    navigateTo(`/${game}`);
+}
+
+export function handleDeclinedInvitation() {
+    const modalElement = document.getElementById('wait-game');
+    if (modalElement) {
+        const modalInstance = bootstrap.Modal.getInstance(modalElement);
+        if (modalInstance) {
+            modalInstance.hide();
+        }
+        const name = modalElement.querySelector('#modal-text').dataset.username;
+        throwToast(`${name} declined your invitation`);
+    }
+}
+
+export async function handleAcceptPongInvitation(token) {
+    const response = await acceptPongInvitation(token);
+    if (response.status === "success") {
+        await navigateTo("/pong");
+        return (1);
+    } else {
+        console.error('Failed to accept invitation:', response.message);
+        return (0);
+    }
+}
+
+export async function handleDeclineInvitation(token) {
+    const response = await denyPongInvitation(token);
+    if (response.status === "success") {
+        console.log("invitation declined successfully");
+    } else {
+        console.error('Failed to accept invitation:', response.message);
+    }
+}
+
+async function handleCancelQuickGameInvitation(game, token) {
+    const response = game === 'pong' ? await cancelPongInvitation(token) : await cancelChessInvitation(token);
+    if (response.status === "success") {
+        console.log("invitation canceled successfully");
+    } else {
+        console.error('Failed to accept invitation:', response.message);
+    }
+}
+
+
 
 function launchWaitModal(friendName, game, token) {
     const modalHTML = `
@@ -40,7 +159,7 @@ function launchWaitModal(friendName, game, token) {
 
     const cancelBtn = modalElement.querySelector('[data-action="cancel-invitation"]');
     cancelBtn.addEventListener('click', () => {
-		handleCancelInvitation(token);
+        handleCancelQuickGameInvitation(game, token);
         modal.hide();
     });
 
@@ -49,30 +168,7 @@ function launchWaitModal(friendName, game, token) {
     });
 }
 
-export function handleAcceptedInvitation(game) {
-    const modalElement = document.getElementById('wait-game');
-    if (modalElement) {
-        const modalInstance = bootstrap.Modal.getInstance(modalElement);
-        if (modalInstance) {
-            modalInstance.hide();
-        }
-    }
-    navigateTo(`/${game}`);
-}
-
-export function handleDeclinedInvitation() {
-    const modalElement = document.getElementById('wait-game');
-    if (modalElement) {
-        const modalInstance = bootstrap.Modal.getInstance(modalElement);
-        if (modalInstance) {
-            modalInstance.hide();
-        }
-        const name = modalElement.querySelector('#modal-text').dataset.username;
-        throwToast(`${name} declined your invitation`);
-    }
-}
-
-function handleProgressBar(modal, modalElement, token) {
+function handleProgressBar(modal, modalElement, token, game) {
 	const progressBar = modalElement.querySelector('#progress-bar');
 	const timer =  modalElement.querySelector('#timer');
 	const waitGame = modalElement.querySelector('#wait-game');
@@ -86,7 +182,7 @@ function handleProgressBar(modal, modalElement, token) {
         timer.textContent = `${time}`;
         if (progress <= 0) {
             clearInterval(interval);
-            handleCancelInvitation(token);
+            handleCancelQuickGameInvitation(game, token);
             modal.hide();
         }
         if (progress < 50) {
@@ -104,68 +200,3 @@ function handleProgressBar(modal, modalElement, token) {
     });
 }
 
-export function handleSendGameInvitation(game, friend, button) {
-    //launchWaitModal(friend.username, game, elements);
-    if (game === 'pong') {
-        sendPongInvitation(friend.username);
-    }
-    button.disabled = true;
-
-    // Re-enable the button after a few seconds
-    let countdown = 5; // Adjust the countdown duration as needed
-    button.innerText = `Please, don't spam ${countdown}s`;
-    const interval = setInterval(() => {
-        countdown -= 1;
-        button.innerText = `Please, don't spam ${countdown}s`;
-
-        if (countdown <= 0) {
-            clearInterval(interval);
-            button.disabled = false;
-            button.innerText = 'Start game with friend'; // Reset the button text
-        }
-    }, 1000);
-
-}
-
-async function sendPongInvitation(friendName) {
-    try {
-        const response = await createPongMatchInvitation(friendName);
-        if (response.status === "success") {
-            console.log('Invitation sent successfully:', response);
-            launchWaitModal(friendName, 'pong', response.invitation.token);
-        } else {
-            console.error('Failed to send invitation:', response.message);
-        }
-    } catch (error) {
-        console.error('Error sending invitation:', error);
-    }
-}
-
-export async function handleAcceptInvitation(token) {
-    const response = await acceptInvitation(token);
-    if (response.status === "success") {
-        await navigateTo("/pong");
-        return (1);
-    } else {
-        console.error('Failed to accept invitation:', response.message);
-        return (0);
-    }
-}
-
-export async function handleDeclineInvitation(token) {
-    const response = await denyInvitation(token);
-    if (response.status === "success") {
-        console.log("invitation declined successfully");
-    } else {
-        console.error('Failed to accept invitation:', response.message);
-    }
-}
-
-export async function handleCancelInvitation(token) {
-    const response = await cancelInvitation(token);
-    if (response.status === "success") {
-        console.log("invitation canceled successfully");
-    } else {
-        console.error('Failed to accept invitation:', response.message);
-    }
-}
