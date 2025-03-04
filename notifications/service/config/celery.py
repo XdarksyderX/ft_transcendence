@@ -28,6 +28,10 @@ app.conf.task_queues = (
     Queue('notifications.pong.tournament_invitation', Exchange('pong'), routing_key='pong.tournament_invitation'),
     Queue('notifications.pong.tournament_cancelled', Exchange('pong'), routing_key='pong.tournament_cancelled'),
     Queue('notifications.pong.tournament_decline', Exchange('pong'), routing_key='pong.tournament_decline'),
+	Queue('notifications.chess.match_invitation', Exchange('chess'), routing_key='chess.match_invitation'),
+    Queue('notifications.chess.match_accepted', Exchange('chess'), routing_key='chess.match_accepted'),
+    Queue('notifications.chess.invitation_cancelled', Exchange('chess'), routing_key='chess.invitation_cancelled'),
+    Queue('notifications.chess.invitation_decline', Exchange('chess'), routing_key='chess.invitation_decline'),
 )
 
 app.conf.task_routes = {
