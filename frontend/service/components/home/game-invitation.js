@@ -3,12 +3,12 @@ import { createChessMatchInvitation, acceptChessInvitation, denyChessInvitation,
 import { throwAlert, throwToast } from "../../app/render.js";
 import { navigateTo } from "../../app/router.js";
 
-export async function handleSendGameInvitation(game, friend, button) {
-    const token = await sendQuickGameInvitation(game, friend.username);
+export async function handleSendGameInvitation(gameData, button) {
+    const token = await sendQuickGameInvitation(gameData.game, gameData.friend);
     if (token < 0) {
         return ;
     }
-    launchWaitModal(friend.username, game, token);
+    launchWaitModal(gameData.friend, gameData.game, token);
 
     button.disabled = true;
 
