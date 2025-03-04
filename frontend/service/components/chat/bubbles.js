@@ -1,5 +1,5 @@
 import { getUsername } from '../../app/auth.js';
-import { handleAcceptPongInvitation, handleDeclineInvitation } from '../home/game-invitation.js';
+import { handleAcceptQuickGameInvitation, handleDeclineInvitation } from '../home/game-invitation.js';
 import { formatTime, toggleChat, getElements } from './app.js';
 import { getPongInvitationDetail } from '../../app/pong.js';
 
@@ -28,9 +28,9 @@ export function createSpecialBubble(message) {
     switch (type) {
         case 'pong-match':
             if (isSender) {
-                card = createQuickGameSent('Pong', message.receiver);
+                card = createQuickGameSent('pong', message.receiver);
             } else {
-                card = createQuickGameInvitation('Pong', message.sent_at, message.sender, messageContent.invitation_token);
+                card = createQuickGameInvitation('pong', message.sent_at, message.sender, messageContent.invitation_token);
             }
             break;
         default:
@@ -90,7 +90,7 @@ export function createQuickGameInvitation(game, sent_at, sender, token) {
 	progressBar.width = '0%';
 	startProgressBar(remainingTime, card, btns, token);
 	btns.accept.addEventListener('click', () => {
-		if (handleAcceptPongInvitation(token))
+		if (handleAcceptQuickGameInvitation(game, token))
 			toggleChat(getElements());
 	});
 	return card; // Return the card element
@@ -171,9 +171,6 @@ export function handleCancelledInvitation(token) {
         cleanProgressBar(progressBar, btns, intervalId);
     }
 }
-
-
-
 
 /* * * * * * * * * * * * * * * * * * *  TOURNAMENT INVITATIONS  * * * * * * * * * * * * * * * * * * */
 

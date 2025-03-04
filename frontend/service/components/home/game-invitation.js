@@ -4,12 +4,7 @@ import { throwAlert, throwToast } from "../../app/render.js";
 import { navigateTo } from "../../app/router.js";
 
 export async function handleSendGameInvitation(game, friend, button) {
-    let token;
-    if (game === 'pong') {
-        token = await sendPongInvitation(friend.username);
-    } else {
-        token = await sendChessInvitation(friend.username);
-    }
+    const token = await sendQuickGameInvitation(game, friend.username);
     if (token < 0) {
         return ;
     }
@@ -33,41 +28,19 @@ export async function handleSendGameInvitation(game, friend, button) {
 
 }
 
-async function sendPongInvitation(friendName) {
-    try {
-        const response = await createPongMatchInvitation(friendName);
-        if (response.status === "success") {
-            console.log('Invitation sent successfully:', response);
-            return response.invitation.token;
-            //launchWaitModal(friendName, 'pong', response.invitation.token);
-        } else {
-            console.error('Failed to send invitation:', response.message);
-            return -1;
-        }
-    } catch (error) {
-        console.error('Error sending invitation:', error);
-        return -1;
-    }
-}
-
-async function sendChessInvitation(friendName) {
-    try {
-        const response = await createChessMatchInvitation(friendName);
-        if (response.status === "success") {
-            console.log('Invitation sent successfully:', response);
-            return response.invitation.token;
-            //launchWaitModal(friendName, 'pong', response.invitation.token);
-        } else {
-            console.error('Failed to send invitation:', response.message);
-            return -1;
-        }
-    } catch (error) {
-        console.error('Error sending invitation:', error);
+async function sendQuickGameInvitation(game, friendName) {
+    const response = game === 'pong' ? await createPongMatchInvitation(friendName) : await createChessMatchInvitation(friendName);
+    if (response.status === "success") {
+        console.log('Invitation sent successfully:', response);
+        return response.invitation.token;
+    } else {
+        console.error('Failed to send invitation:', response.message);
         return -1;
     }
 }
 
 export function handleAcceptedInvitation(game) {
+    console.log("handleAcceptedInvitation function called");
     const modalElement = document.getElementById('wait-game');
     if (modalElement) {
         const modalInstance = bootstrap.Modal.getInstance(modalElement);
@@ -79,6 +52,7 @@ export function handleAcceptedInvitation(game) {
 }
 
 export function handleDeclinedInvitation() {
+    console.log("handleDeclinedInvitation function called");
     const modalElement = document.getElementById('wait-game');
     if (modalElement) {
         const modalInstance = bootstrap.Modal.getInstance(modalElement);
@@ -90,10 +64,10 @@ export function handleDeclinedInvitation() {
     }
 }
 
-export async function handleAcceptPongInvitation(token) {
-    const response = await acceptPongInvitation(token);
+export async function handleAcceptQuickGameInvitation(game, token) {
+    const response = game ==='pong' ? await acceptPongInvitation(token) : await acceptChessInvitation(token);
     if (response.status === "success") {
-        await navigateTo("/pong");
+        await navigateTo(`/${game}`);
         return (1);
     } else {
         console.error('Failed to accept invitation:', response.message);
