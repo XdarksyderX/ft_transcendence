@@ -126,6 +126,8 @@ function initChessEvents(elements) {
 	elements.chess.variants.container.addEventListener('click', () => chooseChessVariant(elements.chess.friendsOptions));
 	elements.chess.playFriend.addEventListener('click', () => playChessWithFriend(elements));
 	elements.chess.playRandom.addEventListener("click", playChessWithRandom);
+	elements.chess.startGameWithFriendButton.addEventListener('click', () => handleSendGameInvitation('chess', selectedFriend, elements.chess.startGameWithFriendButton));
+
 }
 // toggles from init to chess options
 function toggleChessOptions(event, elements) {

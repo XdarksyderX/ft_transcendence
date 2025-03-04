@@ -1,18 +1,18 @@
 import { sendRequestPong } from './sendRequest.js';
 
-export async function getMatchHistory() {
+export async function getPongMatchHistory() {
     return await sendRequestPong('GET', 'match/history');
 }
 
-export async function getMatchDetail(matchId) {
+export async function getPongMatchDetail(matchId) {
     return await sendRequestPong('GET', `match/detail/${matchId}`);
 }
 
-export async function getPendingInvitationsOutgoing() {
+export async function getPendingPongInvitationsOutgoing() {
     return await sendRequestPong('GET', 'invitation/outgoing/list/');
 }
 
-export async function getPendingInvitationsIncoming() {
+export async function getPendingPongInvitationsIncoming() {
     return await sendRequestPong('GET', 'invitation/incoming/list/');
 }
 
@@ -20,22 +20,22 @@ export async function createPongMatchInvitation(friendName) {
     return await sendRequestPong('POST', 'invitation/create/', { receiver: friendName });
 }
 
-export async function getInvitationDetail(token) {
+export async function getPongInvitationDetail(token) {
     return await sendRequestPong('GET', `invitation/detail/${token}`);
 }
-export async function denyInvitation(token) {
+export async function denyPongInvitation(token) {
     return await sendRequestPong('POST', `invitation/deny/${token}`);
 }
 
-export async function cancelInvitation(token) {
+export async function cancelPongInvitation(token) {
     return await sendRequestPong('POST', `invitation/cancel/${token}`);
 }
 
-export async function acceptInvitation(token) {
+export async function acceptPongInvitation(token) {
     return await sendRequestPong('GET', `match/join/${token}/`);
 }
 
-export async function getPendingMatches() {
+export async function getPongPendingMatches() {
     return await sendRequestPong('GET', 'match/pending/');
 }
 

@@ -183,10 +183,10 @@
 }
 
 .quick-game-invitation .card-title, .quick-game-invitation .card-text {
-	background-color: var(--medium);
-	padding: 3px;
+	background-color: var(--dark);
+	padding: 4px;
 	border-radius: 5px;
-	color: var(--title);
+	/* color: var(--title); */
 }
 
 .special-bubble {
