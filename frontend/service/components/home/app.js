@@ -217,7 +217,6 @@ function hideOverlay(elements) {
     overlay.style.opacity = '0';
 
     overlay.addEventListener('transitionend', function handleTransitionEnd() {
-        toggleView(currentView, null, elements);
         overlay.style.display = 'none';
         overlay.style.opacity = '';
         overlay.style.transition = '';
@@ -228,6 +227,11 @@ function hideOverlay(elements) {
         elements.overlay.chat.style.zIndex = 'auto';
         elements.pong.btn.style.zIndex = 'auto';
         elements.chess.btn.style.zIndex = 'auto';
+		const btn = currentView.querySelector("#start-game-with-friend");
+		if (btn) { // if the start btn is present, we must clean the selected friend
+			unselectFriend(true, btn);
+		}
+		toggleView(currentView, null, elements);
     });
 }
     
@@ -247,40 +251,6 @@ function toggleView(from, to, elements) {
     }
 	currentView = to;
 	//console.log("toggle view togling from: ", from, "to: ", to);
-}
-
-function launchWaitModal(game, elements) {
-	const modal = new bootstrap.Modal(elements.modal.waitGame);
-	elements.modal.text.innerHTML = `Waiting for ${selectedFriend.usernamename} to start a game of ${game}...`;
-	modal.show();
-	handleProgressBar(modal, elements);
-}
-
-function handleProgressBar(modal, elements) {
-	let progress = 100;
-	const interval = setInterval(() => {
-		let time = Math.floor(progress / 100 * 30);
-		progress -= 1;
-		elements.modal.progressBar.style.width = `${progress}%`;
-		elements.modal.progressBar.setAttribute('aria-valuenow', progress);
-		elements.modal.timer.textContent = `${time}`;
-		if (progress <= 0) {
-			clearInterval(interval);
-			modal.hide();
-		}
-		if (progress < 50) {
-			elements.modal.timer.style.color = `var(--light)`;
-		} else {
-			elements.modal.timer.style.color = `var(--dark)`;
-		}
-	}, 300);
-	elements.modal.waitGame.addEventListener('hidden.bs.modal', () => {
-		clearInterval(interval);
-		elements.modal.progressBar.style.width = '100%';
-		elements.modal.progressBar.setAttribute('aria-valuenow', 100);
-		elements.modal.timer.textContent = '30s';
-		elements.modal.timer.style.color = 'var(--dark);'
-	});
 }
 
 /* * * * * * * * * * * * * * * FRIEND HANDLE * * * * * * * * * * * * * * */
@@ -316,20 +286,21 @@ function toggleFriendSelection(friend, btn) { // btn is for chess or for pong
 	// 	throwAlert('This friend is not available to play right now.');
 	// 	return;
 	// }
-	const newFriendBtn = document.querySelector(`.friend-btn[data-friend-username="${friend.username}"]`);
+	const newFriendBtn = currentView.querySelector(`.friend-btn[data-friend-username="${friend.username}"]`);
 	if (selectedFriend === friend) {
 		unselectFriend(true, btn);
 	} else {
 		unselectFriend(false, btn);
 		selectedFriend = friend;
 		newFriendBtn.classList.add('selected');
+		console.log("adding selected class to: ", newFriendBtn);
 		btn.disabled = false;
 	}
 }
 
 function unselectFriend(all, btn) {
 	if (selectedFriend) {
-		const friendBtn = document.querySelector(`.friend-btn[data-friend-username="${selectedFriend.username}"]`);
+		const friendBtn = currentView.querySelector(`.friend-btn[data-friend-username="${selectedFriend.username}"]`);
 		friendBtn.classList.remove('selected');            
 		if (all) {
 			selectedFriend = null;
