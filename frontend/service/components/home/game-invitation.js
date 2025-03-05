@@ -75,8 +75,8 @@ export async function handleAcceptQuickGameInvitation(game, token) {
     }
 }
 
-export async function handleDeclineInvitation(token) {
-    const response = await denyPongInvitation(token);
+export async function handleDeclineInvitation(game, token) {
+    const response = game ==='pong' ? await denyPongInvitation(token) : await denyChessInvitation(token);
     if (response.status === "success") {
         console.log("invitation declined successfully");
     } else {
