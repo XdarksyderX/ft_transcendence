@@ -126,8 +126,16 @@ class PendingInvitationDetailView(APIView):
                 "message": "Invitation not found"
             }, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = PendingInvitationDetailSerializer(invitation)
-        return Response({"status": "success", "data": serializer.data})
+        serializer = PendingInvitationDetailSerializer(invitation, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"status": "success", "data": serializer.data})
+        return Response({
+            "status": "error",
+            "message": "Invalid data provided",
+            "errors": serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+
 
 class JoinMatchView(APIView):
     permission_classes = [IsAuthenticated]
