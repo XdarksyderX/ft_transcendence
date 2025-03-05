@@ -46,8 +46,10 @@ def finish_game_in_db(game_obj, winner):
     """
     Marks the game as finished and sets the winner in the database.
     """
+    game_obj = PongGame.objects.get(pk=game_obj.pk) # Reload the game object to get a fresh copy, trying to fix game not ending properly in db, NOT WORKING
     game_obj.winner = winner
     game_obj.status = 'finished'
+    game_obj.available = False  # Mark the game as no longer available/in progress to fix error hopefully
     publish_event("pong.match_finished", {
         "game_id": str(game_obj.id),
         "winner": winner.username,
@@ -154,7 +156,7 @@ class GameConsumer(AsyncWebsocketConsumer):
         paddle_height = self.game_obj.player_height
         player_speed  = self.game_obj.player_speed
         start_speed   = self.game_obj.start_speed
-        paddle_width  = 12
+        paddle_width  = ball_side * 1.2
 
         while True:
             # Update ball position
