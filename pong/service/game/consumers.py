@@ -219,7 +219,6 @@ class GameConsumer(AsyncWebsocketConsumer):
                 })
                 # Check if the score limit has been reached to end the game
                 if new_score >= self.game_obj.points_to_win:
-                    await finish_game_in_db(self.game_obj, self.game_obj.player2)
                     await self.channel_layer.group_send(
                         self.group_name,
                         {
@@ -230,6 +229,7 @@ class GameConsumer(AsyncWebsocketConsumer):
                             }),
                         },
                     )
+                    await finish_game_in_db(self.game_obj, self.game_obj.player2)
                     break
 
             elif ball["x"] > board_width - ball_side:
@@ -245,7 +245,6 @@ class GameConsumer(AsyncWebsocketConsumer):
                 })
                 # Check if the score limit has been reached to end the game
                 if new_score >= self.game_obj.points_to_win:
-                    await finish_game_in_db(self.game_obj, self.game_obj.player1)
                     await self.channel_layer.group_send(
                         self.group_name,
                         {
@@ -256,6 +255,7 @@ class GameConsumer(AsyncWebsocketConsumer):
                             }),
                         },
                     )
+                    await finish_game_in_db(self.game_obj, self.game_obj.player1)
                     break
 
             # Send the updated state to all players
