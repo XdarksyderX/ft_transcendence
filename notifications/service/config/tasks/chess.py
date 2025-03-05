@@ -54,13 +54,13 @@ def handle_chess_match_accepted(event):
 	sender_id = event_data["accepted_by"]
 	receiver_id = event_data["invited_by"]
 	invitation_token = event_data["invitation_token"]
-	game_token = event_data["game_token"]
+	game_key = event_data["game_key"]
 	sender = User.objects.get(id=sender_id)
 	receiver = User.objects.get(id=receiver_id)
 	event = {
 		"event_type": "chess_match_accepted",
 		"invitation_token": invitation_token,
-		"game_token": game_token,
+		"game_key": game_key,
 		"user": sender.username,
 		"other": receiver.username
 	}

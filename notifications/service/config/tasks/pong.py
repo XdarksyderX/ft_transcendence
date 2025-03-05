@@ -20,7 +20,7 @@ def handle_pong_invitation_decline(event):
 	}
 	send_event(receiver_id, event)
 	send_event(sender_id, event)
-	mark_event_as_processed(event["event_id"], event["event_type"])
+	mark_event_as_processed(event_id, event["event_type"])
 	return f"Notified both users that {sender.username} declined {receiver.username}'s match invitation"
 
 @shared_task(name="pong.invitation_cancelled")
@@ -42,7 +42,7 @@ def handle_pong_invitation_cancelled(event):
 	}
 	send_event(receiver_id, event)
 	send_event(sender_id, event)
-	mark_event_as_processed(event["event_id"], event["event_type"])
+	mark_event_as_processed(event_id, event["event_type"])
 	return f"Notified both users that {sender.username} cancelled {receiver.username}'s match invitation"
 
 @shared_task(name="pong.match_accepted")
@@ -54,19 +54,19 @@ def handle_pong_match_accepted(event):
 	sender_id = event_data["accepted_by"]
 	receiver_id = event_data["invited_by"]
 	invitation_token = event_data["invitation_token"]
-	game_token = event_data["game_token"]
+	game_key = event_data["game_key"]
 	sender = User.objects.get(id=sender_id)
 	receiver = User.objects.get(id=receiver_id)
 	event = {
 		"event_type": "pong_match_accepted",
 		"invitation_token": invitation_token,
-		"game_token": game_token,
+		"game_key": game_key,
 		"user": sender.username,
 		"other": receiver.username
 	}
 	send_event(receiver_id, event)
 	send_event(sender_id, event)
-	mark_event_as_processed(event["event_id"], event["event_type"])
+	mark_event_as_processed(event_id, event["event_type"])
 	return f"Notified both users that {sender.username} accepted {receiver.username}'s match invitation"
 
 @shared_task(name="pong.tournament_invitation")
@@ -87,7 +87,7 @@ def handle_pong_tournament_invitation(event):
 	}
 	send_event(receiver_id, event)
 	send_event(sender_id, event)
-	mark_event_as_processed(event["event_id"], event["event_type"])
+	mark_event_as_processed(event_id, event["event_type"])
 	return f"Notified both users that {sender.username} invited {receiver.username} to a tournament"
 
 @shared_task(name="pong.tournament_accepted")
@@ -107,5 +107,5 @@ def handle_pong_tournament_accepted(event):
 	}
 	send_notification(receiver_id, notification)
 	send_notification(sender_id, notification)
-	mark_event_as_processed(event["event_id"], event["event_type"])
+	mark_event_as_processed(event_id, event["event_type"])
 	return f"Notified both users that {sender.username} accepted {receiver.username}'s tournament invitation"
