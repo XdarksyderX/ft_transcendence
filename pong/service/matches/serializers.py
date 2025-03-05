@@ -63,7 +63,7 @@ class PendingMatchesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PongGame
-        fields = ['id', 'opponent', 'is_tournament', 'status', 'available', 'game_key']
+        fields = ['id', 'opponent', 'is_tournament', 'status', 'game_key']
 
     def get_opponent(self, obj):
         request_user = self.context.get('request').user

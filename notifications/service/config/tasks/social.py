@@ -124,16 +124,19 @@ def handle_request_sent(event):
 
 @shared_task(name="social.avatar_changed")
 def handle_avatar_changed(event):
-	event_id = event["event_id"]
-	if event_already_processed(event_id):
-		return f"Event {event_id} already processed."
-	event_data = event["data"]["attributes"]
-	user_id = event_data["user_id"]
-	user = User.objects.get(id=user_id)
-	event = {
-		"event_type": "avatar_changed",
-		"user": user.username
-	}
-	send_event(user_id, event)
-	mark_event_as_processed(event["event_id"], event["event_type"])
-	return f"Notified {user.username} that their avatar has been changed"
+    event_id = event["event_id"]
+    if event_already_processed(event_id):
+        return f"Event {event_id} already processed."
+    event_data = event["data"]["attributes"]
+    user_id = event_data["user_id"]
+    user = User.objects.get(id=user_id)
+    event = {
+        "event_type": "avatar_changed",
+        "user": user.username
+    }
+    friends = user.friends.all()
+    for friend in friends:
+        send_event(friend.id, event)
+    send_event(user_id, event)
+    mark_event_as_processed(event_id, event["event_type"])
+    return f"Notified {user.username} that their avatar has been changed"

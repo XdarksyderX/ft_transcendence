@@ -64,7 +64,7 @@ export async function initializePongEvents()
     // Check for an online match
     try 
     {
-        const response = await fetch("http://localhost:5052/match/in-progress/", { credentials: "include" }); // CHANGE TO MAKE WORK 
+        const response = await fetch("http://localhost:5052/match/in-progress/", { credentials: "include" });
         if (!response.ok) throw new Error("Failed to fetch online match");
         
         console.log("Trying to find online match...");
@@ -146,7 +146,7 @@ function connectToOnlineGame(gameKey)
     socket.onmessage = (event) =>
     {
         const message = JSON.parse(event.data);
-        console.log("WebSocket message:", message);
+        console.log("message:", message.status);
         
         if (message.status === "game_starting")
         {
@@ -156,6 +156,13 @@ function connectToOnlineGame(gameKey)
         else if (message.status === "game_update")
         {
             updateGameState(message.state);
+        }
+        else if (message.status === "game_over")
+        {
+            console.log("RECEIVED GAME OVER");
+            if (message.state)
+                updateGameState(message.state);
+            endOnlineMatch(message)
         }
     };
 
@@ -205,7 +212,7 @@ function updateGameState(state)
     // Render the updated positions
     requestAnimationFrame(() =>
     {
-        renderGame(); // Assuming renderGame is defined elsewhere
+        renderGame();
     });
 }
 
@@ -307,6 +314,21 @@ function keyUpHandlerOnline(event, socket) {
     }
 
     queueMoveMessage(direction, socket);
+}
+
+function endOnlineMatch(message)
+{
+    context.clearRect(0, 0, board.width, board.height);
+    context.fillStyle = accentColor;
+    context.font = "45px 'ROG LyonsType Regular'";
+    context.textAlign = "center";
+    const finalMessage = message.winner + " won the game!";
+    context.fillText(finalMessage, board.width / 2, board.height / 2);
+        
+        
+    // redirect to home after 1,5s
+    setTimeout(() => 
+    { window.location.href = "/home";}, 1500);
 }
 
 // ONLINE CODE END

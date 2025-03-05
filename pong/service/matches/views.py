@@ -78,7 +78,6 @@ class PendingInvitationCreateView(APIView):
             player1=sender,
             player2=receiver_user,
             status='pending',
-            available=True,
         )
         invitation = PendingInvitation.objects.create(
             sender=sender,
@@ -90,14 +89,14 @@ class PendingInvitationCreateView(APIView):
         event = {
             'sender_id': invitation.sender.id,
             'receiver_id': invitation.receiver.id,
-            'invitation_token': invitation.token
+            'invitation_token': str(invitation.token)
         }
         publish_event('pong', 'pong.match_invitation', event)
 
         invitation_data = {
             "sender": invitation.sender.username,
             "receiver": invitation.receiver.username,
-            "token": invitation.token,
+            "token": str(invitation.token),
             "created_at": invitation.created_at
         }
         return Response({
@@ -160,8 +159,8 @@ class JoinMatchView(APIView):
         invitation.delete()
 
         event = {
-            'game_key': game.game_key,
-            'invitation_token': token,
+            'game_key': str(game.game_key),
+            'invitation_token': str(token),
             'accepted_by': request.user.id,
             'invited_by': game.player1.id
         }
@@ -170,7 +169,7 @@ class JoinMatchView(APIView):
         return Response({
             "status": "success",
             "message": "Successfully joined the match",
-            "data": {"game_key": game.game_key}
+            "game_key":  game.game_key
         })
 
 
@@ -181,7 +180,6 @@ class InProgressMatchesView(APIView):
         user = request.user
         in_progress_match = PongGame.objects.filter(
             status='in_progress',
-            available=True
         ).filter(Q(player1=user) | Q(player2=user)).first()
 
         if in_progress_match:
@@ -210,7 +208,7 @@ class PendingInvitationDenyView(APIView):
                 }, status=status.HTTP_403_FORBIDDEN)
 
             event = {
-                'invitation_token': invitation.token,
+                'invitation_token': str(invitation.token),
                 'denied_by': invitation.receiver.id,
                 'invited_by': invitation.sender.id
             }
@@ -241,7 +239,7 @@ class PendingInvitationCancelView(APIView):
                 }, status=status.HTTP_403_FORBIDDEN)
 
             event = {
-                'invitation_token': invitation.token,
+                'invitation_token': str(invitation.token),
                 'cancelled_by': invitation.sender.id,
                 'invited_user': invitation.receiver.id
             }
