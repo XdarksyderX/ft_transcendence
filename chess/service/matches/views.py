@@ -194,7 +194,7 @@ class JoinMatchView(APIView):
         response_data = {
             "status": "success",
             "message": "Successfully joined the match",
-            "data": {"game_id": game.id}
+            "game_key": str(game.game_key)
         }
         
         if was_in_queue:
@@ -238,7 +238,7 @@ class PendingInvitationDenyView(APIView):
                 }, status=status.HTTP_403_FORBIDDEN)
                 
             event = {
-                'invitation_token': invitation.token,
+                'invitation_token': str(invitation.token),
                 'denied_by': invitation.receiver.id,
                 'invited_by': invitation.sender.id
             }
@@ -267,7 +267,7 @@ class PendingInvitationCancelView(APIView):
                 }, status=status.HTTP_403_FORBIDDEN)
                 
             event = {
-                'invitation_token': invitation.token,
+                'invitation_token': str(invitation.token),
                 'cancelled_by': invitation.sender.id,
                 'invited_user': invitation.receiver.id
             }

@@ -56,7 +56,6 @@ class PongGame(models.Model):
         ],
         default='pending'
     )
-    available = models.BooleanField(default=False)
     is_tournament = models.BooleanField(default=False)
     tournament = models.ForeignKey(
         'Tournament',
