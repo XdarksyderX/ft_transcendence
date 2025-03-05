@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from core.models import ChessGame, PendingInvitation, User
+from core.models import ChessGame, PendingInvitation, User, MatchmakingQueue
 from core.utils.event_domain import publish_event
 from django.db.models import Q
 import uuid
@@ -50,12 +50,19 @@ class PendingInvitationCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        if MatchmakingQueue.objects.filter(user=request.user).exists():
+            return Response({
+                "status": "error",
+                "message": "You cannot send invitations while in matchmaking queue"
+            }, status=status.HTTP_400_BAD_REQUEST)
+            
         receiver_username = request.data.get('receiver')
         if not receiver_username:
             return Response({
                 "status": "error",
                 "message": "The 'receiver' field is required."
             }, status=status.HTTP_400_BAD_REQUEST)
+            
         try:
             receiver_user = User.objects.get(username=receiver_username)
         except User.DoesNotExist:
@@ -63,11 +70,13 @@ class PendingInvitationCreateView(APIView):
                 "status": "error",
                 "message": "The receiver does not exist."
             }, status=status.HTTP_400_BAD_REQUEST)
+            
         if receiver_user not in request.user.friends.all():
             return Response({
                 "status": "error",
                 "message": "The user is not your friend."
             }, status=status.HTTP_400_BAD_REQUEST)
+            
         sender = request.user
         game = ChessGame.objects.create(
             player_white=sender,
@@ -76,24 +85,29 @@ class PendingInvitationCreateView(APIView):
             available=True,
             game_mode='classic'
         )
+        
         invitation = PendingInvitation.objects.create(
             sender=sender,
             receiver=receiver_user,
             game=game,
             token=str(uuid.uuid4())
         )
+        
         event = {
             'sender_id': invitation.sender.id,
             'receiver_id': invitation.receiver.id,
             'invitation_token': invitation.token
         }
+        
         publish_event('chess', 'chess.match_invitation', event)
+        
         invitation_data = {
             "sender": invitation.sender.username,
             "receiver": invitation.receiver.username,
             "token": invitation.token,
             "created_at": invitation.created_at
         }
+        
         return Response({
             "status": "success",
             "message": "Invitation created successfully",
@@ -103,7 +117,7 @@ class PendingInvitationCreateView(APIView):
 class PendingInvitationDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def patch(self, request, token):
+    def get(self, request, token):  # Changed from patch to get
         try:
             invitation = PendingInvitation.objects.get(token=token)
         except PendingInvitation.DoesNotExist:
@@ -111,7 +125,7 @@ class PendingInvitationDetailView(APIView):
                 "status": "error",
                 "message": "Invitation not found"
             }, status=status.HTTP_404_NOT_FOUND)
-        
+
         serializer = PendingInvitationDetailSerializer(invitation, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
@@ -122,12 +136,13 @@ class PendingInvitationDetailView(APIView):
             "errors": serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
 
+
 class JoinMatchView(APIView):
     permission_classes = [IsAuthenticated]
     
     def get(self, request, token):
         existing_game = ChessGame.objects.filter(
-            (Q(player_white=request.user) | Q(player_black=request.user)) & 
+            (Q(player_white=request.user) | Q(player_black=request.user)) &
             Q(status='in_progress')
         ).first()
         
@@ -136,7 +151,7 @@ class JoinMatchView(APIView):
                 "status": "error",
                 "message": "You already have a game in progress"
             }, status=status.HTTP_400_BAD_REQUEST)
-
+        
         try:
             invitation = PendingInvitation.objects.get(token=token)
             if invitation.receiver != request.user:
@@ -149,26 +164,45 @@ class JoinMatchView(APIView):
                 "status": "error",
                 "message": "Invalid or expired token"
             }, status=status.HTTP_404_NOT_FOUND)
-
+        
+        user_in_queue = MatchmakingQueue.objects.filter(user=request.user).first()
+        if user_in_queue:
+            was_in_queue = True
+            queue_info = {
+                'game_mode': user_in_queue.game_mode,
+                'is_ranked': user_in_queue.is_ranked
+            }
+            user_in_queue.delete()
+        else:
+            was_in_queue = False
+            queue_info = None
+        
         game = invitation.game
         game.status = 'in_progress'
         game.save()
         token = invitation.token
         invitation.delete()
-
+        
         event = {
-            'game_key': game.game_key,
-            'invitation_token': token,
+            'game_key': str(game.game_key),
+            'invitation_token': str(token),
             'accepted_by': request.user.id,
-            'invited_by': game.player1.id
+            'invited_by': game.player_white.id
         }
+        
         publish_event('chess', 'chess.match_accepted', event)
-
-        return Response({
+        
+        response_data = {
             "status": "success",
             "message": "Successfully joined the match",
             "data": {"game_id": game.id}
-        })
+        }
+        
+        if was_in_queue:
+            response_data["removed_from_queue"] = True
+            response_data["queue_info"] = queue_info
+        
+        return Response(response_data)
 
 class InProgressMatchesView(APIView):
     permission_classes = [IsAuthenticated]
@@ -203,6 +237,7 @@ class PendingInvitationDenyView(APIView):
                     "status": "error",
                     "message": "You are not authorized to deny this invitation"
                 }, status=status.HTTP_403_FORBIDDEN)
+                
             event = {
                 'invitation_token': invitation.token,
                 'denied_by': invitation.receiver.id,
@@ -216,7 +251,7 @@ class PendingInvitationDenyView(APIView):
             })
         except PendingInvitation.DoesNotExist:
             return Response({
-                "status": "error", 
+                "status": "error",
                 "message": "Invitation not found"
             }, status=status.HTTP_404_NOT_FOUND)
 
@@ -231,6 +266,7 @@ class PendingInvitationCancelView(APIView):
                     "status": "error",
                     "message": "You are not authorized to cancel this invitation"
                 }, status=status.HTTP_403_FORBIDDEN)
+                
             event = {
                 'invitation_token': invitation.token,
                 'cancelled_by': invitation.sender.id,
@@ -244,10 +280,10 @@ class PendingInvitationCancelView(APIView):
             })
         except PendingInvitation.DoesNotExist:
             return Response({
-                "status": "error", 
+                "status": "error",
                 "message": "Invitation not found"
             }, status=status.HTTP_404_NOT_FOUND)
-        
+
 class PendingInvitationOutgoingListView(APIView):
     permission_classes = [IsAuthenticated]
 

@@ -36,7 +36,7 @@ export async function getChessInvitationDetail(token) {
 	return await sendRequestChess('GET', `invitation/detail/${token}`);
 }
 export async function denyChessInvitation(token) {
-	return await sendRequestChess('POST', `invitation/deny/${token}`);
+	return await sendRequestChess('POST', `invitation/deny/${token}/`);
 }
 
 export async function cancelChessInvitation(token) {

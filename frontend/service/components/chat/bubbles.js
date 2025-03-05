@@ -24,6 +24,8 @@ export function createSpecialBubble(message) {
     const { type } = messageContent;
     const isSender = message.sender === getUsername();
 
+	//if (type === )
+
     let card;
     switch (type) {
         case 'pong-match':
@@ -38,13 +40,9 @@ export function createSpecialBubble(message) {
             } else {
                 card = createQuickGameInvitation('chess', message.sent_at, message.sender, messageContent.invitation_token);
             }
-			
             break;
-        default:
-            console.warn(`Unknown invitation type: ${type}`);
-            card = document.createElement('div');
-            card.innerHTML = `<p>Unknown invitation type: ${type}</p>`;
-    }
+			default:
+				card  = createMessageBubble(`Unknown invitation type: ${type}`);    }
 
     return card;
 }
@@ -143,7 +141,7 @@ async function startProgressBar(card, btns, gameData) {
 
     btns.decline.addEventListener("click", () => {
         cleanProgressBar(progressBar, btns, interval);
-        handleDeclineInvitation(gameData.token);
+        handleDeclineInvitation(gameData.game, gameData.token);
     });
 }
 
