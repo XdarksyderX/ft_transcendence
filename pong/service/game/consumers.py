@@ -178,10 +178,10 @@ class GameConsumer(AsyncWebsocketConsumer):
             paddle_height = self.game_obj.player_height
             player_speed = self.game_obj.player_speed
             start_speed = self.game_obj.start_speed
+            speed_up_multiple = self.game_obj.speed_up_multiple
+            max_speed = self.game_obj.max_speed
             paddle_width = 12
             serve_speed_multiple = 0.3
-            speed_up_multiple = 1.02
-            max_speed = 20
 
             while True:
                 if self.game_key not in games:
