@@ -1,3 +1,5 @@
+import { renderMatchHistory } from "./history.js";
+
 export function initializeStatsEvents() {
 	const pongStats = {
 		quickGame: {
@@ -41,6 +43,7 @@ export function initializeStatsEvents() {
 
 	  renderPongStats();
 	  renderChessStats();
+	  renderMatchHistory();
 }
 
 function renderQuickGameStats(container, stats) {
