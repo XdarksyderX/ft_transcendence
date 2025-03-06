@@ -10,6 +10,8 @@ import { resingOption } from "./Helper/modalCreator.js";
 
 import { pawnPromotion } from "./Helper/modalCreator.js"; // fully provisional
 import { winGame } from "./Helper/modalCreator.js";
+import { getChessMatchDetail } from "../../app/chess.js";
+import { chatSocket } from "../chat/socket.js";
 
 let globalState = initGame();
 let keySquareMapper = {};
@@ -20,6 +22,8 @@ backgroundMusicChess.loop = true;
 backgroundMusicPong.loop = true;
 let isMusicPlaying = false;
 let currentMusic = null;
+let chessSocket = null;
+let attemptedReconnection = null;
 
 globalState.flat().forEach((square) => {
     keySquareMapper[square.id] = square;
@@ -68,7 +72,8 @@ export function initializeChessEvents(key) {
     const pieceStyleSelect = document.getElementById('piece-style');
     
     if (key) {
-        console.log("on chess, key: ", key);
+        console.log("on chess, key: ", key)
+        initOnlineChess(key)
     }
     
     initGameRender(globalState);
@@ -83,6 +88,56 @@ export function initializeChessEvents(key) {
     });
 
     provisionalModalHandle();
+}
+//'ws/game/<str:game_key>/'
+
+async function handleGetChessMatchDetail(key) {
+    const res = await getChessMatchDetail(key);
+    if (res.status === "success") {
+        console.log(res);
+    }
+}
+
+function initOnlineChess(key) {
+    // white or black 
+    //getChessMatchDetail(key);
+    handleGetChessMatchDetail(key);
+    initializeChessSocket(key);
+    // initialize socket
+    
+}
+
+function handleGetChessReceivedMessage(event) {
+    try {
+        const data = JSON.parse(event.data);
+        console.log("on handleGetChessReceivedMessage, data: ", data);
+        //if (data.status)
+    }
+    catch (e) {
+        console.error("Error parsing WS message: ", e);
+    }
+}
+
+function initializeChessSocket(game_key) {
+    chessSocket = new WebSocket(`ws://localhost:5053/ws/game/${game_key}/`);
+
+    chessSocket.onopen = () => {
+        console.log("Chess WebSocket connected");
+        attemptedReconnection = false;
+    }
+
+    chessSocket.onmessage = (event) => {
+        console.log("[CHESS SOCKET]: ", event.data);
+        handleGetChessReceivedMessage(event);
+    }
+
+    chessSocket.onerror = (error) => {
+        console.error("ChessSocket error:", error);
+    };
+
+    chessSocket.onclose = () => {
+        console.log("pos sí, me he cerrao, Y QUË");
+    }
 }
 
 function setupButtonEvents(settingsPanel, saveSettingsButton, cancelSettingsButton, pieceStyleSelect) {
