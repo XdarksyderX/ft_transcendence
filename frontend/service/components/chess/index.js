@@ -60,13 +60,16 @@ function provisionalModalHandle() {
     
 }
 
-export function initializeChessEvents() {
+export function initializeChessEvents(key) {
     const button1 = document.getElementById('button1');
     const settingsPanel = document.getElementById('settings-panel');
     const saveSettingsButton = document.getElementById('save-settings');
     const cancelSettingsButton = document.getElementById('cancel-settings');
     const pieceStyleSelect = document.getElementById('piece-style');
     
+    if (key) {
+        console.log("on chess, key: ", key);
+    }
     
     initGameRender(globalState);
     GlobalEvent();
