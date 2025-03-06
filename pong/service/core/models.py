@@ -70,9 +70,9 @@ class PongGame(models.Model):
     board_width = models.IntegerField(default=700)
     board_height = models.IntegerField(default=500)
     player_height = models.IntegerField(default=50)
-    player_speed = models.IntegerField(default=5)
+    player_speed = models.IntegerField(default=7) # trying values, increasing player speed 5->7
     ball_side = models.IntegerField(default=10)
-    start_speed = models.FloatField(default=7.5)
+    start_speed = models.FloatField(default=10) #start_speed 7.5 -> 10
     speed_up_multiple = models.FloatField(default=1.02)
     max_speed = models.IntegerField(default=20)
     points_to_win = models.IntegerField(default=3)
