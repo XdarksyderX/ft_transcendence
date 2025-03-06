@@ -195,10 +195,6 @@ class GameConsumer(AsyncWebsocketConsumer):
                     ball["x"] += ball["xVel"]
                     ball["y"] += ball["yVel"]
 
-                # Bounce off top/bottom boundaries
-                if ball["y"] <= 0 or ball["y"] >= board_height - ball_side:
-                    ball["yVel"] *= -1
-
                 # Check collision with player1's paddle
                 p1 = game["players"].get("player1")
                 if p1:
@@ -252,6 +248,10 @@ class GameConsumer(AsyncWebsocketConsumer):
                         ball["xVel"] = -abs(speed * math.cos(rebound_angle))
                         ball["yVel"] = speed * math.sin(rebound_angle)
                         ball["serve"] = False
+
+                # Bounce off top/bottom boundaries, AFTER paddle hit to avoid ball getting clamped between paddle & top/bottom wall BUGG
+                if ball["y"] <= 0 or ball["y"] >= board_height - ball_side:
+                    ball["yVel"] *= -1
 
                 # Update players' positions
                 for player_role, player in game["players"].items():
