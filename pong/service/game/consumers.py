@@ -179,43 +179,81 @@ class GameConsumer(AsyncWebsocketConsumer):
             player_speed = self.game_obj.player_speed
             start_speed = self.game_obj.start_speed
             paddle_width = 12
+            serve_speed_multiple = 0.3
+            speed_up_multiple = 1.02
+            max_speed = 20
 
             while True:
                 if self.game_key not in games:
                     break
 
-                ball["x"] += ball["xVel"]
-                ball["y"] += ball["yVel"]
+                # Update ball position differently if in serve mode
+                if ball.get("serve", False):
+                    ball["x"] += ball["xVel"] * serve_speed_multiple
+                    ball["y"] += ball["yVel"] * serve_speed_multiple
+                else:
+                    ball["x"] += ball["xVel"]
+                    ball["y"] += ball["yVel"]
 
+                # Bounce off top/bottom boundaries
                 if ball["y"] <= 0 or ball["y"] >= board_height - ball_side:
                     ball["yVel"] *= -1
 
+                # Check collision with player1's paddle
                 p1 = game["players"].get("player1")
                 if p1:
                     if (ball["x"] <= p1["x"] + paddle_width and
                         ball["x"] + ball_side >= p1["x"] and
                         ball["y"] + ball_side >= p1["y"] and
                         ball["y"] <= p1["y"] + paddle_height):
-                        collision_point = (ball["y"] + ball_side / 2) - (p1["y"] + paddle_height / 2)
-                        normalized = collision_point / (paddle_height / 2)
-                        rebound_angle = normalized * (math.pi / 4)
-                        speed = math.hypot(ball["xVel"], ball["yVel"])
+
+                        # Calculate collision point and clamp it
+                        collision_point = (ball["y"] + ball_side/2) - (p1["y"] + paddle_height/2)
+                        if collision_point > paddle_height/2:
+                            collision_point = paddle_height/2
+                        elif collision_point < -paddle_height/2:
+                            collision_point = -paddle_height/2
+                        normalized = collision_point / (paddle_height/2)
+                        rebound_angle = normalized * (math.pi/4)
+
+                        # Increase speed up to max_speed
+                        speed = ball.get("speed", math.hypot(ball["xVel"], ball["yVel"]))
+                        if speed < max_speed:
+                            speed *= speed_up_multiple
+                        ball["speed"] = speed
+
+                        # Ensure ball goes right (positive x) after collision with player1's paddle
                         ball["xVel"] = abs(speed * math.cos(rebound_angle))
                         ball["yVel"] = speed * math.sin(rebound_angle)
+                        ball["serve"] = False
 
+                # Check collision with player2's paddle
                 p2 = game["players"].get("player2")
                 if p2:
                     if (ball["x"] + ball_side >= p2["x"] and
                         ball["x"] <= p2["x"] + paddle_width and
                         ball["y"] + ball_side >= p2["y"] and
                         ball["y"] <= p2["y"] + paddle_height):
-                        collision_point = (ball["y"] + ball_side / 2) - (p2["y"] + paddle_height / 2)
-                        normalized = collision_point / (paddle_height / 2)
-                        rebound_angle = normalized * (math.pi / 4)
-                        speed = math.hypot(ball["xVel"], ball["yVel"])
+
+                        collision_point = (ball["y"] + ball_side/2) - (p2["y"] + paddle_height/2)
+                        if collision_point > paddle_height/2:
+                            collision_point = paddle_height/2
+                        elif collision_point < -paddle_height/2:
+                            collision_point = -paddle_height/2
+                        normalized = collision_point / (paddle_height/2)
+                        rebound_angle = normalized * (math.pi/4)
+
+                        speed = ball.get("speed", math.hypot(ball["xVel"], ball["yVel"]))
+                        if speed < max_speed:
+                            speed *= speed_up_multiple
+                        ball["speed"] = speed
+
+                        # Ensure ball goes left (negative x) after collision with player2's paddle
                         ball["xVel"] = -abs(speed * math.cos(rebound_angle))
                         ball["yVel"] = speed * math.sin(rebound_angle)
+                        ball["serve"] = False
 
+                # Update players' positions
                 for player_role, player in game["players"].items():
                     if player.get("connected", False):
                         direction = player.get("direction")
@@ -224,18 +262,23 @@ class GameConsumer(AsyncWebsocketConsumer):
                         elif direction == "DOWN":
                             player["y"] = min(board_height - paddle_height, player["y"] + player_speed)
 
+                # Scoring and ball reset logic:
+                # When the ball goes off left, right player scores and left player (conceding) serves.
                 if ball["x"] < 0:
                     if "player2" in game["players"]:
                         new_score = game["players"]["player2"]["score"] + 1
                         game["players"]["player2"]["score"] = new_score
-                        await update_score_in_db(self.game_obj, "player2", new_score)
+                        # Reset ball using a random serve angle
+                        start_rad_angle = random.uniform(-math.pi/4, math.pi/4)
                         ball.update({
-                            "x": board_width / 2,
-                            "y": board_height / 2,
-                            "xVel": abs(start_speed),
-                            "yVel": 0,
+                            "x": board_width / 2 - ball_side/2,
+                            "y": board_height / 2 - ball_side/2,
+                            "xVel": start_speed * math.cos(start_rad_angle) * 1,  # positive xVel (ball served to right)
+                            "yVel": start_speed * math.sin(start_rad_angle),
+                            "speed": start_speed,
                             "serve": True
                         })
+
                         if new_score >= self.game_obj.points_to_win:
                             await self.channel_layer.group_send(
                                 self.group_name,
@@ -268,18 +311,21 @@ class GameConsumer(AsyncWebsocketConsumer):
                             )
                             break
 
+                # When the ball goes off right, left player scores and right player (conceding) serves.
                 elif ball["x"] > board_width - ball_side:
                     if "player1" in game["players"]:
                         new_score = game["players"]["player1"]["score"] + 1
                         game["players"]["player1"]["score"] = new_score
-                        await update_score_in_db(self.game_obj, "player1", new_score)
+                        start_rad_angle = random.uniform(-math.pi/4, math.pi/4)
                         ball.update({
-                            "x": board_width / 2,
-                            "y": board_height / 2,
-                            "xVel": -abs(start_speed),
-                            "yVel": 0,
+                            "x": board_width / 2 - ball_side/2,
+                            "y": board_height / 2 - ball_side/2,
+                            "xVel": start_speed * math.cos(start_rad_angle) * -1,  # negative xVel (ball served to left)
+                            "yVel": start_speed * math.sin(start_rad_angle),
+                            "speed": start_speed,
                             "serve": True
                         })
+
                         if new_score >= self.game_obj.points_to_win:
                             await self.channel_layer.group_send(
                                 self.group_name,
@@ -312,6 +358,7 @@ class GameConsumer(AsyncWebsocketConsumer):
                             )
                             break
 
+                # Send the updated game state to all connected clients
                 if game["active_connections"] > 0:
                     state = {
                         "players": game["players"],
