@@ -59,7 +59,7 @@ function reShowMenu()
     document.getElementById("instructions").hidden = false; // Show instructions
 }
 
-export async function initializePongEvents()
+export async function initializePongEvents(gameKey = null)
 {
     // Check for an online match
     try 

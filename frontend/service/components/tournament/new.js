@@ -1,5 +1,6 @@
 import { throwAlert } from "../../app/render.js";
 import { handleGetFriendList } from "../friends/app.js";
+import { addTournamentStatusTemplate } from "./pendant.js";
 
 let requiredParticipants = 0;
 
@@ -10,6 +11,7 @@ export function initializeNewTournament() {
   
   renderFriendList(elements);
   initStartNewTournament(elements);
+ // addTournamentStatusTemplate();
 }
 
 function getElements() {

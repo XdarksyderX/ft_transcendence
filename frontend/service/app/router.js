@@ -39,7 +39,7 @@ const routes = [
     { url: "/verify-email", file: "./components/signup/verify-email.html", allowed: true },
 ];
 
-async function router() {
+async function router(key = null) {
     const path = location.pathname;
     const match = routes.find(route => route.url === path) || routes[0];
 
@@ -81,10 +81,10 @@ async function router() {
             initializeStatsEvents();
             break;
         case "/chess":
-            initializeChessEvents();
+            initializeChessEvents(key);
             break;
         case "/pong":
-            initializePongEvents();
+            initializePongEvents(key);
             break;
         case "/settings":
             initializeSettingsEvents();
@@ -148,7 +148,7 @@ function loadLoggedContent(isLogged) {
     updateNavbar(window.location.pathname);
 }
 
-async function navigateTo(fullUrl) {
+async function navigateTo(fullUrl, key = null) {
     console.log("navigating to: ", fullUrl);    
     try {
         const verify = await isLoggedIn();
@@ -158,7 +158,7 @@ async function navigateTo(fullUrl) {
        // if (!(url !== "/login" && url !== "/signup" && !verify)) 
         if (url !== window.location.pathname) {
             history.pushState(null, null, url);
-            router();
+            router(key);
             
         }
         loadLoggedContent(verify);
