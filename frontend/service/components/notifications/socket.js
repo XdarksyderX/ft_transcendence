@@ -35,7 +35,7 @@ const notificationHandlers = {
     pong_match_accepted: () => handleAcceptedInvitation('pong'),
     pong_match_decline: () => handleDeclinedInvitation(),
     pong_match_cancelled: (data) => handleCancelledInvitation(data.invitation_token),
-    chess_match_accepted: () => handleAcceptedInvitation('chess'),
+    chess_match_accepted: (data) => handleAcceptedInvitation('chess', data.game_key),
     chess_match_decline: () => handleDeclinedInvitation(),
     chess_match_cancelled: (data) => handleCancelledInvitation(data.invitation_token),
 };

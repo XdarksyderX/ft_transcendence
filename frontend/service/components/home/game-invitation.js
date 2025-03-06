@@ -39,7 +39,7 @@ async function sendQuickGameInvitation(game, friendName) {
     }
 }
 
-export function handleAcceptedInvitation(game) {
+export function handleAcceptedInvitation(game, key) {
     console.log("handleAcceptedInvitation function called");
     const modalElement = document.getElementById('wait-game');
     if (modalElement) {
@@ -48,7 +48,7 @@ export function handleAcceptedInvitation(game) {
             modalInstance.hide();
         }
     }
-    navigateTo(`/${game}`);
+    navigateTo(`/${game}`, key);
 }
 
 export function handleDeclinedInvitation() {
@@ -67,7 +67,7 @@ export function handleDeclinedInvitation() {
 export async function handleAcceptQuickGameInvitation(game, token) {
     const response = game ==='pong' ? await acceptPongInvitation(token) : await acceptChessInvitation(token);
     if (response.status === "success") {
-        await navigateTo(`/${game}`);
+        await navigateTo(`/${game}`, response.game_key);
         return (1);
     } else {
         console.error('Failed to accept invitation:', response.message);
@@ -92,7 +92,6 @@ async function handleCancelQuickGameInvitation(game, token) {
         console.error('Failed to accept invitation:', response.message);
     }
 }
-
 
 
 function launchWaitModal(friendName, game, token) {
