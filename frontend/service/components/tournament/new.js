@@ -1,19 +1,17 @@
 import { throwAlert } from "../../app/render.js";
 import { handleGetFriendList } from "../friends/app.js";
-import { addTournamentStatusTemplate } from "./pendant.js";
 
 let requiredParticipants = 0;
 
+// Initializes the new tournament setup
 export function initializeNewTournament() {
-
   const elements = getElements();
   setSwitches(elements);
-  
   renderFriendList(elements);
   initStartNewTournament(elements);
- // addTournamentStatusTemplate();
 }
 
+// Retrieves the necessary DOM elements
 function getElements() {
   return ({
         startBtn: document.getElementById('start-tournament-btn'),
@@ -24,6 +22,7 @@ function getElements() {
 );
 }
 
+// Sets up event listeners for switch buttons to update participant requirements
 function setSwitches(elements) {
   elements.switchButtons.forEach((button) => {
     button.addEventListener("click", (event) => {
@@ -36,8 +35,9 @@ function setSwitches(elements) {
   });
 }
 
+// Updates the required number of participants and manages the start button state
 function updateRequiredParticipants(total, elements) {
-  requiredParticipants = Number.parseInt(total, 10);
+  requiredParticipants = Number.parseInt(total, 10) - 1; // -1 cause we already include the creator 
   if (selectedFriends.length === requiredParticipants) {
     elements.startBtn.disabled = false;
   } else {
@@ -49,6 +49,7 @@ function updateRequiredParticipants(total, elements) {
   }
 }
 
+// Refreshes the friend list for the tournament
 export function refreshTournamentFriendList() {
   if (requiredParticipants) {
     const elements = getElements();
@@ -56,6 +57,7 @@ export function refreshTournamentFriendList() {
   }
 }
 
+// Renders the list of friends available for the tournament
 async function renderFriendList(elements) {
   elements.friendsContainer.innerHTML = '';
   const friends = await handleGetFriendList(); 
@@ -74,6 +76,8 @@ async function renderFriendList(elements) {
 }
 
 let selectedFriends = []
+
+// Toggles the selection of friends for the tournament
 function toggleFriendSelection(friend, btn, elements) {
   if (btn.classList.contains("selected")) {
     btn.classList.remove("selected")
@@ -89,6 +93,7 @@ function toggleFriendSelection(friend, btn, elements) {
   elements.startBtn.disabled = selectedFriends.length !== requiredParticipants
 }
 
+// Initializes the start button for creating a new tournament
 function initStartNewTournament(elements) {
   elements.startBtn.addEventListener('click', () => {
       event.preventDefault();
@@ -97,6 +102,7 @@ function initStartNewTournament(elements) {
     })
 }
 
+// Creates a new tournament with the selected friends
 function createNewTournament(tournamentName) {
   const friendNames = selectedFriends.map(friend => friend.name).join(', ');
   throwAlert(`Creating a tournament named: '${tournamentName}', with: ${friendNames}`);

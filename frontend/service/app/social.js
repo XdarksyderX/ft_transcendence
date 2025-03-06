@@ -107,6 +107,6 @@ export async function getAvatar(username = null, user = null, path = null) {
     if (!path.startsWith('/media/')) {
         throw new Error("Invalid avatar path");
     }
-
+   // console.log(`http://localhost:5051${path}`)
     return `http://localhost:5051${path}`;
 }

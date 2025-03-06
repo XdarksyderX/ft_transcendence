@@ -167,7 +167,7 @@ export function handleCancelledInvitation(token) {
 		timer: card.querySelector('[data-timer]')
 	};
 
-    const progressBar = card.querySelector('[data-progress] .progress-bar'); // Añadir esto
+    const progressBar = card.querySelector('[data-progress] .progress-bar');
 
 	const intervalId = activeIntervals.get(token);
 	console.log(`Recuperando interval para ${token}:`, intervalId);
