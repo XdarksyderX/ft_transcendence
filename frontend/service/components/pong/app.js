@@ -322,7 +322,7 @@ function endOnlineMatch(message)
     context.fillStyle = accentColor;
     context.font = "45px 'ROG LyonsType Regular'";
     context.textAlign = "center";
-    const finalMessage = message.winner + " won the game!";
+    const finalMessage = message.winner + " won!";
     context.fillText(finalMessage, board.width / 2, board.height / 2);
         
         
