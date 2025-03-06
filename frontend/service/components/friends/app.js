@@ -118,6 +118,7 @@ async function renderFriendList(container, dataContainer, refreshData = true) {
 async function createFriendBtn(friend, dataContainer) {
 	const friendBtn = document.createElement('div');
 	const avatar = await getAvatar(null, null, friend.avatar);
+ //   console.log("avatar on creating friend btn: ", avatar);
 
 	friendBtn.className = 'friend-btn d-flex align-items-center';
 	friendBtn.setAttribute('data-username', friend.username); //this probably will change when its connected w API
