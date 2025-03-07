@@ -30,7 +30,7 @@ export function initializeStatsEvents() {
 		renderTournamentStats(pongTournament, pongStats.tournaments);
   
 		const fullPongHistory = document.getElementById('full-pong-history');
-		fullPongHistory.innerHTML = '<p>Pong match history will be displayed here.</p> <p>or not, who knows</p>';
+		//fullPongHistory.innerHTML = '<p>Pong match history will be displayed here.</p> <p>or not, who knows</p>';
 	  }
   
 	  function renderChessStats() {
@@ -38,7 +38,7 @@ export function initializeStatsEvents() {
 		renderQuickGameStats(chessQuick, chessStats);
   
 		const fullChessHistory = document.getElementById('full-chess-history');
-		fullChessHistory.innerHTML = '<p>Chess match history will be displayed here.</p>';
+		//fullChessHistory.innerHTML = '<p>Chess match history will be displayed here.</p>';
 	  }
 
 	  renderPongStats();
