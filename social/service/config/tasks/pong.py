@@ -75,12 +75,13 @@ def handle_tournament_invitation(event):
         event_data = event["data"]["attributes"]
         sender = User.objects.get(id=event_data["sender_id"])
         receiver = User.objects.get(id=event_data["receiver_id"])
-        tournament_id = event_data["tournament_id"]
+        tournament_token = event_data["tournament_token"]
+        invitation_token = event_data["invitation_token"]
 
         msg = Message.objects.create(
             sender=sender,
             receiver=receiver,
-            content=json.dumps({"type": "tournament", "tournament_id": tournament_id}),
+            content=json.dumps({"type": "tournament", "tournament_token": tournament_token}),
             is_special=True
         )
         msg.save()
@@ -91,8 +92,9 @@ def handle_tournament_invitation(event):
             "message": "New tournament invitation received",
             "data": {
                 "message": json.dumps({
-                    "type": "tournament",
-                    "tournament_id": tournament_id
+                    "type": "pong-tournament",
+                    "tournament_token": tournament_token,
+                    "invitation_token": invitation_token
                 }),
                 "is_read": False,
                 "is_special": True,

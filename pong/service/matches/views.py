@@ -31,9 +31,14 @@ class MatchHistoryView(APIView):
 class MatchDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, match_id):
+    def get(self, request, game_key):
         try:
-            match = PongGame.objects.get(id=match_id)
+            match = PongGame.objects.get(game_key=game_key)
+            if match.player1 != request.user and match.player2 != request.user:
+                return Response({
+                    "status": "error",
+                    "message": "You are not authorized to view this match"
+                }, status=403)
         except PongGame.DoesNotExist:
             return Response({
                 "status": "error",
@@ -46,7 +51,6 @@ class MatchDetailView(APIView):
             "message": "Match details retrieved successfully",
             "match": serializer.data
         })
-
 
 class PendingInvitationCreateView(APIView):
     permission_classes = [IsAuthenticated]
@@ -89,7 +93,8 @@ class PendingInvitationCreateView(APIView):
         event = {
             'sender_id': invitation.sender.id,
             'receiver_id': invitation.receiver.id,
-            'invitation_token': str(invitation.token)
+            'invitation_token': str(invitation.token),
+            'game_key': str(game.game_key)
         }
         publish_event('pong', 'pong.match_invitation', event)
 

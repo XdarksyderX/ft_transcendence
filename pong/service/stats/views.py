@@ -22,7 +22,7 @@ class QuickMatchStatisticsView(APIView):
 			"stats": data
 		})
 
-class QuickMatchStatisticsView(APIView):
+class TournamentStatisticsView(APIView):
 	permission_classes = [IsAuthenticated]
 	def get(self, request):
 		user = request.user
