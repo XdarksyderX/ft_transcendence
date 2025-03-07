@@ -92,7 +92,7 @@ class PongGame(models.Model):
         
         # Call the original save method
         super().save(*args, **kwargs)
-        
+
         # If the game just finished and has a winner, update statistics
         if is_finishing and self.winner:
             # Determine tournament positions for finals
@@ -111,7 +111,10 @@ class PongGame(models.Model):
                     else:
                         player1_position = 2
                         player2_position = 1
-            
+
+            if self.is_tournament:
+                self.tournament.create_next_round_matches()
+                
             # Update statistics only for quick games or tournament finals
             if not self.is_tournament or is_final:
                 for player, position in [(self.player1, player1_position), (self.player2, player2_position)]:
@@ -213,6 +216,31 @@ class PendingInvitation(models.Model):
         return f"PendingInvitation {self.token} from {self.sender} to {self.receiver} for game {self.game.id}"
 
 
+class TournamentInvitation(models.Model):
+    """
+    Represents a pending invitation to a tournament.
+    """
+    sender = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='sent_tournament_invitations'
+    )
+    receiver = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='received_tournament_invitations'
+    )
+    token = models.CharField(max_length=255, unique=True)
+    tournament = models.ForeignKey(
+        'Tournament',
+        on_delete=models.CASCADE,
+        related_name='tournament_invitations_set'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"TournamentInvitation {self.token} from {self.sender} to {self.receiver} for tournament {self.tournament.id}"
+
 class Tournament(models.Model):
     name = models.CharField(max_length=100)
     organizer = models.ForeignKey(
@@ -220,15 +248,24 @@ class Tournament(models.Model):
         on_delete=models.CASCADE,
         related_name='organized_tournaments'
     )
-    # Only tournaments with 4 or 8 players are allowed.
     max_players = models.IntegerField(
     choices=[(4, '4 Players'), (8, '8 Players')],
     default=4
     )
 
+    invited_users = models.ManyToManyField(
+        User,
+        through=TournamentInvitation,
+        through_fields=('tournament', 'receiver'),
+        related_name='tournament_invitations'
+    )
+    players = models.ManyToManyField(
+        User,
+        related_name='tournaments'
+    )
+    token = models.CharField(max_length=255, unique=True, default=uuid.uuid4)
     closed = models.BooleanField(default=False)
     current_round = models.IntegerField(default=1)
-    # Using ArrayField to store seeding (list of player IDs) in bracket order.
     seeding = ArrayField(models.IntegerField(), null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -240,21 +277,16 @@ class Tournament(models.Model):
          - Generates the seeding (random order for simplicity).
          - Creates the first round matches.
         """
-        confirmed_players = self.players.filter(confirmed=True)
-        if confirmed_players.count() != self.max_players:
+        if self.players.count() != self.max_players:
             raise Exception(f"Tournament cannot be closed without {self.max_players} confirmed players.")
 
-        # Delete invitations that have not been confirmed.
-        self.players.filter(confirmed=False).delete()
-
         # Generate seeding: a list of player IDs in random order.
-        player_ids = list(confirmed_players.values_list('player__id', flat=True))
+        player_ids = list(self.players.values_list('id', flat=True))
         random.shuffle(player_ids)
         self.seeding = player_ids
         self.closed = True
         self.save()
 
-        # Create the first round matches based on the seeding.
         self.create_next_round_matches()
 
     def is_current_round_finished(self):
@@ -346,30 +378,6 @@ class Tournament(models.Model):
 
     def __str__(self):
         return f"Tournament {self.name} (Players: {self.max_players})"
-
-
-class TournamentPlayer(models.Model):
-    """
-    Represents a player's participation in a tournament, acting as an invitation.
-    The invitation status is managed with the 'confirmed' Boolean field.
-    """
-    tournament = models.ForeignKey(
-        Tournament,
-        on_delete=models.CASCADE,
-        related_name='players'
-    )
-    player = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='tournament_entries'
-    )
-    # Invitation confirmation status: True means confirmed.
-    confirmed = models.BooleanField(default=False)
-    invited_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.player.username} in {self.tournament.name}"
-
 
 class TournamentMatch(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name='matches')

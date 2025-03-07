@@ -30,15 +30,20 @@ class MatchHistoryView(APIView):
 class MatchDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, match_id):
+    def get(self, request, game_token):
         try:
-            match = ChessGame.objects.get(id=match_id)
+            match = ChessGame.objects.get(game_token=game_token)
         except ChessGame.DoesNotExist:
             return Response({
                 "status": "error",
                 "message": "Match not found"
             }, status=404)
 
+        if request.user not in [match.player_white, match.player_black]:
+            return Response({
+                "status": "error",
+                "message": "You are not authorized to view this match"
+            }, status=403)
         serializer = ChessGameSerializer(match)
         return Response({
             "status": "success",
@@ -96,7 +101,8 @@ class PendingInvitationCreateView(APIView):
         event = {
             'sender_id': invitation.sender.id,
             'receiver_id': invitation.receiver.id,
-            'invitation_token': invitation.token
+            'invitation_token': invitation.token,
+            'game_key': str(game.game_key)
         }
         
         publish_event('chess', 'chess.match_invitation', event)
@@ -117,7 +123,7 @@ class PendingInvitationCreateView(APIView):
 class PendingInvitationDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, token):  # Changed from patch to get
+    def get(self, request, token):
         try:
             invitation = PendingInvitation.objects.get(token=token)
         except PendingInvitation.DoesNotExist:
