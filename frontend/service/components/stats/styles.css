@@ -6,8 +6,45 @@
 	background-color: var(--dark);
   }
 
-  .stats {
+.stats {
 	border-radius: 5px;
 	box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3), -2px -3px 5px rgba(132, 204, 163, 0.4);
+}
 
-  }
+.history-card {
+	border-radius: 5px;
+	border: 1px solid var(--light);
+	margin-bottom: 15px;
+	background-color: var(--transparent-dark);
+}
+
+.history-card .score {
+    font-size: 1.5rem;
+    border-radius: 5px;
+    border: 1px solid var(--light);
+    width: 3.2rem;
+    height: 3rem;
+    line-height: 3rem;
+    text-align: center;
+    margin: 0 auto;
+	margin-bottom: 10px;
+	object-fit: contain;
+
+}
+
+.history-card .score svg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+}
+
+.history-card .score.winner {
+	/* background-color: var(--light); */
+	color: var(--title);
+	border: 1px solid var(--accent);
+	box-shadow: 0 0 3px #00F56A, 0 0 5px #00F56A, 0 0 3px #00F56A, 0 0 10px #00F56Acc;
+
+
+}
