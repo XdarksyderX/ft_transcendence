@@ -307,6 +307,7 @@ function pawnMovesOptions(piece, unusedFunc = null, color) {
         highlightSquareIds = [`${curr_pos[0]}${Number(curr_pos[1]) + direction}`,];
         let enPassant = "";
         if (enPassant = checkEnPassant(curr_pos, color, direction)) {
+            //isClick false no highlitees
             highlightSquareIds.push(enPassant);
         }
     }

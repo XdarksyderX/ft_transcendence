@@ -247,11 +247,23 @@ function makeEnPassant(piece, id) {
   }
 }
 
+function isClick() {
+/*   if (chessSocket && inTurn !== getUserColor(getUsername())) return ;
+  return false; */
+  return !(chessSocket && inTurn !== getUserColor(getUsername()));
+}
+
 /**
- * {
-  "action": "move", // para mover una pieza
-  "from": "e2",  // Posición inicial
-  "to": "e4"     // Posición final
+ *
+Object { status: "game_update", board: {…}, last_move: {…}, current_player: "black" }
+​
+board: Object { a1: {…}, b1: {…}, c1: {…}, … }
+​
+current_player: "black"
+​
+last_move: Object { from: "d2", to: "d4", player: "white" }
+​
+status: "game_update"
 }
  */
 
@@ -261,11 +273,16 @@ function makeEnPassant(piece, id) {
  * @param {*} id the new position id where the piece should be moved.
  * @param {boolean} castle Indicates if the move is a castling move.
  */
+
+//si el mov es por socket lo importante es llamar a moveElement y el unico problema es la promocion de peones
+
 function moveElement(piece, id, castle) {
   if (!piece)
     return;
   
-  if (chessSocket) {
+  const isClickBool = isClick()
+
+  if (isClickBool) {
     console.log(`en moveElement() -> from: ${piece.current_pos}; to: ${id}`)
     const data = {
       action: "move",
@@ -302,7 +319,7 @@ function moveElement(piece, id, castle) {
     setTimeout(() => { winGame(winBool); }, 50);
     return;
   }
-  
+
   if (pawnPromotionBool)
     pawnPromotion(inTurn, callbackPiece, id);
 
@@ -529,6 +546,7 @@ function clearPreviousSelfHighlight(piece)
  * callback function is executed. We check if the clicked element is an <img> tag. This ensure that the code ontly runs when
  * an image of a chess piece is clicked.
  */
+
 function GlobalEvent() {
   const root = document.getElementById('root');
   root.addEventListener("click", function(event) {
@@ -565,7 +583,7 @@ function GlobalEvent() {
 }
 
  //if the person precisely click on the round hightlight  //gets the id of the parent node of the clickd 'span'  //if the clicked element is not a span but still has exactly one child node, means the square minus the round highlight, to ensure the proper movement either way
-function handleHighlightClickEvent(target) {
+ function handleHighlightClickEvent(target) {
   clearPreviousSelfHighlight(selfHighlightState);
   const id = target.localName === "span" ? target.parentNode.id : target.id;
   if (moveState.piece_name.includes("PAWN"))
@@ -598,4 +616,4 @@ function clearYellowHighlight() {
   selfHighlightState = null;
 }
 
-export { GlobalEvent, captureNotation, clearYellowHighlight, globalPieceUpdate, callbackPiece};
+export { GlobalEvent, captureNotation, clearYellowHighlight, globalPieceUpdate, callbackPiece, moveElement};
