@@ -27,6 +27,7 @@ class MatchHistoryView(APIView):
             "matches": serializer.data
         })
 
+
 class MatchDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
