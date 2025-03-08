@@ -30,9 +30,9 @@ class MatchHistoryView(APIView):
 class MatchDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, game_token):
+    def get(self, request, game_key):
         try:
-            match = ChessGame.objects.get(game_token=game_token)
+            match = ChessGame.objects.get(game_key=game_key)
         except ChessGame.DoesNotExist:
             return Response({
                 "status": "error",
