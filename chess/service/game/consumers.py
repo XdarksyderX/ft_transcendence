@@ -137,7 +137,6 @@ class ChessConsumer(AsyncWebsocketConsumer):
 				
 				self.game_obj.status = "in_progress"
 				self.game_obj.save()
-		
 		elif action == "move":
 			if not game["board"]:
 				return
@@ -195,6 +194,25 @@ class ChessConsumer(AsyncWebsocketConsumer):
 					"status": "error",
 					"message": message
 				}))
+		elif action == "resign":
+			winner_color = "black" if self.color == "white" else "white"
+			winner_user = self.game_obj.player_white if winner_color == "white" else self.game_obj.player_black
+			
+			await update_game_in_db(
+				self.game_obj, 
+				game["board"], 
+				status="finished", 
+				winner=winner_user
+			)
+			
+			await self.channel_layer.group_send(
+				self.group_name,
+				{
+					"type": "game.over",
+					"winner": winner_color,
+					"reason": "resignation"
+				}
+			)
 	
 	async def player_status(self, event):
 		await self.send(text_data=json.dumps({
