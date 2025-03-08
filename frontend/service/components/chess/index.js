@@ -5,7 +5,7 @@
 
 import { initGame } from "./Data/data.js";
 import { initGameRender, clearHighlight } from "./Render/main.js";
-import { GlobalEvent, clearYellowHighlight } from "./Events/global.js";
+import { GlobalEvent, clearYellowHighlight, moveElement } from "./Events/global.js";
 import { resingOption } from "./Helper/modalCreator.js";
 
 import { pawnPromotion } from "./Helper/modalCreator.js"; // fully provisional
@@ -134,6 +134,13 @@ function handleGetChessReceivedMessage(event) {
     try {
         const data = JSON.parse(event.data);
         console.log("on handleGetChessReceivedMessage, data: ", data);
+        if (data.status === "game_update") {
+            const { from, to } = data.last_move;
+            const piece = keySquareMapper[from].piece;
+            if (piece) {
+                moveElement(piece, to, false);
+            }
+        }
     }
     catch (e) {
         console.error("Error parsing WS message: ", e);

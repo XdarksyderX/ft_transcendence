@@ -22,5 +22,8 @@ EXPOSE 5053
 # EXPOSE 6379
 
 COPY entrypoint.sh /entrypoint.sh
+COPY dropdb.sh /dropdb.sh
+
 RUN chmod +x /entrypoint.sh
+RUN chmod +x /dropdb.sh
 CMD ["/bin/bash", "/entrypoint.sh"]

@@ -1,6 +1,7 @@
 import * as pieces from "../Data/pieces.js";
-import { imgStyle } from "../index.js";
+import { imgStyle, chessSocket } from "../index.js";
 import { navigateTo } from "../../../app/router.js";
+
 
 /**
  * This class  is a design pattern aimed at creating
@@ -131,7 +132,21 @@ function winGame(winBool) {
 function resingOption() {
   const resignButton = document.getElementById("resign-button");
   resignButton.onclick = () => {
-    //aqui guardariamos la victoria y/o derrota en el historial
+    // Aquí guardaríamos la victoria y/o derrota en el historial
+    const data = { action: "resign" };
+    console.log("Attempting to send data through WebSocket:", data);
+
+    try {
+      if (chessSocket && chessSocket.readyState === WebSocket.OPEN) {
+        chessSocket.send(JSON.stringify(data));
+        console.log("Sending data through WebSocket:", data);
+      } else {
+        console.log("WebSocket is not open:", chessSocket);
+      }
+    } catch (e) {
+      console.error("Error sending data through WebSocket:", e);
+    }
+
     navigateTo('/home');
   }
 }

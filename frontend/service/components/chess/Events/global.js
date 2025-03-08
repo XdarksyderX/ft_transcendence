@@ -254,10 +254,16 @@ function isClick() {
 }
 
 /**
- * {
-  "action": "move", // para mover una pieza
-  "from": "e2",  // Posición inicial
-  "to": "e4"     // Posición final
+ *
+Object { status: "game_update", board: {…}, last_move: {…}, current_player: "black" }
+​
+board: Object { a1: {…}, b1: {…}, c1: {…}, … }
+​
+current_player: "black"
+​
+last_move: Object { from: "d2", to: "d4", player: "white" }
+​
+status: "game_update"
 }
  */
 
@@ -610,4 +616,4 @@ function clearYellowHighlight() {
   selfHighlightState = null;
 }
 
-export { GlobalEvent, captureNotation, clearYellowHighlight, globalPieceUpdate, callbackPiece};
+export { GlobalEvent, captureNotation, clearYellowHighlight, globalPieceUpdate, callbackPiece, moveElement};
