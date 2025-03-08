@@ -111,7 +111,9 @@ function handleGetChessReceivedMessage(event) {
     try {
         const data = JSON.parse(event.data);
         console.log("on handleGetChessReceivedMessage, data: ", data);
-        //if (data.status)
+        if (data.status === "success" && data.data && data.data.message) {
+            
+        }
     }
     catch (e) {
         console.error("Error parsing WS message: ", e);
