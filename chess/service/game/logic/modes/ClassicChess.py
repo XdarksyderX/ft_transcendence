@@ -221,3 +221,16 @@ class ClassicChess(ChessGameMode):
         }
         
         return True, "Castling completed", new_board, info
+
+    def create_piece(self, piece_type, color):
+            piece_classes = {
+                'pawn': Pawn,
+                'rook': Rook,
+                'knight': Knight,
+                'bishop': Bishop,
+                'queen': Queen,
+                'king': King
+            }
+            if piece_type in piece_classes:
+                return piece_classes[piece_type](color)
+            return None

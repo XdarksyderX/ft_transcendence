@@ -12,16 +12,7 @@ def is_position_under_attack(board, position, color):
 	return False
 
 def is_in_check(board, color):
-	king_position = None
-	for pos, piece in board.items():
-		if piece is not None and piece.color == color and isinstance(piece, King):
-			king_position = pos
-			break
-	
-	if king_position is None:
-		return False
-	
-	return is_position_under_attack(board, king_position, color)
+	return False
 
 def is_checkmate(board, color):
 	if not is_in_check(board, color):

@@ -2,6 +2,8 @@ from django.db import models
 import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.utils import timezone
+import datetime
 
 class User(AbstractUser):
     username = models.CharField(max_length=150, unique=True)
@@ -40,7 +42,10 @@ class ChessGame(models.Model):
     game_mode = models.CharField(max_length=20, choices=GAME_MODES, default='classic')
     is_ranked = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
-    board_states = models.JSONField(default=list)  # Campo para almacenar los estados del tablero
+    board_states = models.JSONField(default=list)
+    move_history = models.JSONField(default=list)  # Historial detallado de movimientos
+    current_player = models.CharField(max_length=10, choices=[('white', 'White'), ('black', 'Black')], default='white')
+    last_activity = models.DateTimeField(auto_now=True)  # Para rastrear la última actividad
 
     def __str__(self):
         return f"ChessGame {self.id}: {self.player_white} vs {self.player_black} (Key: {self.game_key})"
@@ -82,6 +87,58 @@ class ChessGame(models.Model):
 
     def add_board_state(self, board_state):
         self.board_states.append(board_state)
+        self.save()
+
+    def get_last_board_state(self):
+        """Recupera el último estado del tablero guardado"""
+        if self.board_states and len(self.board_states) > 0:
+            return self.board_states[-1]
+        return None
+
+    def get_current_player(self):
+        """Devuelve el color del jugador que tiene el turno actual"""
+        return self.current_player
+
+    def get_move_history(self):
+        """Devuelve el historial completo de movimientos"""
+        return self.move_history
+
+    def add_move(self, move_data):
+        """
+        Añade un movimiento al historial
+        move_data debe ser un diccionario con 'from', 'to', 'player', etc.
+        """
+        if not hasattr(self, 'move_history') or self.move_history is None:
+            self.move_history = []
+        
+        # Añadir timestamp al movimiento
+        move_data['timestamp'] = timezone.now().isoformat()
+        
+        self.move_history.append(move_data)
+        
+        # Actualizar el jugador actual (cambiar el turno)
+        if move_data['player'] == 'white':
+            self.current_player = 'black'
+        else:
+            self.current_player = 'white'
+
+    def get_game_duration(self):
+        """Calcula la duración del juego hasta ahora"""
+        if self.status == 'finished' and hasattr(self, 'move_history') and self.move_history:
+            first_move = self.move_history[0]['timestamp']
+            last_move = self.move_history[-1]['timestamp']
+            first_time = datetime.fromisoformat(first_move)
+            last_time = datetime.fromisoformat(last_move)
+            return (last_time - first_time).total_seconds()
+        return None
+
+    def reset_game(self):
+        """Reinicia el juego a su estado inicial"""
+        self.board_states = []
+        self.move_history = []
+        self.current_player = 'white'
+        self.status = 'pending'
+        self.winner = None
         self.save()
 
 class ChessStatistics(models.Model):

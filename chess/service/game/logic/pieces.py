@@ -18,6 +18,18 @@ class ChessPiece(ABC):
 
 	def __str__(self):
 		return f"{self.color}_{self.__class__.__name__.lower()}_{self.piece_id}"
+	
+	def __repr__(self):
+		return self.__str__()
+
+	def to_dict(self):
+		return {
+			'type': self.__class__.__name__,
+			'color': self.color,
+			'position': self.position,
+			'piece_id': self.piece_id,
+			'has_moved': self.has_moved
+		}
 
 	@abstractmethod
 	def get_possible_moves(self, board):
