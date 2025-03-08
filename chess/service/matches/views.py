@@ -27,7 +27,6 @@ class MatchHistoryView(APIView):
             "matches": serializer.data
         })
 
-
 class MatchDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -132,7 +131,7 @@ class PendingInvitationDetailView(APIView):
                 "status": "error",
                 "message": "Invitation not found"
             }, status=status.HTTP_404_NOT_FOUND)
-            
+
         serializer = PendingInvitationDetailSerializer(invitation, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()

@@ -95,11 +95,6 @@ export function getNotificationText(notiContent) {
     }
 }
 
-
-
-
-
-
 // API Request: Mark a notification as read
 async function handleMarkNotification(event, notificationId, card) {
     event.preventDefault();
