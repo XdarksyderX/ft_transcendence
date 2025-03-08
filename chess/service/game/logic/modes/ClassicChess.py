@@ -1,7 +1,7 @@
 from .ChessGameMode import ChessGameMode
 from ..pieces import Rook, Knight, Bishop, Queen, King, Pawn
-from ..utils import is_in_check, is_checkmate, is_stalemate, is_insufficient_material
 import copy
+from ..utils import is_in_check, is_checkmate, is_stalemate, is_insufficient_material
 
 class ClassicChess(ChessGameMode):
     def __init__(self):
