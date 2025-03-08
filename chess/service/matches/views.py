@@ -142,7 +142,6 @@ class PendingInvitationDetailView(APIView):
             "errors": serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
 
-
 class JoinMatchView(APIView):
     permission_classes = [IsAuthenticated]
     
