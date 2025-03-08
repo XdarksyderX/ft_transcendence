@@ -374,7 +374,6 @@ class ChessConsumer(AsyncWebsocketConsumer):
             )
         
         elif action == "sync_request":
-            # Permitir a los clientes solicitar explícitamente una sincronización del estado del juego
             if game["board"]:
                 serialized_board = serialize_board(game["board"])
                 await self.send(text_data=json.dumps({
