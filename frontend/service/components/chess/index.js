@@ -10,8 +10,9 @@ import { resingOption } from "./Helper/modalCreator.js";
 
 import { pawnPromotion } from "./Helper/modalCreator.js"; // fully provisional
 import { winGame } from "./Helper/modalCreator.js";
-import { getChessMatchDetail } from "../../app/chess.js";
+import { getChessMatchDetail, getChessPendingMatches } from "../../app/chess.js";
 import { chatSocket } from "../chat/socket.js";
+import { getUsername } from "../../app/auth.js";
 
 let globalState = initGame();
 let keySquareMapper = {};
@@ -24,6 +25,7 @@ let isMusicPlaying = false;
 let currentMusic = null;
 let chessSocket = null;
 let attemptedReconnection = null;
+let whoIsWho = {};
 
 globalState.flat().forEach((square) => {
     keySquareMapper[square.id] = square;
@@ -64,16 +66,22 @@ function provisionalModalHandle() {
     
 }
 
-export function initializeChessEvents(key) {
+export async function initializeChessEvents(key) {
     const button1 = document.getElementById('button1');
     const settingsPanel = document.getElementById('settings-panel');
     const saveSettingsButton = document.getElementById('save-settings');
     const cancelSettingsButton = document.getElementById('cancel-settings');
     const pieceStyleSelect = document.getElementById('piece-style');
-    
+
     if (key) {
         console.log("on chess, key: ", key)
-        initOnlineChess(key)
+        await initOnlineChess(key)
+    } else {
+        let res = await getChessPendingMatches();
+        if (res.status === "success") {
+            key = res.match.game_key;
+            await initOnlineChess(key);
+        }
     }
     
     initGameRender(globalState);
@@ -91,17 +99,32 @@ export function initializeChessEvents(key) {
 }
 //'ws/game/<str:game_key>/'
 
+/* {
+    "id": 1,
+    "player_white": "pepe9003",
+    "player_black": "paco20149",
+    "winner": null,
+    "game_mode": "classic",
+    "status": "in_progress",
+    "created_at": "2025-03-08T13:55:04.641631Z"
+} */
 async function handleGetChessMatchDetail(key) {
     const res = await getChessMatchDetail(key);
     if (res.status === "success") {
+        const white = res.match.player_white;
+        const black = res.match.player_black;
         console.log(res);
+        whoIsWho[white] = "white";
+        whoIsWho[black] = "black";
+        console.log("desde handle")
+        console.log(whoIsWho)
     }
 }
 
-function initOnlineChess(key) {
+async function initOnlineChess(key) {
     // white or black 
     //getChessMatchDetail(key);
-    handleGetChessMatchDetail(key);
+    await handleGetChessMatchDetail(key);
     initializeChessSocket(key);
     // initialize socket
     
@@ -111,7 +134,6 @@ function handleGetChessReceivedMessage(event) {
     try {
         const data = JSON.parse(event.data);
         console.log("on handleGetChessReceivedMessage, data: ", data);
-        //if (data.status)
     }
     catch (e) {
         console.error("Error parsing WS message: ", e);
@@ -123,11 +145,13 @@ function initializeChessSocket(game_key) {
 
     chessSocket.onopen = () => {
         console.log("Chess WebSocket connected");
+        chessSocket.send(JSON.stringify({ action: "ready", color: getUserColor(getUsername()), username: getUsername() }));
         attemptedReconnection = false;
     }
 
     chessSocket.onmessage = (event) => {
         console.log("[CHESS SOCKET]: ", event.data);
+
         handleGetChessReceivedMessage(event);
     }
 
@@ -135,9 +159,17 @@ function initializeChessSocket(game_key) {
         console.error("ChessSocket error:", error);
     };
 
-    chessSocket.onclose = () => {
+    chessSocket.onclose = async (event) => {
         console.log("pos sí, me he cerrao, Y QUË");
+       // setTimeout(initializeChessSocket(game_key), 5000);
     }
+
+}
+
+function getUserColor(username) {
+    //console.log("getcolor")
+    //console.log(whoIsWho)
+    return whoIsWho[username];
 }
 
 function setupButtonEvents(settingsPanel, saveSettingsButton, cancelSettingsButton, pieceStyleSelect) {
@@ -288,4 +320,4 @@ String.prototype.replaceAt = function (index, replacement) {
     return (this.substring(0, index) + replacement + this.substring(index + replacement.length));
 };
 
-export { globalState, keySquareMapper, highlightColor, imgStyle, stopBackgroundMusic, toggleBackgroundMusic };
+export { globalState, keySquareMapper, highlightColor, imgStyle, stopBackgroundMusic, toggleBackgroundMusic, getUserColor , chessSocket};

@@ -19,7 +19,7 @@ class ChessGameSerializer(serializers.ModelSerializer):
             'game_mode',
             'status',
             'created_at',
-            'updated_at'
+           # 'updated_at'
         ]
 
 class ChessGameHistorySerializer(serializers.ModelSerializer):
@@ -37,7 +37,7 @@ class ChessGameHistorySerializer(serializers.ModelSerializer):
             'game_mode',
             'status',
             'created_at',
-            'updated_at'
+           # 'updated_at'
         ]
 
 class PendingInvitationDetailSerializer(serializers.ModelSerializer):

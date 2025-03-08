@@ -14,7 +14,7 @@ from .views import (
 
 urlpatterns = [
     path('match/history/', MatchHistoryView.as_view(), name='match-history'),
-    path('match/detail/<int:match_id>/', MatchDetailView.as_view(), name='match-detail'),
+    path('match/detail/<str:game_key>/', MatchDetailView.as_view(), name='match-detail'),
     path('match/join/<str:token>/', JoinMatchView.as_view(), name='join-match'),
     path('match/in-progress/', InProgressMatchesView.as_view(), name='in-progress-matches'),
     

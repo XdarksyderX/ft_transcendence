@@ -16,8 +16,8 @@ export async function getChessMatchHistory() {
 	return await sendRequestChess('GET', 'match/history');
 }
 
-export async function getChessMatchDetail(matchId) {
-	return await sendRequestChess('GET', `match/detail/${matchId}`);
+export async function getChessMatchDetail(game_key) {
+	return await sendRequestChess('GET', `match/detail/${game_key}`);
 }
 
 export async function getPendingChessInvitationsOutgoing() {
@@ -48,5 +48,5 @@ export async function acceptChessInvitation(token) {
 }
 
 export async function getChessPendingMatches() {
-	return await sendRequestChess('GET', 'match/pending/');
+	return await sendRequestChess('GET', 'match/in-progress/');
 }
