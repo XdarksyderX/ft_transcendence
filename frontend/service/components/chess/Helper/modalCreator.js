@@ -53,7 +53,9 @@ class ModalCreator {
  * @param {function} callback - callbackPiece from global.js
  * @param {string} id - The ID of the square where the pawn promotion is happening.
  */
-function pawnPromotion(color, callback, id) {
+function pawnPromotion(color, callback, id, pieceTo = null) {
+  //if isClick == haz todo
+  //else { sin mostrar el modal llama a callback con el piezeTo con el nombre de la pieza a la que ha promocion }
   const piecesMap = {
     rook: pieces[color === "white" ? "whiteRook" : "blackRook"],
     knight: pieces[color === "white" ? "whiteKnight" : "blackKnight"],
