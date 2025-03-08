@@ -1,4 +1,4 @@
-import { globalState, keySquareMapper } from "../index.js"; //import globalState object, a 2D array representing the state of the chessboard
+import { globalState, keySquareMapper, getUserColor, chessSocket } from "../index.js"; //import globalState object, a 2D array representing the state of the chessboard
 import { clearHighlight, globalStateRender, selfHighlight, globalPiece, circleHighlightRender } from "../Render/main.js";
 import * as help from "../Helper/commonHelper.js"
 import { logMoves, appendPromotion } from "../Helper/logging.js"
@@ -6,6 +6,7 @@ import { pawnPromotion, winGame } from "../Helper/modalCreator.js";
 import { removeSurroundingPieces } from "../Variants/atomic.js";
 import { kirbyTransformation } from "../Variants/kirby.js";
 import { checkWinForBlackHorde, whitePawnHordeRenderMoves } from "../Variants/horde.js"
+import { getUsername } from "../../../app/auth.js";
 
 //highlighted or not => state
 let highlight_state = false;
@@ -31,6 +32,7 @@ function changeTurn() {
   pawns.forEach(pawn => {
     pawn.move = false;
   });
+  console.log(`en changeTurn() -> inTurn: ${inTurn}`)
 }
 
 function captureInTurn(square) {
@@ -246,6 +248,14 @@ function makeEnPassant(piece, id) {
 }
 
 /**
+ * {
+  "action": "move", // para mover una pieza
+  "from": "e2",  // Posición inicial
+  "to": "e4"     // Posición final
+}
+ */
+
+/**
  * move a piece by the highlight posibilities.
  * @param {*} piece an object representing a game piece.
  * @param {*} id the new position id where the piece should be moved.
@@ -254,7 +264,22 @@ function makeEnPassant(piece, id) {
 function moveElement(piece, id, castle) {
   if (!piece)
     return;
+  
+  if (chessSocket) {
+    console.log(`en moveElement() -> from: ${piece.current_pos}; to: ${id}`)
+    const data = {
+      action: "move",
+      from: piece.current_pos,
+      to: id
+    } 
+    try {
+      chessSocket.send(JSON.stringify(data));
+      console.log("Sending data through WebSocket:", data);
 
+    } catch (e) {
+      console.log("pos NO")
+    }
+  }
   const pawnPromotionBool = checkForPawnPromotion(piece, id);
   let castlingType = moveTwoCastlingPieces(piece, id);
   const direction = piece.piece_name.includes("PAWN") ? (inTurn === "white" ? 1 : -1) : null;
@@ -507,6 +532,11 @@ function clearPreviousSelfHighlight(piece)
 function GlobalEvent() {
   const root = document.getElementById('root');
   root.addEventListener("click", function(event) {
+    console.log("Global event ----")
+    console.log(inTurn, getUsername(), getUserColor(getUsername()))
+    if (inTurn !== getUserColor(getUsername())) {
+      return;
+    };
     const target = event.target;
     const isPieceClick = target.localName === "img";
     const isHighlightClick = target.localName === "span" || target.childNodes.length === 2;

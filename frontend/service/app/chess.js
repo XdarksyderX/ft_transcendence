@@ -48,5 +48,5 @@ export async function acceptChessInvitation(token) {
 }
 
 export async function getChessPendingMatches() {
-	return await sendRequestChess('GET', 'match/pending/');
+	return await sendRequestChess('GET', 'match/in-progress/');
 }

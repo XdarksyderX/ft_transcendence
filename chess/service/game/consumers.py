@@ -23,20 +23,20 @@ def get_game_and_role(game_key, user):
 
 @database_sync_to_async
 def update_game_in_db(game_obj, board_state, status=None, winner=None):
-	game_obj.add_board_state(board_state)
-	
-	if status:
-		game_obj.status = status
-	
-	if winner:
-		game_obj.winner = winner
-		publish_event("chess.match_finished", {
-			"game_id": str(game_obj.id),
-			"winner": winner.username,
-			"loser": game_obj.player_white.username if winner == game_obj.player_black else game_obj.player_black.username
-		})
-	
-	game_obj.save()
+    game_obj.add_board_state(board_state)
+    
+    if status:
+        game_obj.status = status
+    
+    if winner:
+        game_obj.winner = winner
+        publish_event("chess.match_finished", {
+            "game_id": str(game_obj.id),
+            "winner": winner.username,
+            "loser": game_obj.player_white.username if winner == game_obj.player_black else game_obj.player_black.username
+        })
+    
+    game_obj.save()
 
 class ChessConsumer(AsyncWebsocketConsumer):
 	async def connect(self):
