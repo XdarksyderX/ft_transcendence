@@ -40,7 +40,7 @@ class TournamentCreateView(APIView):
                 "message": "The 'max_players' field is required."
             }, status=status.HTTP_400_BAD_REQUEST)
         
-        if max_players != 4 or max_players != 8:
+        if max_players != 4 and max_players != 8:
             return Response({
                 "status": "error",
                 "message": "The 'max_players' field must be 4 or 8."

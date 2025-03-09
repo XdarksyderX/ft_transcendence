@@ -85,7 +85,7 @@ function toggleFriendSelection(friend, btn, elements) {
         selectedFriends = selectedFriends.filter((f) => f.id !== friend.id)
     } else {
         if (selectedFriends.length === requiredParticipants - 1) {
-            return alert(`You already have ${requiredParticipants} selected friends`)
+            return throwAlert(`You already have ${requiredParticipants} selected friends`)
         }
         btn.classList.add("selected")
         selectedFriends.push(friend)
@@ -99,6 +99,9 @@ function initStartNewTournament(elements) {
     elements.startBtn.addEventListener('click', () => {
         event.preventDefault();
         const tournamentName = document.getElementById('tournament-name-input').value;
+        if (!tournamentName) {
+            return throwAlert('Please, give your tournament a name');
+        }
         createNewTournament(tournamentName);
     })
 }

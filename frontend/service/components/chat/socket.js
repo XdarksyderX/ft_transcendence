@@ -64,12 +64,6 @@ function handleReceivedMessage(event) {
 					openChat(data.data.sender, elements);
 				}
 			}
-
-			// Check if the message is a game invitation
-			//if (data.data.type === 'game-invitation') {
-			if (data.data.sender === currentUser && !data.data.is_special) { // if the message is a game invitation
-				// Untoggle the chat window
-			}
 			// Update currentChat if the message is for the currently open chat
 			//if (currentChat.username === data.data.sender && currentView === 'chat') {
 				currentChat.messages.push({
@@ -82,7 +76,7 @@ function handleReceivedMessage(event) {
 					is_read: data.data.is_read
 				});
 
-				console.log("current chat on received: ", currentChat);
+				//console.log("current chat on received: ", currentChat);
 		   // }
 			// Update the view if the current view is the chat with the sender or the recent-chats tab
 			if (currentView === 'chat' && currentChat.username === data.data.sender) { /* && currentChat.username === data.data.sender */

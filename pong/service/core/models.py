@@ -268,6 +268,7 @@ class Tournament(models.Model):
     current_round = models.IntegerField(default=1)
     seeding = ArrayField(models.IntegerField(), null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def close_tournament(self):
         """
