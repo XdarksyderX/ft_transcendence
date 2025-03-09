@@ -81,7 +81,7 @@ def handle_tournament_invitation(event):
         msg = Message.objects.create(
             sender=sender,
             receiver=receiver,
-            content=json.dumps({"type": "tournament", "tournament_token": tournament_token}),
+            content=json.dumps({"type": "tournament", "tournament_token": tournament_token, "invitation_token": invitation_token}),
             is_special=True
         )
         msg.save()

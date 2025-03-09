@@ -57,6 +57,10 @@ export async function getTournamentDetail(token) {
   return await sendRequestPong('GET', `tournaments/${token}/`);
 }
 
+export async function getTournamentInvitationDetail(token) {
+  return await sendRequestPong('GET', `tournaments/invitations/${token}/`);
+}
+
 export async function editTournament(tournamentId, data) {
   return await sendRequestPong('POST', `tournaments/${tournamentId}/edit/`, data);
 }

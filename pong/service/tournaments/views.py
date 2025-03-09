@@ -9,16 +9,24 @@ import uuid
 
 User = get_user_model()
 
-class InvitationDetailView(APIView):
-    def get(self, request, token):
-        if not token:
+class TournamentInvitationDetailView(APIView):
+    def get(self, request, invitation_token):
+        if not invitation_token:
             return Response({
                 "status": "error",
                 "message": "The 'invitation' field is required."
             }, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            invitation = TournamentInvitation.objects.get(token=token)
+            print("Token")
+            print(invitation_token)
+            print("Invitations")
+            for toke_ in TournamentInvitation.objects.all():
+                print(toke_)
+            print("Tournaments")
+            for tour in Tournament.objects.all():
+                print(tour)
+            invitation = TournamentInvitation.objects.get(token=invitation_token)
         except TournamentInvitation.DoesNotExist:
             return Response({
                 "status": "error",
@@ -165,7 +173,9 @@ class TournamentInvitationAcceptView(APIView):
                 "status": "error",
                 "message": "The 'invitation' field is required."
             }, status=status.HTTP_400_BAD_REQUEST)
-
+        print(invitation_token)
+        print(TournamentInvitation.objects.all())
+        print(Tournament.objects.all()[0].token) 
         try:
             invitation = TournamentInvitation.objects.get(token=invitation_token, receiver=request.user)
         except TournamentInvitation.DoesNotExist:

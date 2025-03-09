@@ -4,6 +4,7 @@ from .views import (
     TournamentCreateView,
     TournamentDetail,
     TournamentInvitationCreateView,
+	TournamentInvitationDetailView,
     TournamentInvitationAcceptView,
     TournamentInvitationDenyView,
     TournamentInvitationCancelView,
@@ -21,6 +22,12 @@ urlpatterns = [
         'tournaments/<str:tournament_token>/invite/<str:receiver_username>/',
         TournamentInvitationCreateView.as_view(),
         name='tournament_invitation_create'
+    ),
+	
+    path(
+        'tournaments/invitations/<str:invitation_token>/',
+        TournamentInvitationDetailView.as_view(),
+        name='tournament_invitation_detail'
     ),
 
     path(

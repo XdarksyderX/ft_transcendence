@@ -51,7 +51,7 @@ function bindEventListeners(elements) {
     elements.chatHeader.addEventListener('click', () => toggleChat(elements));
     elements.newChatBtn.addEventListener('click', () => showFriendList(elements));
     elements.friendList.addEventListener('click', (event) => handleFriendListClick(event, elements));
-    elements.chatForm.addEventListener('submit', (event) => handleSentMessage(event, elements));
+    elements.chatForm.addEventListener('submit', async (event) => await handleSentMessage(event, elements));
     elements.recentChatsList.addEventListener('click', (event) => handleRecentChatsClick(event, elements));
     document.querySelectorAll('.back-to-recents').forEach(button => {
         button.addEventListener('click', () => showRecentChats(elements));
@@ -295,16 +295,16 @@ function showChatWindow(elements, friendUsername) {
 
 const generateMessageId = (message) => `${message.sender}-${message.sent_at}`;
 
-export function renderChat(elements) {
+export async function renderChat(elements) {
 	if (currentChat) {
 		//console.log("current CHAT: ", currentChat);
 
-		currentChat.messages.forEach(message => {
+		currentChat.messages.forEach(async message => {
 			const messageId = generateMessageId(message);
 			if (!renderedMessages.has(messageId)) {
 				console.log("rendering the message: ", message);
 				let messageElement = message.is_special 
-					? createSpecialBubble(message) 
+					? (await createSpecialBubble(message)) 
 					: createMessageBubble(message);
 				elements.chatMessages.appendChild(messageElement);
 				renderedMessages.add(messageId);

@@ -19,9 +19,9 @@ export function initializeGlobalChatSocket() {
         attemptedReconnection = false;
     };
 
-    chatSocket.onmessage = (event) => {
+    chatSocket.onmessage = async (event) => {
 		console.log("[CHAT SOCKET]: ", event.data)
-        handleReceivedMessage(event);
+        await handleReceivedMessage(event);
     };
 
     chatSocket.onerror = (error) => {
@@ -48,7 +48,7 @@ export function initializeGlobalChatSocket() {
 }
 
 // Handle received WebSocket messages
-function handleReceivedMessage(event) {
+async function handleReceivedMessage(event) {
 	try {
 		const data = JSON.parse(event.data);
 		//console.log("WS message received:", data);
@@ -81,7 +81,7 @@ function handleReceivedMessage(event) {
 			// Update the view if the current view is the chat with the sender or the recent-chats tab
 			if (currentView === 'chat' && currentChat.username === data.data.sender) { /* && currentChat.username === data.data.sender */
 				markMessagesAsRead(currentChat.username);
-				renderChat(getElements());
+				(await renderChat(getElements()));
 			} else if (currentView === 'recent-chats') {
 				renderRecentChats(getElements());
 			} else if (!isExpanded) {
@@ -96,7 +96,7 @@ function handleReceivedMessage(event) {
 }
 
 // Handle the submission of the chat form to send a message
-export function handleSentMessage(event, elements) {
+export async function handleSentMessage(event, elements) {
 	event.preventDefault();
 	const messageText = elements.messageInput.value.trim();
 	if (messageText && chatSocket && chatSocket.readyState === WebSocket.OPEN) {
@@ -113,7 +113,7 @@ export function handleSentMessage(event, elements) {
 			id: currentChat.messages.length + 1,
 			...messageData
 		});
-		renderChat(elements);
+		await renderChat(elements);
 		elements.messageInput.value = '';
 	}
 }

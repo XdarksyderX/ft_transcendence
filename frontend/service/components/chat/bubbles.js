@@ -1,7 +1,7 @@
 import { getUsername } from '../../app/auth.js';
 import { handleAcceptQuickGameInvitation, handleDeclineInvitation } from '../home/game-invitation.js';
 import { formatTime, toggleChat, getElements } from './app.js';
-import { getPongInvitationDetail, acceptTournamentInvitation, denyTournamentInvitation } from '../../app/pong.js';
+import { getPongInvitationDetail, acceptTournamentInvitation, denyTournamentInvitation, getTournamentInvitationDetail } from '../../app/pong.js';
 import { getChessInvitationDetail } from '../../app/chess.js';
 import { throwAlert } from '../../app/render.js';
 
@@ -21,7 +21,7 @@ export function createMessageBubble(message) {
 }
 /* * * * * * * * * * * * * * * * * * *  SPECIAL MESSAGE BUBBLES  * * * * * * * * * * * * * * * * * * */
 
-export function createSpecialBubble(message) {
+export async function createSpecialBubble(message) {
     const messageContent = JSON.parse(message.message);
     const { type } = messageContent;
     const isSender = message.sender === getUsername();
@@ -34,7 +34,7 @@ export function createSpecialBubble(message) {
 		const game = type.split('-')[0];
 		card = isSender ? createSentInvitation(game, message.receiver) : createQuickGameInvitation(game, message.sent_at, message.sender, messageContent.invitation_token);
 	} else if (type === 'tournament') {
-		card = isSender ? createSentInvitation('tournament', message.receiver) : createTournamentInvitationCard(message.sender, messageContent.tournament_token);
+		card = isSender ? createSentInvitation('tournament', message.receiver) : (await createTournamentInvitationCard(message.sender, messageContent.invitation_token));
 	}
 
     return card;
@@ -173,9 +173,11 @@ export function handleCancelledInvitation(token) {
 
 /* * * * * * * * * * * * * * * * * * *  TOURNAMENT INVITATIONS  * * * * * * * * * * * * * * * * * * */
 
+async function createTournamentInvitationCard(friendName, token) {
 
-function createTournamentInvitationCard(friendName, token) {
-	const tourName = "PUF"; // this will be a fetch to /detail
+	const {invitation} = await getTournamentInvitationDetail(token);
+	//TODO We need to handle non-existent invitations
+	const tourName = invitation.tournament
 	const card = document.createElement('div');
 	card.innerHTML = `
 	<div data-token=${token} class="card-border special-bubble">
