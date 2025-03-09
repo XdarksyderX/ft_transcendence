@@ -109,3 +109,12 @@ export async function deleteTournamentPlayer(tournamentToken, username) {
 export async function deleteTournament(token) {
   return await sendRequestPong('POST', `tournaments/${token}/delete/`);
 }
+// ==================== Stats Endpoints ====================
+
+export async function getQuickMatchStats() {
+  return await sendRequestPong('GET', 'stats/quick-match');
+}
+
+export async function getTournamentStats() {
+  return await sendRequestPong('GET', 'stats/tournaments');
+}

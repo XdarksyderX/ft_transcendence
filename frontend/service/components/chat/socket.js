@@ -5,7 +5,6 @@ import { refreshAccessToken } from "../../app/auth.js";
 
 let chatSocket = null;
 let attemptedReconnection = false;
-let intentionalClose = false;
 
 export function initializeGlobalChatSocket() {
     if (chatSocket && chatSocket.readyState !== WebSocket.CLOSED) {
@@ -54,16 +53,14 @@ function handleReceivedMessage(event) {
 		const data = JSON.parse(event.data);
 		//console.log("WS message received:", data);
 		const currentUser = getUsername();
+		const imSender = getUsername() === data?.data?.sender;
 		if (data.status === "success" && data.data && data.data.message) {
-			if (data.data.sender === currentUser) return;
-
-			// Check if the message is a game invitation
-			//if (data.data.type === 'game-invitation') {
-			if (data.data.is_special) { // if the message is a game invitation
-				// Untoggle the chat window
+			if (imSender && !data.data.is_special) return;
+			if (!imSender && data.data.is_special) {
 				const elements = getElements();
 				if (!isExpanded) {
 					toggleChat(elements);
+				} if (currentChat.username !== data.data.sender) {
 					openChat(data.data.sender, elements);
 				}
 			}
@@ -79,7 +76,7 @@ function handleReceivedMessage(event) {
 					is_read: data.data.is_read
 				});
 
-				console.log("current chat on received: ", currentChat);
+				//console.log("current chat on received: ", currentChat);
 		   // }
 			// Update the view if the current view is the chat with the sender or the recent-chats tab
 			if (currentView === 'chat' && currentChat.username === data.data.sender) { /* && currentChat.username === data.data.sender */

@@ -4,13 +4,13 @@ import { throwAlert, throwToast } from "../../app/render.js";
 import { navigateTo } from "../../app/router.js";
 
 export async function handleSendGameInvitation(gameData, button) {
+    button.disabled = true;
     const token = await sendQuickGameInvitation(gameData.game, gameData.friend);
     if (token < 0) {
         return ;
     }
     launchWaitModal(gameData.friend, gameData.game, token);
 
-    button.disabled = true;
 
     // Re-enable the button after a few seconds
     let countdown = 5; // Adjust the countdown duration as needed
