@@ -56,12 +56,16 @@ async function sendRequest(service, method, endpoint, body = null, isFormData = 
 
     try {
         const headers = isFormData ? {} : { 'Content-Type': 'application/json' };
-        const response = await fetch(`${baseUrl}/${endpoint}`, {
+        const requestPayload = {
             method,
             credentials: 'include',
             headers,
             body: body ? (isFormData ? body : JSON.stringify(body)) : null
-        });
+        };
+
+        console.log(`Sending request to ${baseUrl}/${endpoint}`, requestPayload);
+
+        const response = await fetch(`${baseUrl}/${endpoint}`, requestPayload);
 
         let responseData = null;
 

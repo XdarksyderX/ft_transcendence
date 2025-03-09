@@ -53,7 +53,7 @@ function handleReceivedMessage(event) {
 		const data = JSON.parse(event.data);
 		//console.log("WS message received:", data);
 		const currentUser = getUsername();
-		const imSender = getUsername() === data.data.sender;
+		const imSender = getUsername() === data?.data?.sender;
 		if (data.status === "success" && data.data && data.data.message) {
 			if (imSender && !data.data.is_special) return;
 			if (!imSender && data.data.is_special) {
