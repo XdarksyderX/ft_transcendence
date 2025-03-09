@@ -81,7 +81,6 @@ function initPongEvents(elements) {
 	elements.pong.btn.addEventListener('click', () => togglePongOptions(event, elements));
 	elements.pong.quickPlay.btn.addEventListener('click', () => showQuickPlayOptions(elements));
 	elements.pong.quickPlay.playFriend.addEventListener('click', () => playPongWithFriend(elements));
-	elements.pong.quickPlay.playRandom.addEventListener('click', playPongWithRandom);
 	elements.pong.quickPlay.playMachine.addEventListener('click', playAgainstMachine);
 	elements.pong.tournament.btn.addEventListener('click', () => showTournamentOptions(elements));
 	elements.pong.tournament.ongoing.addEventListener('click', () => navigateTo("/ongoing-tournaments"));
@@ -111,10 +110,6 @@ function showQuickPlayOptions(elements) {
 function playPongWithFriend(elements) {
 	toggleView(currentView, elements.pong.quickPlay.friendList);
 	renderFriendList(elements.pong.quickPlay.friendsContainer, elements);
-}
-//
-function playPongWithRandom() {
-	launchWaitMatchModal();
 }
 
 function playAgainstMachine() {
