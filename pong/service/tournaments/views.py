@@ -9,6 +9,33 @@ import uuid
 
 User = get_user_model()
 
+class InvitationDetailView(APIView):
+    def get(self, request, token):
+        if not token:
+            return Response({
+                "status": "error",
+                "message": "The 'invitation' field is required."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            invitation = TournamentInvitation.objects.get(token=token)
+        except TournamentInvitation.DoesNotExist:
+            return Response({
+                "status": "error",
+                "message": "Invitation not found."
+            }, status=404)
+
+        return Response({
+            "status": "success",
+            "invitation": {
+                "tournament": invitation.tournament.name,
+                "tournament_token": invitation.tournament.token,
+                "sender": invitation.sender.username,
+                "receiver": invitation.receiver.username,
+                "created_at": invitation.created_at
+            }
+        })
+
 class TournamentListView(APIView):
     def get(self, request):
         tournaments = Tournament.objects.filter(players=request.user)
