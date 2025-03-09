@@ -64,6 +64,7 @@ function handleReceivedMessage(event) {
 				const elements = getElements();
 				if (!isExpanded) {
 					toggleChat(elements);
+				} if (currentChat.username !== data.data.sender) {
 					openChat(data.data.sender, elements);
 				}
 			}
