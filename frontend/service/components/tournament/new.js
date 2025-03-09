@@ -1,6 +1,6 @@
 import { throwAlert } from "../../app/render.js";
 import { handleGetFriendList } from "../friends/app.js";
-import { createTournament, createTournamentInvitation, deleteTournament } from "../../app/pong.js";
+import { createTournament, createTournamentInvitation, deleteTournament} from "../../app/pong.js";
 
 let requiredParticipants = 0;
 let selectedFriends = [];
@@ -145,3 +145,4 @@ export async function handleDeleteTournament(token) {
         throwAlert(`Failed to delete tournament: ${response.message}`);
     }
 }
+

@@ -302,10 +302,10 @@ export function renderChat(elements) {
 		currentChat.messages.forEach(message => {
 			const messageId = generateMessageId(message);
 			if (!renderedMessages.has(messageId)) {
+				console.log("rendering the message: ", message);
 				let messageElement = message.is_special 
 					? createSpecialBubble(message) 
 					: createMessageBubble(message);
-				
 				elements.chatMessages.appendChild(messageElement);
 				renderedMessages.add(messageId);
 			}

@@ -1,8 +1,10 @@
 import { getUsername } from '../../app/auth.js';
 import { handleAcceptQuickGameInvitation, handleDeclineInvitation } from '../home/game-invitation.js';
 import { formatTime, toggleChat, getElements } from './app.js';
-import { getPongInvitationDetail } from '../../app/pong.js';
+import { getPongInvitationDetail, acceptTournamentInvitation, denyTournamentInvitation } from '../../app/pong.js';
 import { getChessInvitationDetail } from '../../app/chess.js';
+import { throwAlert } from '../../app/render.js';
+
 /* * * * * * * * * * * * * * * * * * *  NORMAL MESSAGE BUBBLE  * * * * * * * * * * * * * * * * * * */
 
 export function createMessageBubble(message) {
@@ -24,25 +26,16 @@ export function createSpecialBubble(message) {
     const { type } = messageContent;
     const isSender = message.sender === getUsername();
 
-	//if (type === )
+	console.log("on create Special Bubble, message: ", message);
 
     let card;
-    switch (type) {
-        case 'pong-match':
-            if (isSender) {
-                card = createQuickGameSent('pong', message.receiver);
-            } else {
-                card = createQuickGameInvitation('pong', message.sent_at, message.sender, messageContent.invitation_token);
-            } break;
-		case 'chess-match':
-            if (isSender) {
-                card = createQuickGameSent('chess', message.receiver);
-            } else {
-                card = createQuickGameInvitation('chess', message.sent_at, message.sender, messageContent.invitation_token);
-            }
-            break;
-			default:
-				card  = createMessageBubble(`Unknown invitation type: ${type}`);    }
+
+	if (type === 'pong-match' || type === 'chess-match') {
+		const game = type.split('-')[0];
+		card = isSender ? createSentInvitation(game, message.receiver) : createQuickGameInvitation(game, message.sent_at, message.sender, messageContent.invitation_token);
+	} else if (type === 'tournament') {
+		card = isSender ? createSentInvitation('tournament', message.receiver) : createTournamentInvitationCard(message.sender, messageContent.tournament_token);
+	}
 
     return card;
 }
@@ -51,13 +44,14 @@ export function createSpecialBubble(message) {
 // a map to store the interval id with each invitation card token, so we can clear the interval whenever, wherever, we're meant to be together
 const activeIntervals = new Map();
 
-function createQuickGameSent(game, friend) {
+function createSentInvitation(game, friend) {
     const card = document.createElement('div');
+	const title = game === 'tournament' ? `New ${game}!` : `${game} invitation!`;
     card.innerHTML = `
         <div class="card-border special-bubble ms-auto" style="max-width: 250px;">
             <div class="game-invitation card overflow-hidden">
                 <div class="card-body position-relative p-2" style="z-index: 1;">
-                    <h6 class="mb-2 ctm-text-title">${game} invitation!</h6>
+                    <h6 class="mb-2 ctm-text-title">${title}</h6>
                     <p class="card-text mb-2 small ctm-text-light">You sent a ${game} invitation to ${friend}</p>
                 </div>
             </div>
@@ -180,23 +174,72 @@ export function handleCancelledInvitation(token) {
 /* * * * * * * * * * * * * * * * * * *  TOURNAMENT INVITATIONS  * * * * * * * * * * * * * * * * * * */
 
 
-function createTournamentInvitation(friendName, tourName) {
-
+function createTournamentInvitationCard(friendName, token) {
+	const tourName = "PUF"; // this will be a fetch to /detail
 	const card = document.createElement('div');
-	card.innerHTML `
-	<div class="outer-card special-bubble">
+	card.innerHTML = `
+	<div data-token=${token} class="card-border special-bubble">
 		<div class="game-invitation card overflow-hidden">
 			<div class="card-body position-relative p-2" style="z-index: 1;">
-				<h6 class="mb-2 ctm-text-title">new tournament</h6>
-				<p class="card-text mb-2 small ctm-text-light"><span id="inviter-name">${friendName}</span> invited you to the <span id="tournament-name"> ${tourName} </span>tournament!</p>
+				<h6 class="mb-2 ctm-text-title">New Tournament</h6>
+				<p class="card-text mb-2 small ctm-text-light"><span class="ctm-text-accent">${friendName}</span> invited you to the <span class="ctm-text-accent"> ${tourName} </span>tournament!</p>
 				<div class="d-flex justify-content-between align-items-center">
 					<button data-action="accept"class="btn btn-sm ctm-btn flex-grow-1 me-1">Accept</button>
 					<button data-action="decline" class="btn btn-sm ctm-btn-danger flex-grow-1 ms-1">Decline</button>
+					<button data-info="accepted"class="btn btn-sm ctm-btn flex-grow-1 me-1" style="display: none;">Already accepted!</button>
+					<button data-info="declined" class="btn btn-sm ctm-btn-danger flex-grow-1 ms-1" style="display: none;">Already declined</button>
 				</div>
 			</div>
 		</div>
 	</div> `;
+
+	const btns = {
+		accept: card.querySelector('[data-action="accept"]'),
+		decline: card.querySelector('[data-action="decline"]'),
+		accepted: card.querySelector('[data-info="accepted"]'),
+		declined: card.querySelector('[data-info="declined"]')
+	}
+	btns.accept.addEventListener('click', () => handleAcceptTournamentInvitation(token, btns))
+	btns.decline.addEventListener('click', () => handleDeclineTournamentInvitation(token, btns))
+	return card;
 }
+
+function toggleBtns(btns, show, accepted) {
+	Object.values(btns).forEach(btn => {
+		btn.style.display = 'none';
+	});
+	show.style.display = 'block';
+	if (accepted) {
+		show.addEventListener('mouseenter', () => {
+			//pendantBtn.dataset.originalHtml = pendantBtn.innerHTML;
+			show.innerText = 'cancel X';
+		});
+		show.addEventListener('mouseleave', () => {
+			//pendantBtn.dataset.originalHtml = pendantBtn.innerHTML;
+			show.innerText = 'Already accepted!';
+		});
+	}
+}
+
+async function handleAcceptTournamentInvitation(token, btns) {
+    const response = await acceptTournamentInvitation(token);
+    if (response.status !== "success") {
+        throwAlert(`Failed to accept tournament invitation: ${response.message}`);
+    } else {
+		toggleBtns(btns, btns.accepted, true);
+    }
+}
+
+async function handleDeclineTournamentInvitation(token, btns) {
+    const response = await denyTournamentInvitation(token);
+    if (response.status !== "success") {
+        throwAlert(`Failed to decline tournament invitation: ${response.message}`);
+    } else {
+		toggleBtns(btns, btns.declined, false);
+	}
+}
+
+
 /* 
 function createTournamentStartedNotification(tourName) {
 	return `
