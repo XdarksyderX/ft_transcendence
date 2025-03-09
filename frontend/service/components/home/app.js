@@ -1,6 +1,6 @@
 import { throwAlert } from "../../app/render.js";
 import { navigateTo } from "../../app/router.js";
-import { handleSendGameInvitation } from "./game-invitation.js";
+import { handleSendGameInvitation, launchWaitMatchModal } from "./game-invitation.js";
 import { handleGetFriendList } from "../friends/app.js";
 
 let chessVariant = null;
@@ -112,7 +112,7 @@ function playPongWithFriend(elements) {
 }
 //
 function playPongWithRandom() {
-	throwAlert("this eventually will take you to waiting room");
+	launchWaitMatchModal();
 }
 
 function playAgainstMachine() {

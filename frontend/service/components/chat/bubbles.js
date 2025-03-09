@@ -210,33 +210,36 @@ function toggleBtns(btns, show, accepted) {
 	});
 	show.style.display = 'block';
 	if (accepted) {
-		show.addEventListener('mouseenter', () => {
-			//pendantBtn.dataset.originalHtml = pendantBtn.innerHTML;
-			show.innerText = 'cancel X';
+		btns.accepted.addEventListener('mouseenter', () => {
+			btns.accepted.innerText = 'cancel X';
 		});
-		show.addEventListener('mouseleave', () => {
-			//pendantBtn.dataset.originalHtml = pendantBtn.innerHTML;
-			show.innerText = 'Already accepted!';
+		btns.accepted.addEventListener('mouseleave', () => {
+			btns.accepted.innerText = 'Already accepted!';
 		});
+		//btns.accepted.addEventListener('click', () handle cancel etc etc
+	} else {
+		btns.declined.disabled = true;
 	}
 }
 
 async function handleAcceptTournamentInvitation(token, btns) {
-    const response = await acceptTournamentInvitation(token);
+	toggleBtns(btns, btns.accepted, true);
+/*     const response = await acceptTournamentInvitation(token);
     if (response.status !== "success") {
         throwAlert(`Failed to accept tournament invitation: ${response.message}`);
     } else {
 		toggleBtns(btns, btns.accepted, true);
-    }
+    } */
 }
 
 async function handleDeclineTournamentInvitation(token, btns) {
-    const response = await denyTournamentInvitation(token);
+	toggleBtns(btns, btns.declined, false);
+/*     const response = await denyTournamentInvitation(token);
     if (response.status !== "success") {
         throwAlert(`Failed to decline tournament invitation: ${response.message}`);
     } else {
 		toggleBtns(btns, btns.declined, false);
-	}
+	} */
 }
 
 
