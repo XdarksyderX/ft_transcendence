@@ -1,11 +1,13 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from django.db import models
+from django.contrib.auth import get_user_model
 from core.models import Tournament, TournamentInvitation
 from core.utils.event_domain import publish_event
 from .tournament import get_tournament_bracket
 import uuid
+
+User = get_user_model()
 
 class TournamentListView(APIView):
     def get(self, request):
@@ -40,7 +42,7 @@ class TournamentCreateView(APIView):
                 "message": "The 'max_players' field is required."
             }, status=status.HTTP_400_BAD_REQUEST)
         
-        if max_players != 4 or max_players != 8:
+        if max_players != 4 and max_players != 8:
             return Response({
                 "status": "error",
                 "message": "The 'max_players' field must be 4 or 8."
@@ -87,7 +89,7 @@ class TournamentInvitationCreateView(APIView):
             }, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            receiver = models.User.objects.get(username=receiver_username)
+            receiver = User.objects.get(username=receiver_username)
             if receiver not in request.user.friends.all():
                 return Response({
                     "status": "error",
@@ -123,7 +125,7 @@ class TournamentInvitationCreateView(APIView):
                     "created_at": invitation.created_at
                 }
             })
-        except models.User.DoesNotExist:
+        except User.DoesNotExist:
             return Response({
                 "status": "error",
                 "message": "Receiver not found."
@@ -247,7 +249,7 @@ class TournamentDeletePlayerView(APIView):
             }, status=404)
 
         try:
-            player = models.User.objects.get(username=username)
+            player = User.objects.get(username=username)
             if player not in tournament.players.all():
                 return Response({
                     "status": "error",
@@ -265,7 +267,7 @@ class TournamentDeletePlayerView(APIView):
                 "status": "success",
                 "message": "Player removed successfully"
             })
-        except models.User.DoesNotExist:
+        except User.DoesNotExist:
             return Response({
                 "status": "error",
                 "message": "Player not found."
