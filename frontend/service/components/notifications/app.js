@@ -6,6 +6,7 @@ const bell = document.getElementById('bell');
 
 export function initializeNotificationEvents() {
     initializeNotificationsSocket();
+    updateNotificationBell();
     document.getElementById("notifications-toggle").addEventListener('click', renderNotifications);
 }
 
