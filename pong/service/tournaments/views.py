@@ -1,8 +1,8 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from django.contrib.auth import get_user_model
 from core.models import Tournament, TournamentInvitation
+from django.contrib.auth import get_user_model
 from core.utils.event_domain import publish_event
 from .tournament import get_tournament_bracket
 import uuid
