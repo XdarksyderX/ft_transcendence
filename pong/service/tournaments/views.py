@@ -18,14 +18,6 @@ class TournamentInvitationDetailView(APIView):
             }, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            print("Token")
-            print(invitation_token)
-            print("Invitations")
-            for toke_ in TournamentInvitation.objects.all():
-                print(toke_)
-            print("Tournaments")
-            for tour in Tournament.objects.all():
-                print(tour)
             invitation = TournamentInvitation.objects.get(token=invitation_token)
         except TournamentInvitation.DoesNotExist:
             return Response({
@@ -44,6 +36,23 @@ class TournamentInvitationDetailView(APIView):
             }
         })
 
+class TournamentEditableListView(APIView):
+    def get(self, request):
+        tournaments = Tournament.objects.filter(organizer=request.user, closed=False)
+        
+        tournaments_data = []
+        for tournament in tournaments:
+            tournaments_data.append({
+                "name": tournament.name,
+                "token": tournament.token,
+                "max_players": tournament.max_players,
+            })
+        
+        return Response({
+            "status": "success",
+            "tournaments": tournaments_data
+        })
+
 class TournamentListView(APIView):
     def get(self, request):
         tournaments = Tournament.objects.filter(players=request.user)
@@ -53,6 +62,8 @@ class TournamentListView(APIView):
             tournaments_data.append({
                 "name": tournament.name,
                 "token": tournament.token,
+                "max_players": tournament.max_players,
+                "is_closed": tournament.closed,
                 "is_organizer": tournament.organizer == request.user
             })
         

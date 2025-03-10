@@ -11,11 +11,13 @@ from .views import (
     TournamentDeletePlayerView,
     TournamentDeleteView,
 	TournamentListView,
+	TournamentEditableListView
 )
 
 urlpatterns = [
     path('tournaments/', TournamentCreateView.as_view(), name='create_tournament'),
 	path('tournaments/list/', TournamentListView.as_view(), name='list_tournaments'),
+	path('tournaments/editable/list/', TournamentEditableListView.as_view(), name='list_editable_tournaments'),
     path('tournaments/<str:token>/', TournamentDetail.as_view(), name='tournament_detail'),
 
     path(
