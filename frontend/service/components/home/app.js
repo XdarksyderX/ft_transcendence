@@ -1,6 +1,6 @@
 import { throwAlert } from "../../app/render.js";
 import { navigateTo } from "../../app/router.js";
-import { handleSendGameInvitation } from "./game-invitation.js";
+import { handleSendGameInvitation, launchWaitMatchModal } from "./game-invitation.js";
 import { handleGetFriendList } from "../friends/app.js";
 
 let chessVariant = null;
@@ -57,6 +57,8 @@ function getElements() {
 			friendsOptions: document.getElementById('chess-friend-options'),
 			playFriend: document.getElementById('chess-friend'),
 			playRandom: document.getElementById('chess-random'),
+			playLocal: document.getElementById('chess-local'),
+
 			friendList: document.getElementById('chess-friend-list'),
 			friendsContainer: document.getElementById('chess-friends-container'),
 			startGameWithFriendButton: document.getElementById('start-chess-with-friend'),
@@ -79,7 +81,6 @@ function initPongEvents(elements) {
 	elements.pong.btn.addEventListener('click', () => togglePongOptions(event, elements));
 	elements.pong.quickPlay.btn.addEventListener('click', () => showQuickPlayOptions(elements));
 	elements.pong.quickPlay.playFriend.addEventListener('click', () => playPongWithFriend(elements));
-	elements.pong.quickPlay.playRandom.addEventListener('click', playPongWithRandom);
 	elements.pong.quickPlay.playMachine.addEventListener('click', playAgainstMachine);
 	elements.pong.tournament.btn.addEventListener('click', () => showTournamentOptions(elements));
 	elements.pong.tournament.ongoing.addEventListener('click', () => navigateTo("/ongoing-tournaments"));
@@ -110,10 +111,6 @@ function playPongWithFriend(elements) {
 	toggleView(currentView, elements.pong.quickPlay.friendList);
 	renderFriendList(elements.pong.quickPlay.friendsContainer, elements);
 }
-//
-function playPongWithRandom() {
-	throwAlert("this eventually will take you to waiting room");
-}
 
 function playAgainstMachine() {
 	console.log("Play against the machine option selected");
@@ -133,7 +130,8 @@ function initChessEvents(elements) {
 	elements.chess.variants.container.addEventListener('click', () => chooseChessVariant(elements.chess.friendsOptions));
 	elements.chess.playFriend.addEventListener('click', () => playChessWithFriend(elements));
 	elements.chess.playRandom.addEventListener("click", playChessWithRandom);
-
+	elements.chess.playLocal.addEventListener("click", () => navigateTo('/chess'));
+	
 	elements.chess.startGameWithFriendButton.addEventListener('click', () => {
 		const gameData = {
 			game: 'chess',
@@ -185,8 +183,7 @@ function playChessWithFriend(elements) {
 }
 
 function playChessWithRandom() {
-	throwAlert("this eventually will take you to waiting room");
-	navigateTo("/chess");
+	launchWaitMatchModal();
 }
 
 /* * * * * * * * * * * * * * * UTILS * * * * * * * * * * * * * * */

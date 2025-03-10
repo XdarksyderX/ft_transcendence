@@ -306,8 +306,15 @@ export async function renderChat(elements) {
 				let messageElement = message.is_special 
 					? (await createSpecialBubble(message)) 
 					: createMessageBubble(message);
-				elements.chatMessages.appendChild(messageElement);
-				renderedMessages.add(messageId);
+				// Check if messageElement is a valid DOM node
+				if (messageElement instanceof Node) {
+					elements.chatMessages.appendChild(messageElement);
+					renderedMessages.add(messageId);
+				} else {
+					console.error("Invalid message element:", messageElement);
+				}
+				// elements.chatMessages.appendChild(messageElement);
+				// renderedMessages.add(messageId);
 			}
 		});
 
