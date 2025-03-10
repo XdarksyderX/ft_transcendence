@@ -1,6 +1,18 @@
+import { throwAlert } from "../../app/render.js";
+//import { handleGetFriendList } from "../friends/app.js";
+
 // Tournament status management
 let invitedFriends = []
 let tournamentStatusVisible = false
+
+export async function handleGetPendantTournaments() {
+  const response = await getPendantTournaments();
+  if (response.status === "success") {
+    return response.data;
+  } else {
+    return null;
+  }
+}
 
 // Mock functions for demonstration purposes.  In a real application, these would be imported or defined elsewhere.
 let selectedFriends = [] // Initialize selectedFriends
@@ -17,9 +29,6 @@ function handleGetFriendList() {
     { id: 9, username: 'Ivy', status: 'pending' },
     { id: 10, username: 'Jack', status: 'pending' }
   ])
-}
-function throwAlert(message) {
-  alert(message) // Replace with actual alert/notification logic
 }
 
 function showTournamentStatus(tournamentName, selectedFriends) {
@@ -288,43 +297,9 @@ function simulateResponsesForNewInvites(newFriends) {
   })
 }
 
-// Add HTML template to the page
-export function addTournamentStatusTemplate() {
-  const template = document.createElement("template")
-  template.id = "tournament-status-template"
-  template.innerHTML = `
-    <div id="tournament-status-container" style="display: none;">
-      <div class="mb-3">
-        <h4 id="tournament-name-display" class="ctm-text-title text-center"></h4>
-        <div class="progress mb-2">
-          <div id="acceptance-progress" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-        </div>
-        <p class="text-center mb-3">
-          <span id="accepted-count">0</span>/<span id="total-invites">0</span> players accepted
-        </p>
-      </div>
-      
-      <div class="mb-4">
-        <h5 class="ctm-text-title">Invitations</h5>
-        <div id="invitations-container" class="friends-container w-100"></div>
-      </div>
-      
-      <div id="replacement-section" class="mb-4 d-none">
-        <h5 class="ctm-text-title">Invite Replacement</h5>
-        <p class="small mb-2">Some players declined. Select new friends to invite:</p>
-        <div id="replacement-friends-container" class="friends-container w-100 mb-3"></div>
-        <button id="send-replacement-btn" class="btn ctm-btn w-100 mb-3">Send Invitations</button>
-      </div>
-      
-      <div class="d-flex justify-content-between">
-        <button id="cancel-tournament-btn" class="btn cancel-btn">Cancel Tournament</button>
-        <button id="start-with-accepted-btn" class="btn ctm-btn" disabled>Start With Accepted</button>
-      </div>
-    </div>
-  `
-  document.body.appendChild(template);
-
-  // Call showTournamentStatus with a sample tournament name and selected friends
+export function showPendantTournamentSection(pendantTour = null) {
+  document.getElementById('new-tournament-container').style.display = 'none';
+  document.getElementById('pendant-tournament-container').style.display = 'block';
   showTournamentStatus("Sample Tournament", [
     { id: 1, username: 'Alice', status: 'pending' },
     { id: 2, username: 'Bob', status: 'pending' },

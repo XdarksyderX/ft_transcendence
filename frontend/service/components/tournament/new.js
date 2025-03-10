@@ -1,13 +1,27 @@
 import { throwAlert } from "../../app/render.js";
 import { handleGetFriendList } from "../friends/app.js";
 import { createTournament, createTournamentInvitation, deleteTournament} from "../../app/pong.js";
+import { handleGetPendantTournaments, showPendantTournamentSection } from "./pendant.js";
 
 let requiredParticipants = 0;
 let selectedFriends = [];
 
 // Initializes the new tournament setup
 export function initializeNewTournament() {
+    selectedFriends = [];
+    //const pendantTour = handleGetPendantTournaments();
+    const pendant = true;
+    if (!pendant) {
+        showNewTournamentSection();
+    } else {
+        showPendantTournamentSection();
+    }
+}
+
+function showNewTournamentSection() {
     const elements = getElements();
+    elements.newContainer.style.display = 'block';
+    elements.pendantContainer.style.display = 'none';
     setSwitches(elements);
     renderFriendList(elements);
     initStartNewTournament(elements);
@@ -16,6 +30,8 @@ export function initializeNewTournament() {
 // Retrieves the necessary DOM elements
 function getElements() {
     return {
+        newContainer: document.getElementById('new-tournament-container'),
+        pendantContainer: document.getElementById('pendant-tournament-container'),
         startBtn: document.getElementById('start-tournament-btn'),
         switchButtons: document.querySelectorAll('.switch-btn'),
         friendsContainer: document.getElementById("friends-container"),
