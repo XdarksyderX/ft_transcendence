@@ -1,12 +1,13 @@
 import { throwAlert } from "../../app/render.js";
 import { getEditableTournaments,  getTournamentDetail, getTournamentInvitationDetail} from "../../app/pong.js";
 import { handleGetFriendList } from "../friends/app.js";
-import { handleSendTournamentInvitation } from "./new.js";
+import { handleSendTournamentInvitation, handleDeleteTournament } from "./new.js";
 
 let selectedFriends = [];
 let maxPlayers = 0;
 let alreadyAccepted = 1;
 let alreadyDeclined = 0;
+let pending = 0;
 
 export async function handleGetEditableTournaments() {
   const response = await getEditableTournaments();
@@ -27,22 +28,36 @@ export async function showEditTournamentSection(token, refresh = false) {
 
 async function initEditTournamentSection(token, refresh = false) {
 
-  const invitations = await getAllInvitationsStatusMap(token);
-  console.log("invitations map: ", invitations);
+  const detail = await handleGetTournamentDetail(token);
+  const invitations = await getAllInvitationsStatusMap(detail);
+  console.log("detail: ", detail);
+  renderTournamentName(detail.name);
+  initVariables();
   renderInvitations(invitations);
   if (isReplacementNeeded()) {
     renderReplacementFriends(invitations);
   } if (!refresh) {
     const sendBtn = document.getElementById("send-replacement-btn");
+    const cancelBtn = document.getElementById("cancel-tournament-btn");
     sendBtn.addEventListener('click', () => sendReplacementInvitations(token));
-  } else {
-    selectedFriends = [];
-    document.getElementById("send-replacement-btn").disabled = 'true';
+    cancelBtn.addEventListener('click', () => handleDeleteTournament(token));
   }
 }
 
-async function getAllInvitationsStatusMap(token) {
-  const detail = await handleGetTournamentDetail(token);
+function initVariables() {
+  selectedFriends = [];
+  alreadyAccepted = 1;
+  alreadyDeclined = 0;
+  pending = 0;
+  document.getElementById("send-replacement-btn").disabled = 'true';
+}
+
+function renderTournamentName(name) {
+  const nameElement = document.getElementById('edit-tournament-name');
+  nameElement.innerText = `${name} `;
+}
+
+async function getAllInvitationsStatusMap(detail) {
   const invitationTokensMap = getAllInvitationTokens(detail);
   const statusMap = await getAllInvitationsStatus(invitationTokensMap);
   return statusMap;
@@ -107,6 +122,7 @@ function renderInvitations(invitationsMap) {
       alreadyDeclined++;
     } else if (status === "pending") {
       statusIcon = `<i class="${textClass} fas  fa-clock"></i>`
+      pending++;
     }
 
     inviteElement.innerHTML = `
@@ -207,8 +223,9 @@ function toggleFriendSelection(friendName, friendBtn) {
       selectedFriends.splice(index, 1);
     }
   } else {
-    if (selectedFriends.length === alreadyDeclined) {
-      return throwAlert(`You only have ${alreadyDeclined} friend${alreadyDeclined === 1 ? '' : 's'} left to invite`)
+    const friendsLeft = maxPlayers - alreadyAccepted - pending;
+    if (selectedFriends.length === friendsLeft) {
+      return throwAlert(`You only have ${friendsLeft} friend${friendsLeft === 1 ? '' : 's'} left to invite`)
     }
     friendBtn.classList.add("selected")
     selectedFriends.push(friendName);
@@ -228,3 +245,4 @@ async function sendReplacementInvitations(tourToken) {
         throwAlert(`Failed to send invitation: ${error.message}`);
     }
 }
+
