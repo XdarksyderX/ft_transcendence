@@ -225,6 +225,9 @@ function toggleFriendSelection(friendName, friendBtn) {
   } else {
     const friendsLeft = maxPlayers - alreadyAccepted - pending;
     if (selectedFriends.length === friendsLeft) {
+      if (friendsLeft === 0) {
+        return throwAlert(`You can't invite anyone else in this moment`);
+      }
       return throwAlert(`You only have ${friendsLeft} friend${friendsLeft === 1 ? '' : 's'} left to invite`)
     }
     friendBtn.classList.add("selected")
