@@ -277,6 +277,10 @@ class Tournament(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    @property
+    def invitations(self):
+        return TournamentInvitation.objects.filter(tournament=self)
+
     def close_tournament(self):
         """
         Closes the tournament:

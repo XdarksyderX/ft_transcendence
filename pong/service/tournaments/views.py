@@ -359,7 +359,7 @@ class TournamentDetail(APIView):
         else:
             is_organizer = request.user == tournament.organizer
             invited_users = []
-            for invitation in tournament.tournament_invitations_set.all():
+            for invitation in tournament.invitations.all():
                 user_data = {
                     "username": invitation.receiver.username,
                 }
@@ -399,6 +399,8 @@ class TournamentDeleteView(APIView):
             "players_id": [player.id for player in tournament.players.all()],
             "invited_users_id": [invitation.receiver.id for invitation in tournament.invitations.all()]
         })
+        for invitation in tournament.invitations.all():
+            invitation.delete()
         tournament.delete()
         return Response({
             "status": "success",
