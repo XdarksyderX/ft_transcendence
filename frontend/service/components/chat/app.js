@@ -20,7 +20,7 @@ export async function initializeChatEvents() {
 	const elements = getElements();
 	initializeGlobalChatSocket();
 	bindEventListeners(elements);
-	await showRecentChats(elements);
+	//await showRecentChats(elements);
 }
 
 // Get DOM elements related to the chat functionality
@@ -64,6 +64,7 @@ export async function toggleChat(elements) {
 	elements.chatBody.style.display = isExpanded ? 'block' : 'none';
 	elements.toggleIcon.className = isExpanded ? 'fas fa-chevron-down' : 'fas fa-chevron-up';
 	if (isExpanded && currentView === 'recent-chats') {
+		console.log("CI");
 		await showRecentChats(elements);
 	} else {
 		await updateNotificationIndicator(elements.notificationIndicator);

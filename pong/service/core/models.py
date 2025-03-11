@@ -220,6 +220,12 @@ class TournamentInvitation(models.Model):
     """
     Represents a pending invitation to a tournament.
     """
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('cancelled', 'Cancelled'),
+        ('denied', 'Denied'),
+    ]
     sender = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -236,6 +242,7 @@ class TournamentInvitation(models.Model):
         on_delete=models.CASCADE,
         related_name='tournament_invitations_set'
     )
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
@@ -249,8 +256,8 @@ class Tournament(models.Model):
         related_name='organized_tournaments'
     )
     max_players = models.IntegerField(
-    choices=[(4, '4 Players'), (8, '8 Players')],
-    default=4
+        choices=[(4, '4 Players'), (8, '8 Players')],
+        default=4
     )
 
     invited_users = models.ManyToManyField(
@@ -269,10 +276,6 @@ class Tournament(models.Model):
     seeding = ArrayField(models.IntegerField(), null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-    @property
-    def invitations(self):
-        return TournamentInvitation
 
     def close_tournament(self):
         """

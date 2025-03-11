@@ -1,39 +1,84 @@
 import { throwAlert } from "../../app/render.js";
-//import { handleGetFriendList } from "../friends/app.js";
+import { getEditableTournaments,  getTournamentDetail, getTournamentInvitationDetail} from "../../app/pong.js";
+import { handleGetFriendList } from "../friends/app.js";
 
-// Tournament status management
 let invitedFriends = []
-let tournamentStatusVisible = false
+let maxPlayers = 0;
 
-export async function handleGetPendantTournaments() {
-  const response = await getPendantTournaments();
-  if (response.status === "success") {
-    return response.data;
+export async function handleGetEditableTournaments() {
+  const response = await getEditableTournaments();
+  if (response.status === "success" && response.tournaments.length > 0) {
+    maxPlayers = response.tournaments[0].max_players;
+    return response.tournaments[0];
   } else {
     return null;
   }
 }
 
-// Mock functions for demonstration purposes.  In a real application, these would be imported or defined elsewhere.
-let selectedFriends = [] // Initialize selectedFriends
-function handleGetFriendList() {
-  return Promise.resolve([
-    { id: 1, username: 'Alice', status: 'pending' },
-    { id: 2, username: 'Bob', status: 'pending' },
-    { id: 3, username: 'Charlie', status: 'pending' },
-    { id: 4, username: 'David', status: 'pending' },
-    { id: 5, username: 'Eve', status: 'pending' },
-    { id: 6, username: 'Frank', status: 'pending' },
-    { id: 7, username: 'Grace', status: 'pending' },
-    { id: 8, username: 'Hank', status: 'pending' },
-    { id: 9, username: 'Ivy', status: 'pending' },
-    { id: 10, username: 'Jack', status: 'pending' }
-  ])
+export async function showPendantTournamentSection(pendantTour) {
+
+  document.getElementById('new-tournament-container').style.display = 'none';
+  document.getElementById('pendant-tournament-container').style.display = 'block';
+
+  const invitations = await getAllInvitationsStatusMap(pendantTour.token);
+  console.log("invitations map: ", invitations);
 }
 
+async function getAllInvitationsStatusMap(token) {
+  const detail = await handleGetTournamentDetail(token);
+  const invitationTokensMap = getAllInvitationTokens(detail);
+  const statusMap = await getAllInvitationsStatus(invitationTokensMap);
+  return statusMap;
+}
+
+export async function handleGetTournamentDetail(token) {
+  const response = await getTournamentDetail(token);
+  if (response.status === 'success') {
+    console.log("on handleGetTournamentDetail: ", response.tournament);
+    return response.tournament;
+  } else {
+    throwAlert('Error while getting tournament detail');
+  }
+}
+
+function getAllInvitationTokens(detail) {
+  const invitationTokensMap = {};
+  if (detail.invited_users) {
+    for (const user of detail.invited_users) {
+      invitationTokensMap[user.username] = user.token;
+    }
+  }
+  return invitationTokensMap;
+}
+
+async function getAllInvitationsStatus(invitationTokensMap) {
+  const statusMap = {};
+  for (const [username, token] of Object.entries(invitationTokensMap)) {
+    const response = await handleGetTournamentInvitationDetail(token);
+    if (response.status === 'success') {
+      statusMap[username] = response.invitation.status;
+    } else {
+      statusMap[username] = 'unknown';
+    }
+  }
+  return statusMap;
+}
+
+export async function handleGetTournamentInvitationDetail(invitationToken) {
+  const response = await getTournamentInvitationDetail(invitationToken);
+  if (response.status === 'success') {
+    return response;
+  } else {
+    throwAlert('Error while getting tournament invitation detail');
+  }
+}
+
+
+// Mock functions for demonstration purposes.  In a real application, these would be imported or defined elsewhere.
+let selectedFriends = [] // Initialize selectedFriends
+
 function showTournamentStatus(tournamentName, selectedFriends) {
-  // Hide the tournament form and show the status section
-  document.getElementById("tournament-form").style.display = "none"
+
 
   // Create and insert the tournament status HTML if it doesn't exist
   if (!document.getElementById("tournament-status-container")) {
@@ -297,14 +342,11 @@ function simulateResponsesForNewInvites(newFriends) {
   })
 }
 
-export function showPendantTournamentSection(pendantTour = null) {
-  document.getElementById('new-tournament-container').style.display = 'none';
-  document.getElementById('pendant-tournament-container').style.display = 'block';
-  showTournamentStatus("Sample Tournament", [
-    { id: 1, username: 'Alice', status: 'pending' },
-    { id: 2, username: 'Bob', status: 'pending' },
-    { id: 3, username: 'Charlie', status: 'pending' },
-    { id: 4, username: 'David', status: 'pending' },
-    { id: 5, username: 'Eve', status: 'pending' }
-  ]);
-}
+
+/* showTournamentStatus("Sample Tournament", [
+  { id: 1, username: 'Alice', status: 'pending' },
+  { id: 2, username: 'Bob', status: 'pending' },
+  { id: 3, username: 'Charlie', status: 'pending' },
+  { id: 4, username: 'David', status: 'pending' },
+  { id: 5, username: 'Eve', status: 'pending' }
+]); */

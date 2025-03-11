@@ -1,20 +1,20 @@
 import { throwAlert } from "../../app/render.js";
 import { handleGetFriendList } from "../friends/app.js";
 import { createTournament, createTournamentInvitation, deleteTournament} from "../../app/pong.js";
-import { handleGetPendantTournaments, showPendantTournamentSection } from "./pendant.js";
+import { handleGetEditableTournaments, showPendantTournamentSection } from "./pendant.js";
 
 let requiredParticipants = 0;
 let selectedFriends = [];
 
 // Initializes the new tournament setup
-export function initializeNewTournament() {
+export async function initializeNewTournament() {
     selectedFriends = [];
-    //const pendantTour = handleGetPendantTournaments();
-    const pendant = true;
-    if (!pendant) {
+    const pendantTour = await handleGetEditableTournaments();
+    console.log("pendanTour: ", pendantTour);
+    if (!pendantTour) {
         showNewTournamentSection();
     } else {
-        showPendantTournamentSection();
+        showPendantTournamentSection(pendantTour);
     }
 }
 
