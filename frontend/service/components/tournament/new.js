@@ -1,7 +1,7 @@
 import { throwAlert } from "../../app/render.js";
 import { handleGetFriendList } from "../friends/app.js";
 import { createTournament, createTournamentInvitation, deleteTournament} from "../../app/pong.js";
-import { handleGetEditableTournaments, showPendantTournamentSection } from "./pendant.js";
+import { handleGetEditableTournaments, showEditTournamentSection } from "./edit.js";
 
 let requiredParticipants = 0;
 let selectedFriends = [];
@@ -14,7 +14,7 @@ export async function initializeNewTournament() {
     if (!pendantTour) {
         showNewTournamentSection();
     } else {
-        showPendantTournamentSection(pendantTour);
+        showEditTournamentSection(pendantTour.token);
     }
 }
 
@@ -128,8 +128,9 @@ function createNewTournament(tournamentName) {
         if (token) {
             try {
                 for (const friend of selectedFriends) {
-                    await handleSendTournamentInvitation(token, friend);
+                    await handleSendTournamentInvitation(token, friend.username);
                 }
+                showEditTournamentSection(token);
             } catch (error) {
                 throwAlert(`Failed to send invitation: ${error.message}`);
                 await handleDeleteTournament(token); // Delete the tournament if any invitation fails
@@ -138,7 +139,7 @@ function createNewTournament(tournamentName) {
     });
 }
 
-async function handleCreateTournament(tournamentName) {
+export async function handleCreateTournament(tournamentName) {
     const response = await createTournament(tournamentName, requiredParticipants);
     if (response.status === "success") {      
         return response.tournament.token;
@@ -148,10 +149,10 @@ async function handleCreateTournament(tournamentName) {
     }
 }
 
-export async function handleSendTournamentInvitation(token, friend) {
-    const response = await createTournamentInvitation(token, friend.username);
+export async function handleSendTournamentInvitation(token, friendName) {
+    const response = await createTournamentInvitation(token, friendName);
     if (response.status !== "success") {
-        throw new Error(response.message || `Failed to send invitation to ${friend.username}`);
+        throw new Error(response.message || `Failed to send invitation to ${friendName}`);
     }
 }
 
