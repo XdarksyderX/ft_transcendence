@@ -96,6 +96,25 @@ const piecePositions = {
   "e1": piece.whiteKing
 };
 
+function convertToPiecePositions(boardMap) {
+  const piecePositionsTmp = {};
+
+
+  Object.keys(boardMap).forEach(key => {
+    const square = boardMap[key];
+    if (!square) {
+      piecePositionsTmp[key] = null;
+    } else {
+      const pieceType = square.type.toLowerCase();
+      const pieceColor = square.color === "white" ? "white" : "black";
+      const pieceKey = `${pieceColor}${pieceType.charAt(0).toUpperCase() + pieceType.slice(1)}`;
+      piecePositionsTmp[key] = piece[pieceKey];
+    }
+  });
+
+  return piecePositionsTmp;
+}
+import { mierdaSeca } from "../index.js";
 /**
  * This function takes the chessboard data and renders it as HTML elements on the web page.
  * It is only called when the game starts (only for one time).
@@ -111,6 +130,7 @@ const piecePositions = {
  */
 function initGameRender(data)
 {
+  const mierdaSeca = 
   globalPiece.black_pawns = [];
   globalPiece.white_pawns = [];
 
@@ -141,6 +161,9 @@ function initGameRender(data)
           square.piece = piecePositions[square.id](square.id);
           assignSpecificPiece(square);
         }
+        // console.log('on mierdaSecaLoop, mierdaseca: ', mierdaSeca);
+        // square.piece = mierdaSeca[square.id](square.id);
+        // assignSpecificPiece(square);
       }
       rowEl.appendChild(squareDiv);
     });
@@ -148,6 +171,7 @@ function initGameRender(data)
     document.getElementById('root').appendChild(rowEl);
   });
   pieceRender(data);
+  console.log("globalPiece: ", globalPiece)
 }
 
 function assignSpecificPiece(square) {
@@ -212,4 +236,4 @@ function circleHighlightRender(highlightSquareIds, keySquareMapper) {
   });
 }
 
-export { initGameRender, renderHighlight, clearHighlight, selfHighlight, globalStateRender, globalPiece, circleHighlightRender, piecePositions };
+export { initGameRender, renderHighlight, clearHighlight, selfHighlight, globalStateRender, globalPiece, circleHighlightRender, piecePositions, convertToPiecePositions };

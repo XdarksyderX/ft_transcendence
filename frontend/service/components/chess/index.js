@@ -13,6 +13,7 @@ import { winGame } from "./Helper/modalCreator.js";
 import { getChessMatchDetail, getChessPendingMatches } from "../../app/chess.js";
 import { chatSocket } from "../chat/socket.js";
 import { getUsername } from "../../app/auth.js";
+import { convertToPiecePositions } from "./Render/main.js";
 
 let globalState = initGame();
 let keySquareMapper = {};
@@ -80,6 +81,7 @@ export async function initializeChessEvents(key) {
         let res = await getChessPendingMatches();
         if (res.status === "success") {
             key = res.match.game_key;
+            console.log("RECARGAR PAGINA");
             await initOnlineChess(key);
         }
     }
@@ -130,6 +132,8 @@ async function initOnlineChess(key) {
     
 }
 
+export let mierdaSeca = {}
+
 function handleGetChessReceivedMessage(event) {
     try {
         const data = JSON.parse(event.data);
@@ -143,6 +147,11 @@ function handleGetChessReceivedMessage(event) {
         }
         if (data.status === "game_over") {
             winGame(data.winner);
+        }
+        if (data.status == "game_starting") {
+            const map = convertToPiecePositions(data.board);
+            console.log("map: ", map);
+            mierdaSeca = map;
         }
     }
     catch (e) {
