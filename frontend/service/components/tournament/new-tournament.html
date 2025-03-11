@@ -29,6 +29,7 @@
 <section id="pendant-tournament-container" class="blinking-neon-frame" style="display: none;">
 	<div class="card ctm-card p-5 ctm-text-light">
 	  <h2 class="text-center ctm-text-title">Tournament Status</h2>
+	  <h4 class="text-center ctm-text-light">Tournament name: <span id="edit-tournament-name"></span></h4>
 	  <div id="tournament-status-container">
 		<div class="mb-3">
 		  <h4 id="tournament-name-display" class="ctm-text-title text-center"></h4>
@@ -36,7 +37,7 @@
 			<div id="acceptance-progress" class="progress-bar bg-accent" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
 		  </div>
 		  <p class="text-center mb-3">
-			<span id="accepted-count">0</span>/<span id="total-invites">0</span> players accepted
+			<span id="accepted-count"></span>
 		  </p>
 		</div>
 		<div class="mb-4">
@@ -47,11 +48,11 @@
 		  <h5 class="ctm-text-title">Invite Replacement</h5>
 		  <p class="small mb-2">Some players declined. Select new friends to invite:</p>
 		  <div id="replacement-friends-container" class="friends-container w-100 mb-3"></div>
-		  <button id="send-replacement-btn" class="btn ctm-btn w-100 mb-3">Send Invitations</button>
+		  <button id="send-replacement-btn" class="btn ctm-btn w-100 mb-3" disabled>Send Invitations</button>
 		</div>
-		<div class="d-flex justify-content-between">
-		  <button id="cancel-tournament-btn" class="btn cancel-btn">Cancel Tournament</button>
-		  <button id="start-with-accepted-btn" class="btn ctm-btn" disabled>Start With Accepted</button>
+		<div class="d-flex justify-content-center">
+		  <button id="cancel-tournament-btn" class="btn ctm-btn-danger">Cancel Tournament</button>
+		  <!-- <button id="start-with-accepted-btn" class="btn ctm-btn" disabled>Start With Accepted</button> -->
 		</div>
 	  </div>
 	</div>

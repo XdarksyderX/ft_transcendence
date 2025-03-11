@@ -226,22 +226,22 @@ function toggleBtns(btns, show, accepted) {
 
 async function handleAcceptTournamentInvitation(token, btns) {
 	toggleBtns(btns, btns.accepted, true);
-/*     const response = await acceptTournamentInvitation(token);
+    const response = await acceptTournamentInvitation(token);
     if (response.status !== "success") {
         throwAlert(`Failed to accept tournament invitation: ${response.message}`);
     } else {
 		toggleBtns(btns, btns.accepted, true);
-    } */
+    }
 }
 
 async function handleDeclineTournamentInvitation(token, btns) {
 	toggleBtns(btns, btns.declined, false);
-/*     const response = await denyTournamentInvitation(token);
+    const response = await denyTournamentInvitation(token);
     if (response.status !== "success") {
         throwAlert(`Failed to decline tournament invitation: ${response.message}`);
     } else {
 		toggleBtns(btns, btns.declined, false);
-	} */
+	}
 }
 
 

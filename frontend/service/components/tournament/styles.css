@@ -125,5 +125,7 @@ width: 75%;
 
 .friend-btn.accepted {
 	border: 1px solid var(--accent);
-	color: 1px solid var(--accent) !important;
+}
+.friend-btn.denied {
+	border: 1px solid var(--title);
 }
