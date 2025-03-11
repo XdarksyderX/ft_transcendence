@@ -141,6 +141,9 @@ function handleGetChessReceivedMessage(event) {
                 moveElement(piece, to, false);
             }
         }
+        if (data.status === "game_over") {
+            winGame(data.winner);
+        }
     }
     catch (e) {
         console.error("Error parsing WS message: ", e);
