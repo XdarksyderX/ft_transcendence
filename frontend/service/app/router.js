@@ -1,5 +1,5 @@
 //import { initializeLoginEvents, initializeSignupEvents, initializeChatEvents } from './events.js';
-import { initializeNeonFrames, initializeNeonChat } from './neon.js';
+import { initializeNeonFrames } from './neon.js';
 import { initializeLoginEvents } from '../components/login/login.js';
 import { initializeSignupEvents, initializeVerifyEmailEvents } from '../components/signup/signup.js';
 import { initializeHomeEvents } from '../components/home/app.js';
@@ -153,13 +153,12 @@ async function navigateTo(fullUrl, key = null) {
     try {
         const verify = await isLoggedIn();
         const url = redirectURL(verify, fullUrl);
-        console.log("verify:", verify);
+        //console.log("verify:", verify);
         
        // if (!(url !== "/login" && url !== "/signup" && !verify)) 
         if (url !== window.location.pathname) {
             history.pushState(null, null, url);
             router(key);
-            
         }
         loadLoggedContent(verify);
     } catch (error) {
@@ -208,7 +207,7 @@ function updateNavbar(url) {
 window.addEventListener("popstate", initRouteEvents);
 
 async function initRouteEvents() {
-    console.log("initRouteEvents function called");
+    //console.log("initRouteEvents function called");
     await navigateTo(window.location.pathname);
     router();
     updateNotificationBell();

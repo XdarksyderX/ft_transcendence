@@ -122,3 +122,8 @@ width: 75%;
 #tournament-form {
 	max-width: 450px;
 }
+
+.friend-btn.accepted {
+	border: 1px solid var(--accent);
+	color: 1px solid var(--accent) !important;
+}

@@ -82,6 +82,10 @@ export async function createTournamentInvitation(tournamentToken, receiverUserna
   );
 }
 
+export async function getEditableTournaments() {
+  return await sendRequestPong('GET', 'tournaments/editable/list/');
+}
+
 export async function acceptTournamentInvitation(invitationToken) {
   return await sendRequestPong(
     'POST',
