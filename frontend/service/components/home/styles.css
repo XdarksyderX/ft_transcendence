@@ -40,7 +40,13 @@
 /* .card-body {
     height: 317px;
 } */
+#chess-btn {
+    max-height: 428px;
+}
 
+#variants-container {
+    overflow-y: auto;
+}
 img {
     /* display: none; */
     /* max- */height: 250px !important;
