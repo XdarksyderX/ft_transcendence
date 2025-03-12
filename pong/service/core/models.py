@@ -282,7 +282,7 @@ class Tournament(models.Model):
     token = models.CharField(max_length=255, unique=True, default=uuid.uuid4)
     closed = models.BooleanField(default=False)
     current_round = models.IntegerField(default=1)
-    seeding = ArrayField(models.IntegerField(), null=True, blank=True)
+    seeding = ArrayField(models.BigIntegerField(), null=True, blank=True) # BigInteger to avoid integer overflow
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
