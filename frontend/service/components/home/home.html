@@ -56,12 +56,24 @@
 								<div id="spicy-chess" class="btn ctm-btn mb-3 flex-grow-1 d-flex align-items-center justify-content-center">Spicy</div>
 							</div>
 							<div id="matchmaking-options" class="h-100 flex-column" style="display: none;">
-								<div class="switch d-flex justify-content-center">
-									<button class="switch-btn switch-btn-left flex-grow-1 mx-1 active" data-mode="local">Play Local</button>
-									<button class="switch-btn switch-btn-right flex-grow-1 mx-1" data-mode="ai">
-									</button>   
-									<span>Play against the machine</span>
-								</div>
+<!-- 								<div class="mb-3 d-flex flex-column align-items-center">
+-->									<label for="select-ranked" class="form-label ctm-text-light">Choose ranked options</label>
+									<div class="switch w-100">
+										<button class="switch-btn switch-btn-left w-50 mx-1" data-ranked="true">Casual</button>
+										<button class="switch-btn switch-btn-right w-50 mx-1" data-ranked="false">Ranked</button>
+									</div>
+									<div class="my-2">
+										<label for="select-variants" class="form-label ctm-text-light">Want to add more variants?</label>
+										<div id="variants-container" class="row d-flex">
+											<div class="friend-btn" data-variant="classic">classic</div>
+											<div class="friend-btn" data-variant="classic">horde</div>
+											<div class="friend-btn" data-variant="classic">kirby</div>
+											<div class="friend-btn" data-variant="classic">the bomb</div>
+											<div class="friend-btn" data-variant="classic">960</div>
+										</div>
+									</div>
+								<!-- </div> -->
+								<div id="start-queue" class="btn ctm-btn mb-3 flex-grow-1 d-flex align-items-center justify-content-center">Enter queue</div>
 							</div>
 							<div id="chess-friend-list" class="h-100 flex-column" style="display: none;">
 								<h5 class="ctm-text-light mb-3">Select a friend to play with:</h5>

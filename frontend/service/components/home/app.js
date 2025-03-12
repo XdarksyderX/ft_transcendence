@@ -21,6 +21,7 @@ export function initializeHomeEvents() {
 	initPongEvents(elements);
 	initChessEvents(elements);
 	initOverlayEvents(elements);
+	setSwitches();
 }
 
 function getElements() {
@@ -185,10 +186,29 @@ function playChessWithFriend(elements) {
 }
 
 function playChessWithRandom(elements) {
-	//toggleView(currentView, elements.chess.matchmakingOptions);
-	initMatchmaking();
+	//initMatchmaking();
+	toggleView(currentView, elements.chess.matchmakingOptions);
 }
 
+function handleMatchmakingOptions(elements) {
+	setSwitches(); 
+}
+
+function setSwitches() {
+    const switches = document.querySelectorAll("#matchmaking-options .switch-btn");
+    switches.forEach((btn) => {
+        btn.addEventListener('click', (event) => {
+            event.preventDefault();
+            switches.forEach((btn) => btn.classList.remove("active"));
+            btn.classList.add("active");
+        })
+    });
+
+	const addMoreBtn = document.getElementById('addMoreBtn');
+	addMoreBtn.addEventListener("click", () => {
+		extraVariants.style.display = extraVariants.style.display === "none" ? "block" : "none";
+	  });
+}
 
 /* * * * * * * * * * * * * * * UTILS * * * * * * * * * * * * * * */
 
