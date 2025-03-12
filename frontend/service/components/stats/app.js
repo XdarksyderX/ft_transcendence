@@ -38,7 +38,7 @@ async function renderPongStats() {
 
 	const pongTournament = document.getElementById('pong-tournament-stats');
 	const tourStats = await handleGetTournamentStats();
-	if (tourStats) return ;
+	if (!tourStats) return ;
 	renderTournamentStats(pongTournament, tourStats);
 
 }
@@ -70,21 +70,34 @@ async function handleGetTournamentStats() {
 }
 
 
+/* {
+    "status": "success",
+    "message": "Quick match statistics retrieved successfully",
+    "stats": {
+        "played": 1,
+        "won": 0,
+        "lost": 1,
+        "streak": 0,
+        "highest_score": 0
+    }
+}
+ */
 
 function renderQuickGameStats(container, stats) {
-	let winnRate = (stats.wins / stats.played * 100).toFixed(2);
+	let winnRate = (stats.won / stats.played * 100).toFixed(2);
   	container.innerHTML = `
 	<p><span class="fw-bold">Played:</span> ${stats.played}</p>
 	<p><span class="fw-bold">Wins:</span> ${stats.won}</p>
 	<p><span class="fw-bold">Losses:</span> ${stats.lost}</p>
 	<p><span class="fw-bold">Win rate:</span> ${winnRate}%</p>
+	<p><span class="fw-bold">Streak:</span> ${stats.streak}</p>
 	<p><span class="fw-bold">Highest score: ${stats.highest_score}</p>
   `;
 }
 
 function renderTournamentStats(container, stats) {
   container.innerHTML = `
-	<p><span class="fw-bold">Tournaments Played:</span> ${stats.played}</p>
+	<p><span class="fw-bold mt-2">Tournaments Played:</span> ${stats.played}</p>
 	<p><span class="fw-bold">First place:</span> ${stats.first}</p>
 	<p><span class="fw-bold">Second place:</span> ${stats.second}</p>
   `;
