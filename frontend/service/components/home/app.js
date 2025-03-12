@@ -2,7 +2,7 @@ import { throwAlert } from "../../app/render.js";
 import { navigateTo } from "../../app/router.js";
 import { handleSendGameInvitation } from "./game-invitation.js";
 import { handleGetFriendList } from "../friends/app.js";
-import { launchWaitMatchModal } from "./matchMaking.js";
+import { initMatchmaking } from "./matchMaking.js";
 
 let chessVariant = null;
 let currentView = null;
@@ -58,6 +58,7 @@ function getElements() {
 			friendsOptions: document.getElementById('chess-friend-options'),
 			playFriend: document.getElementById('chess-friend'),
 			playRandom: document.getElementById('chess-random'),
+			matchmakingOptions: document.getElementById('matchmaking-options'),
 			playLocal: document.getElementById('chess-local'),
 
 			friendList: document.getElementById('chess-friend-list'),
@@ -130,7 +131,7 @@ function initChessEvents(elements) {
     elements.chess.variants.spicy.addEventListener('click', () => showChessVariants(elements.chess.variants.container));
 	elements.chess.variants.container.addEventListener('click', () => chooseChessVariant(elements.chess.friendsOptions));
 	elements.chess.playFriend.addEventListener('click', () => playChessWithFriend(elements));
-	elements.chess.playRandom.addEventListener("click", playChessWithRandom);
+	elements.chess.playRandom.addEventListener("click", () => playChessWithRandom(elements));
 	elements.chess.playLocal.addEventListener("click", () => navigateTo('/chess'));
 	
 	elements.chess.startGameWithFriendButton.addEventListener('click', () => {
@@ -183,9 +184,11 @@ function playChessWithFriend(elements) {
         renderFriendList(elements.chess.friendsContainer, elements);
 }
 
-function playChessWithRandom() {
-	launchWaitMatchModal();
+function playChessWithRandom(elements) {
+	//toggleView(currentView, elements.chess.matchmakingOptions);
+	initMatchmaking();
 }
+
 
 /* * * * * * * * * * * * * * * UTILS * * * * * * * * * * * * * * */
 

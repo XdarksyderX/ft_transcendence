@@ -2,7 +2,7 @@ import { joinMatchmaking, leaveMatchmaking } from "../../app/chess.js";
 
 export async function initMatchmaking() {
     if (await handleJoinMatchmaking()) {
-        launchWaitMatchModal();
+        launchMatchmakingModal();
     }
 }
 
@@ -12,7 +12,7 @@ async function handleJoinMatchmaking() {
         console.log("joining to matchmaking queue...");
         return true;
     } else {
-        console.error();
+        console.error("Error while joining matchmaking queue:", error);
         return false;
     }
 }
@@ -23,20 +23,20 @@ async function handleLeaveMatchmaking() {
         console.log("joining to matchmaking queue...");
         return true;
     } else {
-        console.error();
+        console.error("Error while leaving matchmaking queue:", error);
         return false;
     }
 }
 
 
-export function launchWaitMatchModal() {
+function launchMatchmakingModal() {
     const modalHTML = `
         <div class="modal fade" id="wait-match" tabindex="-1" aria-labelledby="waitGameLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title ctm-text-title" id="waitGameLabel">Matchmaking</h5>
-                        <button type="button" class="close-modal" data-bs-dismiss="modal" aria-label="Close">x</button>
+                        <button id="close-matchmaking-modal"type="button" class="close-modal" aria-label="Close">x</button>
                     </div>
                     <div class="modal-body">
                     <div class="loading-bars d-flex justify-content-center align-items-center mb-2">
@@ -61,4 +61,11 @@ export function launchWaitMatchModal() {
     modalElement.querySelector('#wait-match').addEventListener('hidden.bs.modal', () => {
         modalElement.remove();
     });
+
+    const closeBtn = document.getElementById("close-matchmaking-modal");
+    closeBtn.addEventListener('click', () => {
+        if (handleLeaveMatchmaking()) {
+            modal.hide();
+        }
+    })
 }
