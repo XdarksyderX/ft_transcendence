@@ -2,6 +2,7 @@ from celery import shared_task
 from django.contrib.auth import get_user_model
 from core.models import IncomingEvent
 from core.utils import rabbitmq_client
+from core.models import PongStatistics
 import time
 import uuid
 

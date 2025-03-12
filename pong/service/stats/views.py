@@ -7,13 +7,13 @@ class QuickMatchStatisticsView(APIView):
 	permission_classes = [IsAuthenticated]
 	def get(self, request):
 		user = request.user
-		pong_statistics = PongStatistics.objects.filter(user=user)
+		pong_statistics = PongStatistics.objects.filter(user=user).first()
 		data = {
-			"played": pong_statistics.quick_games_played(),
-			"won": pong_statistics.quick_games_won(),
-			"lost": pong_statistics.quick_games_lost(),
-			"streak": pong_statistics.streak(),
-			"highest_score": pong_statistics.highest_score()
+			"played": pong_statistics.quick_games_played,
+			"won": pong_statistics.quick_games_won,
+			"lost": pong_statistics.quick_games_lost,
+			"streak": pong_statistics.streak,
+			"highest_score": pong_statistics.highest_score
 			
 		}
 		return Response({
@@ -26,11 +26,11 @@ class TournamentStatisticsView(APIView):
 	permission_classes = [IsAuthenticated]
 	def get(self, request):
 		user = request.user
-		pong_statistics = PongStatistics.objects.filter(user=user)
+		pong_statistics = PongStatistics.objects.filter(user=user).first()
 		data = {
-			"played": pong_statistics.tournaments_played(),
-			"first": pong_statistics.tournaments_second(),
-			"second": pong_statistics.tournaments_first(),
+			"played": pong_statistics.tournaments_played,
+			"first": pong_statistics.tournaments_second,
+			"second": pong_statistics.tournaments_first,
 			
 		}
 		return Response({
