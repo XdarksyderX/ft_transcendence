@@ -1,7 +1,8 @@
 import { throwAlert } from "../../app/render.js";
 import { navigateTo } from "../../app/router.js";
-import { handleSendGameInvitation, launchWaitMatchModal } from "./game-invitation.js";
+import { handleSendGameInvitation } from "./game-invitation.js";
 import { handleGetFriendList } from "../friends/app.js";
+import { launchWaitMatchModal } from "./matchMaking.js";
 
 let chessVariant = null;
 let currentView = null;
