@@ -3,6 +3,8 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import ArrayField
 import uuid
 import random
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 class User(AbstractUser):
     username = models.CharField(max_length=150, unique=True)
@@ -14,7 +16,7 @@ class User(AbstractUser):
         null=True,
         blank=True
     )
-    
+
     @property
     def games(self):
         """
@@ -25,6 +27,13 @@ class User(AbstractUser):
     
     def __str__(self):
         return self.username
+
+@receiver(post_save, sender=User)
+def create_user_pong_statistics(sender, instance, created, **kwargs):
+    if created and not hasattr(instance, 'pong_statistics'):
+        pong_stats = PongStatistics.objects.create()
+        instance.pong_statistics = pong_stats
+        instance.save()
 
 class PongGame(models.Model):
     """
