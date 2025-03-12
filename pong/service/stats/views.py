@@ -12,7 +12,7 @@ class QuickMatchStatisticsView(APIView):
 			"played": pong_statistics.quick_games_played,
 			"won": pong_statistics.quick_games_won,
 			"lost": pong_statistics.quick_games_lost,
-			"streak": pong_statistics.streak,
+			"streak": pong_statistics.current_streak,
 			"highest_score": pong_statistics.highest_score
 			
 		}
