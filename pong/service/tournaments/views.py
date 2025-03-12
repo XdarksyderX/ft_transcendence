@@ -206,9 +206,7 @@ class TournamentInvitationAcceptView(APIView):
         })
 
         if tournament.players.count() == tournament.max_players:
-            tournament.closed = True
-            tournament.close()
-            tournament.save()
+            tournament.close_tournament() # already handles everything
             publish_event("pong", "pong.tournament_closed", {
                 "tournament_token": str(tournament.token),
                 "players_id": [player.id for player in tournament.players.all()]
