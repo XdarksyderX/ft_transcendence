@@ -52,6 +52,7 @@ def handle_user_registered(event):
 
     event_data = event["data"]["attributes"]
     user, created = User.objects.get_or_create(id=event_data["user_id"], defaults={"username": event_data["username"]})
+    user.save()
 
     mark_event_as_processed(event_id, event["event_type"])
     return f"User {event_data['username']} {'created' if created else 'already exists'} in pong service."

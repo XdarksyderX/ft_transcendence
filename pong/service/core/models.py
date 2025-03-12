@@ -29,11 +29,11 @@ class User(AbstractUser):
         return self.username
 
 @receiver(post_save, sender=User)
-def create_user_pong_statistics(sender, instance, created, **kwargs):
-    if created and not hasattr(instance, 'pong_statistics'):
-        pong_stats = PongStatistics.objects.create()
-        instance.pong_statistics = pong_stats
-        instance.save()
+def create_user_statistics(sender, instance, created, **kwargs):
+    if created:
+        stats = PongStatistics.objects.create(user=instance)
+        instance.pong_statistics = stats
+        instance.save(update_fields=['pong_statistics'])
 
 class PongGame(models.Model):
     """
