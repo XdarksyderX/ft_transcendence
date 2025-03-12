@@ -4,6 +4,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 import datetime
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 class User(AbstractUser):
     username = models.CharField(max_length=150, unique=True)
@@ -24,6 +26,12 @@ class User(AbstractUser):
     def __str__(self):
         return self.username
 
+@receiver(post_save, sender=User)
+def create_user_statistics(sender, instance, created, **kwargs):
+    if created:
+        stats = ChessStatistics.objects.create(user=instance)
+        instance.chess_statistics = stats
+        instance.save(update_fields=['chess_statistics'])
 
 class ChessGame(models.Model):
     GAME_MODES = [
