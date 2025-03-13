@@ -1,7 +1,8 @@
 import { throwAlert } from "../../app/render.js";
 import { navigateTo } from "../../app/router.js";
-import { handleSendGameInvitation, launchWaitMatchModal } from "./game-invitation.js";
+import { handleSendGameInvitation } from "./game-invitation.js";
 import { handleGetFriendList } from "../friends/app.js";
+import { initMatchmaking } from "./matchMaking.js";
 
 let chessVariant = null;
 let currentView = null;
@@ -20,6 +21,7 @@ export function initializeHomeEvents() {
 	initPongEvents(elements);
 	initChessEvents(elements);
 	initOverlayEvents(elements);
+	setSwitches();
 }
 
 function getElements() {
@@ -57,6 +59,7 @@ function getElements() {
 			friendsOptions: document.getElementById('chess-friend-options'),
 			playFriend: document.getElementById('chess-friend'),
 			playRandom: document.getElementById('chess-random'),
+			matchmakingOptions: document.getElementById('matchmaking-options'),
 			playLocal: document.getElementById('chess-local'),
 
 			friendList: document.getElementById('chess-friend-list'),
@@ -129,7 +132,7 @@ function initChessEvents(elements) {
     elements.chess.variants.spicy.addEventListener('click', () => showChessVariants(elements.chess.variants.container));
 	elements.chess.variants.container.addEventListener('click', () => chooseChessVariant(elements.chess.friendsOptions));
 	elements.chess.playFriend.addEventListener('click', () => playChessWithFriend(elements));
-	elements.chess.playRandom.addEventListener("click", playChessWithRandom);
+	elements.chess.playRandom.addEventListener("click", () => playChessWithRandom(elements));
 	elements.chess.playLocal.addEventListener("click", () => navigateTo('/chess'));
 	
 	elements.chess.startGameWithFriendButton.addEventListener('click', () => {
@@ -140,6 +143,8 @@ function initChessEvents(elements) {
 		}
 		handleSendGameInvitation(gameData, elements.chess.startGameWithFriendButton)
 	});
+
+	initMatchmakingBtns();
 
 }
 // toggles from init to chess options
@@ -182,10 +187,80 @@ function playChessWithFriend(elements) {
         renderFriendList(elements.chess.friendsContainer, elements);
 }
 
-function playChessWithRandom() {
-	launchWaitMatchModal();
+function playChessWithRandom(elements) {
+	toggleView(currentView, elements.chess.matchmakingOptions);
+	const switches = document.querySelectorAll("#matchmaking-options .switch-btn");
+	if (!switches[0].classList.contains('active') && !switches[1].classList.contains('active')) {
+		switches[0].click();
+	}
 }
 
+function initMatchmakingBtns() {
+	const switches = setSwitches();
+	const variantBtns = setVariantBtns();
+	const startBtn = document.getElementById('start-queue');
+	startBtn.addEventListener('click', () => clickStartQueueBtn(switches, variantBtns));
+}
+
+function setVariantBtns() {
+    const btns = document.querySelectorAll('.variant-btn');
+    btns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            btn.classList.toggle('selected');
+        });
+    });
+	return btns;
+}
+
+function setSwitches() {
+    const switches = document.querySelectorAll("#matchmaking-options .switch-btn");
+    const variantsToggle = document.getElementById('variants-toggle');
+
+    switches.forEach((btn) => {
+        btn.addEventListener('click', (event) => {
+            event.preventDefault();
+            switches.forEach((btn) => btn.classList.remove("active"));
+            btn.classList.add("active");
+            // Show or hide variants based on the selected switch button
+            if (btn.getAttribute('data-ranked') === 'false') {
+				toggleVariants(variantsToggle, true);
+            } else {
+				toggleVariants(variantsToggle, false);
+            }
+        });
+    });
+	return switches;
+}
+
+function clickStartQueueBtn(switches, variants) {
+    const ranked = switches[1].classList.contains('active');
+    const selectedVariants = [];
+	if (!ranked) {
+		variants.forEach(variant => {
+			if (variant.classList.contains('selected')) {
+				selectedVariants.push(variant.getAttribute('data-variant'));
+			}
+		});
+	}
+    console.log('Ranked:', ranked);
+    console.log('Selected Variants:', selectedVariants);
+	if (!ranked && selectedVariants.length === 0) {
+		return throwAlert('Please, choose at least one chess variant');
+	}
+	initMatchmaking(selectedVariants, ranked);
+}
+
+function toggleVariants(container, show) {
+    if (show) {
+        container.classList.add('show');
+        const selected = document.querySelector(`[data-variant="${chessVariant}"]`);
+        if (selected) {
+            selected.classList.add('selected');
+        }
+    } else {
+        container.classList.remove('show');
+    }
+}
 /* * * * * * * * * * * * * * * UTILS * * * * * * * * * * * * * * */
 
 

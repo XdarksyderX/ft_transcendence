@@ -6,7 +6,7 @@ from .views import (
 )
 
 urlpatterns = [
-    path('matchmaking/join/', JoinMatchmakingView.as_view(), name='join-matchmaking'),
-    path('matchmaking/leave/', LeaveMatchmakingView.as_view(), name='leave-matchmaking'),
-    path('matchmaking/status/', CheckMatchmakingStatusView.as_view(), name='check-matchmaking-status'),
+    path('join/', JoinMatchmakingView.as_view(), name='join-matchmaking'),
+    path('leave/', LeaveMatchmakingView.as_view(), name='leave-matchmaking'),
+    path('status/', CheckMatchmakingStatusView.as_view(), name='check-matchmaking-status'),
 ]
