@@ -4,7 +4,7 @@ from rest_framework import status
 from core.models import Tournament, TournamentInvitation
 from django.contrib.auth import get_user_model
 from core.utils.event_domain import publish_event
-from .tournament import get_tournament_bracket
+from ..tournament import get_tournament_bracket
 import uuid
 
 User = get_user_model()
@@ -204,19 +204,6 @@ class TournamentInvitationAcceptView(APIView):
             "tournament_token": str(invitation.tournament.token),
             "players": [player.id for player in tournament.players.all()],
         })
-
-        """
-        if tournament.players.count() == tournament.max_players:
-            tournament.close_tournament() # already handles everything
-            publish_event("pong", "pong.tournament_closed", {
-                "tournament_token": str(tournament.token),
-                "players_id": [player.id for player in tournament.players.all()]
-            })
-            remaining_invitations = TournamentInvitation.objects.filter(tournament=tournament)
-            for invitation in remaining_invitations:
-                invitation.status = 'cancelled'
-                invitation.save()
-        Host starts tournament manually""" 
         return Response({
             "status": "success",
             "message": "Invitation accepted successfully",
@@ -239,7 +226,12 @@ class TournamentStartView(APIView):
                 "message": "Tournament has already started."
             }, status=status.HTTP_400_BAD_REQUEST)
         
-        # Manually close the tournament without checking current matches
+        if tournament.players.count() < tournament.max_players:
+            return Response({
+                "status": "error",
+                "message": "The tournament is not full yet."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
         tournament.close_tournament()
         publish_event("pong", "pong.tournament_closed", {
             "tournament_token": str(tournament.token),

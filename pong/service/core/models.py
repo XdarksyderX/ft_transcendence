@@ -509,6 +509,12 @@ class Tournament(models.Model):
             self.current_round = next_round
             self.save()
 
+    def get_player_pending_match(self, player):
+        return self.matches.filter(
+            pong_game__status='pending',
+            pong_game__player1=player
+        ).first()
+
     def __str__(self):
         return f"Tournament {self.name} (Players: {self.max_players})"
 
@@ -516,8 +522,36 @@ class TournamentMatch(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name='matches')
     round_number = models.IntegerField(default=1)
     pong_game = models.OneToOneField(PongGame, on_delete=models.CASCADE, related_name='tournament_match')
+    token = models.CharField(max_length=255, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
-
+class TournamentQueue(models.Model):
+    """
+    Represents a queue for tournament matches where players wait for their opponents.
+    """
+    tournament = models.ForeignKey(
+        Tournament, 
+        on_delete=models.CASCADE,
+        related_name='queues'
+    )
+    match = models.ForeignKey(
+        TournamentMatch,
+        on_delete=models.CASCADE,
+        related_name='queues'
+    )
+    player = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='tournament_queues'
+    )
+    joined_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
+    
+    class Meta:
+        unique_together = ['tournament', 'match', 'player']
+    
+    def __str__(self):
+        return f"Queue entry for {self.player} in {self.tournament.name}, match {self.match.id}"
 
 class OutgoingEvent(models.Model):
     """
