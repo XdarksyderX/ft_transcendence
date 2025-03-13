@@ -10,6 +10,7 @@ import { handleAcceptedInvitation, handleDeclinedInvitation } from "../home/game
 import { handleCancelledInvitation } from "../chat/bubbles.js";
 import { state } from "../chat/socket.js";
 import { refreshFriendStatusOnHome } from "../home/app.js";
+import { handleJoinMatchmakingMatch } from "../home/matchMaking.js";
 
 let notiSocket = null;
 let reconnectAttempts = 0;
@@ -42,6 +43,7 @@ const notificationHandlers = {
     chess_match_accepted: (data) => handleAcceptedInvitation('chess', data.game_key),
     chess_match_decline: () => handleDeclinedInvitation(),
     chess_match_cancelled: (data) => handleCancelledInvitation(data.invitation_token),
+    chess_match_accepted_random: (data) => handleJoinMatchmakingMatch(data.game_key)
 };
  
 
