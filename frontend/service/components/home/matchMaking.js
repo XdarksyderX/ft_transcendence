@@ -4,6 +4,7 @@ export async function initMatchmaking(variants, ranked) {
 
     if (await handleJoinMatchmaking(variants, ranked)) {
         launchMatchmakingModal();
+        localStorage.setItem('isOnQueue', 'true');
     }
 }
 
@@ -21,7 +22,8 @@ async function handleJoinMatchmaking(variants, ranked) {
 async function handleLeaveMatchmaking() {
     const response = await leaveMatchmaking();
     if (response.status === "success") {
-        console.log("joining to matchmaking queue...");
+        console.log("leaving to matchmaking queue...");
+        localStorage.removeItem('isOnQueue');
         return true;
     } else {
         console.error("Error while leaving matchmaking queue:", response.message);
@@ -69,3 +71,10 @@ function launchMatchmakingModal() {
         }
     })
 }
+
+document.addEventListener('DOMContentLoaded', async () => {
+    console.log("domcontentloaded");
+    if (localStorage.getItem('isOnQueue')) {
+        await handleLeaveMatchmaking();
+    }
+});
