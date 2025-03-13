@@ -144,6 +144,8 @@ function initChessEvents(elements) {
 		handleSendGameInvitation(gameData, elements.chess.startGameWithFriendButton)
 	});
 
+	initMatchmakingBtns();
+
 }
 // toggles from init to chess options
 function toggleChessOptions(event, elements) {
@@ -190,26 +192,51 @@ function playChessWithRandom(elements) {
 	toggleView(currentView, elements.chess.matchmakingOptions);
 }
 
-function handleMatchmakingOptions(elements) {
-	setSwitches(); 
+function initMatchmakingBtns(elements) {
+	setSwitches();
+	setVariantBtns();
+}
+
+function setVariantBtns() {
+    const btns = document.querySelectorAll('.variant-btn');
+    btns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            btn.classList.toggle('selected');
+        });
+    });
 }
 
 function setSwitches() {
     const switches = document.querySelectorAll("#matchmaking-options .switch-btn");
+    const variantsToggle = document.getElementById('variants-toggle');
+
     switches.forEach((btn) => {
         btn.addEventListener('click', (event) => {
             event.preventDefault();
             switches.forEach((btn) => btn.classList.remove("active"));
             btn.classList.add("active");
-        })
-    });
 
-	const addMoreBtn = document.getElementById('addMoreBtn');
-	addMoreBtn.addEventListener("click", () => {
-		extraVariants.style.display = extraVariants.style.display === "none" ? "block" : "none";
-	  });
+            // Show or hide variants based on the selected switch button
+            if (btn.getAttribute('data-ranked') === 'true') {
+				toggleVariants(variantsToggle, true);
+            } else {
+				toggleVariants(variantsToggle, false);
+            }
+        });
+    });
 }
 
+function toggleVariants(container, show) {
+    if (show) {
+        container.classList.add('show');
+        const selected = document.querySelector(`[data-variant="${chessVariant}"]`);
+        if (selected) {
+            selected.classList.add('selected');
+        }
+    } else {
+        container.classList.remove('show');
+    }
+}
 /* * * * * * * * * * * * * * * UTILS * * * * * * * * * * * * * * */
 
 
