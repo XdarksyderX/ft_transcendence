@@ -32,7 +32,6 @@ export async function initMatchmaking(variants, ranked) {
         // Check if the error is because we're not in the queue
         if (response.message && response.message.includes("not in any matchmaking queue")) {
           console.log("Not in queue, cleaning up local state only")
-          // No es necesario eliminar localStorage en este caso
           localStorage.removeItem("isOnQueue")
           return true
         } else {
