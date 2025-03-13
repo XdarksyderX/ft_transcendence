@@ -12,7 +12,7 @@ python3 service/manage.py migrate
 
 cd service
 
-celery -A config worker --loglevel=info --queues=chess.user_registered,chess.user_deleted,chess.username_changed,chess.friend_added,chess.friend_removed &
+celery -A config worker --loglevel=info --queues=chess.user_registered,chess.user_deleted,chess.username_changed,chess.friend_added,chess.friend_removed,events.user_disconnected &
 
 celery -A config flower --port=5555 &
 exec python manage.py runserver 0.0.0.0:5053
