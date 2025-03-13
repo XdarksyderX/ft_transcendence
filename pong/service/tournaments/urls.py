@@ -11,7 +11,8 @@ from .views import (
     TournamentDeletePlayerView,
     TournamentDeleteView,
 	TournamentListView,
-	TournamentEditableListView
+	TournamentEditableListView,
+    TournamentStartView
 )
 
 urlpatterns = [
@@ -61,4 +62,10 @@ urlpatterns = [
         TournamentDeleteView.as_view(),
         name='tournament_delete'
     ),
+
+    path(
+        'tournaments/<str:tournament_token>/start/',
+        TournamentStartView.as_view(),
+        name='start_tournament'),
+
 ]

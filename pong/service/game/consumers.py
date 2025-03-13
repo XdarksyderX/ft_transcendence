@@ -274,7 +274,7 @@ class GameConsumer(AsyncWebsocketConsumer):
                         ball.update({
                             "x": board_width / 2 - ball_side/2,
                             "y": board_height / 2 - ball_side/2,
-                            "xVel": start_speed * math.cos(start_rad_angle) * -1,  # negative xVel (ball served to right)
+                            "xVel": start_speed * math.cos(start_rad_angle) * -1,  # negative xVel (ball served to left)
                             "yVel": start_speed * math.sin(start_rad_angle),
                             "speed": start_speed,
                             "serve": True
