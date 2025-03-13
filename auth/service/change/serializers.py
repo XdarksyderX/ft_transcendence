@@ -76,7 +76,6 @@ class ChangePasswordSerializer(serializers.Serializer):
 
     def validate(self, data):
         user = self.context['request'].user
-        print("pepe")
         if not user.check_password(data['password']):
             raise serializers.ValidationError({"error": "Invalid current password."})
 
