@@ -62,18 +62,18 @@
 										<button class="switch-btn switch-btn-left w-50 mx-1" data-ranked="true">Casual</button>
 										<button class="switch-btn switch-btn-right w-50 mx-1" data-ranked="false">Ranked</button>
 									</div>
-									<div class="my-2">
+									<div id="variants-toggle" class="my-2 collapsible">
 										<label for="select-variants" class="form-label ctm-text-light">Want to add more variants?</label>
-										<div id="variants-container" class="row d-flex">
-											<div class="friend-btn" data-variant="classic">classic</div>
-											<div class="friend-btn" data-variant="classic">horde</div>
-											<div class="friend-btn" data-variant="classic">kirby</div>
-											<div class="friend-btn" data-variant="classic">the bomb</div>
-											<div class="friend-btn" data-variant="classic">960</div>
+										<div id="variants-container" class="flex-row w-100 align-items-center justify-content-center">
+											<div class="variant-btn" data-variant="classic">classic</div>
+											<div class="variant-btn" data-variant="horde">horde</div>
+											<div class="variant-btn" data-variant="kirby">kirby</div>
+											<div class="variant-btn" data-variant="bomb">bomb</div>
+											<div class="variant-btn" data-variant="960">960</div>
 										</div>
 									</div>
 								<!-- </div> -->
-								<div id="start-queue" class="btn ctm-btn mb-3 flex-grow-1 d-flex align-items-center justify-content-center">Enter queue</div>
+								<div id="start-queue" class="mt-auto btn ctm-btn mb-3 flex-grow-1 d-flex align-items-center justify-content-center">Enter queue</div>
 							</div>
 							<div id="chess-friend-list" class="h-100 flex-column" style="display: none;">
 								<h5 class="ctm-text-light mb-3">Select a friend to play with:</h5>

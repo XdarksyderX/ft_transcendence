@@ -47,6 +47,10 @@
 #variants-container {
     overflow-y: auto;
 }
+
+#start-queue {
+    max-height: 100px;
+}
 img {
     /* display: none; */
     /* max- */height: 250px !important;
@@ -106,10 +110,43 @@ img {
 .tooltip-arrow {
     border-top-color: var(--dark);
 }
-
+#matchmaking-options .switch-btn {
+    aspect-ratio: auto;
+    max-height: 100px;
+    min-height: 80px;
+}
 
 #chess-variants .fas.fa-question-circle {
     font-size: 1.5em;
+}
+
+#variants-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.variant-btn {
+    flex: 1;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    padding: 10px;
+    text-align: center;
+    background-color: var(--darkish);
+    border: 1px solid var(--light);
+    color: var(--light);
+    border-radius: 5px;
+    cursor: pointer;
+}
+.variant-btn:last-child {
+    margin-right: 0px;
+}
+.variant-btn:hover {
+    background-color: var(--dark);
+}
+.variant-btn.selected {
+    background-color: var(--title);
+    color: var(--dark) !important;
 }
 
 /* the loading bars */
