@@ -9,6 +9,7 @@ import { getNotificationText, updateNotificationBell } from "./app.js";
 import { handleAcceptedInvitation, handleDeclinedInvitation } from "../home/game-invitation.js";
 import { handleCancelledInvitation } from "../chat/bubbles.js";
 import { state } from "../chat/socket.js";
+import { refreshFriendStatusOnHome } from "../home/app.js";
 
 let notiSocket = null;
 let reconnectAttempts = 0;
@@ -19,7 +20,7 @@ const notificationHandlers = {
     friend_added: (data) => handleFriendChanges('friend_added', data, 1),
     friend_removed: (data) => handleFriendChanges('friend_removed', data, -1),
     avatar_changed: (data) => handleFriendChanges('avatar_changed', data),
-	friend_status_updated: (data) => handleFriendChanges('avatar_changed', data),
+	friend_status_updated: (data) => handleFriendChanges('friend_status_updated', data),
     deleted_account: (data) => handleFriendChanges('deleted_account', data, -1),
 
     // Friend requests
@@ -114,11 +115,14 @@ function handleReceivedNotification(event) {
 
 function handleFriendChanges(type, data, add = 0) {
     const path = window.location.pathname;
+    console.log("on handleFriendChanges", path, type);
     if (path === '/friends') {
         refreshFriendsFriendlist(data.user, add); // aquí debo mandar el username del amigo
 		if (add === 0) {
 			refreshFriendData(data.user);
 		}
+    } if (path === '/home' && type === 'friend_status_updated') {
+        refreshFriendStatusOnHome(data.user, data.is_online);
     }
     if (add) { // we dont see avatar or status on chat or tournament
         refreshChatFriendList(); // chat refreshes in all paths
