@@ -522,7 +522,7 @@ class TournamentMatch(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name='matches')
     round_number = models.IntegerField(default=1)
     pong_game = models.OneToOneField(PongGame, on_delete=models.CASCADE, related_name='tournament_match')
-    token = models.CharField(max_length=255, unique=True)
+    token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
 class TournamentQueue(models.Model):
