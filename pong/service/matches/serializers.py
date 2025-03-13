@@ -41,7 +41,7 @@ class PongGameHistorySerializer(serializers.ModelSerializer):
             'player2',
             'winner',
             'score_player1',
-            'score_player1',
+            'score_player2',
             'status',
             'created_at',
             'updated_at'

@@ -74,6 +74,8 @@ class PongGame(models.Model):
         related_name='games'
     )
     game_key = models.UUIDField(default=uuid.uuid4, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     # Parámetros de configuración del juego
     board_width = models.IntegerField(default=700)
