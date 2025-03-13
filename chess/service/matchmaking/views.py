@@ -98,7 +98,7 @@ class JoinMatchmakingView(APIView):
 					is_ranked=current_ranked
 				)
 				
-				publish_event("chess", "chess.match_accepted", {
+				publish_event("chess", "chess.match_accepted_random", {
 					"game_key": str(created_game.game_key),
 					"accepted_by": user.id,
 					"invited_by": opponent.id

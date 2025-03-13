@@ -31,6 +31,7 @@ app.conf.task_queues = (
     Queue('notifications.chess.match_accepted', Exchange('chess'), routing_key='chess.match_accepted'),
     Queue('notifications.chess.invitation_cancelled', Exchange('chess'), routing_key='chess.invitation_cancelled'),
     Queue('notifications.chess.invitation_decline', Exchange('chess'), routing_key='chess.invitation_decline'),
+	Queue('notifications.chess.match_accepted_random', Exchange('chess'), routing_key='chess.match_accepted_random'),
 )
 
 app.conf.task_routes = {
@@ -51,6 +52,7 @@ app.conf.task_routes = {
 	"chess.match_accepted": {"queue": "notifications.chess.match_accepted"},
     "chess.invitation_cancelled": {"queue": "notifications.chess.invitation_cancelled"},
     "chess.invitation_decline": {"queue": "notifications.chess.invitation_decline"},
+	"chess.match_accepted_random": {"queue": "notifications.chess.match_accepted_random"},
 }
 
 app.autodiscover_tasks(["config.tasks"])

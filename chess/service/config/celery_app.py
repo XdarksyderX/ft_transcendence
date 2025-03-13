@@ -19,6 +19,7 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 app.conf.task_protocol = 1
 
 app.conf.task_queues = (
+	Queue('chess.user_disconnected', Exchange('events'), routing_key='events.user_disconnected'),
     Queue('chess.user_registered', Exchange('auth'), routing_key='auth.user_registered'),
     Queue('chess.user_deleted', Exchange('auth'), routing_key='auth.user_deleted'),
     Queue('chess.username_changed', Exchange('auth'), routing_key='auth.username_changed'),
@@ -31,6 +32,7 @@ app.conf.task_routes = {
     'auth.user_registered': {'queue': 'chess.user_registered'},
     'auth.user_deleted': {'queue': 'chess.user_deleted'},
     'auth.username_changed': {'queue': 'chess.username_changed'},
+	'events.user_disconnected': {'queue': 'chess.user_disconnected'},
     'social.friend_added': {'queue': 'chess.friend_added'},
     'social.friend_removed': {'queue': 'chess.friend_removed'},
     'consistency.subscribe_now.chess': {'queue': 'consistency.subscribe_now.chess'}
