@@ -160,12 +160,47 @@ async function navigateTo(fullUrl, key = null) {
             history.pushState(null, null, url);
             router(key);
         }
+        document.title = getTitleForUrl(url); // Set the title based on the URL
         loadLoggedContent(verify);
     } catch (error) {
         console.error('Error during verification:', error);
     }
 }
 
+function getTitleForUrl(url) {
+    switch (url) {
+        case "/":
+            return "Welcome huuman";
+        case "/login":
+            return "Login";
+        case "/signup":
+            return "Sign Up";
+        case "/home":
+            return "Home";
+        case "/profile":
+            return "Profile";
+        case "/friends":
+            return "Friends";
+        case "/game-stats":
+            return "Game Stats";
+        case "/settings":
+            return "Settings";
+        case "/ongoing-tournaments":
+            return "Ongoing Tournaments";
+        case "/new-tournament":
+            return "New Tournament";
+        case "/chess":
+            return "Chess";
+        case "/pong":
+            return "Pong";
+        case "/reset-password":
+            return "Reset Password";
+        case "/verify-email":
+            return "Verify Email";
+        default:
+            return "Page Not Found";
+    }
+}
 function toggleNavbarContent(show, hide) {
     show.classList.add('d-flex');
     show.classList.remove('hidden');
