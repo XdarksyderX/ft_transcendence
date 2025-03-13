@@ -273,7 +273,7 @@ class Tournament(models.Model):
     token = models.CharField(max_length=255, unique=True, default=uuid.uuid4)
     closed = models.BooleanField(default=False)
     current_round = models.IntegerField(default=1)
-    seeding = ArrayField(models.IntegerField(), null=True, blank=True)
+    seeding = ArrayField(models.BigIntegerField(), null=True, blank=True) # avoids integer overflow
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -324,66 +324,176 @@ class Tournament(models.Model):
                 raise Exception("Seeding is not set. Close the tournament first.")
             if self.max_players == 4:
                 # For 4 players: seeding order [1,2,3,4]
-                TournamentMatch.objects.create(
-                    tournament=self,
-                    round_number=1,
-                    player1_id=self.seeding[0],
-                    player2_id=self.seeding[3],
-                    status='pending'
+                game1 = PongGame.objects.create(
+                player1=User.objects.get(id=self.seeding[0]),
+                player2=User.objects.get(id=self.seeding[3]),
+                board_width=700,
+                board_height=500,
+                player_height=50,
+                player_speed=5,
+                ball_side=10,
+                start_speed=7.5,
+                speed_up_multiple=1.02,
+                max_speed=20,
+                points_to_win=3,
+                status='pending',
+                is_tournament=True,
+                tournament=self
                 )
                 TournamentMatch.objects.create(
                     tournament=self,
                     round_number=1,
-                    player1_id=self.seeding[1],
-                    player2_id=self.seeding[2],
-                    status='pending'
+                    pong_game=game1
                 )
-            elif self.max_players == 8:
+                
+                game2 = PongGame.objects.create(
+                    player1=User.objects.get(id=self.seeding[1]),
+                    player2=User.objects.get(id=self.seeding[2]),
+                    board_width=700,
+                    board_height=500,
+                    player_height=50,
+                    player_speed=5,
+                    ball_side=10,
+                    start_speed=7.5,
+                    speed_up_multiple=1.02,
+                    max_speed=20,
+                    points_to_win=3,
+                    status='pending',
+                    is_tournament=True,
+                    tournament=self
+                )
+                TournamentMatch.objects.create(
+                    tournament=self,
+                    round_number=1,
+                    pong_game=game2
+                )
+            elif self.max_players == 8: 
                 # For 8 players: seeding order [1,2,3,4,5,6,7,8]
-                TournamentMatch.objects.create(
-                    tournament=self,
-                    round_number=1,
-                    player1_id=self.seeding[0],
-                    player2_id=self.seeding[7],
-                    status='pending'
+                game1 = PongGame.objects.create(
+                player1=User.objects.get(id=self.seeding[0]),
+                player2=User.objects.get(id=self.seeding[7]),
+                board_width=700,
+                board_height=500,
+                player_height=50,
+                player_speed=5,
+                ball_side=10,
+                start_speed=7.5,
+                speed_up_multiple=1.02,
+                max_speed=20,
+                points_to_win=3,
+                status='pending',
+                is_tournament=True,
+                tournament=self
                 )
                 TournamentMatch.objects.create(
                     tournament=self,
                     round_number=1,
-                    player1_id=self.seeding[3],
-                    player2_id=self.seeding[4],
-                    status='pending'
+                    pong_game=game1
+                )
+
+                game2 = PongGame.objects.create(
+                    player1=User.objects.get(id=self.seeding[3]),
+                    player2=User.objects.get(id=self.seeding[4]),
+                    board_width=700,
+                    board_height=500,
+                    player_height=50,
+                    player_speed=5,
+                    ball_side=10,
+                    start_speed=7.5,
+                    speed_up_multiple=1.02,
+                    max_speed=20,
+                    points_to_win=3,
+                    status='pending',
+                    is_tournament=True,
+                    tournament=self
                 )
                 TournamentMatch.objects.create(
                     tournament=self,
                     round_number=1,
-                    player1_id=self.seeding[1],
-                    player2_id=self.seeding[6],
-                    status='pending'
+                    pong_game=game2
+                )
+
+                game3 = PongGame.objects.create(
+                    player1=User.objects.get(id=self.seeding[1]),
+                    player2=User.objects.get(id=self.seeding[6]),
+                    board_width=700,
+                    board_height=500,
+                    player_height=50,
+                    player_speed=5,
+                    ball_side=10,
+                    start_speed=7.5,
+                    speed_up_multiple=1.02,
+                    max_speed=20,
+                    points_to_win=3,
+                    status='pending',
+                    is_tournament=True,
+                    tournament=self
                 )
                 TournamentMatch.objects.create(
                     tournament=self,
                     round_number=1,
-                    player1_id=self.seeding[2],
-                    player2_id=self.seeding[5],
-                    status='pending'
+                    pong_game=game3
+                )
+
+                game4 = PongGame.objects.create(
+                    player1=User.objects.get(id=self.seeding[2]),
+                    player2=User.objects.get(id=self.seeding[5]),
+                    board_width=700,
+                    board_height=500,
+                    player_height=50,
+                    player_speed=5,
+                    ball_side=10,
+                    start_speed=7.5,
+                    speed_up_multiple=1.02,
+                    max_speed=20,
+                    points_to_win=3,
+                    status='pending',
+                    is_tournament=True,
+                    tournament=self
+                )
+                TournamentMatch.objects.create(
+                    tournament=self,
+                    round_number=1,
+                    pong_game=game4
                 )
         else:
-            # For later rounds: use winners from the previous round to create new matches.
+        # For later rounds: use winners from the previous round to create new matches.
             previous_matches = self.matches.filter(round_number=self.current_round)
             winners = []
             for match in previous_matches:
-                if match.status != 'finished' or not match.winner:
+                if match.pong_game.status != 'finished' or not match.pong_game.winner:
                     raise Exception("Not all matches in the current round have finished.")
-                winners.append(match.winner.id)
+                winners.append(match.pong_game.winner.id)
             next_round = self.current_round + 1
             for i in range(0, len(winners), 2):
+                p1_id = winners[i]
+                p2_id = winners[i + 1]
+                
+                # Retrieve the actual user objects (if not already available)
+                p1 = User.objects.get(id=p1_id)
+                p2 = User.objects.get(id=p2_id)
+                
+                new_game = PongGame.objects.create(
+                    player1=p1,
+                    player2=p2,
+                    board_width=700,
+                    board_height=500,
+                    player_height=50,
+                    player_speed=5,
+                    ball_side=10,
+                    start_speed=7.5,
+                    speed_up_multiple=1.02,
+                    max_speed=20,
+                    points_to_win=3,
+                    status='pending',
+                    is_tournament=True,
+                    tournament=self
+                )
+                
                 TournamentMatch.objects.create(
                     tournament=self,
                     round_number=next_round,
-                    player1_id=winners[i],
-                    player2_id=winners[i+1],
-                    status='pending'
+                    pong_game=new_game
                 )
             self.current_round = next_round
             self.save()

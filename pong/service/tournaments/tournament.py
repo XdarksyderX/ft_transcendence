@@ -23,11 +23,11 @@ def get_tournament_bracket(tournament):
     }
     """
     rounds = {}
-    for t_game in tournament.tournament_games.all().order_by('round_number'):
-        r = t_game.round_number
+    for t_match in tournament.matches.all().order_by('round_number'):
+        r = t_match.round_number
         if r not in rounds:
             rounds[r] = []
-        game = t_game.match
+        game = t_match.pong_game
         rounds[r].append({
             'game_id': game.id,
             'player1': game.player1.username if game.player1 else None,
@@ -45,8 +45,8 @@ def are_all_matches_finished(tournament, round_number):
     Checks if all matches in the specified round of the tournament have finished.
     It assumes that each TournamentGame has a 'match' field (PongGame) with a 'status' attribute.
     """
-    matches = tournament.tournament_games.filter(round_number=round_number)
-    return all(game.match.status == 'finished' for game in matches)
+    matches = tournament.matches.filter(round_number=round_number)
+    return all(match.pong_game.status == 'finished' for match in matches)
 
 
 def create_next_round_matches(tournament, current_round):
