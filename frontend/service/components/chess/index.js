@@ -85,8 +85,12 @@ export async function initializeChessEvents(key) {
             await initOnlineChess(key);
         }
     }
-    
-    initGameRender(globalState);
+    const boardState =     await waitForBoardStatus();
+    const piecePositions = convertToPiecePositions(boardState);
+
+    console.log("hola eli qué tal")
+    console.log(piecePositions)
+    initGameRender(globalState, piecePositions);
     GlobalEvent();
     generateCoordinates();
     setupButtonEvents(settingsPanel, saveSettingsButton, cancelSettingsButton, pieceStyleSelect)
@@ -132,8 +136,6 @@ async function initOnlineChess(key) {
     
 }
 
-export let mierdaSeca = {}
-
 function handleGetChessReceivedMessage(event) {
     try {
         const data = JSON.parse(event.data);
@@ -148,11 +150,11 @@ function handleGetChessReceivedMessage(event) {
         if (data.status === "game_over") {
             winGame(data.winner);
         }
-        if (data.status == "game_starting") {
-            const map = convertToPiecePositions(data.board);
-            console.log("map: ", map);
-            mierdaSeca = map;
-        }
+        // if (data.status == "game_starting") {
+        //     const map = convertToPiecePositions(data.board);
+        //     console.log("map: ", map);
+        //     mierdaSeca = map;
+        // }
     }
     catch (e) {
         console.error("Error parsing WS message: ", e);
@@ -184,6 +186,20 @@ function initializeChessSocket(game_key) {
     }
 
 }
+
+function waitForBoardStatus() {
+    return new Promise((resolve, reject) => {
+        function onMessage(event) {
+            const data = JSON.parse(event.data);
+            if (data.status === "game_starting") {
+                chessSocket.removeEventListener('message', onMessage);
+                resolve(data.board);
+            }
+        }
+        chessSocket.addEventListener('message', onMessage);
+    });
+}
+
 
 function getUserColor(username) {
     //console.log("getcolor")

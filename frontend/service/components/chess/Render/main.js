@@ -96,25 +96,6 @@ const piecePositions = {
   "e1": piece.whiteKing
 };
 
-function convertToPiecePositions(boardMap) {
-  const piecePositionsTmp = {};
-
-
-  Object.keys(boardMap).forEach(key => {
-    const square = boardMap[key];
-    if (!square) {
-      piecePositionsTmp[key] = null;
-    } else {
-      const pieceType = square.type.toLowerCase();
-      const pieceColor = square.color === "white" ? "white" : "black";
-      const pieceKey = `${pieceColor}${pieceType.charAt(0).toUpperCase() + pieceType.slice(1)}`;
-      piecePositionsTmp[key] = piece[pieceKey];
-    }
-  });
-
-  return piecePositionsTmp;
-}
-import { mierdaSeca } from "../index.js";
 /**
  * This function takes the chessboard data and renders it as HTML elements on the web page.
  * It is only called when the game starts (only for one time).
@@ -128,9 +109,8 @@ import { mierdaSeca } from "../index.js";
  * representing the piece to the square's HTML element.
  * @param {*} data a 2D array representing the chessboard, where each element is a row of squares.
  */
-function initGameRender(data)
+function initGameRender(data, piecePositiont)
 {
-  const mierdaSeca = 
   globalPiece.black_pawns = [];
   globalPiece.white_pawns = [];
 
@@ -145,11 +125,12 @@ function initGameRender(data)
       const squareDiv = document.createElement("div");
       squareDiv.id = square.id;
       squareDiv.classList.add(square.color, "square");
-
+      
+      console.log('on mierdaSecaLoop, mierdaseca: ', piecePositiont);
       if (chessVariantTmp === "horde") {
         renderHordePieces(square, globalPiece, assignSpecificPiece);
       } else {
-        if ((square.id[1] >= 3 && square.id[1] <= 6) && square.piece)
+/*         if ((square.id[1] >= 3 && square.id[1] <= 6) && square.piece)
           square.piece = null;
         if (square.id[1] == 7) {
           square.piece = piece.blackPawn(square.id);
@@ -160,10 +141,9 @@ function initGameRender(data)
         } else if (piecePositions[square.id]) {
           square.piece = piecePositions[square.id](square.id);
           assignSpecificPiece(square);
-        }
-        // console.log('on mierdaSecaLoop, mierdaseca: ', mierdaSeca);
-        // square.piece = mierdaSeca[square.id](square.id);
-        // assignSpecificPiece(square);
+        } */
+         square.piece = piecePositiont[square.id](square.id);
+         assignSpecificPiece(square);
       }
       rowEl.appendChild(squareDiv);
     });
@@ -234,6 +214,25 @@ function circleHighlightRender(highlightSquareIds, keySquareMapper) {
     }
     highlightSpan.style.backgroundColor = highlightColor;
   });
+}
+
+function convertToPiecePositions(boardMap) {
+  const piecePositionsTmp = {};
+
+
+  Object.keys(boardMap).forEach(key => {
+    const square = boardMap[key];
+    if (!square) {
+      piecePositionsTmp[key] = null;
+    } else {
+      const pieceType = square.type.toLowerCase();
+      const pieceColor = square.color === "white" ? "white" : "black";
+      const pieceKey = `${pieceColor}${pieceType.charAt(0).toUpperCase() + pieceType.slice(1)}`;
+      piecePositionsTmp[key] = piece[pieceKey];
+    }
+  });
+
+  return piecePositionsTmp;
 }
 
 export { initGameRender, renderHighlight, clearHighlight, selfHighlight, globalStateRender, globalPiece, circleHighlightRender, piecePositions, convertToPiecePositions };
