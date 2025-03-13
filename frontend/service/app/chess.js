@@ -44,7 +44,7 @@ export async function getChessPendingMatches() {
 
 // ==================== Matchmaking Endpoints ====================
 
-export async function joinMatchmaking(gameModes = ['classic'], isRanked = false) {
+export async function joinMatchmaking(gameModes, isRanked) {
     return await sendRequestChess('POST', 'matchmaking/join/', {
         game_modes: gameModes,
         is_ranked: isRanked

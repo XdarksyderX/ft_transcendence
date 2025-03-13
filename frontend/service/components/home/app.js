@@ -188,13 +188,18 @@ function playChessWithFriend(elements) {
 }
 
 function playChessWithRandom(elements) {
-	//initMatchmaking();
 	toggleView(currentView, elements.chess.matchmakingOptions);
+	const switches = document.querySelectorAll("#matchmaking-options .switch-btn");
+	if (!switches[0].classList.contains('active') && !switches[1].classList.contains('active')) {
+		switches[0].click();
+	}
 }
 
-function initMatchmakingBtns(elements) {
-	setSwitches();
-	setVariantBtns();
+function initMatchmakingBtns() {
+	const switches = setSwitches();
+	const variantBtns = setVariantBtns();
+	const startBtn = document.getElementById('start-queue');
+	startBtn.addEventListener('click', () => clickStartQueueBtn(switches, variantBtns));
 }
 
 function setVariantBtns() {
@@ -204,6 +209,7 @@ function setVariantBtns() {
             btn.classList.toggle('selected');
         });
     });
+	return btns;
 }
 
 function setSwitches() {
@@ -215,15 +221,33 @@ function setSwitches() {
             event.preventDefault();
             switches.forEach((btn) => btn.classList.remove("active"));
             btn.classList.add("active");
-
             // Show or hide variants based on the selected switch button
-            if (btn.getAttribute('data-ranked') === 'true') {
+            if (btn.getAttribute('data-ranked') === 'false') {
 				toggleVariants(variantsToggle, true);
             } else {
 				toggleVariants(variantsToggle, false);
             }
         });
     });
+	return switches;
+}
+
+function clickStartQueueBtn(switches, variants) {
+    const ranked = switches[1].classList.contains('active');
+    const selectedVariants = [];
+	if (!ranked) {
+		variants.forEach(variant => {
+			if (variant.classList.contains('selected')) {
+				selectedVariants.push(variant.getAttribute('data-variant'));
+			}
+		});
+	}
+    console.log('Ranked:', ranked);
+    console.log('Selected Variants:', selectedVariants);
+	if (!ranked && selectedVariants.length === 0) {
+		return throwAlert('Please, choose at least one chess variant');
+	}
+	initMatchmaking(selectedVariants, ranked);
 }
 
 function toggleVariants(container, show) {

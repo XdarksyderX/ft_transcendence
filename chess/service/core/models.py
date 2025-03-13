@@ -38,7 +38,7 @@ class ChessGame(models.Model):
         ('classic', 'Classic'),
         ('horde', 'Horde'),
         ('kirby', 'Kirby'),
-        ('the_bomb', 'The Bomb'),
+        ('bomb', 'The Bomb'),
         ('960', 'Chess 960'),
     ]
     player_white = models.ForeignKey(User, on_delete=models.CASCADE, related_name='games_as_white')
