@@ -138,3 +138,63 @@ def handle_pong_tournament_accepted(event):
     mark_event_as_processed(event_id, payload["event_type"])
 
     return f"Notified both users that {sender.username} accepted {receiver.username}'s tournament invitation"
+
+
+@shared_task(name="pong.tournament_match_ready")
+def handle_pong_tournament_match_ready(event):
+    event_id = event["event_id"]
+    if event_already_processed(event_id):
+        return f"Event {event_id} already processed."
+
+    event_attributes = event["data"]["attributes"]
+    player1_id = event_attributes["player1_id"]
+    player2_id = event_attributes["player2_id"]
+    game_key = event_attributes["game_key"]
+
+    player1 = User.objects.get(id=player1_id)
+    player2 = User.objects.get(id=player2_id)
+
+    payload1 = {
+        "event_type": "pong_tournament_match_ready",
+        "game_key": game_key,
+        "user": player1.username,
+        "other": player2.username
+    }
+
+    payload2 = {
+        "event_type": "pong_tournament_match_ready",
+        "game_key": game_key,
+        "user": player2.username,
+        "other": player1.username
+    }
+
+    send_event(player2_id, payload1)
+    send_event(player1_id, payload2)
+    mark_event_as_processed(event_id, payload1["event_type"])
+
+    return f"Notified both users that their tournament match is ready"
+
+@shared_task(name="pong.tournament_match_waiting")
+def handle_pong_tournament_match_waiting(event):
+    event_id = event["event_id"]
+    if event_already_processed(event_id):
+        return f"Event {event_id} already processed."
+
+    event_attributes = event["data"]["attributes"]
+    sender_id = event_attributes["sender_id"]
+    receiver_id = event_attributes["receiver_id"]
+
+    sender = User.objects.get(id=sender_id)
+    receiver = User.objects.get(id=receiver_id)
+
+    payload = {
+        "event_type": "pong_tournament_accepted",
+        "user": sender.username,
+        "other": receiver.username
+    }
+
+    send_notification(receiver_id, payload)
+    send_notification(sender_id, payload)
+    mark_event_as_processed(event_id, payload["event_type"])
+
+    return f"Notified both users that {sender.username} accepted {receiver.username}'s tournament invitation"

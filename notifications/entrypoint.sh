@@ -28,6 +28,8 @@ notifications.pong.invitation_decline,\
 notifications.pong.tournament_invitation,\
 notifications.pong.tournament_cancelled,\
 notifications.pong.tournament_decline,\
+notifications.pong.tournament_match_waiting,\
+notifications.pong.tournament_match_ready,\
 notifications.chess.match_accepted,\
 notifications.chess.invitation_cancelled,\
 notifications.chess.match_accepted_random,\
