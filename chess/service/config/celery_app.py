@@ -24,6 +24,7 @@ app.conf.task_queues = (
     Queue('chess.username_changed', Exchange('auth'), routing_key='auth.username_changed'),
     Queue('chess.friend_added', Exchange('social'), routing_key='social.friend_added'),
     Queue('chess.friend_removed', Exchange('social'), routing_key='social.friend_removed'),
+	Queue('chess.user_disconnected', Exchange('events'), routing_key='events.user_disconnected'),
     Queue('consistency.subscribe_now.chess', Exchange('consistency'), routing_key='consistency.subscribe_now.chess')
 )
 
@@ -33,6 +34,7 @@ app.conf.task_routes = {
     'auth.username_changed': {'queue': 'chess.username_changed'},
     'social.friend_added': {'queue': 'chess.friend_added'},
     'social.friend_removed': {'queue': 'chess.friend_removed'},
+	'events.user_disconnected': {'queue': 'chess.user_disconnected'},
     'consistency.subscribe_now.chess': {'queue': 'consistency.subscribe_now.chess'}
 }
 

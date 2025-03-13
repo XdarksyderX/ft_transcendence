@@ -4,6 +4,7 @@ from core.models import IncomingEvent
 from core.utils import rabbitmq_client
 import time
 import uuid
+from core.models import MatchmakingQueue
 
 User = get_user_model()
 
@@ -140,3 +141,20 @@ def handle_friend_removed(event):
     mark_event_as_processed(event_id, event["event_type"])
     return f"Friend {friend.username} removed from user {user.username}'s friend list. Friendship is a two-way street."
 
+
+@shared_task(name="events.user_disconnected")
+def handle_user_disconnected(event):
+    event_id = event["event_id"]
+    if event_already_processed(event_id):
+        return f"Event {event_id} already processed."
+
+    event_data = event["data"]["attributes"]
+
+    try:
+        user = User.objects.get(id=event_data["user_id"])
+    except User.DoesNotExist:
+        return f"Error: User with ID {event_data['user_id']} does not exist."
+
+    MatchmakingQueue.objects.filter(user=user).delete()
+    mark_event_as_processed(event_id, event["event_type"])
+    return f"User {user.username} disconnected."
