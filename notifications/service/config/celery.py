@@ -32,6 +32,8 @@ app.conf.task_queues = (
     Queue('notifications.chess.invitation_cancelled', Exchange('chess'), routing_key='chess.invitation_cancelled'),
     Queue('notifications.chess.invitation_decline', Exchange('chess'), routing_key='chess.invitation_decline'),
 	Queue('notifications.chess.match_accepted_random', Exchange('chess'), routing_key='chess.match_accepted_random'),
+	Queue('notifications.pong.tournament_match_ready', Exchange('pong'), routing_key='pong.tournament_match_ready'),
+	Queue('notifications.pong.tournament_match_waiting', Exchange('pong'), routing_key='pong.tournament_match_waiting'),
 )
 
 app.conf.task_routes = {
@@ -49,10 +51,14 @@ app.conf.task_routes = {
     "pong.invitation_decline": {"queue": "notifications.pong.invitation_decline"},
     "pong.tournament_cancelled": {"queue": "notifications.pong.tournament_cancelled"},
     "pong.tournament_decline": {"queue": "notifications.pong.tournament_decline"},
+    "pong.tournament_invitation": {"queue": "notifications.pong.tournament_invitation"},
+    "pong.tournament_match_waiting": {"queue": "notifications.pong.tournament_match_waiting"},
+    "pong.tournament_match_ready": {"queue": "notifications.pong.tournament_match_ready"},
 	"chess.match_accepted": {"queue": "notifications.chess.match_accepted"},
     "chess.invitation_cancelled": {"queue": "notifications.chess.invitation_cancelled"},
     "chess.invitation_decline": {"queue": "notifications.chess.invitation_decline"},
 	"chess.match_accepted_random": {"queue": "notifications.chess.match_accepted_random"},
+	"pong.tournament_match_ready": {"queue": "notifications.pong.tournament_match_ready"},
 }
 
 app.autodiscover_tasks(["config.tasks"])
