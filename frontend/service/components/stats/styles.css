@@ -1,12 +1,12 @@
 .history {
-	max-height: 490px;
+	height: 462px;
 	overflow-y: auto;
 	border-radius: 5px;
 	border: 1px solid var(--light);
 	background-color: var(--dark);
 }
 #full-chess-history {
-	max-height: 345px;
+	max-height: 312px;
 }
 
 .stats {
@@ -17,12 +17,13 @@
 .history-card {
 	border-radius: 5px;
 	border: 1px solid var(--light);
-	margin-bottom: 15px;
+	/* margin-bottom: 15px !important; */
+	margin: 10px;
 	background-color: var(--transparent-dark);
 }
-.history-card:last-child {
-    margin-bottom: 0;
-}
+/* .history-card:last-child {
+    margin-bottom: 0px;
+} */
 .history-card .score {
     font-size: 1.5rem;
     border-radius: 5px;

@@ -127,19 +127,27 @@ async function handleGetMatchHistory(game) {
 async function renderPongMatchHistory() {
     const matches = await handleGetMatchHistory('pong');
     const container = document.getElementById('full-pong-history');
-    matches.forEach(match => {
+    if (matches.length === 0) {
+      container.innerHTML = `<div class="text-center mt-5">you haven't played any pong match yet</div>`
+    } else {
+      matches.forEach(match => {
         const card = createPongMatchCard(match);
         container.appendChild(card);
-    });
+      });
+    }
 }
 
 async function renderChessMatchHistory() {
     const matches = await handleGetMatchHistory('chess');
     const container = document.getElementById('full-chess-history');
-    matches.forEach(match => {
+    if (matches.length === 0) {
+      container.innerHTML = `<div class="text-center mt-5">you haven't played any chess game yet</div>`    } else {
+
+      matches.forEach(match => {
         const card = createChessMatchCard(match);
         container.appendChild(card);
-    });
+      });
+    }
 }
 
 function formatDateTime(dateString) {

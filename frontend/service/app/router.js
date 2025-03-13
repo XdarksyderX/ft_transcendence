@@ -201,6 +201,7 @@ function getTitleForUrl(url) {
             return "Page Not Found";
     }
 }
+
 function toggleNavbarContent(show, hide) {
     show.classList.add('d-flex');
     show.classList.remove('hidden');
