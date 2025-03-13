@@ -30,6 +30,7 @@ notifications.pong.tournament_cancelled,\
 notifications.pong.tournament_decline,\
 notifications.chess.match_accepted,\
 notifications.chess.invitation_cancelled,\
+notifications.chess.match_accepted_random,\
 notifications.chess.invitation_decline &
 
 exec python3 service/manage.py runserver 0.0.0.0:5054
