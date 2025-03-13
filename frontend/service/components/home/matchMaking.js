@@ -1,33 +1,33 @@
 import { joinMatchmaking, leaveMatchmaking } from "../../app/chess.js";
 
-export async function initMatchmaking() {
-    if (await handleJoinMatchmaking()) {
+export async function initMatchmaking(variants, ranked) {
+
+    if (await handleJoinMatchmaking(variants, ranked)) {
         launchMatchmakingModal();
     }
 }
 
-async function handleJoinMatchmaking() {
-    const response = await joinMatchmaking();
-    if (response.status === "succes") {
+async function handleJoinMatchmaking(variants, ranked) {
+    const response = await joinMatchmaking(variants, ranked);
+    if (response.status === "success") {
         console.log("joining to matchmaking queue...");
         return true;
     } else {
-        console.error("Error while joining matchmaking queue:", error);
+        console.error("Error while joining matchmaking queue:", response.message);
         return false;
     }
 }
 
 async function handleLeaveMatchmaking() {
     const response = await leaveMatchmaking();
-    if (response.status === "succes") {
+    if (response.status === "success") {
         console.log("joining to matchmaking queue...");
         return true;
     } else {
-        console.error("Error while leaving matchmaking queue:", error);
+        console.error("Error while leaving matchmaking queue:", response.message);
         return false;
     }
 }
-
 
 function launchMatchmakingModal() {
     const modalHTML = `
@@ -53,8 +53,8 @@ function launchMatchmakingModal() {
     document.body.appendChild(modalElement);
 
     const modal = new bootstrap.Modal(modalElement.querySelector('#wait-match'), {
-        backdrop: 'static', // Evita cerrar la modal al hacer clic fuera
-        keyboard: false     // Evita cerrar la modal con la tecla escape
+        backdrop: 'static',
+        keyboard: false
     });
     modal.show();
 
