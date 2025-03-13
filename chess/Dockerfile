@@ -16,7 +16,7 @@ COPY service /service
 
 RUN pip install --no-cache-dir -r /service/requirements.txt
 
-RUN apt-get update && apt-get install -y postgresql postgresql-contrib redis-server
+RUN apt-get update && apt-get install -y postgresql postgresql-contrib redis-server sudo
 
 EXPOSE 5053
 # EXPOSE 6379
