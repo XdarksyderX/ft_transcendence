@@ -11,9 +11,9 @@ if [[ "$DROP_DB" == "TRUE" ]]; then
 	fi
 fi
 
-su postgres -c "psql -c \"CREATE USER $AUTHDB_USER WITH PASSWORD '$AUTHDB_PASSWORD';\""
-su postgres -c "psql -c \"CREATE DATABASE $AUTHDB_NAME OWNER $AUTHDB_USER;\""
-su postgres -c "psql -c \"ALTER USER $AUTHDB_USER CREATEDB;\""
+sudo -u postgres psql -c "CREATE USER $AUTHDB_USER WITH PASSWORD '$AUTHDB_PASSWORD';"
+sudo -u postgres psql -c "CREATE DATABASE $AUTHDB_NAME OWNER $AUTHDB_USER;"
+sudo -u postgres psql -c "ALTER USER $AUTHDB_USER CREATEDB;"
 
 python3 service/manage.py makemigrations core
 python3 service/manage.py makemigrations

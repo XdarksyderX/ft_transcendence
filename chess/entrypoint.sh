@@ -3,9 +3,9 @@
 service postgresql start
 sleep 5
 
-su postgres -c "psql -c \"CREATE USER $CHESSDB_USER WITH PASSWORD '$CHESSDB_PASSWORD';\""
-su postgres -c "psql -c \"CREATE DATABASE $CHESSDB_NAME OWNER $CHESSDB_USER;\""
-su postgres -c "psql -c \"ALTER USER $CHESSDB_USER CREATEDB;\""
+sudo -u postgres psql -c "CREATE USER $CHESSDB_USER WITH PASSWORD '$CHESSDB_PASSWORD';"
+sudo -u postgres psql -c "CREATE DATABASE $CHESSDB_NAME OWNER $CHESSDB_USER;"
+sudo -u postgres psql -c "ALTER USER $CHESSDB_USER CREATEDB;"
 
 python3 service/manage.py makemigrations core
 python3 service/manage.py migrate
