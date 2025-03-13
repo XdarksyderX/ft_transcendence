@@ -19,6 +19,7 @@ export function createMessageBubble(message) {
 	`;
 	return card;
 }
+
 /* * * * * * * * * * * * * * * * * * *  SPECIAL MESSAGE BUBBLES  * * * * * * * * * * * * * * * * * * */
 
 export async function createSpecialBubble(message) {
@@ -38,6 +39,19 @@ export async function createSpecialBubble(message) {
 	}
 
     return card;
+}
+
+function createOutdatedBubble(sender, game) {
+	const card = document.createElement('div');
+	const messageClass = sender;
+	card.classList = `message ${messageClass} outdated`;
+	card.innerHTML = `
+		<div class="d-flex">
+			<div class="me-2">[Outdated ${game} invitation]</div>
+			</div>
+			`;
+			// <small class="ms-auto text-muted timestamp">${formatTime(message.sent_at)}</small>
+	return card;
 }
 
 /* * * * * * * * * * * * * * * * * * *  QUICK GAME INVITATIONS  * * * * * * * * * * * * * * * * * * */
@@ -176,7 +190,8 @@ export function handleCancelledInvitation(token) {
 async function createTournamentInvitationCard(friendName, token) {
 
 	const {invitation} = await getTournamentInvitationDetail(token);
-	//TODO We need to handle non-existent invitations
+	if (!invitation) return createOutdatedBubble('in', 'tournament');
+
 	const tourName = invitation.tournament
 	const card = document.createElement('div');
 	card.innerHTML = `
@@ -203,44 +218,50 @@ async function createTournamentInvitationCard(friendName, token) {
 	}
 	btns.accept.addEventListener('click', () => handleAcceptTournamentInvitation(token, btns))
 	btns.decline.addEventListener('click', () => handleDeclineTournamentInvitation(token, btns))
+	toggleBtns(btns, invitation.status);
 	return card;
 }
 
-function toggleBtns(btns, show, accepted) {
+function toggleBtns(btns, status) {
+	console.log("toggling to accept");
 	Object.values(btns).forEach(btn => {
 		btn.style.display = 'none';
 	});
-	show.style.display = 'block';
-	if (accepted) {
-		btns.accepted.addEventListener('mouseenter', () => {
+	if (status === 'accepted') {
+		btns.accepted.style.display = 'block';
+/* 		btns.accepted.addEventListener('mouseenter', () => {
 			btns.accepted.innerText = 'cancel X';
 		});
 		btns.accepted.addEventListener('mouseleave', () => {
 			btns.accepted.innerText = 'Already accepted!';
-		});
+		}); */
 		//btns.accepted.addEventListener('click', () handle cancel etc etc
-	} else {
+	} else if (status === 'declined') {
+		btns.declined.style.display = 'block';
 		btns.declined.disabled = true;
+	} else {
+		//return ;
+		btns.accept.style.display = 'block';
+		btns.decline.style.display = 'block';
 	}
+	// else if cancelled
 }
 
 async function handleAcceptTournamentInvitation(token, btns) {
-	toggleBtns(btns, btns.accepted, true);
     const response = await acceptTournamentInvitation(token);
     if (response.status !== "success") {
         throwAlert(`Failed to accept tournament invitation: ${response.message}`);
     } else {
-		toggleBtns(btns, btns.accepted, true);
+		toggleBtns(btns, 'accepted');
     }
 }
 
 async function handleDeclineTournamentInvitation(token, btns) {
-	toggleBtns(btns, btns.declined, false);
     const response = await denyTournamentInvitation(token);
     if (response.status !== "success") {
         throwAlert(`Failed to decline tournament invitation: ${response.message}`);
     } else {
-		toggleBtns(btns, btns.declined, false);
+		toggleBtns(btns, 'declined', false);
 	}
 }
 
