@@ -16,13 +16,16 @@ let notiSocket = null;
 let reconnectAttempts = 0;
 const MAX_RECONNECT_DELAY = 30000; // Máximo 30s de espera entre reconexiones
 
+
 const notificationHandlers = {
+
     // Friends changes
     friend_added: (data) => handleFriendChanges('friend_added', data, 1),
     friend_removed: (data) => handleFriendChanges('friend_removed', data, -1),
     avatar_changed: (data) => handleFriendChanges('avatar_changed', data),
 	friend_status_updated: (data) => handleFriendChanges('friend_status_updated', data),
     deleted_account: (data) => handleFriendChanges('deleted_account', data, -1),
+    username_changed: (data) => handleFriendChanges('friend_username_changed', data),
 
     // Friend requests
     request_sent: () => handleFriendRequestChanges('request_sent'),
@@ -119,9 +122,9 @@ function handleFriendChanges(type, data, add = 0) {
     const path = window.location.pathname;
     console.log("on handleFriendChanges", path, type);
     if (path === '/friends') {
-        refreshFriendsFriendlist(data.user, add); // aquí debo mandar el username del amigo
+        refreshFriendsFriendlist(data.old_username, add); // aquí debo mandar el username del amigo
 		if (add === 0) {
-			refreshFriendData(data.user);
+			refreshFriendData(data.old_username);
 		}
     } if (path === '/home' && type === 'friend_status_updated') {
         refreshFriendStatusOnHome(data.user, data.is_online);

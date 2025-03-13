@@ -268,6 +268,7 @@ class GameConsumer(AsyncWebsocketConsumer):
                     if "player2" in game["players"]:
                         new_score = game["players"]["player2"]["score"] + 1
                         game["players"]["player2"]["score"] = new_score
+                        await update_score_in_db(self.game_obj, "player2", new_score)
                         # Reset ball using a random serve angle
                         start_rad_angle = random.uniform(-math.pi/4, math.pi/4)
                         ball.update({
@@ -316,6 +317,7 @@ class GameConsumer(AsyncWebsocketConsumer):
                     if "player1" in game["players"]:
                         new_score = game["players"]["player1"]["score"] + 1
                         game["players"]["player1"]["score"] = new_score
+                        await update_score_in_db(self.game_obj, "player1", new_score)
                         start_rad_angle = random.uniform(-math.pi/4, math.pi/4)
                         ball.update({
                             "x": board_width / 2 - ball_side/2,

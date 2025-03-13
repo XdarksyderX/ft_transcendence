@@ -1,4 +1,4 @@
-//import { getPongMatchHistory } from "../../app/pong.js";
+import { getPongMatchHistory } from "../../app/pong.js";
 //import { getChessMatchHistory } from "../../app/chess.js";
 
 async function getChessMatchHistory() {
@@ -45,71 +45,71 @@ async function getChessMatchHistory() {
         ]
     };
 }
-async function getPongMatchHistory() {
-    return {
-        "status": "success",
-        "message": "Match history retrieved successfully",
-        "matches": [
-            {
-                "id": 1,
-                "player1": {
-                    "id": 1,
-                    "username": "player1"
-                },
-                "player2": {
-                    "id": 2,
-                    "username": "player2"
-                },
-                "status": "finished",
-                "winner": "player1",
-                "created_at": "2025-02-01T12:00:00Z",
-                "updated_at": "2025-02-01T14:00:00Z",
-                "score": {
-                    "player1": 21,
-                    "player2": 15
-                }
-            },
-            {
-                "id": 2,
-                "player1": {
-                    "id": 3,
-                    "username": "player3"
-                },
-                "player2": {
-                    "id": 1,
-                    "username": "player1"
-                },
-                "status": "finished",
-                "winner": "player3",
-                "created_at": "2025-02-02T12:00:00Z",
-                "updated_at": "2025-02-02T14:00:00Z",
-                "score": {
-                    "player1": 21,
-                    "player2": 18
-                }
-            },
-            {
-                "id": 2,
-                "player1": {
-                    "id": 3,
-                    "username": "player3"
-                },
-                "player2": {
-                    "id": 1,
-                    "username": "player1"
-                },
-                "status": "finished",
-                "winner": "",
-                "created_at": "2025-02-02T12:00:00Z",
-                "updated_at": "2025-02-02T14:00:00Z",
-                "score": {
-                    "player1": 15,
-                    "player2": 15
-                }
-            }
-        ]
-    };
-}
+//async function getPongMatchHistory() {
+//    return {
+//        "status": "success",
+//        "message": "Match history retrieved successfully",
+//        "matches": [
+//            {
+//                "id": 1,
+//                "player1": {
+//                    "id": 1,
+//                    "username": "player1"
+//                },
+//                "player2": {
+//                    "id": 2,
+//                    "username": "player2"
+//                },
+//                "status": "finished",
+//                "winner": "player1",
+//                "created_at": "2025-02-01T12:00:00Z",
+//                "updated_at": "2025-02-01T14:00:00Z",
+//                "score": {
+//                    "player1": 21,
+//                    "player2": 15
+//                }
+//            },
+//            {
+//                "id": 2,
+//                "player1": {
+//                    "id": 3,
+//                    "username": "player3"
+//                },
+//                "player2": {
+//                    "id": 1,
+//                    "username": "player1"
+//                },
+//                "status": "finished",
+//                "winner": "player3",
+//                "created_at": "2025-02-02T12:00:00Z",
+//                "updated_at": "2025-02-02T14:00:00Z",
+//                "score": {
+//                    "player1": 21,
+//                    "player2": 18
+//                }
+//            },
+//            {
+//                "id": 2,
+//                "player1": {
+//                    "id": 3,
+//                    "username": "player3"
+//                },
+//                "player2": {
+//                    "id": 1,
+//                    "username": "player1"
+//                },
+//                "status": "finished",
+//                "winner": "",
+//                "created_at": "2025-02-02T12:00:00Z",
+//                "updated_at": "2025-02-02T14:00:00Z",
+//                "score": {
+//                    "player1": 15,
+//                    "player2": 15
+//                }
+//            }
+//        ]
+//    };
+//}
 
 export function renderMatchHistory() {
 	renderPongMatchHistory();
@@ -153,8 +153,8 @@ function formatDateTime(dateString) {
 }
 
 function createPongMatchCard(match) {
-  const isPlayer1Winner = match.winner === match.player1.username;
-  const isPlayer2Winner = match.winner === match.player2.username;
+  const isPlayer1Winner = match.winner === match.player1;
+  const isPlayer2Winner = match.winner === match.player2;
   const date = formatDateTime(match.created_at);
 
   const card = document.createElement('div');
@@ -164,16 +164,16 @@ function createPongMatchCard(match) {
         <small class="text-center mb-2 small ctm-text-light">${date}</small>
         <div class="row justify-content-center align-items-center">
           <div class="col-5 text-center">
-            <p class="ctm-text-title score ${isPlayer1Winner ? 'winner' : ''}">${match.score.player1}</p>
+            <p class="ctm-text-title score ${isPlayer1Winner ? 'winner' : ''}">${match.score_player1}</p>
             <div class="ctm-text-light">
-              ${match.player1.username} ${isPlayer1Winner ? "👑" : ""}
+              ${match.player1} ${isPlayer1Winner ? "👑" : ""}
             </div>
           </div>
           <div class="col-2">vs</div>
           <div class="col-5 text-center">
-            <p class="ctm-text-title score">${match.score.player2}</p>
+            <p class="ctm-text-title score">${match.score_player2}</p>
             <div class="ctm-text-light">
-              ${match.player2.username} ${isPlayer2Winner ? "👑" : ""}
+              ${match.player2} ${isPlayer2Winner ? "👑" : ""}
             </div>
           </div>
         </div>

@@ -53,8 +53,16 @@ def handle_username_changed(event):
     try:
         event_data = event["data"]["attributes"]
         user = User.objects.get(id=event_data["user_id"])
+        old_username = user.username
         user.username = event_data["username"]
         user.save()
+        event = {
+            "event_type": "username_changed",
+            "old_username": old_username,
+            "new_username": user.username
+        }
+        for friend in user.friends.all():
+            send_event(friend.id, event)
         mark_event_as_processed(event_id, event["event_type"])
         return f"Username updated to {event_data['username']} in notifications service."
     except User.DoesNotExist:
