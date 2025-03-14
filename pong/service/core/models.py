@@ -5,6 +5,7 @@ import uuid
 import random
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from core.utils.event_domain import publish_event
 
 class User(AbstractUser):
     username = models.CharField(max_length=150, unique=True)
@@ -124,6 +125,14 @@ class PongGame(models.Model):
                         player2_position = 1
 
             if self.is_tournament:
+                event = {
+                    'tournament_token': self.tournament.token,
+                    'player1': self.player1.username,
+                    'player2': self.player2.username,
+                    'winner': self.winner.username,
+                    'players': tournament.players.values_list('username', flat=True),
+                }
+                publish_event('pong', 'pong.tournament_match_finished', event)
                 self.tournament.create_next_round_matches()
                 
             # Update statistics only for quick games or tournament finals
@@ -287,6 +296,10 @@ class Tournament(models.Model):
     seeding = ArrayField(models.BigIntegerField(), null=True, blank=True) # avoids integer overflow
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def is_finished(self):
+        return self.is_closed and self.matches.filter(status='finished').count() == self.max_players - 1
 
     @property
     def invitations(self):
