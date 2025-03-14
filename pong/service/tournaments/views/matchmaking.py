@@ -50,7 +50,7 @@ class TournamentJoinQueue(APIView):
 		existing_queue = TournamentQueue.objects.filter(
 			tournament=tournament,
 			player=request.user,
-			game_key=game_key
+			match__pong_game__game_key=game_key
 		).first()
 
 		if existing_queue:
@@ -64,13 +64,13 @@ class TournamentJoinQueue(APIView):
 		opponent_queue = TournamentQueue.objects.filter(
 			tournament=tournament,
 			player=opponent,
-			game_key=game_key
+			match__pong_game__game_key=game_key
 		).first()
 
 		user_queue = TournamentQueue.objects.create(
 			tournament=tournament,
 			player=request.user,
-			game_key=game_key,
+			match=pending_match,  # the TournamentMatch that has the pong_game with this game_key
 			joined_at=timezone.now()
 		)
 
