@@ -523,10 +523,16 @@ class Tournament(models.Model):
             self.save()
 
     def get_player_pending_match(self, player):
-        return self.matches.filter(
+        match = self.matches.filter(
             pong_game__status='pending',
             pong_game__player1=player
         ).first()
+        if not match:
+            match = self.matches.filter(
+                pong_game__status='pending',
+                pong_game__player2=player
+            ).first()
+        return match
 
     def __str__(self):
         return f"Tournament {self.name} (Players: {self.max_players})"
