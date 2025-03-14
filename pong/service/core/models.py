@@ -299,7 +299,8 @@ class Tournament(models.Model):
 
     @property
     def is_finished(self):
-        return self.is_closed and self.matches.filter(status='finished').count() == self.max_players - 1
+        return self.closed and self.matches.filter(pong_game__status='finished').count() == self.max_players - 1
+
 
     @property
     def invitations(self):

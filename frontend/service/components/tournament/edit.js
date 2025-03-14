@@ -74,6 +74,7 @@ function showTournamentStartedUI(tournament) {
       <button id="join-match-btn" class="btn ctm-btn">Join Match</button>
     `;
     // Attach the click event to the join match button.
+    console.log("TEST 134");
     const joinBtn = document.getElementById("join-match-btn");
     joinBtn.addEventListener("click", async (event) => {
       event.preventDefault();

@@ -37,7 +37,7 @@ async function handleGetTournamentList() {
 // Filters the tournaments to get the tokens of ongoing tournaments
 async function getOngoingTournamentsTokens(tournaments) {
   return tournaments
-    .filter(tournament => tournament.is_closed /* && !tournament.is_finished */)
+    .filter(tournament => tournament.is_closed) /* && !tournament.is_finished */
     .map(tournament => tournament.token);
 }
 
@@ -201,6 +201,7 @@ function generateMatch(game) {
 
 // Triggers the modal to play a match
 function triggerPlayMatchModal(match) {
+  console.log("Reached triggerPlayMatchModal");
   const modalEl = document.getElementById('start-match-modal');
   const modal = new bootstrap.Modal(modalEl);
   modal.show();
@@ -216,8 +217,9 @@ function triggerPlayMatchModal(match) {
       // match.token is the tournament token we attached earlier
       const response = await joinTournamentQueue(match.token);
       if (response.status === "success") {
+        console.log("TOURNAMENT GAME START REACHED");
         // If matched, redirect to the match using the returned game_key
-        window.location.href = `/match/${response.game_key}`;
+        window.location.href = `/pong`; // NEED to add logic here for the correct game to start (maybe pass response.game_key somehow, not sure if necessary) 
       } else {
         throw new Error(response.message);
       }
