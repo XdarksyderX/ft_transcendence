@@ -32,12 +32,6 @@ class TournamentJoinQueue(APIView):
 		pending_match = tournament.get_player_pending_match(request.user)
 
 		if not pending_match:
-			pending_match = tournament.matches.filter(
-				pong_game__status='pending',
-				pong_game__player2=request.user
-			).first()
-
-		if not pending_match:
 			return Response({
 				"message": "No pending matches found for this user."
 			}, status=status.HTTP_400_BAD_REQUEST)
@@ -50,7 +44,7 @@ class TournamentJoinQueue(APIView):
 		existing_queue = TournamentQueue.objects.filter(
 			tournament=tournament,
 			player=request.user,
-			match__pong_game__game_key=game_key
+			match=pending_match
 		).first()
 
 		if existing_queue:
@@ -64,13 +58,12 @@ class TournamentJoinQueue(APIView):
 		opponent_queue = TournamentQueue.objects.filter(
 			tournament=tournament,
 			player=opponent,
-			match__pong_game__game_key=game_key
 		).first()
 
 		user_queue = TournamentQueue.objects.create(
 			tournament=tournament,
 			player=request.user,
-			match=pending_match,  # the TournamentMatch that has the pong_game with this game_key
+			match=pending_match,
 			joined_at=timezone.now()
 		)
 
@@ -82,6 +75,10 @@ class TournamentJoinQueue(APIView):
 				'player1': pong_game.player1.username,
 				'player2': pong_game.player2.username
 			})
+			TournamentQueue.objects.filter(
+				tournament=tournament,
+				match=pending_match
+			).delete()
 			return Response({
 				"status": "success",
 				"message": "Both players are ready. Game is starting.",
