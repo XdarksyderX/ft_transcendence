@@ -27,6 +27,7 @@ let currentMusic = null;
 let chessSocket = null;
 let attemptedReconnection = null;
 let whoIsWho = {};
+let inTurn;
 
 globalState.flat().forEach((square) => {
     keySquareMapper[square.id] = square;
@@ -149,6 +150,10 @@ function handleGetChessReceivedMessage(event) {
         if (data.status === "game_over") {
             winGame(data.winner);
         }
+        if (data?.current_player) {
+            inTurn = data.current_player;
+            console.log('updating turn to: ', inTurn);
+        }
         // if (data.status == "game_starting") {
         //     const map = convertToPiecePositions(data.board);
         //     console.log("map: ", map);
@@ -180,8 +185,7 @@ function initializeChessSocket(game_key) {
     };
 
     chessSocket.onclose = async (event) => {
-        console.log("pos sí, me he cerrao, Y QUË");
-       // setTimeout(initializeChessSocket(game_key), 5000);
+        console.log("Chess WebSocket closed");
     }
 
 }
@@ -193,6 +197,7 @@ function waitForBoardStatus() {
             if (data.status === "game_starting") {
                 chessSocket.removeEventListener('message', onMessage);
                 resolve(data.board);
+                //inTurn = data.current_player;
             }
         }
         chessSocket.addEventListener('message', onMessage);
@@ -201,8 +206,6 @@ function waitForBoardStatus() {
 
 
 function getUserColor(username) {
-    //console.log("getcolor")
-    //console.log(whoIsWho)
     return whoIsWho[username];
 }
 
@@ -354,4 +357,4 @@ String.prototype.replaceAt = function (index, replacement) {
     return (this.substring(0, index) + replacement + this.substring(index + replacement.length));
 };
 
-export { globalState, keySquareMapper, highlightColor, imgStyle, stopBackgroundMusic, toggleBackgroundMusic, getUserColor , chessSocket};
+export { globalState, keySquareMapper, highlightColor, imgStyle, stopBackgroundMusic, toggleBackgroundMusic, getUserColor , chessSocket, inTurn};
