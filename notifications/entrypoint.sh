@@ -22,6 +22,7 @@ notifications.social.request_cancelled,\
 notifications.social.request_sent,\
 notifications.auth.user_registered,\
 notifications.auth.user_deleted,\
+notifications.auth.username_changed,\
 notifications.pong.match_accepted,\
 notifications.pong.invitation_cancelled,\
 notifications.pong.invitation_decline,\
