@@ -20,6 +20,7 @@ app.conf.task_queues = (
     Queue("notifications.social.request_cancelled", Exchange("social"), routing_key="social.request_cancelled"),
     Queue("notifications.social.request_sent", Exchange("social"), routing_key="social.request_sent"),
     Queue('notifications.auth.user_registered', Exchange('auth'), routing_key='auth.user_registered'),
+	    Queue('notifications.auth.username_changed', Exchange('auth'), routing_key='auth.username_changed'),
     Queue('notifications.auth.user_deleted', Exchange('auth'), routing_key='auth.user_deleted'),
     Queue('notifications.pong.match_invitation', Exchange('pong'), routing_key='pong.match_invitation'),
     Queue('notifications.pong.match_accepted', Exchange('pong'), routing_key='pong.match_accepted'),

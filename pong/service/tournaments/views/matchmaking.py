@@ -17,6 +17,18 @@ class TournamentJoinQueue(APIView):
 	def post(self, request, tournament_token):
 		tournament = get_object_or_404(Tournament, token=tournament_token)
 
+		if TournamentQueue.objects.filter(tournament=tournament, player=request.user).exists():
+			return Response({
+				"status": "error",
+				"message": "You are already in queue for this tournament."
+			}, status=status.HTTP_400_BAD_REQUEST)
+
+		if TournamentQueue.objects.filter(player=request.user).exists():
+			return Response({
+				"status": "error",
+				"message": "You are already in queue for another tournament."
+			}, status=status.HTTP_400_BAD_REQUEST)
+
 		if not tournament.closed:
 			return Response({
 				"status": "error",
