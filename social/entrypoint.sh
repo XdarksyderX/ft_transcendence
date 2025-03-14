@@ -24,7 +24,7 @@ python3 service/manage.py migrate
 export PYTHONPATH=$(pwd)/service:$PYTHONPATH
 export DJANGO_SETTINGS_MODULE=service.config.settings
 
-celery -A service.config worker --loglevel=info --queues=social.user_registered,social.user_deleted,social.username_changed,social.pong.match_invitation,social.pong.tournament_invitation,events.user_connected,events.user_disconnected,chess.match_invitation&
+celery -A service.config worker --loglevel=info --queues=social.user_registered,social.user_deleted,social.username_changed,social.pong.match_invitation,social.pong.tournament_invitation,events.user_connected,events.user_disconnected,SOCIAL.match_invitation&
 celery -A service.config flower --port=5555 &
 
 exec python service/manage.py runserver 0.0.0.0:5051

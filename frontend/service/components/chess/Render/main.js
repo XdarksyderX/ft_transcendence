@@ -109,7 +109,7 @@ const piecePositions = {
  * representing the piece to the square's HTML element.
  * @param {*} data a 2D array representing the chessboard, where each element is a row of squares.
  */
-function initGameRender(data)
+function initGameRender(data, piecePositiont)
 {
   globalPiece.black_pawns = [];
   globalPiece.white_pawns = [];
@@ -119,17 +119,18 @@ function initGameRender(data)
 
   document.getElementById('root').innerHTML = '';
 
+  console.log('on mierdaSecaLoop, mierdaseca: ', piecePositiont);
   data.forEach(element => {
     const rowEl = document.createElement("div");
     element.forEach((square) => {
       const squareDiv = document.createElement("div");
       squareDiv.id = square.id;
       squareDiv.classList.add(square.color, "square");
-
+      
       if (chessVariantTmp === "horde") {
         renderHordePieces(square, globalPiece, assignSpecificPiece);
       } else {
-        if ((square.id[1] >= 3 && square.id[1] <= 6) && square.piece)
+/*         if ((square.id[1] >= 3 && square.id[1] <= 6) && square.piece)
           square.piece = null;
         if (square.id[1] == 7) {
           square.piece = piece.blackPawn(square.id);
@@ -140,25 +141,54 @@ function initGameRender(data)
         } else if (piecePositions[square.id]) {
           square.piece = piecePositions[square.id](square.id);
           assignSpecificPiece(square);
+        } */
+         // square.piece = null;
+          //console.log(square)
+          //square.piece = piecePositiont[square.id](square.id);
+          //console.log(piecePositiont[square.id](square.id), square.id)
+          assignSpecificPiece(square, piecePositiont);
         }
-      }
-      rowEl.appendChild(squareDiv);
+        rowEl.appendChild(squareDiv);
+      });
+      rowEl.classList.add("squareRow");
+      document.getElementById('root').appendChild(rowEl);
     });
-    rowEl.classList.add("squareRow");
-    document.getElementById('root').appendChild(rowEl);
-  });
-  pieceRender(data);
-}
-
-function assignSpecificPiece(square) {
-  const color = square.id[1] == 8 || square.id[1] == 7 ? "black" : "white";
-  const fullName = piecePositions[square.id].name;
-  const pieceType = fullName.replace(color, '').toLowerCase();
-  
-  if (pieceType === 'rook' || pieceType === 'knight' || pieceType === 'bishop')
-    assignRepeatedPiece(square, color, pieceType);
-  else
-    globalPiece[`${color}_${pieceType}`] = square.piece;
+    pieceRender(data);
+    console.log("globalPiece: ", globalPiece)
+  }
+  //esta funcion hay que cambiarla para que 
+  function assignSpecificPiece(square, piecePositiont) {
+    //console.log(square);
+    // Celda vacía
+    if (!piecePositiont[square.id]) {
+      square.piece = null;
+      return;
+    }
+    //console.log(globalPiece);
+    const fullName = piecePositiont[square.id].name;
+    //console.log(fullName);
+    const color = fullName.startsWith("black") ? "black" : "white";
+    const pieceType = fullName.replace(color, '').toLowerCase();
+    //console.log(color, pieceType)
+    
+    if (pieceType === 'rook' || pieceType === 'knight' || pieceType === 'bishop'){
+      square.piece = piecePositiont[square.id](square.id)
+      assignRepeatedPiece(square, color, pieceType);
+    }
+    else if (pieceType == 'pawn') {
+      if (color == "black"){
+        square.piece = piece.blackPawn(square.id);
+        globalPiece.black_pawns.push(square.piece);
+      }
+      else {
+        square.piece = piece.whitePawn(square.id);
+        globalPiece.white_pawns.push(square.piece);
+      }
+    }
+    else if (pieceType == 'king' || pieceType == 'queen'){
+      square.piece = piecePositiont[square.id](square.id)
+      globalPiece[`${color}_${pieceType}`] = square.piece;
+    }
 }
 
 function assignRepeatedPiece(square, color, pieceType) {
@@ -212,4 +242,23 @@ function circleHighlightRender(highlightSquareIds, keySquareMapper) {
   });
 }
 
-export { initGameRender, renderHighlight, clearHighlight, selfHighlight, globalStateRender, globalPiece, circleHighlightRender, piecePositions };
+function convertToPiecePositions(boardMap) {
+  const piecePositionsTmp = {};
+
+
+  Object.keys(boardMap).forEach(key => {
+    const square = boardMap[key];
+    if (!square) {
+      piecePositionsTmp[key] = null;
+    } else {
+      const pieceType = square.type.toLowerCase();
+      const pieceColor = square.color === "white" ? "white" : "black";
+      const pieceKey = `${pieceColor}${pieceType.charAt(0).toUpperCase() + pieceType.slice(1)}`;
+      piecePositionsTmp[key] = piece[pieceKey];
+    }
+  });
+
+  return piecePositionsTmp;
+}
+
+export { initGameRender, renderHighlight, clearHighlight, selfHighlight, globalStateRender, globalPiece, circleHighlightRender, piecePositions, convertToPiecePositions };

@@ -105,15 +105,12 @@ function winGame(winBool) {
        </div>
        
        `;
-      //  <img src="https://media.tenor.com/3ruuMQDaetoAAAAj/rolling-rainbow-cat.gif">
 
   const homeButton = document.createElement("button");
   homeButton.textContent = "Got it!";
   homeButton.classList.add("btn");
   homeButton.classList.add("ctm-btn-secondary");
-  // homeButton.classList.add("mt-5");
   homeButton.onclick = () => {
-    //aqui guardariamos la victoria y/o derrota en el historial
     navigateTo('/home');
     modal.hide();
   }
@@ -132,7 +129,6 @@ function winGame(winBool) {
 function resingOption() {
   const resignButton = document.getElementById("resign-button");
   resignButton.onclick = () => {
-    // Aquí guardaríamos la victoria y/o derrota en el historial
     const data = { action: "resign" };
     console.log("Attempting to send data through WebSocket:", data);
 
@@ -146,8 +142,6 @@ function resingOption() {
     } catch (e) {
       console.error("Error sending data through WebSocket:", e);
     }
-
-    navigateTo('/home');
   }
 }
 
