@@ -7,6 +7,7 @@ import { removeSurroundingPieces } from "../Variants/atomic.js";
 import { kirbyTransformation } from "../Variants/kirby.js";
 import { checkWinForBlackHorde, whitePawnHordeRenderMoves } from "../Variants/horde.js"
 import { getUsername } from "../../../app/auth.js";
+import { inTurn } from "../index.js";
 
 //highlighted or not => state
 let highlight_state = false;
@@ -16,7 +17,7 @@ let selfHighlightState = null;
 
 //in move state or not
 let moveState = null;
-let inTurn = "white";
+//let inTurn = "white";
 let whoInCheck = null;
 let winBool = false;
 let captureNotation = false;
@@ -26,7 +27,7 @@ const chessVariantTmp = sessionStorage.getItem('chessVariant'); //borrar -> solu
 const moveSound = new Audio('components/chess/Assets/music/sound2.mp3');
 
 function changeTurn() {
-  inTurn = inTurn === "white" ? "black" : "white";
+  //inTurn = inTurn === "white" ? "black" : "white";
 
   const pawns = inTurn === "white" ? globalPiece.white_pawns : globalPiece.black_pawns;
   pawns.forEach(pawn => {
@@ -616,4 +617,4 @@ function clearYellowHighlight() {
   selfHighlightState = null;
 }
 
-export { GlobalEvent, captureNotation, clearYellowHighlight, globalPieceUpdate, callbackPiece, moveElement};
+export { GlobalEvent, captureNotation, clearYellowHighlight, globalPieceUpdate, callbackPiece, moveElement };
