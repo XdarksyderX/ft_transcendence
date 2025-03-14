@@ -80,6 +80,7 @@ function getTournamentBracket(tournament) {
   }
 
   return {
+    token: tournament.token,
     name: tournament.name,
     bracket: { rounds }
   };
@@ -128,14 +129,14 @@ function generateBracket(tournament) {
   const bracket = document.createElement('div');
   bracket.classList.add('bracket', 'ctm-text-light');
   tournament.bracket.rounds.forEach(round => {
-    const roundElement = generateRound(round);
+    const roundElement = generateRound(round, tournament.token);
     bracket.appendChild(roundElement);
   });
   return bracket;
 }
 
 // Generates the HTML element for a round in the tournament
-function generateRound(round) {
+function generateRound(round, token) {
   const roundElement = document.createElement('div');
   const openClass = round.status === 'open' ? 'open' : '';
   const roundClass = round.round === 1 ? 'justify-content-between' : '';
@@ -143,7 +144,7 @@ function generateRound(round) {
   roundElement.className = `round ${openClass} d-flex flex-column`;
   console.log("round: ", round);
 
-  const matches = generateMatches(round.games);
+  const matches = generateMatches(round.games, token);
   roundElement.innerHTML = `
     <h4 class="mt-2 mb-4 position-absolute top-0">Round ${round.round}</h4>
     <div class="matches-container align-items-center ms-0 d-flex flex-column ${roundClass}"></div>
@@ -163,8 +164,12 @@ function generateRound(round) {
 }
 
 // Generates the HTML elements for the matches in a round
-function generateMatches(games) {
-  return games.map(game => generateMatch(game));
+function generateMatches(games, token) {
+  return games.map(game => {
+    // Attach the token to each match object so we can reference it later
+    game.token = token;
+    return generateMatch(game);
+  });
 }
 
 // Generates the HTML element for a match in a round
@@ -196,6 +201,28 @@ function generateMatch(game) {
 
 // Triggers the modal to play a match
 function triggerPlayMatchModal(match) {
-  const modal = new bootstrap.Modal(document.getElementById('start-match-modal'));
+  const modalEl = document.getElementById('start-match-modal');
+  const modal = new bootstrap.Modal(modalEl);
   modal.show();
+
+  // We assume the "Play" button is the second .btn in the modal-footer
+  const modalFooterBtns = modalEl.querySelectorAll('.modal-footer .btn.ctm-btn');
+  const playButton = modalFooterBtns[1]; // The "Play" button
+
+  // Attach click event
+  playButton.addEventListener('click', async (event) => {
+    event.preventDefault();
+    try {
+      // match.token is the tournament token we attached earlier
+      const response = await joinTournamentQueue(match.token);
+      if (response.status === "success") {
+        // If matched, redirect to the match using the returned game_key
+        window.location.href = `/match/${response.game_key}`;
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error) {
+      throwAlert(`Error joining match: ${error.message}`);
+    }
+  }, { once: true });
 }
