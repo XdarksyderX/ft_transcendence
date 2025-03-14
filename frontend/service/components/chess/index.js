@@ -88,7 +88,6 @@ export async function initializeChessEvents(key) {
     const boardState =     await waitForBoardStatus();
     const piecePositions = convertToPiecePositions(boardState);
 
-    console.log("hola eli qué tal")
     console.log(piecePositions)
     initGameRender(globalState, piecePositions);
     GlobalEvent();

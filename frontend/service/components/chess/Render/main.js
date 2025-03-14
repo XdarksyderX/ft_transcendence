@@ -119,6 +119,7 @@ function initGameRender(data, piecePositiont)
 
   document.getElementById('root').innerHTML = '';
 
+  console.log('on mierdaSecaLoop, mierdaseca: ', piecePositiont);
   data.forEach(element => {
     const rowEl = document.createElement("div");
     element.forEach((square) => {
@@ -126,7 +127,6 @@ function initGameRender(data, piecePositiont)
       squareDiv.id = square.id;
       squareDiv.classList.add(square.color, "square");
       
-      console.log('on mierdaSecaLoop, mierdaseca: ', piecePositiont);
       if (chessVariantTmp === "horde") {
         renderHordePieces(square, globalPiece, assignSpecificPiece);
       } else {
@@ -142,27 +142,53 @@ function initGameRender(data, piecePositiont)
           square.piece = piecePositions[square.id](square.id);
           assignSpecificPiece(square);
         } */
-         square.piece = piecePositiont[square.id](square.id);
-         assignSpecificPiece(square);
-      }
-      rowEl.appendChild(squareDiv);
+         // square.piece = null;
+          //console.log(square)
+          //square.piece = piecePositiont[square.id](square.id);
+          //console.log(piecePositiont[square.id](square.id), square.id)
+          assignSpecificPiece(square, piecePositiont);
+        }
+        rowEl.appendChild(squareDiv);
+      });
+      rowEl.classList.add("squareRow");
+      document.getElementById('root').appendChild(rowEl);
     });
-    rowEl.classList.add("squareRow");
-    document.getElementById('root').appendChild(rowEl);
-  });
-  pieceRender(data);
-  console.log("globalPiece: ", globalPiece)
-}
-
-function assignSpecificPiece(square) {
-  const color = square.id[1] == 8 || square.id[1] == 7 ? "black" : "white";
-  const fullName = piecePositions[square.id].name;
-  const pieceType = fullName.replace(color, '').toLowerCase();
-  
-  if (pieceType === 'rook' || pieceType === 'knight' || pieceType === 'bishop')
-    assignRepeatedPiece(square, color, pieceType);
-  else
-    globalPiece[`${color}_${pieceType}`] = square.piece;
+    pieceRender(data);
+    console.log("globalPiece: ", globalPiece)
+  }
+  //esta funcion hay que cambiarla para que 
+  function assignSpecificPiece(square, piecePositiont) {
+    //console.log(square);
+    // Celda vacía
+    if (!piecePositiont[square.id]) {
+      square.piece = null;
+      return;
+    }
+    //console.log(globalPiece);
+    const fullName = piecePositiont[square.id].name;
+    //console.log(fullName);
+    const color = fullName.startsWith("black") ? "black" : "white";
+    const pieceType = fullName.replace(color, '').toLowerCase();
+    //console.log(color, pieceType)
+    
+    if (pieceType === 'rook' || pieceType === 'knight' || pieceType === 'bishop'){
+      square.piece = piecePositiont[square.id](square.id)
+      assignRepeatedPiece(square, color, pieceType);
+    }
+    else if (pieceType == 'pawn') {
+      if (color == "black"){
+        square.piece = piece.blackPawn(square.id);
+        globalPiece.black_pawns.push(square.piece);
+      }
+      else {
+        square.piece = piece.whitePawn(square.id);
+        globalPiece.white_pawns.push(square.piece);
+      }
+    }
+    else if (pieceType == 'king' || pieceType == 'queen'){
+      square.piece = piecePositiont[square.id](square.id)
+      globalPiece[`${color}_${pieceType}`] = square.piece;
+    }
 }
 
 function assignRepeatedPiece(square, color, pieceType) {
