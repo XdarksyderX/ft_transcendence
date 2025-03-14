@@ -1,5 +1,5 @@
 import { throwAlert } from "../../app/render.js";
-import { getEditableTournaments,  getTournamentDetail, getTournamentInvitationDetail, startTournament } from "../../app/pong.js";
+import { getEditableTournaments,  getTournamentDetail, getTournamentInvitationDetail, startTournament, joinTournamentQueue, leaveTournamentQueue} from "../../app/pong.js";
 import { handleGetFriendList } from "../friends/app.js";
 import { handleSendTournamentInvitation, handleDeleteTournament } from "./new.js";
 
@@ -65,13 +65,32 @@ async function initEditTournamentSection(token, refresh = false) {
 }
 
 function showTournamentStartedUI(tournament) {
-  // update the existing tournament-status-container to display a "Tournament Started" message.
+  // Update the existing tournament-status-container to display a "Tournament Started" message and a Join Match button.
   const statusContainer = document.getElementById("tournament-status-container");
   if (statusContainer) {
     statusContainer.innerHTML = `
       <h4 class="ctm-text-title text-center">Tournament Started!</h4>
-      <p class="text-center">Tournament Name: TESTING ${tournament.name}</p>
+      <p class="text-center">Tournament Name: ${tournament.name}</p>
+      <button id="join-match-btn" class="btn ctm-btn">Join Match</button>
     `;
+    // Attach the click event to the join match button.
+    const joinBtn = document.getElementById("join-match-btn");
+    joinBtn.addEventListener("click", async (event) => {
+      event.preventDefault();
+      try {
+        // Call the new join queue endpoint.
+        const response = await joinTournamentQueue(tournament.token);
+        if (response.status === "success") {
+          // You can then redirect the user to the match view or update the UI accordingly.
+          // For example, if response contains a game_key, you might do:
+          window.location.href = `/match/${response.game_key}`;
+        } else {
+          throw new Error(response.message);
+        }
+      } catch (error) {
+        throwAlert(`Error joining match: ${error.message}`);
+      }
+    });
   } else {
     throwAlert("Tournament has started!");
   }

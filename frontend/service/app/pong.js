@@ -74,11 +74,11 @@ export async function getTournamentGames(tournamentId) {
 }
 
 export async function joinTournamentQueue(tournamentToken) {
-  return await sendRequestPong('POST', `tournaments/${tournamentToken}/join-queue/`);
+  return await sendRequestPong('POST', `tournaments/${tournamentToken}/queue/join/`);
 }
 
 export async function leaveTournamentQueue(tournamentToken) {
-  return await sendRequestPong('POST', `tournaments/${tournamentToken}/leave-queue/`);
+  return await sendRequestPong('POST', `tournaments/${tournamentToken}/queue/leave/`);
 }
 
 // ==================== Tournament Invitation Endpoints ====================
