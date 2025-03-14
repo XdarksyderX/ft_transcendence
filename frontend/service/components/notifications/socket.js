@@ -34,16 +34,22 @@ const notificationHandlers = {
 
     // Pong Match Events
     match_invitation: () => console.log("[WebSocket] You have a match invitation"),
-    tournament_invitation: () => console.log("[WebSocket] You have a tournament invitation"),
-    tournament_start: () => console.log("[WebSocket] Tournament started"),
     tournament_end: () => console.log("[WebSocket] Tournament ended"),
     pong_match_accepted: () => handleAcceptedInvitation('pong'),
     pong_match_decline: () => handleDeclinedInvitation(),
     pong_match_cancelled: (data) => handleCancelledInvitation(data.invitation_token),
+
+    // Pong Tournament Events
+    tournament_invitation: () => console.log("[WebSocket] You have a tournament invitation"),
+    tournament_start: () => console.log("[WebSocket] Tournament started"),
+    //pong_tournament_accepted: () => handleTournamentStatusChanges(), // this doesnt exists yet
+
+    // Chess Match Events
     chess_match_accepted: (data) => handleAcceptedInvitation('chess', data.game_key),
     chess_match_decline: () => handleDeclinedInvitation(),
     chess_match_cancelled: (data) => handleCancelledInvitation(data.invitation_token),
-    chess_match_accepted_random: (data) => handleJoinMatchmakingMatch(data.game_key)
+    chess_match_accepted_random: (data) => handleJoinMatchmakingMatch(data.game_key),
+
 };
  
 

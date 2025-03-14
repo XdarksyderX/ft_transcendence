@@ -23,6 +23,12 @@
 	border-radius: 5px;
 }
 
+.round.open {
+	background-color: var(--transparent-dark);
+	border-radius: 10px;
+	border: 1px solid var(--light);
+}
+
 .match {
 	display: flex;
 	flex-direction: column;
