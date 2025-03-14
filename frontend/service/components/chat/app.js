@@ -311,9 +311,9 @@ export async function renderChat(elements) {
 				if (messageElement instanceof Node) {
 					elements.chatMessages.appendChild(messageElement);
 					renderedMessages.add(messageId);
-				} else {
+				} /* else {
 					console.error("Invalid message element:", messageElement);
-				}
+				} */
 				// elements.chatMessages.appendChild(messageElement);
 				// renderedMessages.add(messageId);
 			}

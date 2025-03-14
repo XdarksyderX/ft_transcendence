@@ -44,7 +44,7 @@ export async function handleGetFriendList() {
 }
 
 export function refreshFriendsFriendlist(changedFriend, add) {
-    const friendsContainer= document.getElementById('friends-container');
+    const friendsContainer = document.getElementById('friends-container');
     const dataContainer = document.getElementById('friend-data');
     let refresh = false;
 
@@ -68,7 +68,9 @@ export function refreshFriendsFriendlist(changedFriend, add) {
         cleanSearchList(changedFriend);
     }
     // there I could handle avatar cand status hanges but too much for now
-    renderFriendList(friendsContainer, dataContainer, refresh);
+    const selectedFriend = dataContainer.querySelector('#friend-name');
+    const selectedFriendName = selectedFriend ? selectedFriend.innerText : null;
+    renderFriendList(friendsContainer, dataContainer, refresh, selectedFriendName);
 }
 
 // if the user is still present on search list when accepts the friend request,
@@ -82,7 +84,7 @@ function cleanSearchList(username) {
     }
 }
 
-async function renderFriendList(container, dataContainer, refreshData = true) {
+async function renderFriendList(container, dataContainer, refreshData = true, selectedFriendName = null) {
     container.innerHTML = '';
     const friends = await handleGetFriendList();
     if (friends.length === 0) {
@@ -111,6 +113,9 @@ async function renderFriendList(container, dataContainer, refreshData = true) {
         for (const friend of friends) {
             const friendBtn = await createFriendBtn(friend, dataContainer);
             container.appendChild(friendBtn);
+            if (selectedFriendName && friend.username === selectedFriendName) {
+                friendBtn.click();
+            }
         }
     }
 }

@@ -353,11 +353,21 @@ function createFriendBtn(friend, startBtn) {
 	return (friendBtn);
 }
 
+export function refreshFriendStatusOnHome(username, isOnline) {
+	console.log("on refresh: ", username, isOnline);
+    const friendBtn = document.querySelector(`.friend-btn[data-friend-username="${username}"]`);
+    if (friendBtn) {
+        let color = isOnline ? 'accent' : 'light';
+        friendBtn.style.color = `var(--${color})`;
+        friendBtn.style.border = `1px solid var(--${color})`;
+    }
+}
+
 function toggleFriendSelection(friend, btn) { // btn is for chess or for pong
-/* 	if (!friend.is_online) {// this will go back when status is propertly setted
+	if (!friend.is_online) {// this will go back when status is propertly setted
 		throwAlert('This friend is not available to play right now.');
 		return;
-	} */
+	}
 	const newFriendBtn = currentView.querySelector(`.friend-btn[data-friend-username="${friend.username}"]`);
 	if (selectedFriend === friend) {
 		unselectFriend(true, btn);
