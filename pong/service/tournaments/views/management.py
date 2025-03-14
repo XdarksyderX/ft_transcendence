@@ -4,7 +4,7 @@ from rest_framework import status
 from core.models import Tournament, TournamentInvitation
 from django.contrib.auth import get_user_model
 from core.utils.event_domain import publish_event
-from .tournament import get_tournament_bracket
+from ..tournament import get_tournament_bracket
 import uuid
 
 User = get_user_model()
@@ -204,23 +204,56 @@ class TournamentInvitationAcceptView(APIView):
             "tournament_token": str(invitation.tournament.token),
             "players": [player.id for player in tournament.players.all()],
         })
-
-        if tournament.players.count() == tournament.max_players:
-            tournament.close_tournament() # already handles everything
-            publish_event("pong", "pong.tournament_closed", {
-                "tournament_token": str(tournament.token),
-                "players_id": [player.id for player in tournament.players.all()]
-            })
-            remaining_invitations = TournamentInvitation.objects.filter(tournament=tournament)
-            for invitation in remaining_invitations:
-                invitation.status = 'cancelled'
-                invitation.save()
-
         return Response({
             "status": "success",
             "message": "Invitation accepted successfully",
             "tournament_token": str(tournament.token)
         })
+
+class TournamentStartView(APIView):
+    def post(self, request, tournament_token):
+        try:
+            tournament = Tournament.objects.get(token=tournament_token, organizer=request.user)
+        except Tournament.DoesNotExist:
+            return Response({
+                "status": "error",
+                "message": "Tournament not found or you are not the organizer."
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        if tournament.closed:
+            return Response({
+                "status": "error",
+                "message": "Tournament has already started."
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        if tournament.players.count() < tournament.max_players:
+            return Response({
+                "status": "error",
+                "message": "The tournament is not full yet."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        tournament.close_tournament()
+        publish_event("pong", "pong.tournament_closed", {
+            "tournament_token": str(tournament.token),
+            "players_id": [player.id for player in tournament.players.all()]
+        })
+        
+        # Cancel any remaining pending invitations
+        remaining_invitations = TournamentInvitation.objects.filter(tournament=tournament)
+        for invitation in remaining_invitations:
+            invitation.status = 'cancelled'
+            invitation.save()
+        
+        return Response({
+            "status": "success",
+            "message": "Tournament started successfully",
+            "tournament": {
+                "token": tournament.token,
+                "closed": tournament.closed
+            }
+        })
+
+
 class TournamentInvitationDenyView(APIView):
     def post(self, request, invitation_token):
         if not invitation_token:

@@ -1,6 +1,6 @@
 # urls.py
 from django.urls import path
-from .views import (
+from .views.management import (
     TournamentCreateView,
     TournamentDetail,
     TournamentInvitationCreateView,
@@ -11,7 +11,13 @@ from .views import (
     TournamentDeletePlayerView,
     TournamentDeleteView,
 	TournamentListView,
-	TournamentEditableListView
+	TournamentEditableListView,
+    TournamentStartView
+)
+
+from .views.matchmaking import (
+    TournamentJoinQueue,
+    TournamentLeaveQueue
 )
 
 urlpatterns = [
@@ -61,4 +67,17 @@ urlpatterns = [
         TournamentDeleteView.as_view(),
         name='tournament_delete'
     ),
+
+    path(
+        'tournaments/<str:tournament_token>/start/',
+        TournamentStartView.as_view(),
+        name='start_tournament'),
+
+    path('tournaments/<uuid:tournament_token>/queue/join/', 
+         TournamentJoinQueue.as_view(), 
+         name='tournament_join_queue'),
+    
+    path('tournaments/<uuid:tournament_token>/queue/leave/', 
+         TournamentLeaveQueue.as_view(), 
+         name='tournament_leave_queue'),
 ]

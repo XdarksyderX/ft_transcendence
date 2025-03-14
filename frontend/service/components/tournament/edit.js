@@ -1,5 +1,5 @@
 import { throwAlert } from "../../app/render.js";
-import { getEditableTournaments,  getTournamentDetail, getTournamentInvitationDetail} from "../../app/pong.js";
+import { getEditableTournaments,  getTournamentDetail, getTournamentInvitationDetail, startTournament, joinTournamentQueue, leaveTournamentQueue} from "../../app/pong.js";
 import { handleGetFriendList } from "../friends/app.js";
 import { handleSendTournamentInvitation, handleDeleteTournament } from "./new.js";
 
@@ -27,7 +27,8 @@ export async function showEditTournamentSection(token, refresh = false) {
 }
 
 async function initEditTournamentSection(token, refresh = false) {
-
+  // Save token globally so it can be used by the start button event
+  window.currentTournamentToken = token;  
   const detail = await handleGetTournamentDetail(token);
   const invitations = await getAllInvitationsStatusMap(detail);
   console.log("detail: ", detail);
@@ -36,11 +37,62 @@ async function initEditTournamentSection(token, refresh = false) {
   renderInvitations(invitations);
   if (isReplacementNeeded()) {
     renderReplacementFriends(invitations);
-  } if (!refresh) {
+  }
+  if (!refresh) {
     const sendBtn = document.getElementById("send-replacement-btn");
     const cancelBtn = document.getElementById("cancel-tournament-btn");
     sendBtn.addEventListener('click', () => sendReplacementInvitations(token));
     cancelBtn.addEventListener('click', () => handleDeleteTournament(token));
+  }
+  // Attach click event for the Start With Accepted button
+  const startButton = document.getElementById("start-with-accepted-btn");
+  if (startButton) {
+    startButton.addEventListener("click", async (event) => {
+      event.preventDefault();
+      try {
+        const response = await startTournament(window.currentTournamentToken);
+        if (response.status === "success") {
+          // Tournament started successfully—update the UI accordingly.
+          showTournamentStartedUI(response.tournament);
+        } else {
+          throw new Error(response.message);
+        }
+      } catch (error) {
+        throwAlert(`Error starting tournament: ${error.message}`);
+      }
+    }, { once: true });
+  }
+}
+
+function showTournamentStartedUI(tournament) {
+  // Update the existing tournament-status-container to display a "Tournament Started" message and a Join Match button.
+  const statusContainer = document.getElementById("tournament-status-container");
+  if (statusContainer) {
+    statusContainer.innerHTML = `
+      <h4 class="ctm-text-title text-center">Tournament Started!</h4>
+      <p class="text-center">Tournament Name: ${tournament.name}</p>
+      <button id="join-match-btn" class="btn ctm-btn">Join Match</button>
+    `;
+    // Attach the click event to the join match button.
+    const joinBtn = document.getElementById("join-match-btn");
+    joinBtn.addEventListener("click", async (event) => {
+      event.preventDefault();
+      try {
+        // Call the new join queue endpoint.
+        const response = await joinTournamentQueue(tournament.token);
+        if (response.status === "success") {
+          // You can then redirect the user to the match view or update the UI accordingly.
+          // For example, if response contains a game_key, you might do:
+          window.location.href = `/match/${response.game_key}`;
+        } else {
+          throw new Error(response.message);
+        }
+      } catch (error) {
+        throwAlert(`Error joining match: ${error.message}`);
+      }
+    });
+  } else {
+    throwAlert("Tournament has started!");
   }
 }
 
@@ -169,11 +221,11 @@ function updateProgress() {
 
   // Enable/disable start button based on acceptances
   const startButton = document.getElementById("start-with-accepted-btn")
-/*   if (alreadyAccepted === maxPlayers) {
+  if (alreadyAccepted === maxPlayers) {
     startButton.disabled = false
   } else {
     startButton.disabled = true
-  } */
+  } 
 }
 
 function isReplacementNeeded() {
