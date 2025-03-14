@@ -65,7 +65,8 @@ class TournamentListView(APIView):
                 "token": tournament.token,
                 "max_players": tournament.max_players,
                 "is_closed": tournament.closed,
-                "is_organizer": tournament.organizer == request.user
+                "is_finished": tournament.is_finished,
+                "is_organizer": tournament.organizer == request.user,
             })
         
         return Response({
