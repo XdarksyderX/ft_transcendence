@@ -13,6 +13,7 @@
 	flex: 1; /* Ensure each round takes equal space */
 	position: relative;
 	justify-content: center;
+	min-height: 280px;
 }
 
 .round.even {
@@ -43,6 +44,7 @@
 	border-radius: 5px;
 	/* background-color: #fff; */
 	cursor: pointer;
+	margin: 15px
 }
 
 	.match.pending {

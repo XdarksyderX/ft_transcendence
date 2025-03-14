@@ -1,14 +1,14 @@
-import { getTournamentDetail,  listTournaments} from "../../app/pong.js";
+import { getTournamentDetail, listTournaments } from "../../app/pong.js";
 import { throwAlert } from "../../app/render.js";
 import { getUsername } from "../../app/auth.js";
 
+// Initializes the ongoing tournaments by fetching their details and rendering them
 export async function initializeOngoingTournaments() {
-
   const tournaments = await getAllTournamentsBracket();
-   // const tournaments = [tournament1, tournament2];
   renderAllTournaments(tournaments);
 }
 
+// Fetches the list of tournaments and their details, then constructs the tournament brackets
 async function getAllTournamentsBracket() {
   const tourList = await handleGetTournamentList();
   const tokens = await getOngoingTournamentsTokens(tourList);
@@ -24,30 +24,33 @@ async function getAllTournamentsBracket() {
   return tournaments;
 }
 
-
+// Fetches the list of tournaments from the server
 async function handleGetTournamentList() {
   const response = await listTournaments();
   if (response.status !== 'success') {
-    return throwAlert("Error while fetching tournament list")
+    return throwAlert("Error while fetching tournament list");
   }
   console.log(response);
-  return (response.tournaments)
+  return response.tournaments;
 }
 
+// Filters the tournaments to get the tokens of ongoing tournaments
 async function getOngoingTournamentsTokens(tournaments) {
   return tournaments
-  .filter(tournament => tournament.is_closed /* && !tournament.is_finished */)
-  .map(tournament => tournament.token);
+    .filter(tournament => tournament.is_closed /* && !tournament.is_finished */)
+    .map(tournament => tournament.token);
 }
 
+// Fetches the details of a specific tournament using its token
 async function handleGetTournamentDetail(token) {
   const response = await getTournamentDetail(token);
-  if (response.status ==! "success") {
-    return throwAlert("Error while fetching tournament detail")
+  if (response.status !== "success") {
+    return throwAlert("Error while fetching tournament detail");
   }
   return response.tournament;
 }
 
+// Constructs the tournament bracket with rounds and games
 function getTournamentBracket(tournament) {
   const rounds = [];
   const maxPlayers = tournament.max_players;
@@ -82,6 +85,7 @@ function getTournamentBracket(tournament) {
   };
 }
 
+// Renders all tournaments by generating their HTML elements and appending them to the container
 function renderAllTournaments(tournaments) {
   const container = document.getElementById('tournaments-container');
   container.innerHTML = '';
@@ -101,12 +105,13 @@ function renderAllTournaments(tournaments) {
       );
       const match = allMatches.find(m => m.game_id.toString() === matchId);
       if (match) {
-        triggerModal(match);
+        triggerPlayMatchModal(match);
       }
     }
   });
 }
 
+// Generates the HTML element for a tournament
 function generateTournament(tournament) {
   const container = document.createElement('div');
   container.classList.add("ctm-card", "neon-frame", "mt-5");
@@ -118,6 +123,7 @@ function generateTournament(tournament) {
   return container;
 }
 
+// Generates the HTML element for the tournament bracket
 function generateBracket(tournament) {
   const bracket = document.createElement('div');
   bracket.classList.add('bracket', 'ctm-text-light');
@@ -128,33 +134,47 @@ function generateBracket(tournament) {
   return bracket;
 }
 
+// Generates the HTML element for a round in the tournament
 function generateRound(round) {
   const roundElement = document.createElement('div');
   const openClass = round.status === 'open' ? 'open' : '';
-  roundElement.className = `p-5 round ${openClass}`;
-  console.log("round: ", round)
-/*   if (round.round % 2 === 0) {
-    roundElement.classList.add('even');
-  } */
+  const roundClass = round.round === 1 ? 'justify-content-between' : '';
+
+  roundElement.className = `round ${openClass} d-flex flex-column`;
+  console.log("round: ", round);
+
   const matches = generateMatches(round.games);
   roundElement.innerHTML = `
-    <div class="mt-2 position-absolute top-0">Round ${round.round}</div>
+    <h4 class="mt-2 mb-4 position-absolute top-0">Round ${round.round}</h4>
+    <div class="matches-container align-items-center ms-0 d-flex flex-column ${roundClass}"></div>
   `;
-  matches.forEach(matchElement => roundElement.appendChild(matchElement));
+  
+  const matchesContainer = roundElement.querySelector('.matches-container');
+  matches.forEach((matchElement, index) => {
+    matchesContainer.appendChild(matchElement);
+    if (index < matches.length - 1) {
+      const divider = document.createElement('div');
+      divider.classList.add('match-divider');
+      matchesContainer.appendChild(divider);
+    }
+  });
+  
   return roundElement;
 }
 
+// Generates the HTML elements for the matches in a round
 function generateMatches(games) {
   return games.map(game => generateMatch(game));
 }
 
+// Generates the HTML element for a match in a round
 function generateMatch(game) {
   const matchElement = document.createElement('div');
   matchElement.id = game.game_id;
   matchElement.classList.add('match');
-
+  
   if (!game.winner && game.player1 && game.player2) {
-    const itsMe = (getUsername() ===  game.player1 || getUsername() ===  game.player2)
+    const itsMe = (getUsername() === game.player1 || getUsername() === game.player2);
     if (itsMe) {
       matchElement.classList.add('available');
     }
@@ -174,7 +194,8 @@ function generateMatch(game) {
   return matchElement;
 }
 
-function triggerModal(match) {
+// Triggers the modal to play a match
+function triggerPlayMatchModal(match) {
   const modal = new bootstrap.Modal(document.getElementById('start-match-modal'));
   modal.show();
 }
