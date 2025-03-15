@@ -1,50 +1,50 @@
 import { getPongMatchHistory } from "../../app/pong.js";
-//import { getChessMatchHistory } from "../../app/chess.js";
+import { getChessMatchHistory } from "../../app/chess.js";
 
-async function getChessMatchHistory() {
-    return {
-        "status": "success",
-        "message": "Match history retrieved successfully",
-        "matches": [
-            {
-                "id": 1,
-                "player_white": {
-                    "id": 1,
-                    "username": "player1"
-                },
-                "player_black": {
-                    "id": 2,
-                    "username": "player2"
-                },
-                "status": "finished",
-                "winner": "player1",
-                "created_at": "2025-02-01T12:00:00Z",
-                "updated_at": "2025-02-01T14:00:00Z",
-                "moves": [
-                    "e2e4", "e7e5", "g1f3", "b8c6", "f1b5", "a7a6", "b5a4", "g8f6", "e1g1", "f8e7"
-                ]
-            },
-            {
-                "id": 2,
-                "player_white": {
-                    "id": 3,
-                    "username": "player3"
-                },
-                "player_black": {
-                    "id": 1,
-                    "username": "player1"
-                },
-                "status": "finished",
-                "winner": "player3",
-                "created_at": "2025-02-02T12:00:00Z",
-                "updated_at": "2025-02-02T14:00:00Z",
-                "moves": [
-                    "d2d4", "d7d5", "c2c4", "e7e6", "g1f3", "g8f6", "c4d5", "e6d5", "b1c3", "f8b4"
-                ]
-            }
-        ]
-    };
-}
+// async function getChessMatchHistory() {
+//     return {
+//         "status": "success",
+//         "message": "Match history retrieved successfully",
+//         "matches": [
+//             {
+//                 "id": 1,
+//                 "player_white": {
+//                     "id": 1,
+//                     "username": "player1"
+//                 },
+//                 "player_black": {
+//                     "id": 2,
+//                     "username": "player2"
+//                 },
+//                 "status": "finished",
+//                 "winner": "player1",
+//                 "created_at": "2025-02-01T12:00:00Z",
+//                 "updated_at": "2025-02-01T14:00:00Z",
+//                 "moves": [
+//                     "e2e4", "e7e5", "g1f3", "b8c6", "f1b5", "a7a6", "b5a4", "g8f6", "e1g1", "f8e7"
+//                 ]
+//             },
+//             {
+//                 "id": 2,
+//                 "player_white": {
+//                     "id": 3,
+//                     "username": "player3"
+//                 },
+//                 "player_black": {
+//                     "id": 1,
+//                     "username": "player1"
+//                 },
+//                 "status": "finished",
+//                 "winner": "player3",
+//                 "created_at": "2025-02-02T12:00:00Z",
+//                 "updated_at": "2025-02-02T14:00:00Z",
+//                 "moves": [
+//                     "d2d4", "d7d5", "c2c4", "e7e6", "g1f3", "g8f6", "c4d5", "e6d5", "b1c3", "f8b4"
+//                 ]
+//             }
+//         ]
+//     };
+// }
 //async function getPongMatchHistory() {
 //    return {
 //        "status": "success",
@@ -193,8 +193,8 @@ function createPongMatchCard(match) {
 
 
 function createChessMatchCard(match) {
-  const isWhiteWinner = match.winner === match.player_white.username;
-  const isBlackWinner = match.winner === match.player_black.username;
+  const isWhiteWinner = match.winner === match.player_white;
+  const isBlackWinner = match.winner === match.player_black;
   const date = formatDateTime(match.created_at);
 
   const card = document.createElement('div');
@@ -216,7 +216,7 @@ function createChessMatchCard(match) {
               </svg>
             </p>
             <div class="ctm-text-light">
-              ${match.player_white.username} ${isWhiteWinner ? "👑" : ""}
+              ${match.player_white} ${isWhiteWinner ? "👑" : ""}
             </div>
           </div>
           <div class="col-2">vs</div>
@@ -233,7 +233,7 @@ function createChessMatchCard(match) {
               </svg>
             </p>
             <div class="ctm-text-light">
-              ${match.player_black.username} ${isBlackWinner ? "👑" : ""}
+              ${match.player_black} ${isBlackWinner ? "👑" : ""}
             </div>
           </div>
         </div>
