@@ -378,6 +378,7 @@ class TournamentDetail(APIView):
         tournament_serialization = {
             "id": tournament.id,
             "name": tournament.name,
+            "token": tournament.token,
             "organizer": tournament.organizer.username,
             "max_players": tournament.max_players,
             "players": [player.username for player in tournament.players.all()],

@@ -52,8 +52,7 @@ async function initEditTournamentSection(token, refresh = false) {
       try {
         const response = await startTournament(window.currentTournamentToken);
         if (response.status === "success") {
-          // Tournament started successfully—update the UI accordingly.
-          showTournamentStartedUI(response.tournament);
+          window.location.href = `/ongoing-tournaments`;
         } else {
           throw new Error(response.message);
         }
@@ -64,6 +63,7 @@ async function initEditTournamentSection(token, refresh = false) {
   }
 }
 
+/*
 function showTournamentStartedUI(tournament) {
   // Update the existing tournament-status-container to display a "Tournament Started" message and a Join Match button.
   const statusContainer = document.getElementById("tournament-status-container");
@@ -74,7 +74,7 @@ function showTournamentStartedUI(tournament) {
       <button id="join-match-btn" class="btn ctm-btn">Join Match</button>
     `;
     // Attach the click event to the join match button.
-    console.log("TEST 134");
+    console.log("TEST")
     const joinBtn = document.getElementById("join-match-btn");
     joinBtn.addEventListener("click", async (event) => {
       event.preventDefault();
@@ -95,7 +95,7 @@ function showTournamentStartedUI(tournament) {
   } else {
     throwAlert("Tournament has started!");
   }
-}
+} NOT necessary I think */
 
 function initVariables() {
   selectedFriends = [];

@@ -72,12 +72,19 @@ class TournamentJoinQueue(APIView):
 			player=opponent,
 		).first()
 
-		user_queue = TournamentQueue.objects.create(
+		user_queue, created = TournamentQueue.objects.get_or_create(
 			tournament=tournament,
 			player=request.user,
 			match=pending_match,
-			joined_at=timezone.now()
+			defaults={'joined_at': timezone.now()}
 		)
+		if not created:
+			return Response({
+				"status": "error",
+				"message": "You are already in queue for this match.",
+				"joined_at": user_queue.joined_at,
+				"waiting_time": int((timezone.now() - user_queue.joined_at).total_seconds())
+			}, status=status.HTTP_400_BAD_REQUEST)
 
 		if opponent_queue:
 			pong_game.status = 'ready'

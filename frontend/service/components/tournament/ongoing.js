@@ -1,4 +1,4 @@
-import { getTournamentDetail, listTournaments } from "../../app/pong.js";
+import { getTournamentDetail, listTournaments,  joinTournamentQueue, leaveTournamentQueue} from "../../app/pong.js";
 import { throwAlert } from "../../app/render.js";
 import { getUsername } from "../../app/auth.js";
 
