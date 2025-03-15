@@ -90,7 +90,7 @@ class TournamentJoinQueue(APIView):
 			pong_game.status = 'ready'
 			pong_game.save()
 			publish_event('pong', 'pong.tournament_match_ready', {
-				'game_key': game_key,
+				'game_key': str(game_key),
 				'player1': pong_game.player1.username,
 				'player2': pong_game.player2.username
 			})
@@ -100,10 +100,10 @@ class TournamentJoinQueue(APIView):
 			).delete()
 			return Response({
 				"status": "success",
+				"match_status": "matched",
 				"message": "Both players are ready. Game is starting.",
-				"game_key": game_key,
-				"opponent": opponent.username,
-				"status": "matched"
+				"game_key": str(game_key),
+				"opponent": opponent.username
 			}, status=status.HTTP_200_OK)
 
 
@@ -113,10 +113,10 @@ class TournamentJoinQueue(APIView):
 		})
 		return Response({
 			"status": "success",
+			"match_status": "waiting",
 			"message": "You've joined the queue. Waiting for your opponent.",
-			"game_key": game_key,
-			"opponent": opponent.username,
-			"status": "waiting"
+			"game_key": str(game_key),
+			"opponent": opponent.username
 		}, status=status.HTTP_201_CREATED)
 
 

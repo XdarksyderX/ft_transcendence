@@ -59,9 +59,20 @@ function reShowMenu()
     document.getElementById("instructions").hidden = false; // Show instructions
 }
 
-export async function initializePongEvents(gameKey = null)
-{
-    // Check for an online match
+export async function initializePongEvents(gameKey = null) {
+    // Check if a gameKey is provided in the URL query parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const tournamentGameKey = urlParams.get('gameKey') || gameKey;
+  
+    console.log("Searching for tournament game ...");
+    if (tournamentGameKey) 
+    {
+      console.log("Connecting to tournament game with key:", tournamentGameKey);
+      return connectToOnlineGame(tournamentGameKey);
+    }
+    
+    // Check for a basic 1v1 online match
+    console.log("Searching for basic 1v1 online game ...");
     try 
     {
         const response = await fetch("http://localhost:5052/match/in-progress/", { credentials: "include" });
@@ -80,7 +91,7 @@ export async function initializePongEvents(gameKey = null)
     {
         console.warn("No online match found, starting local game.", error);
     }
-
+    
     // No online match found → Start Local Game
     startLocalGame();
 }

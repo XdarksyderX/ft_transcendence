@@ -200,13 +200,14 @@ function generateMatch(game) {
 }
 
 // Triggers the modal to play a match
-function triggerPlayMatchModal(match) {
+async function triggerPlayMatchModal(match)
+{
   console.log("Reached triggerPlayMatchModal");
   const modalEl = document.getElementById('start-match-modal');
   const modal = new bootstrap.Modal(modalEl);
   modal.show();
 
-  // We assume the "Play" button is the second .btn in the modal-footer
+  // assume the "Play" button is the second .btn in the modal-footer
   const modalFooterBtns = modalEl.querySelectorAll('.modal-footer .btn.ctm-btn');
   const playButton = modalFooterBtns[1]; // The "Play" button
 
@@ -217,9 +218,16 @@ function triggerPlayMatchModal(match) {
       // match.token is the tournament token we attached earlier
       const response = await joinTournamentQueue(match.token);
       if (response.status === "success") {
-        console.log("TOURNAMENT GAME START REACHED");
-        // If matched, redirect to the match using the returned game_key
-        window.location.href = `/pong`; // NEED to add logic here for the correct game to start (maybe pass response.game_key somehow, not sure if necessary) 
+        if (response.match_status === "matched" && response.game_key) {
+          console.log("TOURNAMENT GAME START REACHED: both players are ready");
+          // Redirect to /pong with the game key as a query parameter
+          window.location.href = `/pong?gameKey=${response.game_key}`;
+        } else if (response.match_status === "waiting") {
+          // Inform the user they’re waiting and optionally start polling or subscribe via WebSocket ADD LOGIC HERE FOR USER WHO JOINS FIRST TO BE AUTO-REDIRECTED
+          throwAlert("You've joined the queue. Waiting for your opponent to join...");
+        } else {
+          throw new Error("Unexpected match state.");
+        }
       } else {
         throw new Error(response.message);
       }

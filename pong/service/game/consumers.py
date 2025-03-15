@@ -286,11 +286,8 @@ class GameConsumer(AsyncWebsocketConsumer):
                                 {
                                     "type": "game.message",
                                     "message": json.dumps({
-                                        "status": "game_update",
-                                        "state": {
-                                            "players": game["players"],
-                                            "ball": {"x": board_width / 2, "y": board_height / 2}
-                                        }
+                                        "status": "game_over",
+                                        "winner": game["players"]["player2"]["username"]
                                     })
                                 }
                             )
@@ -300,16 +297,6 @@ class GameConsumer(AsyncWebsocketConsumer):
                                 await async_publish_event("pong", "pong.match_finished", event_data)
                             except Exception as e:
                                 print(traceback.format_exc())
-                            await self.channel_layer.group_send(
-                                self.group_name,
-                                {
-                                    "type": "game.message",
-                                    "message": json.dumps({
-                                        "status": "game_over",
-                                        "winner": game["players"]["player2"]["username"]
-                                    })
-                                }
-                            )
                             break
 
                 # When the ball goes off right, left player scores and right player (conceding) serves.
@@ -334,11 +321,8 @@ class GameConsumer(AsyncWebsocketConsumer):
                                 {
                                     "type": "game.message",
                                     "message": json.dumps({
-                                        "status": "last_status",
-                                        "state": {
-                                            "players": game["players"],
-                                            "ball": {"x": board_width / 2, "y": board_height / 2}
-                                        }
+                                        "status": "game_over",
+                                        "winner": game["players"]["player1"]["username"]
                                     })
                                 }
                             )
@@ -348,16 +332,6 @@ class GameConsumer(AsyncWebsocketConsumer):
                                 await async_publish_event("pong", "pong.match_finished", event_data)
                             except Exception as e:
                                 print(traceback.format_exc())
-                            await self.channel_layer.group_send(
-                                self.group_name,
-                                {
-                                    "type": "game.message",
-                                    "message": json.dumps({
-                                        "status": "game_over",
-                                        "winner": game["players"]["player1"]["username"]
-                                    })
-                                }
-                            )
                             break
 
                 # Send the updated game state to all connected clients
