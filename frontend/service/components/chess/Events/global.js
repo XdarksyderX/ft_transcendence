@@ -243,6 +243,8 @@ function makeEnPassant(piece, id) {
       delete opSquare.piece;
     }
   }
+  console.log("makeEnPassant")
+  console.log(globalPiece)
 }
 
 function isClick() {

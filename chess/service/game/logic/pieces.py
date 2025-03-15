@@ -2,6 +2,10 @@ import copy
 from abc import ABC, abstractmethod
 from .utils import is_position_under_attack, is_in_check
 
+import logging
+
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+
 class ChessPiece(ABC):
 	def __init__(self, color, position, piece_id):
 		self.color = color
@@ -29,7 +33,7 @@ class ChessPiece(ABC):
 		pass
 
 class Pawn(ChessPiece):
-	def get_possible_moves(self, board):
+	def get_possible_moves(self, board, en_passant_target=None):
 		moves = []
 		file, rank = self.position[0], int(self.position[1])
 		direction = 1 if self.color == 'white' else -1
@@ -45,21 +49,23 @@ class Pawn(ChessPiece):
 		
 		files = "abcdefgh"
 		file_idx = files.index(file)
-		print(moves)
+		logging.debug(f"moves: {moves}")
 		for offset in [-1, 1]:
 			if 0 <= file_idx + offset < 8:
 				capture_file = files[file_idx + offset]
 				capture_pos = f"{capture_file}{rank + direction}"
 				
+				logging.debug(f"capture_pos: {capture_pos}")
 				if capture_pos in board and board[capture_pos] is not None:
 					piece = board[capture_pos]
 					if piece.color != self.color:
-						print(f"En passant possible at {capture_pos}")
 						moves.append(capture_pos)
 				
-				if capture_pos + "_enpassant" in board:
-					print(f"No en passant at {capture_pos}")
-					moves.append(capture_pos)
+				# Check for en passant
+				logging.debug(f"en_passant_target: {en_passant_target}")
+				if en_passant_target == capture_pos:
+						logging.debug(f"En passant possible at {capture_pos}")
+						moves.append(capture_pos)
 		return moves
 
 class Rook(ChessPiece):
