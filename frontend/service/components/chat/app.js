@@ -297,30 +297,29 @@ function showChatWindow(elements, friendUsername) {
 const generateMessageId = (message) => `${message.sender}-${message.sent_at}`;
 
 export async function renderChat(elements) {
-	if (currentChat) {
-		//console.log("current CHAT: ", currentChat);
+    if (currentChat) {
+        let messageElements = [];
 
-		currentChat.messages.forEach(async message => {
-			const messageId = generateMessageId(message);
-			if (!renderedMessages.has(messageId)) {
-				console.log("rendering the message: ", message);
-				let messageElement = message.is_special 
-					? (await createSpecialBubble(message)) 
-					: createMessageBubble(message);
-				// Check if messageElement is a valid DOM node
-				if (messageElement instanceof Node) {
-					elements.chatMessages.appendChild(messageElement);
-					renderedMessages.add(messageId);
-				} /* else {
-					console.error("Invalid message element:", messageElement);
-				} */
-				// elements.chatMessages.appendChild(messageElement);
-				// renderedMessages.add(messageId);
-			}
-		});
+        for (const message of currentChat.messages) {
+            const messageId = generateMessageId(message);
+            if (!renderedMessages.has(messageId)) {
+                let messageElement = message.is_special 
+                    ? await createSpecialBubble(message) 
+                    : createMessageBubble(message);
 
-		elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
-	}
+                if (messageElement instanceof Node) {
+                    messageElements.push({ element: messageElement, timestamp: new Date(message.sent_at).getTime() });
+                    renderedMessages.add(messageId);
+                }
+            }
+        }
+
+        // Sort messages by timestamp before appending
+        messageElements.sort((a, b) => a.timestamp - b.timestamp)
+            .forEach(({ element }) => elements.chatMessages.appendChild(element));
+
+        elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+    }
 }
 
 export {currentChat, currentView, isExpanded}
