@@ -1,8 +1,3 @@
-/**
- * this file initializes the chess game.
- * with 'import' we take the functions from their files
-*/
-
 import { initGame } from "./Data/data.js";
 import { initGameRender, clearHighlight } from "./Render/main.js";
 import { GlobalEvent, clearYellowHighlight, moveElement } from "./Events/global.js";
@@ -14,6 +9,7 @@ import { getChessMatchDetail, getChessPendingMatches } from "../../app/chess.js"
 import { chatSocket } from "../chat/socket.js";
 import { getUsername } from "../../app/auth.js";
 import { convertToPiecePositions } from "./Render/main.js";
+import { reloadMoveLogger } from "./Helper/logging.js";
 
 let globalState = initGame();
 let keySquareMapper = {};
@@ -89,10 +85,11 @@ export async function initializeChessEvents(key) {
     const boardState =     await waitForBoardStatus();
     const piecePositions = convertToPiecePositions(boardState);
 
-    console.log(piecePositions)
+    //console.log(piecePositions)
     initGameRender(globalState, piecePositions);
     GlobalEvent();
     generateCoordinates();
+    reloadMoveLogger();
     setupButtonEvents(settingsPanel, saveSettingsButton, cancelSettingsButton, pieceStyleSelect)
 
     document.addEventListener('click', (event) => {
@@ -119,11 +116,11 @@ async function handleGetChessMatchDetail(key) {
     if (res.status === "success") {
         const white = res.match.player_white;
         const black = res.match.player_black;
-        console.log(res);
+        //console.log(res);
         whoIsWho[white] = "white";
         whoIsWho[black] = "black";
-        console.log("desde handle")
-        console.log(whoIsWho)
+        //console.log("desde handle")
+        //console.log(whoIsWho)
     }
 }
 
@@ -136,29 +133,45 @@ async function initOnlineChess(key) {
     
 }
 
+function checkPawnDoubleMoveInLastTurn(from, to) {
+    let tmp = keySquareMapper[to].piece;
+    /* console.log("checkPawnDoubleMoveInLastTurn", tmp);
+    console.log(from, to); */
+    if (tmp.piece_name.includes("PAWN")){
+        if (Math.abs(to[1] - from[1]) === 2) {
+            tmp.move = true;
+            localStorage.setItem("enPassant", JSON.stringify({ position: to, color: tmp.color, move: tmp.move }));
+        } else {
+            tmp.move = false;
+            if (localStorage.getItem("enPassant"))
+                localStorage.removeItem("enPassant");
+        }
+        //console.log(tmp);
+    }
+}
+
 function handleGetChessReceivedMessage(event) {
     try {
         const data = JSON.parse(event.data);
-        console.log("on handleGetChessReceivedMessage, data: ", data);
+        //console.log("on handleGetChessReceivedMessage, data: ", data);
         if (data.status === "game_update") {
             const { from, to } = data.last_move;
             const piece = keySquareMapper[from].piece;
             if (piece) {
                 moveElement(piece, to, false);
+                checkPawnDoubleMoveInLastTurn(from, to);
             }
         }
         if (data.status === "game_over") {
             winGame(data.winner);
+            localStorage.removeItem("chessMoves");
+            if (localStorage.getItem("enPassant"))
+                localStorage.removeItem("enPassant");
         }
         if (data?.current_player) {
             inTurn = data.current_player;
             console.log('updating turn to: ', inTurn);
         }
-        // if (data.status == "game_starting") {
-        //     const map = convertToPiecePositions(data.board);
-        //     console.log("map: ", map);
-        //     mierdaSeca = map;
-        // }
     }
     catch (e) {
         console.error("Error parsing WS message: ", e);
@@ -175,8 +188,6 @@ function initializeChessSocket(game_key) {
     }
 
     chessSocket.onmessage = (event) => {
-        console.log("[CHESS SOCKET]: ", event.data);
-
         handleGetChessReceivedMessage(event);
     }
 
@@ -197,7 +208,6 @@ function waitForBoardStatus() {
             if (data.status === "game_starting") {
                 chessSocket.removeEventListener('message', onMessage);
                 resolve(data.board);
-                //inTurn = data.current_player;
             }
         }
         chessSocket.addEventListener('message', onMessage);

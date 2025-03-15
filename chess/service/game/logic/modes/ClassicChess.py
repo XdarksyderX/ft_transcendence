@@ -4,6 +4,10 @@ from .ChessGameMode import ChessGameMode
 from ..pieces import Rook, Knight, Bishop, Queen, King, Pawn
 from ..utils import is_in_check, is_checkmate, is_stalemate, is_insufficient_material
 
+import logging
+
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+
 class ClassicChess(ChessGameMode):
     def __init__(self):
         self.half_move_clock = 0
@@ -178,7 +182,7 @@ class ClassicChess(ChessGameMode):
                 "status": game_over_status,
                 "winner": winner
             }
-
+            
         return True, "Valid move", new_board, info
 
     def process_castling(self, board, player_color, side):

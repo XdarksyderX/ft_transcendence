@@ -119,7 +119,6 @@ function initGameRender(data, piecePositiont)
 
   document.getElementById('root').innerHTML = '';
 
-  console.log('on mierdaSecaLoop, mierdaseca: ', piecePositiont);
   data.forEach(element => {
     const rowEl = document.createElement("div");
     element.forEach((square) => {
@@ -130,22 +129,6 @@ function initGameRender(data, piecePositiont)
       if (chessVariantTmp === "horde") {
         renderHordePieces(square, globalPiece, assignSpecificPiece);
       } else {
-/*         if ((square.id[1] >= 3 && square.id[1] <= 6) && square.piece)
-          square.piece = null;
-        if (square.id[1] == 7) {
-          square.piece = piece.blackPawn(square.id);
-          globalPiece.black_pawns.push(square.piece);
-        } else if (square.id[1] == 2) {
-          square.piece = piece.whitePawn(square.id);
-          globalPiece.white_pawns.push(square.piece);
-        } else if (piecePositions[square.id]) {
-          square.piece = piecePositions[square.id](square.id);
-          assignSpecificPiece(square);
-        } */
-         // square.piece = null;
-          //console.log(square)
-          //square.piece = piecePositiont[square.id](square.id);
-          //console.log(piecePositiont[square.id](square.id), square.id)
           assignSpecificPiece(square, piecePositiont);
         }
         rowEl.appendChild(squareDiv);
@@ -154,22 +137,24 @@ function initGameRender(data, piecePositiont)
       document.getElementById('root').appendChild(rowEl);
     });
     pieceRender(data);
+    const enPassantState = JSON.parse(localStorage.getItem("enPassant"));
+    if (enPassantState) {
+      const { position, move } = enPassantState;
+      if (keySquareMapper[position] && keySquareMapper[position].piece) {
+          keySquareMapper[position].piece.move = move;
+      }
+  }
     console.log("globalPiece: ", globalPiece)
   }
-  //esta funcion hay que cambiarla para que 
+
   function assignSpecificPiece(square, piecePositiont) {
-    //console.log(square);
-    // Celda vacía
     if (!piecePositiont[square.id]) {
       square.piece = null;
       return;
     }
-    //console.log(globalPiece);
     const fullName = piecePositiont[square.id].name;
-    //console.log(fullName);
     const color = fullName.startsWith("black") ? "black" : "white";
     const pieceType = fullName.replace(color, '').toLowerCase();
-    //console.log(color, pieceType)
     
     if (pieceType === 'rook' || pieceType === 'knight' || pieceType === 'bishop'){
       square.piece = piecePositiont[square.id](square.id)

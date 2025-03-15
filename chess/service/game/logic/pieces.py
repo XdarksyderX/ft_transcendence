@@ -2,6 +2,9 @@ import copy
 from abc import ABC, abstractmethod
 from .utils import is_position_under_attack, is_in_check
 
+import logging
+
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 # Constant for board files
 FILES = "abcdefgh"
 
@@ -85,7 +88,7 @@ class Pawn(ChessPiece):
                 if en_passant_target == capture_pos:
                         moves.append(capture_pos)
         return moves
-
+      
 
 class Rook(ChessPiece):
     def get_possible_moves(self, board):

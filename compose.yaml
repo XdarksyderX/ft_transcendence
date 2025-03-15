@@ -86,6 +86,7 @@ services:
       - chess/service/.env
     volumes:
       - chess-data:/var/lib/postgresql/data
+      - ./chess/service:/service
     depends_on:
       - auth
 
