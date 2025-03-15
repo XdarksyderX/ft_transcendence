@@ -40,8 +40,8 @@
 /* .card-body {
     height: 317px;
 } */
-#chess-btn {
-    max-height: 428px;
+#chess-btn, #pong-btn {
+    height: 428px;
 }
 
 #variants-container {
