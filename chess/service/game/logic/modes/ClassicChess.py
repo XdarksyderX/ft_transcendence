@@ -105,7 +105,9 @@ class ClassicChess(ChessGameMode):
         piece = board[from_pos]
         if piece.color != player_color:
             return False, "You cannot move your opponent's pieces", board, {}
-        possible_moves = piece.get_possible_moves(board)
+
+        possible_moves = piece.get_possible_moves(board, self.en_passant_target) if isinstance(piece, Pawn) else piece.get_possible_moves(board)
+
         if to_pos not in possible_moves:
             return False, "Invalid move for this piece", board, {}
 
@@ -113,7 +115,6 @@ class ClassicChess(ChessGameMode):
         captured_piece = new_board[to_pos]
         en_passant_capture = False
 
-        # Handling en passant
         if isinstance(piece, Pawn) and to_pos == self.en_passant_target:
             file_to = to_pos[0]
             rank_from = from_pos[1]
@@ -121,6 +122,7 @@ class ClassicChess(ChessGameMode):
             captured_position = f"{file_to}{rank_from}"
             captured_piece = new_board[captured_position]
             new_board[captured_position] = None
+
 
         new_board[to_pos] = piece
         new_board[from_pos] = None
@@ -142,9 +144,12 @@ class ClassicChess(ChessGameMode):
         self.en_passant_target = None
 
         if isinstance(piece, Pawn):
-            possible_moves = piece.get_possible_moves(board, self.en_passant_target)
-        else:
-            possible_moves = piece.get_possible_moves(board)
+            file_from, rank_from = from_pos[0], int(from_pos[1])
+            file_to, rank_to = to_pos[0], int(to_pos[1])
+            
+            if abs(rank_to - rank_from) == 2:
+                intermediate_rank = (rank_from + rank_to) // 2
+                self.en_passant_target = f"{file_to}{intermediate_rank}"
 
         promotion = None
         promotion_pending = False

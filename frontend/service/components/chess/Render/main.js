@@ -109,7 +109,7 @@ const piecePositions = {
  * representing the piece to the square's HTML element.
  * @param {*} data a 2D array representing the chessboard, where each element is a row of squares.
  */
-function initGameRender(data, piecePositiont)
+function initGameRender(data, piecePositiont, inTurn)
 {
   globalPiece.black_pawns = [];
   globalPiece.white_pawns = [];
@@ -137,7 +137,8 @@ function initGameRender(data, piecePositiont)
       document.getElementById('root').appendChild(rowEl);
     });
     pieceRender(data);
-    const enPassantState = JSON.parse(localStorage.getItem("enPassant"));
+    const enpassantItem = inTurn ? 'enPassantCapture' : 'enPassantTarget'
+    const enPassantState = JSON.parse(localStorage.getItem(enpassantItem));
     if (enPassantState) {
       const { position, move } = enPassantState;
       if (keySquareMapper[position] && keySquareMapper[position].piece) {

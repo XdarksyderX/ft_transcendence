@@ -31,6 +31,7 @@ function changeTurn() {
   const pawns = inTurn === "white" ? globalPiece.black_pawns : globalPiece.white_pawns;
   pawns.forEach(pawn => {
     pawn.move = false;
+
   });
 }
 
@@ -299,6 +300,9 @@ function moveElement(piece, id, castle) {
     if (piece.piece_name.includes("PAWN") && (Math.abs(id[1] - piece.current_pos[1]) === 2 )) {
       console.log("soy paco y soy true");
       piece.move = true;
+      localStorage.setItem("enPassantTarget", JSON.stringify({ position: id, move: piece.move }));
+    } else if (localStorage.getItem("enPassantTarget")) {
+      localStorage.removeItem("enPassantTarget");
     }
   }
 

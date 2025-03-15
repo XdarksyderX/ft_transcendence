@@ -60,7 +60,7 @@ class ChessPiece(ABC):
 
 
 class Pawn(ChessPiece):
-    def get_possible_moves(self, board, en_passant_target=None): #recibe en_passant_target por parametro
+    def get_possible_moves(self, board, en_passant_target=None):
         moves = []
         file, rank = self.position[0], int(self.position[1])
         direction = 1 if self.color == 'white' else -1
@@ -84,7 +84,6 @@ class Pawn(ChessPiece):
                     piece = board[capture_pos]
                     if piece.color != self.color:
                         moves.append(capture_pos)
-                
                 if en_passant_target == capture_pos:
                         moves.append(capture_pos)
         return moves
