@@ -27,7 +27,8 @@ const chessVariantTmp = sessionStorage.getItem('chessVariant'); //borrar -> solu
 const moveSound = new Audio('components/chess/Assets/music/sound2.mp3');
 
 function changeTurn() {
-  const pawns = inTurn === "white" ? globalPiece.white_pawns : globalPiece.black_pawns;
+  console.log("inTurn: ", inTurn)
+  const pawns = inTurn === "white" ? globalPiece.black_pawns : globalPiece.white_pawns;
   pawns.forEach(pawn => {
     pawn.move = false;
   });
@@ -295,7 +296,12 @@ function moveElement(piece, id, castle) {
     } catch (e) {
       console.error(e);
     }
+    if (piece.piece_name.includes("PAWN") && (Math.abs(id[1] - piece.current_pos[1]) === 2 )) {
+      console.log("soy paco y soy true");
+      piece.move = true;
+    }
   }
+
   const pawnPromotionBool = checkForPawnPromotion(piece, id);
   let castlingType = moveTwoCastlingPieces(piece, id);
   const direction = piece.piece_name.includes("PAWN") ? (inTurn === "white" ? 1 : -1) : null;

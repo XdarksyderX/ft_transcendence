@@ -272,13 +272,13 @@ function giveKingCaptureIds(id, color) {
 function checkEnPassant(curr_pos, color, num) {
     const row = color === "white" ? 5 : 4; // Row where en passant is possible
     if (curr_pos[1] != row) return false;
-    //console.log(`Checking en passant for ${color} at position ${curr_pos} on row ${row}`);
+    console.log(`Checking en passant for ${color} at position ${curr_pos} on row ${row}`);
 
     const leftPos = `${String.fromCharCode(curr_pos[0].charCodeAt(0) - 1)}${curr_pos[1]}`;
     const rightPos = `${String.fromCharCode(curr_pos[0].charCodeAt(0) + 1)}${curr_pos[1]}`;
     const opponentColor = color === "white" ? "black" : "white";
     
-    //console.log(`Left position: ${leftPos}, Right position: ${rightPos}, Opponent color: ${opponentColor}`);
+    console.log(`Left position: ${leftPos}, Right position: ${rightPos}, Opponent color: ${opponentColor}`);
 
     // Helper function to check if a position is valid for en passant
     function isValidEnPassant(pos) {
@@ -290,8 +290,8 @@ function checkEnPassant(curr_pos, color, num) {
         const isOpponentPiece = pieceExists && keySquareMapper[pos].piece.piece_name.toLowerCase().includes(opponentColor);
         const hasMoved = pieceExists && keySquareMapper[pos].piece.move;
         
-        //console.log(`Checking position ${pos}: pieceExists=${pieceExists}, isOpponentPiece=${isOpponentPiece}, hasMoved=${hasMoved}`);
-        //console.log(keySquareMapper[pos]);
+        console.log(`Checking position ${pos}: pieceExists=${pieceExists}, isOpponentPiece=${isOpponentPiece}, hasMoved=${hasMoved}`);
+        console.log(keySquareMapper[pos]);
         
         return pos[0] >= 'a' && pos[0] <= 'h' && pieceExists && isOpponentPiece && hasMoved;
     }
