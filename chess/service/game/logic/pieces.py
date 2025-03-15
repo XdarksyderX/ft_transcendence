@@ -45,7 +45,7 @@ class Pawn(ChessPiece):
 		
 		files = "abcdefgh"
 		file_idx = files.index(file)
-		
+		print(moves)
 		for offset in [-1, 1]:
 			if 0 <= file_idx + offset < 8:
 				capture_file = files[file_idx + offset]
@@ -54,11 +54,12 @@ class Pawn(ChessPiece):
 				if capture_pos in board and board[capture_pos] is not None:
 					piece = board[capture_pos]
 					if piece.color != self.color:
+						print(f"En passant possible at {capture_pos}")
 						moves.append(capture_pos)
 				
 				if capture_pos + "_enpassant" in board:
+					print(f"No en passant at {capture_pos}")
 					moves.append(capture_pos)
-		
 		return moves
 
 class Rook(ChessPiece):

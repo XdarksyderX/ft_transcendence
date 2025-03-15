@@ -3,6 +3,10 @@ from ..pieces import Rook, Knight, Bishop, Queen, King, Pawn
 import copy
 from ..utils import is_in_check, is_checkmate, is_stalemate, is_insufficient_material
 
+import logging
+
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+
 class ClassicChess(ChessGameMode):
     def __init__(self):
         self.half_move_clock = 0
@@ -75,6 +79,7 @@ class ClassicChess(ChessGameMode):
         return None, None
     
     def validate_move(self, board, from_pos, to_pos, player_color):
+        print(f"validate_move called with from_pos={from_pos}, to_pos={to_pos}, player_color={player_color}")
         if to_pos == "O-O":
             return self.process_castling(board, player_color, "king_side")
         elif to_pos == "O-O-O":
@@ -89,6 +94,7 @@ class ClassicChess(ChessGameMode):
             return False, "You cannot move your opponent's pieces", board, {}
             
         possible_moves = piece.get_possible_moves(board)
+        print(f"Validating move from {from_pos} to {to_pos} for {piece}: {possible_moves}")  # Línea de depuración
         if to_pos not in possible_moves:
             return False, "Invalid move for this piece", board, {}
             
@@ -104,6 +110,7 @@ class ClassicChess(ChessGameMode):
             captured_position = f"{file_to}{rank_from}"
             captured_piece = new_board[captured_position]
             new_board[captured_position] = None
+            print(f"En passant capture at {captured_position}")  # Línea de depuración
         
         new_board[to_pos] = piece
         new_board[from_pos] = None
@@ -137,6 +144,7 @@ class ClassicChess(ChessGameMode):
             if (piece.color == "white" and to_pos[1] == "8") or (piece.color == "black" and to_pos[1] == "1"):
                 promotion = "queen"
                 new_board[to_pos] = Queen(piece.color, to_pos, "")
+                print(f"Setting en passant target to {self.en_passant_target}")
         
         info = {
             "captured": captured_piece.piece_id if captured_piece else None,
@@ -148,7 +156,6 @@ class ClassicChess(ChessGameMode):
             "promotion": promotion,
             "half_move_clock": self.half_move_clock
         }
-        
         return True, "Valid move", new_board, info
     
     def process_castling(self, board, player_color, side):

@@ -31,7 +31,7 @@ function checkOpponetPieceByElement(id, color, captureHighlight = true) {
 //function to check weather piece exists or not by square-id
 function checkPieceExist(squareId) {
     const square = keySquareMapper[squareId];
-    if (square.piece)
+    if (square && square.piece)
         return square;
     else
         return false;
@@ -269,26 +269,41 @@ function giveKingCaptureIds(id, color) {
     return res;
 }
 
-
 function checkEnPassant(curr_pos, color, num) {
     const row = color === "white" ? 5 : 4; // Row where en passant is possible
     if (curr_pos[1] != row) return false;
+    //console.log(`Checking en passant for ${color} at position ${curr_pos} on row ${row}`);
 
     const leftPos = `${String.fromCharCode(curr_pos[0].charCodeAt(0) - 1)}${curr_pos[1]}`;
     const rightPos = `${String.fromCharCode(curr_pos[0].charCodeAt(0) + 1)}${curr_pos[1]}`;
     const opponentColor = color === "white" ? "black" : "white";
     
+    //console.log(`Left position: ${leftPos}, Right position: ${rightPos}, Opponent color: ${opponentColor}`);
+
     // Helper function to check if a position is valid for en passant
     function isValidEnPassant(pos) {
-        return pos[0] >= 'a' && pos[0] <= 'h' &&
+/*         return pos[0] >= 'a' && pos[0] <= 'h' &&
         checkPieceExist(pos) &&
         keySquareMapper[pos].piece.piece_name.toLowerCase().includes(opponentColor) &&
-        keySquareMapper[pos].piece.move;
+        keySquareMapper[pos].piece.move; */
+        const pieceExists = checkPieceExist(pos);
+        const isOpponentPiece = pieceExists && keySquareMapper[pos].piece.piece_name.toLowerCase().includes(opponentColor);
+        const hasMoved = pieceExists && keySquareMapper[pos].piece.move;
+        
+        //console.log(`Checking position ${pos}: pieceExists=${pieceExists}, isOpponentPiece=${isOpponentPiece}, hasMoved=${hasMoved}`);
+        //console.log(keySquareMapper[pos]);
+        
+        return pos[0] >= 'a' && pos[0] <= 'h' && pieceExists && isOpponentPiece && hasMoved;
     }
-    if (isValidEnPassant(leftPos))
+    if (isValidEnPassant(leftPos)){
+        //console.log(`${leftPos[0]}${Number(leftPos[1]) + num}`)
         return `${leftPos[0]}${Number(leftPos[1]) + num}`;
-    if (isValidEnPassant(rightPos))
+    }
+    if (isValidEnPassant(rightPos)){
+        //console.log(`${rightPos[0]}${Number(rightPos[1]) + num}`)
         return `${rightPos[0]}${Number(rightPos[1]) + num}`;
+    }
+    //console.log("en checkEnPassant devuelve falso")
     return false;
 }
 

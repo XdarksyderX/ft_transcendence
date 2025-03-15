@@ -1,7 +1,7 @@
 import * as pieces from "../Data/pieces.js";
 import { imgStyle, chessSocket } from "../index.js";
 import { navigateTo } from "../../../app/router.js";
-
+import { isClick } from "../Events/global.js";
 
 /**
  * This class  is a design pattern aimed at creating
@@ -57,13 +57,14 @@ class ModalCreator {
 function pawnPromotion(color, callback, id, pieceTo = null) {
   //if isClick == haz todo
   //else { sin mostrar el modal llama a callback con el piezeTo con el nombre de la pieza a la que ha promocion }
+  const isClickBool = isClick();
   const piecesMap = {
     rook: pieces[color === "white" ? "whiteRook" : "blackRook"],
     knight: pieces[color === "white" ? "whiteKnight" : "blackKnight"],
     bishop: pieces[color === "white" ? "whiteBishop" : "blackBishop"],
     queen: pieces[color === "white" ? "whiteQueen" : "blackQueen"],
   };
-
+  
   const createPieceImage = (pieceName) => {
     const img = document.createElement("img");
     img.src = `components/chess/Assets/pieces/${imgStyle}/${color}/${pieceName}.png`;
@@ -73,7 +74,13 @@ function pawnPromotion(color, callback, id, pieceTo = null) {
     };
     return img;
   };
-
+  
+  if (!isClickBool) {
+    console.log("no estoy siendo clicado");
+    callback(piecesMap["whiteRook"], "b8");
+    return;
+  }
+  
   const imageContainer = document.createElement("div");
   imageContainer.classList.add("image-container");
   ["rook", "knight", "bishop", "queen"].forEach((pieceName) => {

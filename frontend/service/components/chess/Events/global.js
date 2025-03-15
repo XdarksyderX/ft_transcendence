@@ -27,13 +27,10 @@ const chessVariantTmp = sessionStorage.getItem('chessVariant'); //borrar -> solu
 const moveSound = new Audio('components/chess/Assets/music/sound2.mp3');
 
 function changeTurn() {
-  //inTurn = inTurn === "white" ? "black" : "white";
-
   const pawns = inTurn === "white" ? globalPiece.white_pawns : globalPiece.black_pawns;
   pawns.forEach(pawn => {
     pawn.move = false;
   });
-  console.log(`en changeTurn() -> inTurn: ${inTurn}`)
 }
 
 function captureInTurn(square) {
@@ -284,7 +281,6 @@ function moveElement(piece, id, castle) {
   const isClickBool = isClick()
 
   if (isClickBool) {
-    console.log(`en moveElement() -> from: ${piece.current_pos}; to: ${id}`)
     const data = {
       action: "move",
       from: piece.current_pos,
@@ -295,7 +291,7 @@ function moveElement(piece, id, castle) {
       console.log("Sending data through WebSocket:", data);
 
     } catch (e) {
-      console.log("pos NO")
+      console.error(e);
     }
   }
   const pawnPromotionBool = checkForPawnPromotion(piece, id);
@@ -308,7 +304,8 @@ function moveElement(piece, id, castle) {
   clearHighlight();
   updatePiecePosition(piece, id);
 
-  moveSound.play();
+  if (inTurn == getUserColor(getUsername()))
+    moveSound.play();
 
   checkForCheck();
   
@@ -551,8 +548,6 @@ function clearPreviousSelfHighlight(piece)
 function GlobalEvent() {
   const root = document.getElementById('root');
   root.addEventListener("click", function(event) {
-    console.log("Global event ----")
-    console.log(inTurn, getUsername(), getUserColor(getUsername()))
     if (inTurn !== getUserColor(getUsername())) {
       return;
     };
@@ -617,4 +612,4 @@ function clearYellowHighlight() {
   selfHighlightState = null;
 }
 
-export { GlobalEvent, captureNotation, clearYellowHighlight, globalPieceUpdate, callbackPiece, moveElement };
+export { GlobalEvent, captureNotation, clearYellowHighlight, globalPieceUpdate, callbackPiece, moveElement, isClick };
