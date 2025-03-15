@@ -82,11 +82,12 @@ export async function initializeChessEvents(key) {
             await initOnlineChess(key);
         }
     }
-    const boardState =     await waitForBoardStatus();
-    const piecePositions = convertToPiecePositions(boardState);
+    const data = await waitForBoardStatus();
+    const inTurn = getUserColor(getUsername()) === data.current_player;
+    const piecePositions = convertToPiecePositions(data.board);
 
     //console.log(piecePositions)
-    initGameRender(globalState, piecePositions);
+    initGameRender(globalState, piecePositions, inTurn);
     GlobalEvent();
     generateCoordinates();
     reloadMoveLogger();
@@ -135,25 +136,21 @@ async function initOnlineChess(key) {
 
 function checkPawnDoubleMoveInLastTurn(from, to) {
     let tmp = keySquareMapper[to].piece;
-    /* console.log("checkPawnDoubleMoveInLastTurn", tmp);
-    console.log(from, to); */
     if (tmp.piece_name.includes("PAWN")){
         if (Math.abs(to[1] - from[1]) === 2) {
             tmp.move = true;
-            localStorage.setItem("enPassant", JSON.stringify({ position: to, color: tmp.color, move: tmp.move }));
+            localStorage.setItem("enPassantCapture", JSON.stringify({ position: to, color: tmp.color, move: tmp.move }));
         } else {
             tmp.move = false;
-            if (localStorage.getItem("enPassant"))
-                localStorage.removeItem("enPassant");
+            if (localStorage.getItem("enPassantCapture"))
+                localStorage.removeItem("enPassantCapture");
         }
-        //console.log(tmp);
     }
 }
 
 function handleGetChessReceivedMessage(event) {
     try {
         const data = JSON.parse(event.data);
-        //console.log("on handleGetChessReceivedMessage, data: ", data);
         if (data.status === "game_update") {
             const { from, to } = data.last_move;
             const piece = keySquareMapper[from].piece;
@@ -165,8 +162,8 @@ function handleGetChessReceivedMessage(event) {
         if (data.status === "game_over") {
             winGame(data.winner);
             localStorage.removeItem("chessMoves");
-            if (localStorage.getItem("enPassant"))
-                localStorage.removeItem("enPassant");
+            if (localStorage.getItem("enPassantCapture"))
+                localStorage.removeItem("enPassantCapture");
         }
         if (data?.current_player) {
             inTurn = data.current_player;
@@ -207,7 +204,7 @@ function waitForBoardStatus() {
             const data = JSON.parse(event.data);
             if (data.status === "game_starting") {
                 chessSocket.removeEventListener('message', onMessage);
-                resolve(data.board);
+                resolve(data);
             }
         }
         chessSocket.addEventListener('message', onMessage);
