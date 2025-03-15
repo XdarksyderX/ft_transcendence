@@ -35,7 +35,7 @@ class Pawn(ChessPiece):
 		direction = 1 if self.color == 'white' else -1
 		
 		front_pos = f"{file}{rank + direction}"
-		if front_pos in board and board[front_pos] is None:
+		if front_pos in board and (not board[front_pos] or board[front_pos] is None):
 			moves.append(front_pos)
 			
 			if not self.has_moved:
