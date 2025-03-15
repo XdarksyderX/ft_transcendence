@@ -133,7 +133,9 @@ class PongGame(models.Model):
                     'players': tournament.players.values_list('username', flat=True),
                 }
                 publish_event('pong', 'pong.tournament_match_finished', event)
-                self.tournament.create_next_round_matches()
+                if self.tournament.is_current_round_finished():
+                    self.tournament.create_next_round_matches()
+
                 
             # Update statistics only for quick games or tournament finals
             if not self.is_tournament or is_final:
