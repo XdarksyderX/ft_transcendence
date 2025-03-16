@@ -24,7 +24,7 @@ const notificationHandlers = {
     friend_removed: (data) => handleFriendChanges('friend_removed', data, -1),
     avatar_changed: (data) => handleFriendChanges('avatar_changed', data),
 	friend_status_updated: (data) => handleFriendChanges('friend_status_updated', data),
-    deleted_account: (data) => handleFriendChanges('deleted_account', data, -1),
+    user_deleted: (data) => handleFriendChanges('user_deleted', data, -1),
     username_changed: (data) => handleFriendChanges('friend_username_changed', data),
 
     // Friend requests
