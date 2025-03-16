@@ -27,13 +27,12 @@ const chessVariantTmp = sessionStorage.getItem('chessVariant'); //borrar -> solu
 const moveSound = new Audio('components/chess/Assets/music/sound2.mp3');
 
 function changeTurn() {
-  //inTurn = inTurn === "white" ? "black" : "white";
-
-  const pawns = inTurn === "white" ? globalPiece.white_pawns : globalPiece.black_pawns;
+  console.log("inTurn: ", inTurn)
+  const pawns = inTurn === "white" ? globalPiece.black_pawns : globalPiece.white_pawns;
   pawns.forEach(pawn => {
     pawn.move = false;
+
   });
-  console.log(`en changeTurn() -> inTurn: ${inTurn}`)
 }
 
 function captureInTurn(square) {
@@ -246,6 +245,8 @@ function makeEnPassant(piece, id) {
       delete opSquare.piece;
     }
   }
+  console.log("makeEnPassant")
+  console.log(globalPiece)
 }
 
 function isClick() {
@@ -284,7 +285,6 @@ function moveElement(piece, id, castle) {
   const isClickBool = isClick()
 
   if (isClickBool) {
-    console.log(`en moveElement() -> from: ${piece.current_pos}; to: ${id}`)
     const data = {
       action: "move",
       from: piece.current_pos,
@@ -295,9 +295,17 @@ function moveElement(piece, id, castle) {
       console.log("Sending data through WebSocket:", data);
 
     } catch (e) {
-      console.log("pos NO")
+      console.error(e);
+    }
+    if (piece.piece_name.includes("PAWN") && (Math.abs(id[1] - piece.current_pos[1]) === 2 )) {
+      console.log("soy paco y soy true");
+      piece.move = true;
+      localStorage.setItem("enPassantTarget", JSON.stringify({ position: id, move: piece.move }));
+    } else if (localStorage.getItem("enPassantTarget")) {
+      localStorage.removeItem("enPassantTarget");
     }
   }
+
   const pawnPromotionBool = checkForPawnPromotion(piece, id);
   let castlingType = moveTwoCastlingPieces(piece, id);
   const direction = piece.piece_name.includes("PAWN") ? (inTurn === "white" ? 1 : -1) : null;
@@ -308,7 +316,8 @@ function moveElement(piece, id, castle) {
   clearHighlight();
   updatePiecePosition(piece, id);
 
-  moveSound.play();
+  if (inTurn == getUserColor(getUsername()))
+    moveSound.play();
 
   checkForCheck();
   
@@ -551,8 +560,6 @@ function clearPreviousSelfHighlight(piece)
 function GlobalEvent() {
   const root = document.getElementById('root');
   root.addEventListener("click", function(event) {
-    console.log("Global event ----")
-    console.log(inTurn, getUsername(), getUserColor(getUsername()))
     if (inTurn !== getUserColor(getUsername())) {
       return;
     };
@@ -617,4 +624,4 @@ function clearYellowHighlight() {
   selfHighlightState = null;
 }
 
-export { GlobalEvent, captureNotation, clearYellowHighlight, globalPieceUpdate, callbackPiece, moveElement };
+export { GlobalEvent, captureNotation, clearYellowHighlight, globalPieceUpdate, callbackPiece, moveElement, isClick };
