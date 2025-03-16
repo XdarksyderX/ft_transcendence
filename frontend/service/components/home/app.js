@@ -18,6 +18,7 @@ let selectedFriend = null;
 export function initializeHomeEvents() {
 	const elements = getElements();
 	currentView = null;
+	selectedFriend = null;
 	initPongEvents(elements);
 	initChessEvents(elements);
 	initOverlayEvents(elements);
@@ -112,7 +113,7 @@ function showQuickPlayOptions(elements) {
 // goes from quick-play-options to friend-list rendering it
 function playPongWithFriend(elements) {
 	toggleView(currentView, elements.pong.quickPlay.friendList);
-	renderFriendList(elements.pong.quickPlay.friendsContainer, elements);
+	renderFriendList(elements.pong.quickPlay.friendsContainer);
 }
 
 function playAgainstMachine() {
@@ -184,7 +185,7 @@ function chooseChessVariant(toggleTo) {
 function playChessWithFriend(elements) {
     //    console.log("playchess tggles from: ", currentView);
         toggleView(currentView, elements.chess.friendList);
-        renderFriendList(elements.chess.friendsContainer, elements);
+        renderFriendList(elements.chess.friendsContainer);
 }
 
 function playChessWithRandom(elements) {
@@ -251,16 +252,20 @@ function clickStartQueueBtn(switches, variants) {
 }
 
 function toggleVariants(container, show) {
+	const disclaimer = document.getElementById('ranked-variants');
     if (show) {
         container.classList.add('show');
+		disclaimer.classList.remove('show');
         const selected = document.querySelector(`[data-variant="${chessVariant}"]`);
         if (selected) {
             selected.classList.add('selected');
         }
     } else {
         container.classList.remove('show');
+        disclaimer.classList.add('show');
     }
 }
+
 /* * * * * * * * * * * * * * * UTILS * * * * * * * * * * * * * * */
 
 
@@ -326,14 +331,14 @@ function toggleView(from, to, elements) {
 }
 
 /* * * * * * * * * * * * * * * FRIEND HANDLE * * * * * * * * * * * * * * */
-async function renderFriendList(container, elements) {
+async function renderFriendList(container) {
 	const friends = await handleGetFriendList();
 	container.innerHTML = '';
-	let startBtn;
-	if (container === elements.pong.quickPlay.friendsContainer)
+	let startBtn = currentView.querySelector(`[data-action=start-game]`);
+/* 	if (container === elements.pong.quickPlay.friendsContainer)
 		startBtn = elements.pong.quickPlay.startGameWithFriendButton;
 	else 
-		startBtn = elements.chess.startGameWithFriendButton;
+		startBtn = elements.chess.startGameWithFriendButton; */
 	//console.log("startBtn: ", startBtn);
 	friends.forEach(friend => {
 		const friendBtn = createFriendBtn(friend, startBtn);
@@ -353,14 +358,13 @@ function createFriendBtn(friend, startBtn) {
 	return (friendBtn);
 }
 
-export function refreshFriendStatusOnHome(username, isOnline) {
-	console.log("on refresh: ", username, isOnline);
-    const friendBtn = document.querySelector(`.friend-btn[data-friend-username="${username}"]`);
-    if (friendBtn) {
-        let color = isOnline ? 'accent' : 'light';
-        friendBtn.style.color = `var(--${color})`;
-        friendBtn.style.border = `1px solid var(--${color})`;
-    }
+export function refreshFriendStatusOnHome() {
+
+	if (!currentView) return ;
+	const container = currentView.querySelector('#friends-container') || currentView.getElementById('#friends-container');
+	if (container) {
+		renderFriendList(container);
+	}
 }
 
 function toggleFriendSelection(friend, btn) { // btn is for chess or for pong

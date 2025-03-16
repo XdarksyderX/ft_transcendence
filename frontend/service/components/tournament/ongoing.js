@@ -1,17 +1,25 @@
 import { getTournamentDetail, listTournaments,  joinTournamentQueue, leaveTournamentQueue} from "../../app/pong.js";
 import { throwAlert } from "../../app/render.js";
 import { getUsername } from "../../app/auth.js";
+import { navigateTo } from "../../app/router.js";
 
 // Initializes the ongoing tournaments by fetching their details and rendering them
 export async function initializeOngoingTournaments() {
   const tournaments = await getAllTournamentsBracket();
-  renderAllTournaments(tournaments);
+  if (tournaments) {
+    renderAllTournaments(tournaments);
+  } else {
+    renderNoneTournaments();
+  }
 }
 
 // Fetches the list of tournaments and their details, then constructs the tournament brackets
 async function getAllTournamentsBracket() {
   const tourList = await handleGetTournamentList();
   const tokens = await getOngoingTournamentsTokens(tourList);
+  if (tokens.length === 0) {
+    return null;
+  }
   let tournaments = {};
 
   for (const token of tokens) {
@@ -40,6 +48,7 @@ async function getOngoingTournamentsTokens(tournaments) {
     .filter(tournament => tournament.is_closed) /* && !tournament.is_finished */
     .map(tournament => tournament.token);
 }
+
 
 // Fetches the details of a specific tournament using its token
 async function handleGetTournamentDetail(token) {
@@ -84,6 +93,21 @@ function getTournamentBracket(tournament) {
     name: tournament.name,
     bracket: { rounds }
   };
+}
+
+function renderNoneTournaments() {
+  const container = document.getElementById('tournaments-container');
+  container.innerHTML = `
+<div class="neon-frame mt-5">
+	<div id="no-tournaments-card" class="card ctm-card p-5">
+		<h3 class="my-2 ctm-text-light text-center">You don't have any ongoing tournament!</h3>
+		<p class="my-3 ctm-text-light text-center">But you can create one or check the status of the ones you already created here!</p>
+    <div id="create-edit-btn" class="btn ctm-btn mb-3 flex-grow-1 d-flex align-items-center justify-content-center">Create/edit Tournament</div>
+		</div>
+  </div>
+</div> `;
+
+  container.querySelector('#create-edit-btn').addEventListener('click', () => navigateTo('new-tournament'));
 }
 
 // Renders all tournaments by generating their HTML elements and appending them to the container

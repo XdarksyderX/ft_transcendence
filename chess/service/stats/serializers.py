@@ -10,6 +10,7 @@ class ChessStatisticsSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = ChessStatistics
 		fields = [
+			'username',
 			'games_played', 
 			'games_won', 
 			'games_lost', 

@@ -22,6 +22,7 @@ export async function initializeLoginEvents() {
     }
     initRequestResetPasswordEvents();
     init42cosa();
+    initOTPform();
 }
 
 function init42cosa() { // socorro esto es súper provisional
@@ -51,30 +52,45 @@ async function authenticateUser(userCredentials) {
 }
 
 async function showOTPForm(userCredentials) {
-    document.getElementById('app').innerHTML = `
-        <div class="ctm-card">
-            <h2 class="text-center ctm-text-title">Enter OTP</h2>
-            <form id="otp-form">
-                <div class="mb-3">
-                    <label for="otp" class="form-label ctm-text-light">One-Time Password (OTP)</label>
-                    <input type="text" class="form-control ctm-text-dark" id="otp" required>
-                </div>
-                <div class="d-flex justify-content-center">
-                    <button type="submit" class="btn ctm-btn">Submit</button>
-                </div>
-            </form>
-        </div>
-    `;
+    const otpModal = new bootstrap.Modal(document.getElementById('otp-modal'));
+    otpModal.show();
 
-    document.getElementById('otp-form').addEventListener('submit', async function(event) {
+    // Handle OTP form submission
+    const otpForm = document.getElementById('otp-form');
+    otpForm.addEventListener('submit', async function(event) {
         event.preventDefault();
-        const otpCode = document.getElementById('otp').value.trim();
+        const otpInputs = document.querySelectorAll('.otp-input');
+        let otpCode = '';
+        otpInputs.forEach(input => {
+            otpCode += input.value;
+        });
+
         if (!otpCode) {
             throwAlert('Please enter the OTP code.');
             return;
+        } else {
+            await authenticateUser({ ...userCredentials, two_fa_code: otpCode });
         }
 
-        await authenticateUser({ ...userCredentials, two_fa_code: otpCode });
+        // Hide the OTP modal
+        otpModal.hide();
+    });
+}
+
+export function initOTPform() {
+    const otpInputs = document.querySelectorAll('.otp-input');
+    otpInputs.forEach((input, index) => {
+        input.addEventListener('input', () => {
+            if (input.value.length === 1 && index < otpInputs.length - 1) {
+                otpInputs[index + 1].focus();
+            }
+        });
+
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' && input.value.length === 0 && index > 0) {
+                otpInputs[index - 1].focus();
+            }
+        });
     });
 }
 

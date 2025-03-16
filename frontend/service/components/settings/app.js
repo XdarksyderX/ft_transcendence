@@ -5,6 +5,7 @@ import { parseEmail } from '../signup/signup.js';
 import { handle2FAmodal } from './QRhandler.js';
 import { logout } from '../../app/auth.js';
 import { getBlockedList, unblockUser, getAvatar } from '../../app/social.js'
+import { initOTPform } from '../login/login.js';
 
 
 export function initializeSettingsEvents() {
@@ -23,6 +24,7 @@ export function initializeSettingsEvents() {
 	initSaveChangesEvents(changedData);
 	// render blocked users
 	renderBlockedUsers();
+	initOTPform();
 }
 
 						/********* 2FA change **********/
@@ -244,8 +246,12 @@ function initSaveChangesEvents(changedData) {
 			return;
 		}
 		const otpRequired = isTwoFAEnabled() && !changedData.enable2FA;
-		const otp = document.getElementById('otp-input').value;
-		if (otpRequired && !otp) {
+		        const otpInputs = document.querySelectorAll('.otp-input');
+        let otpCode = '';
+        otpInputs.forEach(input => {
+            otpCode += input.value;
+        });
+		if (otpRequired && !otpCode) {
 			throwAlert("OTP required");
 			return;
 		} 
@@ -253,7 +259,7 @@ function initSaveChangesEvents(changedData) {
 		if (modal) { //Hide the modal after saving changes
 			modal.hide();
 		}
-		await handleSaveChanges(password, changedData, otp);
+		await handleSaveChanges(password, changedData, otpCode);
 	})
 	
 }

@@ -24,7 +24,7 @@ const notificationHandlers = {
     friend_removed: (data) => handleFriendChanges('friend_removed', data, -1),
     avatar_changed: (data) => handleFriendChanges('avatar_changed', data),
 	friend_status_updated: (data) => handleFriendChanges('friend_status_updated', data),
-    deleted_account: (data) => handleFriendChanges('deleted_account', data, -1),
+    user_deleted: (data) => handleFriendChanges('user_deleted', data, -1),
     username_changed: (data) => handleFriendChanges('friend_username_changed', data),
 
     // Friend requests
@@ -133,7 +133,7 @@ function handleFriendChanges(type, data, add = 0) {
 			refreshFriendData(data.old_username);
 		}
     } if (path === '/home' && type === 'friend_status_updated') {
-        refreshFriendStatusOnHome(data.user, data.is_online);
+        refreshFriendStatusOnHome();
     }
     if (add) { // we dont see avatar or status on chat or tournament
         refreshChatFriendList(); // chat refreshes in all paths
