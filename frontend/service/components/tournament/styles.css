@@ -15,6 +15,13 @@
 	justify-content: center;
 	min-height: 280px;
 }
+#create-edit-btn {
+	min-height: 100px;
+}
+
+#no-tournaments-card {
+	min-height: 30vh;
+}
 
 .round.even {
 	/* background: linear-gradient(to top, var(--medium), var(--dark)); */
