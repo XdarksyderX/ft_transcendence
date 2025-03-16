@@ -90,11 +90,13 @@
 }
 
 .ctm-form {
-	border-top-right-radius: 0;
-	border-bottom-right-radius: 0;
 	background-color: var(--dark) !important;
 	border: 1px solid var(--light);
 	color: var(--light) !important;
+}
+.ctm-form.anexed{
+    border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
 }
 
 .user-card {
