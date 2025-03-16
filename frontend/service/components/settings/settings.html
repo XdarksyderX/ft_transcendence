@@ -38,9 +38,9 @@
                                         </div>
                                     </div>
                                     <form id="change-password-form" class="collapse mt-2">
-                                        <input type="password" id="current-password" class="form-control ctm-form mb-2" placeholder="Actual Password">
-                                        <input type="password" id="new-password" class="form-control ctm-form mb-2 mb-2" placeholder="New Password">
-                                        <input type="password" id="confirm-new-password" class="form-control ctm-form mb-2 mb-2" placeholder="Confirm Password">
+                                        <input type="password" id="current-password" class="password-field form-control ctm-form mb-2" placeholder="Actual Password">
+                                        <input type="password" id="new-password" class="password-field form-control ctm-form mb-2 mb-2" placeholder="New Password">
+                                        <input type="password" id="confirm-new-password" class="password-field form-control ctm-form mb-2 mb-2" placeholder="Confirm Password">
                                         <div class="d-flex justify-content-center">
                                             <button type="submit" id="change-password-btn" class="btn ctm-btn mt-2">Change Password</button>
                                         </div>
@@ -89,7 +89,7 @@
                             <div class="list-group-item ">
                                 <h5 class="ctm-text-danger">Delete Account</h5>
                                 <form id="delete-account-form" class="mt-3 text-center">
-                                    <input type="password" id="delete-password" class="form-control ctm-form mb-2" placeholder="Enter password">
+                                    <input type="password" id="delete-password" class="password-field form-control ctm-form mb-2" placeholder="Enter password">
                                     <button type="submit" class="btn ctm-btn-danger" id="delete-account-btn" >Delete Account</button>
                                 </form>
                             </div>
@@ -150,10 +150,10 @@
             </div>
             <div class="modal-body">
                 <p>Please enter your password to save changes:</p>
-                <input type="password" id="confirm-changes-password" class="form-control ctm-form" placeholder="Enter your password">
+                <input type="password" id="confirm-changes-password" class="password-field form-control ctm-form" placeholder="Enter your password">
                 <div id="otp-form" class="mt-3" style="display: none;">
                     <p>OTP is required to deactivate the 2FA</p>
-                    <input type="password" id="otp-input" class="form-control ctm-form w-50" placeholder="Enter your OTP code">
+                    <input type="password" id="otp-input" class="password-field form-control ctm-form w-50" placeholder="Enter your OTP code">
                 </div>
             </div>
             <div class="modal-footer text-center">

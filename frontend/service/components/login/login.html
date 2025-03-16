@@ -1,48 +1,47 @@
 <div class="blinking-neon-frame">
-	<div id="login-card" class="card ctm-card p-5">
-		<button id="cancel-login" class="btn cancel-btn position-absolute top-0 end-0 m-2">x</button>
-		<h2 class="text-center ctm-text-title">Log in</h2>
-		<form id="login-form">
-			<div class="mb-3">
-				<label for="user" class="form-label ctm-text-light">User</label>
-				<input type="text" class="form-control ctm-form" id="username">
-			</div>
-			<div class="mb-3">
-				<label for="exampleInputPassword1" class="form-label ctm-text-light">Password</label>
-				<input type="password" class="form-control ctm-form" id="password">
-			</div>
-			<div class="d-flex justify-content-center flex-column">
-				<div class="d-flex justify-content-center w-100">
-					<button type="submit" class="btn ctm-btn w-50 flex-grow-1" id="submit">Submit</button>
-					<div class="text-center ctm-text-light p-1">or</div>
-					<button id="login42-button" class="btn ctm-btn w-50 flex-grow-1">Login with 42</button>
-				</div>
-				<div class="d-flex justify-content-center mt-3 w-100">
-					<div id="forgot-pw" class="btn ctm-btn-secondary flex-grow-1">Forgot your password?</div>
-				</div>
-				<div class="d-flex justify-content-center mt-2">
-					<a href="/signup" class="ctm-text-light ctm-link">Don't have an account? Register here</a>
-				</div>
-			</div>
-		</form>
-		<div class="d-flex flex-column 2-50">
-		</div>
-	</div> <!-- this closes the login card -->
-	<div id="reset-password-card" class="card ctm-card p-5" style="display: none;" >
-		<button id="cancel-reset-pw-request" class="btn cancel-btn position-absolute top-0 end-0 m-2">x</button>
-		<h2 class="text-center ctm-text-title">Reset password</h2>
-		<form id="request-reset-pw-form">
-			<div class="mb-3">
-				<label for="email" class="form-label ctm-text-light">Enter the email associated to your account</label>
-				<input type="email" class="form-control ctm-form" id="reset-pw-email" required placeholder="vicenta@inventmail.com">
-			</div>
-			<div class="d-flex justify-content-center">
-				<button type="submit" class="btn ctm-btn">Request password reset</button>
-			</div>
-		</form>
-	</div> <!-- this closes the reset card -->
+    <div id="login-card" class="card ctm-card p-5">
+        <button id="cancel-login" class="btn cancel-btn position-absolute top-0 end-0 m-2">x</button>
+        <h2 class="text-center ctm-text-title">Log in</h2>
+        <form id="login-form">
+            <div class="mb-3">
+                <label for="username" class="form-label ctm-text-light">User</label>
+                <input type="text" class="form-control ctm-form" id="username" autocomplete="username">
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label ctm-text-light">Password</label>
+                <input type="password" class="password-field form-control ctm-form" id="password" autocomplete="current-password">
+            </div>
+            <div class="d-flex justify-content-center flex-column">
+                <div class="d-flex justify-content-center w-100">
+                    <button type="submit" class="btn ctm-btn w-50 flex-grow-1" id="submit">Submit</button>
+                    <div class="text-center ctm-text-light p-1">or</div>
+                    <button id="login42-button" class="btn ctm-btn w-50 flex-grow-1">Login with 42</button>
+                </div>
+                <div class="d-flex justify-content-center mt-3 w-100">
+                    <div id="forgot-pw" class="btn ctm-btn-secondary flex-grow-1">Forgot your password?</div>
+                </div>
+                <div class="d-flex justify-content-center mt-2">
+                    <a href="/signup" class="ctm-text-light ctm-link">Don't have an account? Register here</a>
+                </div>
+            </div>
+        </form>
+        <div class="d-flex flex-column 2-50">
+        </div>
+    </div> <!-- this closes the login card -->
+    <div id="reset-password-card" class="card ctm-card p-5" style="display: none;" >
+        <button id="cancel-reset-pw-request" class="btn cancel-btn position-absolute top-0 end-0 m-2">x</button>
+        <h2 class="text-center ctm-text-title">Reset password</h2>
+        <form id="request-reset-pw-form">
+            <div class="mb-3">
+                <label for="reset-pw-email" class="form-label ctm-text-light">Enter the email associated to your account</label>
+                <input type="email" class="form-control ctm-form" id="reset-pw-email" required placeholder="vicenta@inventmail.com" autocomplete="email">
+            </div>
+            <div class="d-flex justify-content-center">
+                <button type="submit" class="btn ctm-btn">Request password reset</button>
+            </div>
+        </form>
+    </div> <!-- this closes the reset card -->
 </div>
-
 
 
 <!-- we dont use this modal now -->

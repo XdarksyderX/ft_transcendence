@@ -254,3 +254,8 @@ input:focus, select:focus, .ctm-btn:focus, .ctm-btn-secondary:focus,
     background-color: var(--accent) !important;
     border-color: var(--light) !important;
 } */
+
+.password-field {
+    /* font-size: 30px; */
+    font-weight: bolder;
+}
