@@ -22,6 +22,7 @@ function showNewTournamentSection() {
     const elements = getElements();
     elements.newContainer.style.display = 'block';
     elements.pendantContainer.style.display = 'none';
+    elements.nameInput.value = '';
     setSwitches(elements);
     renderFriendList(elements);
     initStartNewTournament(elements);
@@ -35,7 +36,8 @@ function getElements() {
         startBtn: document.getElementById('start-tournament-btn'),
         switchButtons: document.querySelectorAll('.switch-btn'),
         friendsContainer: document.getElementById("friends-container"),
-        friendList: document.getElementById('tournament-friends-list')
+        friendList: document.getElementById('tournament-friends-list'),
+        nameInput: document.getElementById('tournament-name-input')
     };
 }
 
@@ -114,7 +116,7 @@ function toggleFriendSelection(friend, btn, elements) {
 function initStartNewTournament(elements) {
     elements.startBtn.addEventListener('click', () => {
         event.preventDefault();
-        const tournamentName = document.getElementById('tournament-name-input').value;
+        const tournamentName = elements.nameInput.value;
         if (!tournamentName) {
             return throwAlert('Please, give your tournament a name');
         }
@@ -160,6 +162,8 @@ export async function handleDeleteTournament(token) {
     const response = await deleteTournament(token);
     if (response.status !== "success") {
         throwAlert(`Failed to delete tournament: ${response.message}`);
+    } else {
+        initializeNewTournament();
     }
 }
 

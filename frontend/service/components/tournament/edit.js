@@ -1,7 +1,8 @@
 import { throwAlert } from "../../app/render.js";
 import { getEditableTournaments,  getTournamentDetail, getTournamentInvitationDetail, startTournament, joinTournamentQueue, leaveTournamentQueue} from "../../app/pong.js";
 import { handleGetFriendList } from "../friends/app.js";
-import { handleSendTournamentInvitation, handleDeleteTournament } from "./new.js";
+import { handleSendTournamentInvitation, handleDeleteTournament, initializeNewTournament } from "./new.js";
+
 
 let selectedFriends = [];
 let maxPlayers = 0;
