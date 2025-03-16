@@ -283,20 +283,19 @@ function moveElement(piece, id, castle) {
     return;
   
   const isClickBool = isClick()
+  const pawnPromotionBool = checkForPawnPromotion(piece, id);
 
   if (isClickBool) {
-    const data = {
-      action: "move",
-      from: piece.current_pos,
-      to: id
-    } 
-    try {
+    if (!pawnPromotionBool) { // pdte ver con Marina
+      const data = {
+        action: "move",
+        from: piece.current_pos,
+        to: id
+      } 
       chessSocket.send(JSON.stringify(data));
       console.log("Sending data through WebSocket:", data);
-
-    } catch (e) {
-      console.error(e);
     }
+
     if (piece.piece_name.includes("PAWN") && (Math.abs(id[1] - piece.current_pos[1]) === 2 )) {
       console.log("soy paco y soy true");
       piece.move = true;
@@ -306,7 +305,6 @@ function moveElement(piece, id, castle) {
     }
   }
 
-  const pawnPromotionBool = checkForPawnPromotion(piece, id);
   let castlingType = moveTwoCastlingPieces(piece, id);
   const direction = piece.piece_name.includes("PAWN") ? (inTurn === "white" ? 1 : -1) : null;
   if (help.checkEnPassant(piece.current_pos, inTurn, direction))

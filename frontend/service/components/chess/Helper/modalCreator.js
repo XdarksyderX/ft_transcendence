@@ -70,14 +70,19 @@ function pawnPromotion(color, callback, id, pieceTo = null) {
     img.src = `components/chess/Assets/pieces/${imgStyle}/${color}/${pieceName}.png`;
     img.onclick = () => {
       callback(piecesMap[pieceName], id);
-      modal.hide();
+      const promotionMessage = {
+        action: "promotion_choice",
+        piece_type: pieceName
+      };
+      console.log("sending promotion message");
+      chessSocket.send(JSON.stringify(promotionMessage));
     };
     return img;
   };
   
   if (!isClickBool) {
     console.log("no estoy siendo clicado");
-    callback(piecesMap["whiteRook"], "b8");
+    //callback(piecesMap["whiteRook"], "b8"); // marina esto está hardcodeado?
     return;
   }
   
