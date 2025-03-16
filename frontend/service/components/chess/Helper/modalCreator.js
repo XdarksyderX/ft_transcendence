@@ -70,12 +70,7 @@ function pawnPromotion(color, callback, id, pieceTo = null) {
     img.src = `components/chess/Assets/pieces/${imgStyle}/${color}/${pieceName}.png`;
     img.onclick = () => {
       callback(piecesMap[pieceName], id);
-      const promotionMessage = {
-        action: "promotion_choice",
-        piece_type: pieceName
-      };
-      console.log("sending promotion message");
-      chessSocket.send(JSON.stringify(promotionMessage));
+      handlePromotionChoice(pieceName);
     };
     return img;
   };
@@ -105,6 +100,21 @@ function pawnPromotion(color, callback, id, pieceTo = null) {
   modal.show();
 }
 
+function handlePromotionChoice(pieceType) {
+  const data = {
+    action: "promotion_choice",
+    piece_type: pieceType
+  };
+  try {
+    chessSocket.send(JSON.stringify(data));
+    console.log("Sending promotion choice through WebSocket:", data);
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+// Example usage when a promotion choice is made
+handlePromotionChoice("queen");
 function winGame(winBool) {
   if(!winBool)
     return;

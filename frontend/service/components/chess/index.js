@@ -164,6 +164,7 @@ function handleGetChessReceivedMessage(event) {
             localStorage.removeItem("chessMoves");
             if (localStorage.getItem("enPassantCapture"))
                 localStorage.removeItem("enPassantCapture");
+            chessSocket.close(); // i forgot xd
         }
         if (data?.current_player) {
             inTurn = data.current_player;

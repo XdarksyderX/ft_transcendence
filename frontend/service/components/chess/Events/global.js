@@ -286,7 +286,7 @@ function moveElement(piece, id, castle) {
   const pawnPromotionBool = checkForPawnPromotion(piece, id);
 
   if (isClickBool) {
-    if (!pawnPromotionBool) { // pdte ver con Marina
+   // if (!pawnPromotionBool) { // pdte ver con Marina
       const data = {
         action: "move",
         from: piece.current_pos,
@@ -294,7 +294,7 @@ function moveElement(piece, id, castle) {
       } 
       chessSocket.send(JSON.stringify(data));
       console.log("Sending data through WebSocket:", data);
-    }
+    //}
 
     if (piece.piece_name.includes("PAWN") && (Math.abs(id[1] - piece.current_pos[1]) === 2 )) {
       console.log("soy paco y soy true");
