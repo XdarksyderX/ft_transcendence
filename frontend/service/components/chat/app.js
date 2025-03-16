@@ -66,7 +66,8 @@ export async function toggleChat(elements) {
 	if (isExpanded && currentView === 'recent-chats') {
 		console.log("CI");
 		await showRecentChats(elements);
-	} else {
+	} else if (currentView === 'chat') {
+		await markMessagesAsRead(currentChat.username);
 		await updateNotificationIndicator(elements.notificationIndicator);
 	}
 }
@@ -274,8 +275,9 @@ async function fetchChatMessages(friendUsername) {
 }
 
 // Mark messages as read for a specific friend
-export async function markMessagesAsRead(friendUsername) { // eli no deberías llamar aquí a updatenotification
+export async function markMessagesAsRead(friendUsername) { 
     try {
+		console.log("marking as read");
         const markResponse = await markAsReadMessage(friendUsername);
         if (markResponse.status !== "success") {
             console.error("Error marking messages as read:", markResponse.message);

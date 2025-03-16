@@ -79,12 +79,12 @@ async function handleReceivedMessage(event) {
 				//console.log("current chat on received: ", currentChat);
 		   // }
 			// Update the view if the current view is the chat with the sender or the recent-chats tab
-			if (currentView === 'chat' && currentChat.username === data.data.sender) { /* && currentChat.username === data.data.sender */
+			if (isExpanded && currentView === 'chat' && currentChat.username === data.data.sender) { /* && currentChat.username === data.data.sender */
 				markMessagesAsRead(currentChat.username);
 				(await renderChat(getElements()));
 			} else if (currentView === 'recent-chats') {
 				renderRecentChats(getElements());
-			} else if (!isExpanded) {
+			} if (!isExpanded) {
 				updateNotificationIndicator(document.getElementById('notification-indicator'));
 			}
 		} else {

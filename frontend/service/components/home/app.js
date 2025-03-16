@@ -356,8 +356,11 @@ function createFriendBtn(friend, startBtn) {
 
 export function refreshFriendStatusOnHome() {
 
-   const container = currentView.querySelector('#friends-container') || currentView.getElementById('#friends-container');
-   renderFriendList(container);
+	if (!currentView) return ;
+	const container = currentView.querySelector('#friends-container') || currentView.getElementById('#friends-container');
+	if (container) {
+		renderFriendList(container);
+	}
 }
 
 function toggleFriendSelection(friend, btn) { // btn is for chess or for pong
