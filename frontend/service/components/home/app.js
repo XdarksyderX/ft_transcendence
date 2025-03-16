@@ -252,16 +252,20 @@ function clickStartQueueBtn(switches, variants) {
 }
 
 function toggleVariants(container, show) {
+	const disclaimer = document.getElementById('ranked-variants');
     if (show) {
         container.classList.add('show');
+		disclaimer.classList.remove('show');
         const selected = document.querySelector(`[data-variant="${chessVariant}"]`);
         if (selected) {
             selected.classList.add('selected');
         }
     } else {
         container.classList.remove('show');
+        disclaimer.classList.add('show');
     }
 }
+
 /* * * * * * * * * * * * * * * UTILS * * * * * * * * * * * * * * */
 
 
