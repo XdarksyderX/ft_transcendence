@@ -281,7 +281,7 @@ class ChessConsumer(AsyncWebsocketConsumer):
 				if result.get('promotion_pending') == True:
 					promotion_data = {
 						"square": to_pos,
-						# "piece_type": result.get('info').get('promotion_piece_type', 'queen'),
+						"piece_type": None,
 						"color": self.color
 					}
 					game["promotion_pending"] = True
@@ -382,7 +382,7 @@ class ChessConsumer(AsyncWebsocketConsumer):
 			logger.debug(f"Handling 'promotion_choice' action for {self.color}")
 			logger.debug(f"Promotion pending: {game.get('promotion_pending')}, Promotion color: {game.get('promotion_color')}")
 			if game.get("promotion_pending") and game.get("promotion_color") == self.color:
-				promotion_choice = data.get("piece_type", "queen")
+				promotion_choice = data.get("piece_type")
 				logger.debug(f"Promotion choice: {promotion_choice}")
 		
 				success, message, updated_board, result = game["game_logic"].handle_promotion(promotion_choice)

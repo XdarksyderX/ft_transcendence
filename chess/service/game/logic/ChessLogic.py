@@ -88,15 +88,17 @@ class ChessLogic:
                 'promotion_pending': True,
                 'promotion_position': self.promotion_position
             }
-
-        new_board, info = self.game_mode.complete_promotion(
+        logger.debug(f"handle_promotion 1")
+        success, message, new_board, info = self.game_mode.complete_promotion(
             self.board, self.promotion_position, promotion_choice
         )
+        logger.debug(f"handle_promotion 2")
         if 'error' in info:
             return False, info['error'], self.board, {
                 'promotion_pending': True,
                 'promotion_position': self.promotion_position
             }
+        logger.debug(f"handle_promotion 3")
 
         # Buscar el último movimiento que culmina en la posición de promoción
         from_pos = next(
