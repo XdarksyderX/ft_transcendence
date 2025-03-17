@@ -1,10 +1,15 @@
-from .modes import ClassicChess
+from .modes import ClassicChess, HordeChess, Chess960
 
+import logging
+logger = logging.getLogger('chess_game')
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class ChessLogic:
     def __init__(self, game_mode: str = 'classic'):
         self.mode_handlers = {
             'classic': ClassicChess(),
+            'horde': HordeChess(),
+            '960': Chess960(),
         }
         self.game_mode = self.mode_handlers.get(game_mode, ClassicChess())
         self.board = None
@@ -40,13 +45,15 @@ class ChessLogic:
         success, message, new_board, info = self.game_mode.validate_move(
             self.board, from_pos, to_pos, player_color, promotion_choice
         )
+        logger.debug(f"on make_move, info {info}")
         if not success:
             return False, message, self.board, {}
 
         self.board = new_board
 
         # Manejo de promoción pendiente
-        if info.get('promotion_pending', False):
+        if info.get('promotion_pending', True):
+            logger.debug(f"HOLI QUÉ TAL")
             self.state = 'PROMOTION_PENDING'
             self.promotion_position = to_pos
             return True, "Choose a piece for promotion (queen, rook, bishop, knight)", self.board, {
@@ -81,15 +88,17 @@ class ChessLogic:
                 'promotion_pending': True,
                 'promotion_position': self.promotion_position
             }
-
-        new_board, info = self.game_mode.complete_promotion(
+        logger.debug(f"handle_promotion 1")
+        success, message, new_board, info = self.game_mode.complete_promotion(
             self.board, self.promotion_position, promotion_choice
         )
+        logger.debug(f"handle_promotion 2")
         if 'error' in info:
             return False, info['error'], self.board, {
                 'promotion_pending': True,
                 'promotion_position': self.promotion_position
             }
+        logger.debug(f"handle_promotion 3")
 
         # Buscar el último movimiento que culmina en la posición de promoción
         from_pos = next(

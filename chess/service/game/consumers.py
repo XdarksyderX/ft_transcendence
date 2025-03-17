@@ -9,7 +9,7 @@ from .logic import ChessLogic
 
 
 logger = logging.getLogger('chess_game')
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 
 chess_games = {}
@@ -192,18 +192,23 @@ class ChessConsumer(AsyncWebsocketConsumer):
 		logger.info(f"Player {self.user.username} ({self.color}) disconnected from game {self.game_key}")
 
 	async def receive(self, text_data):
+		logger.debug(f"Received WebSocket message: {text_data}")
 		try:
 			data = json.loads(text_data)
 		except json.JSONDecodeError:
+			logger.error("Failed to decode JSON")
 			return
 		
 		action = data.get("action")
 		game = chess_games.get(self.game_key)
 		
 		if not game:
+			logger.error(f"Game not found for key: {self.game_key}")
 			return
-		logger.debug(f"action: {action}")
+		
+		logger.debug(f"Action: {action}")
 		if action == "ready":
+			logger.debug(f"Handling 'ready' action for {self.color}")
 			game["ready"][self.color] = True
 			await self.channel_layer.group_send(
 				self.group_name,
@@ -239,6 +244,7 @@ class ChessConsumer(AsyncWebsocketConsumer):
 						"current_player": game["current_player"]
 					}))
 		elif action == "move":
+			logger.debug(f"Handling 'move' action for {self.color}")
 			if game["current_player"] != self.color:
 				await self.send(text_data=json.dumps({
 					"status": "error",
@@ -262,11 +268,6 @@ class ChessConsumer(AsyncWebsocketConsumer):
 			
 			if success:
 				game["board"] = updated_board
-				game["current_player"] = "black" if self.color == "white" else "white"
-				await update_game_in_db(self.game_obj, updated_board)
-				await save_move_to_db(self.game_obj, from_pos, to_pos, self.color, piece_info)
-				print(result)
-				
 				game["move_history"].append({
 					"from": from_pos,
 					"to": to_pos,
@@ -276,12 +277,20 @@ class ChessConsumer(AsyncWebsocketConsumer):
 				
 				# Check for promotion in the result
 				promotion_data = None
-				if result.get('promotion'):
+				logger.debug(f"AAAAA {result}")
+				if result.get('promotion_pending') == True:
 					promotion_data = {
 						"square": to_pos,
-						"piece_type": result.get('promotion_piece_type', 'queen'),
+						"piece_type": None,
 						"color": self.color
 					}
+					game["promotion_pending"] = True
+					game["promotion_color"] = self.color
+					logger.debug(f"Promotion pending set to true for {self.color}")
+				else:
+					game["current_player"] = "black" if self.color == "white" else "white"
+					await update_game_in_db(self.game_obj, updated_board)
+					await save_move_to_db(self.game_obj, from_pos, to_pos, self.color, piece_info)
 				
 				if result.get('game_over'):
 					winner_color = result.get('winner')
@@ -337,6 +346,7 @@ class ChessConsumer(AsyncWebsocketConsumer):
 					"message": message
 				}))
 		elif action == "resign":
+			logger.debug(f"Handling 'resign' action for {self.color}")
 			winner_color = "black" if self.color == "white" else "white"
 			winner_user = await sync_to_async(lambda: self.game_obj.player_white if winner_color == "white" else self.game_obj.player_black)()
 			game["status"] = "finished"
@@ -358,6 +368,7 @@ class ChessConsumer(AsyncWebsocketConsumer):
 				}
 			)
 		elif action == "sync_request":
+			logger.debug(f"Handling 'sync_request' action for {self.color}")
 			if game["board"]:
 				serialized_board = serialize_board(game["board"])
 				await self.send(text_data=json.dumps({
@@ -367,67 +378,74 @@ class ChessConsumer(AsyncWebsocketConsumer):
 					"game_status": game["status"],
 					"your_color": self.color
 				}))
-		# Handle pawn promotion choice
 		elif action == "promotion_choice":
-			logger.debug(f"Received promotion_choice action: {data}")
-			if game["current_player"] != self.color:
+			logger.debug(f"Handling 'promotion_choice' action for {self.color}")
+			logger.debug(f"Promotion pending: {game.get('promotion_pending')}, Promotion color: {game.get('promotion_color')}")
+			if game.get("promotion_pending") and game.get("promotion_color") == self.color:
+				promotion_choice = data.get("piece_type")
+				logger.debug(f"Promotion choice: {promotion_choice}")
+		
+				success, message, updated_board, result = game["game_logic"].handle_promotion(promotion_choice)
+				logger.debug(f"Promotion result: {success}, {message}, {result}")
+		
+				if success:
+					game["board"] = updated_board
+					game["promotion_pending"] = False
+					await update_game_in_db(self.game_obj, updated_board)
+					logger.debug(f"Updated game in DB with new board state")
+		
+					if result.get('game_over'):
+						winner_color = result.get('winner')
+						game["status"] = "finished"
+						winner_user = await sync_to_async(lambda: self.game_obj.player_white if winner_color == "white" else self.game_obj.player_black)()
+						logger.debug(f"Game over detected, winner: {winner_color}")
+		
+						await update_game_in_db(
+							self.game_obj, 
+							updated_board, 
+							status="finished", 
+							winner=winner_user
+						)
+						logger.debug(f"Updated game in DB with game over status")
+		
+						await self.channel_layer.group_send(
+							self.group_name,
+							{
+								"type": "game.over",
+								"winner": winner_color,
+								"reason": result.get('game_state'),
+								"promotion_piece": promotion_choice
+							}
+						)
+						logger.debug(f"Sent game over event to group: {self.group_name}")
+					else:
+						game["current_player"] = "black" if self.color == "white" else "white"
+						await self.channel_layer.group_send(
+							self.group_name,
+							{
+								"type": "game.update",
+								"board": serialize_board(updated_board),
+								"promotion": {
+									"square": game["game_logic"].promotion_position,
+									"piece_type": promotion_choice,
+									"color": self.color
+								},
+								"current_player": game["current_player"]
+							}
+						)
+						logger.debug(f"Sent promotion update to group: {self.group_name}")
+				else:
+					await self.send(text_data=json.dumps({
+						"status": "error",
+						"message": message
+					}))
+					logger.debug(f"Promotion failed: {message}")
+			else:
 				await self.send(text_data=json.dumps({
 					"status": "error",
 					"message": "Not your turn"
 				}))
-				return
-			
-			promotion_choice = data.get("piece_type", "queen")
-			
-			success, message, updated_board, result = game["game_logic"].handle_promotion(promotion_choice)
-			
-			if success:
-				game["board"] = updated_board
-				game["current_player"] = "black" if self.color == "white" else "white"
-				await update_game_in_db(self.game_obj, updated_board)
-				
-				if result.get('game_over'):
-					winner_color = result.get('winner')
-					game["status"] = "finished"
-					winner_user = await sync_to_async(lambda: self.game_obj.player_white if winner_color == "white" else self.game_obj.player_black)()
-					
-					await update_game_in_db(
-						self.game_obj, 
-						updated_board, 
-						status="finished", 
-						winner=winner_user
-					)
-					
-					logger.info(f"Game over after promotion: {result.get('game_state')} - Winner: {winner_color}")
-					
-					await self.channel_layer.group_send(
-					self.group_name,
-					{
-						"type": "game.over",
-						"winner": winner_color,
-						"reason": result.get('game_state'),
-						"promotion_piece": promotion_choice
-					}
-					)
-				else:
-					await self.channel_layer.group_send(
-					self.group_name,
-						{
-							"type": "game.update",
-							"board": serialize_board(updated_board),
-							"promotion": {
-							"square": game["game_logic"].promotion_position,
-							"piece_type": promotion_choice,
-							"color": self.color
-							},
-							"current_player": game["current_player"]
-						}
-					)
-		else:
-			await self.send(text_data=json.dumps({
-				"status": "error",
-				"message": message
-			}))
+				logger.debug(f"Promotion choice error: Not your turn")
 
 	async def player_status(self, event):
 		await self.send(text_data=json.dumps({

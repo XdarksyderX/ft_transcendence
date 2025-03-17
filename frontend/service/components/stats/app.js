@@ -24,11 +24,11 @@ async function renderChessStats() {
     const casualContainer = document.getElementById('chess-casual-stats');
     const casualStats = await handleGetStats(getCasualChessStats);
     if (!casualStats) return ;
-    renderChessCasualStats(casualContainer, casualStats);
+    renderChessGameStats(casualContainer, casualStats);
     
     const rankedsContainer = document.getElementById('chess-ranked-stats');
     const rankedStats = await handleGetStats(getRankedChessStats);
-    renderChessCasualStats(rankedsContainer, rankedStats, true);
+    renderChessGameStats(rankedsContainer, rankedStats, true);
 }
 
 async function handleGetStats(getStatsFunction) {
@@ -42,14 +42,14 @@ async function handleGetStats(getStatsFunction) {
 }
 
 function renderQuickGameStats(container, stats) {
-    let winnRate = (stats.won / stats.played * 100).toFixed(2);
+    let winRate = stats.played === 0 ? 0 : (stats.won / stats.played * 100).toFixed(2);
       container.innerHTML = `
     <p><span class="fw-bold">Played:</span> ${stats.played}</p>
     <p><span class="fw-bold">Wins:</span> ${stats.won}</p>
     <p><span class="fw-bold">Losses:</span> ${stats.lost}</p>
-    <p><span class="fw-bold">Win rate:</span> ${winnRate}%</p>
+    <p><span class="fw-bold">Win rate:</span> ${winRate}%</p>
     <p><span class="fw-bold">Streak:</span> ${stats.streak}</p>
-    <p><span class="fw-bold">Highest score: ${stats.highest_score}</p>
+    <p><span class="fw-bold">Highest score:</span> ${stats.highest_score}</p>
   `;
 }
 
@@ -61,17 +61,22 @@ function renderTournamentStats(container, stats) {
   `;
 }
 
-function renderChessCasualStats(container, stats, isRanked = false) {
-    const rankedDiv = isRanked ? `<p><span class="fw-bold">Highest Rating:</span> ${stats.highest_rating}</p>` : '' 
+function renderChessGameStats(container, stats, isRanked = false) {
+    let rate = {}
+    if (isRanked) {
+        rate.title = 'Highest Rating:'
+        rate.value = stats.highest_rating
+    } else {
+        let winRate = stats.games_played === 0 ? 0 : (stats.games_won / stats.games_played * 100).toFixed(2);
+        rate.title = 'Win Rate:'
+        rate.value = `${winRate}%`;
+    }
 	console.log("hola caracola: ", stats);
     container.innerHTML = `
     <p><span class="fw-bold">Games Played:</span> ${stats.games_played}</p>
     <p><span class="fw-bold">Games Won:</span> ${stats.games_won}</p>
     <p><span class="fw-bold">Games Lost:</span> ${stats.games_lost}</p>
     <p><span class="fw-bold">Draws:</span> ${stats.draws}</p>
-    ${rankedDiv}
+    <p><span class="fw-bold">${rate.title}</span> ${rate.value}</p>
 	`;
-    // <p><span class="fw-bold">Username:</span> ${stats.username}</p>
-    // <p><span class="fw-bold">Created At:</span> ${new Date(stats.created_at).toLocaleString()}</p>
-    // <p><span class="fw-bold">Updated At:</span> ${new Date(stats.updated_at).toLocaleString()}</p>
 }
