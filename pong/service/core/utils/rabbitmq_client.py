@@ -3,6 +3,7 @@ import json
 import uuid
 import pika
 import time
+import traceback
 
 DEFAULT_CONFIG = {
     "AMQP_ENABLED": os.getenv("AMQP_ENABLED", "false").lower() == "true",
@@ -114,7 +115,8 @@ class RabbitMQClient:
                     raise pika.exceptions.AMQPConnectionError("Connection is not open.")
 
             except:
-                print(f"Attempt {attempt}/{max_retries} - Error sending message to RabbitMQ")
+                error = traceback.format_exc()
+                print(f"Attempt {attempt}/{max_retries} - Error sending message to RabbitMQ: {error}")
                 if attempt < max_retries:
                     time.sleep(retry_delay)
                     self._ensure_connection()

@@ -125,13 +125,15 @@ class PongGame(models.Model):
                         player2_position = 1
 
             if self.is_tournament:
+                players_id = self.tournament.players.values_list('id', flat=True)
                 event = {
                     'tournament_token': self.tournament.token,
                     'player1': self.player1.username,
                     'player2': self.player2.username,
                     'winner': self.winner.username,
-                    'players': tournament.players.values_list('username', flat=True),
+                    'players_id': list(players_id),
                 }
+                print(event)
                 publish_event('pong', 'pong.tournament_match_finished', event)
                 if self.tournament.is_current_round_finished():
                     self.tournament.create_next_round_matches()
@@ -332,8 +334,8 @@ class Tournament(models.Model):
         """
         Returns True if all matches in the current round have finished.
         """
-        matches = self.matches.filter(round_number=self.current_round)
-        return all(match.status == 'finished' for match in matches)
+        tournament_matches = self.matches.filter(round_number=self.current_round)
+        return all(tournament_match.pong_game.status == 'finished' for tournament_match in tournament_matches)
 
     def create_next_round_matches(self):
         """

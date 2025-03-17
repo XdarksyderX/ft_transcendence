@@ -91,8 +91,8 @@ class TournamentJoinQueue(APIView):
 			pong_game.save()
 			publish_event('pong', 'pong.tournament_match_ready', {
 				'game_key': str(game_key),
-				'player1': pong_game.player1.username,
-				'player2': pong_game.player2.username
+				'player1_id': pong_game.player1.id,
+				'player2_id': pong_game.player2.id,
 			})
 			TournamentQueue.objects.filter(
 				tournament=tournament,

@@ -156,12 +156,6 @@ class TournamentInvitationCreateView(APIView):
                 'tournament_token': str(tournament.token),
                 'invitation_token': token
             })
-            publish_event("pong", "pong.tournament_players_update", {
-                "sender_id": invitation.sender.id,
-                "receiver_id": invitation.receiver.id,
-                "tournament_token": str(invitation.tournament.token),
-                "players": [player.id for player in tournament.players.all()],
-            })
             return Response({
                 "status": "success",
                 "message": "Invitation created successfully",
@@ -199,11 +193,10 @@ class TournamentInvitationAcceptView(APIView):
         tournament.players.add(invitation.receiver)
         invitation.status = 'accepted'
         invitation.save()
-        publish_event("pong", "pong.tournament_players_update", {
+        publish_event("pong", "pong.tournament_invitation.accepted", {
             "sender_id": invitation.sender.id,
             "receiver_id": invitation.receiver.id,
             "tournament_token": str(invitation.tournament.token),
-            "players": [player.id for player in tournament.players.all()],
         })
         return Response({
             "status": "success",
@@ -238,8 +231,7 @@ class TournamentStartView(APIView):
             "tournament_token": str(tournament.token),
             "players_id": [player.id for player in tournament.players.all()]
         })
-        
-        # Cancel any remaining pending invitations
+
         remaining_invitations = TournamentInvitation.objects.filter(tournament=tournament)
         for invitation in remaining_invitations:
             invitation.status = 'cancelled'
@@ -272,11 +264,10 @@ class TournamentInvitationDenyView(APIView):
             }, status=404)
 
         tournament = invitation.tournament
-        publish_event("pong", "pong.tournament_players_update", {
+        publish_event("pong", "pong.tournament_invitation.deny", {
             "sender_id": invitation.sender.id,
             "receiver_id": invitation.receiver.id,
-            "tournament_token": str(invitation.tournament.token),
-            "players": [player.id for player in tournament.players.all()],
+            "tournament_token": str(invitation.tournament.token)
         })
         invitation.status = 'denied'
         invitation.save()
@@ -299,13 +290,13 @@ class TournamentInvitationCancelView(APIView):
                 "status": "error",
                 "message": "Invitation not found or you are not the sender."
             }, status=404)
-
         invitation.status = 'cancelled'
         invitation.save()
         return Response({
             "status": "success",
             "message": "Invitation canceled successfully"
         })
+
 class TournamentDeletePlayerView(APIView):
     def post(self, request, token, username):
         if not token:
