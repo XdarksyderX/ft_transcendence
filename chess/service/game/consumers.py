@@ -202,7 +202,7 @@ class ChessConsumer(AsyncWebsocketConsumer):
 		
 		if not game:
 			return
-		
+		logger.debug(f"action: {action}")
 		if action == "ready":
 			game["ready"][self.color] = True
 			await self.channel_layer.group_send(
@@ -369,6 +369,7 @@ class ChessConsumer(AsyncWebsocketConsumer):
 				}))
 		# Handle pawn promotion choice
 		elif action == "promotion_choice":
+			logger.debug(f"Received promotion_choice action: {data}")
 			if game["current_player"] != self.color:
 				await self.send(text_data=json.dumps({
 					"status": "error",

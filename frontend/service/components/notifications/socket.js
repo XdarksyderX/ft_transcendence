@@ -128,9 +128,10 @@ function handleFriendChanges(type, data, add = 0) {
     const path = window.location.pathname;
     console.log("on handleFriendChanges", path, type);
     if (path === '/friends') {
-        refreshFriendsFriendlist(data.old_username, add); // aquí debo mandar el username del amigo
+        const username = data.old_username || data.user;
+        refreshFriendsFriendlist(username, add); // aquí debo mandar el username del amigo
 		if (add === 0) {
-			refreshFriendData(data.old_username);
+			refreshFriendData(username);
 		}
     } if (path === '/home' && type === 'friend_status_updated') {
         refreshFriendStatusOnHome();
@@ -151,6 +152,5 @@ function handleFriendRequestChanges(type, data = null) {
 		refreshIfDeclined(data.user);
 	}
 }
-
 
 export { notiSocket }

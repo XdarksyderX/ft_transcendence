@@ -44,6 +44,8 @@ export async function handleGetFriendList() {
 }
 
 export function refreshFriendsFriendlist(changedFriend, add) {
+    console.log("refresh function called");
+    console.log("friend: ", changedFriend, "add: ", add);
     const friendsContainer = document.getElementById('friends-container');
     const dataContainer = document.getElementById('friend-data');
     let refresh = false;
@@ -76,10 +78,12 @@ export function refreshFriendsFriendlist(changedFriend, add) {
 // if the user is still present on search list when accepts the friend request,
 // erases the element from the DOM 
 function cleanSearchList(username) {
-    
+    console.log("CleanSearch function called");
+    console.log("username: ", username);
     const searchList = document.getElementById('search-list');
     const userCard = searchList.querySelector(`[data-username="${username}"]`);
     if (userCard) {
+        console.log("no amiga no");
         searchList.removeChild(userCard);
     }
 }

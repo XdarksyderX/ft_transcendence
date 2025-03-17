@@ -70,14 +70,14 @@ function pawnPromotion(color, callback, id, pieceTo = null) {
     img.src = `components/chess/Assets/pieces/${imgStyle}/${color}/${pieceName}.png`;
     img.onclick = () => {
       callback(piecesMap[pieceName], id);
-      modal.hide();
+      handlePromotionChoice(pieceName);
     };
     return img;
   };
   
   if (!isClickBool) {
     console.log("no estoy siendo clicado");
-    callback(piecesMap["whiteRook"], "b8");
+    //callback(piecesMap["whiteRook"], "b8"); // marina esto está hardcodeado?
     return;
   }
   
@@ -98,6 +98,19 @@ function pawnPromotion(color, callback, id, pieceTo = null) {
   
   const modal = new ModalCreator(finalContainer);
   modal.show();
+}
+
+function handlePromotionChoice(pieceType) {
+  const data = {
+    action: "promotion_choice",
+    piece_type: pieceType
+  };
+  try {
+    chessSocket.send(JSON.stringify(data));
+    console.log("Sending promotion choice through WebSocket:", data);
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 function winGame(winBool) {

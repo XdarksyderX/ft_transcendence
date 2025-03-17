@@ -76,8 +76,8 @@ export async function initializeChessEvents(key) {
         await initOnlineChess(key)
     } else {
         let res = await getChessPendingMatches();
-        if (res.status === "success") {
-            key = res.match.game_key;
+        if (res.status === "success" && res.match) {
+            key = res?.match?.game_key;
             console.log("RECARGAR PAGINA");
             await initOnlineChess(key);
         }
@@ -164,6 +164,7 @@ function handleGetChessReceivedMessage(event) {
             localStorage.removeItem("chessMoves");
             if (localStorage.getItem("enPassantCapture"))
                 localStorage.removeItem("enPassantCapture");
+            chessSocket.close(); // i forgot xd
         }
         if (data?.current_player) {
             inTurn = data.current_player;

@@ -247,7 +247,7 @@ function createCardBtns(card, user, invitationId = null) {
     pendantBtn.className = 'btn ctm-btn pendant-btn';
     pendantBtn.setAttribute('data-action', 'pendant');
     pendantBtn.innerHTML = '<i class="fas fa-ban mt-1 me-2"></i> <span class="ctm-text"> pendant </span>';
-    pendantBtn.addEventListener('click', () => handleCancelFriendRequest(card, invitationId));
+    //pendantBtn.addEventListener('click', () => handleCancelFriendRequest(card, invitationId));
     pendantBtn.dataset.invitationId = invitationId;
     // Add event listeners for hover effect
     pendantBtn.addEventListener('mouseenter', () => {
@@ -284,27 +284,32 @@ function toggleBtns(card, status, invitationId = null) {
     const blockBtn = card.querySelector('[data-action="block"]');
     const unblockBtn = card.querySelector('[data-action="unblock"]');
     const pendantBtn = card.querySelector('[data-action="pendant"]');
+
+    // this is for avoiding adding more than one event listener when sending/cancelling more than once
+    const newPendantBtn = pendantBtn.cloneNode(true);
+    pendantBtn.parentNode.replaceChild(newPendantBtn, pendantBtn);
+
     if (status === 'blocked') {
         addBtn.style.display = 'none';
         blockBtn.style.display = 'none';
+        newPendantBtn.style.display = 'none';
         unblockBtn.style.display = 'flex';
-        pendantBtn.style.display = 'none';
         card.classList.add('blocked');
     } else if (status === 'pendant') {
         addBtn.style.display = 'none';
         blockBtn.style.display = 'none';
         unblockBtn.style.display = 'none';
-        pendantBtn.style.display = 'flex';
+        newPendantBtn.style.display = 'flex';
         if (invitationId) {
-            pendantBtn.addEventListener('click', ()=>handleCancelFriendRequest(card, invitationId))
+            newPendantBtn.addEventListener('click', () => handleCancelFriendRequest(card, invitationId));
         }
     } else {
         addBtn.style.display = 'flex';
         blockBtn.style.display = 'flex';
         unblockBtn.style.display = 'none';
-        pendantBtn.style.display = 'none';
+        newPendantBtn.style.display = 'none';
         card.classList.remove('blocked');
-        pendantBtn.dataset.invitationId = ''; 
+        newPendantBtn.dataset.invitationId = '';
     }
 }
 
@@ -340,6 +345,7 @@ async function handleUnblockUser(username, card) {
 }
 
 async function handleCancelFriendRequest(card, invitationId) {
+    console.log("handleCancelRequest function called")
     const response = await cancelFriendRequest(invitationId);
     if (response.status === "success") {
         toggleBtns(card, 'default');
