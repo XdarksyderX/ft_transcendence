@@ -277,10 +277,11 @@ class ChessConsumer(AsyncWebsocketConsumer):
 				
 				# Check for promotion in the result
 				promotion_data = None
-				if result.get('info', {}).get('promotion_pending'):
+				logger.debug(f"AAAAA {result}")
+				if result.get('promotion_pending') == True:
 					promotion_data = {
 						"square": to_pos,
-						"piece_type": result.get('info').get('promotion_piece_type', 'queen'),
+						# "piece_type": result.get('info').get('promotion_piece_type', 'queen'),
 						"color": self.color
 					}
 					game["promotion_pending"] = True

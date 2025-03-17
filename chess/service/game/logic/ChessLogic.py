@@ -1,5 +1,8 @@
 from .modes import ClassicChess, HordeChess, Chess960
 
+import logging
+logger = logging.getLogger('chess_game')
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class ChessLogic:
     def __init__(self, game_mode: str = 'classic'):
@@ -42,13 +45,15 @@ class ChessLogic:
         success, message, new_board, info = self.game_mode.validate_move(
             self.board, from_pos, to_pos, player_color, promotion_choice
         )
+        logger.debug(f"on make_move, info {info}")
         if not success:
             return False, message, self.board, {}
 
         self.board = new_board
 
         # Manejo de promoción pendiente
-        if info.get('promotion_pending', False):
+        if info.get('promotion_pending', True):
+            logger.debug(f"HOLI QUÉ TAL")
             self.state = 'PROMOTION_PENDING'
             self.promotion_position = to_pos
             return True, "Choose a piece for promotion (queen, rook, bishop, knight)", self.board, {
