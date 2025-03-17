@@ -113,8 +113,6 @@ function handlePromotionChoice(pieceType) {
   }
 }
 
-// Example usage when a promotion choice is made
-handlePromotionChoice("queen");
 function winGame(winBool) {
   if(!winBool)
     return;
