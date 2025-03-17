@@ -1,12 +1,12 @@
 .history {
-	height: 462px;
+	max-height: 489.59px;
 	overflow-y: auto;
 	border-radius: 5px;
 	border: 1px solid var(--light);
 	background-color: var(--dark);
 }
 #full-chess-history {
-	max-height: 312px;
+	max-height: 441.59px;
 }
 
 .stats {

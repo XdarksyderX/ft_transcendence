@@ -1,43 +1,45 @@
 <div class="container py-0">
-	<h1 class="ctm-text-title text-center mb-5">Game Stats</h1>
+    <h1 class="ctm-text-title text-center mb-5">Game Stats</h1>
     <div id="pong-stats-container" class="neon-frame">
-		<div class="ctm-card ctm-text-light">
-			<h2 class="ctm-text-title text-center mb-4">Pong</h2>
-			<div class="row">
-				<div class="col-md-6">
-					<div class="ms-4">
-						<h3 class="ctm-text-title">Quick Games</h3>
-						<div id="pong-quick-stats" class="stats p-3"></div>
-						<h3 class="ctm-text-title mt-4">Tournaments</h3>
-						<div id="pong-tournament-stats" class="stats p-3"></div>
-					</div>
-				</div>
-				<div class="col-md-6">
-					<h3 class="ctm-text-title text-center">Full History</h3>
-					<div id="full-pong-history" class="history text-center">
-						<!-- Pong history will be populated here -->
-					</div>
-				</div>
-			</div>
-		</div>
+        <div class="ctm-card ctm-text-light">
+            <h2 class="ctm-text-title text-center mb-4">Pong</h2>
+            <div class="row d-flex align-items-stretch">
+                <div class="col-md-6 d-flex flex-column">
+                    <div class="ms-4 flex-grow-1 d-flex flex-column">
+                        <h3 class="ctm-text-title">Quick Games</h3>
+                        <div id="pong-quick-stats" class="stats p-3 flex-grow-1"></div>
+                        <h3 class="ctm-text-title mt-4">Tournaments</h3>
+                        <div id="pong-tournament-stats" class="stats p-3 flex-grow-1"></div>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex flex-column">
+                    <h3 class="ctm-text-title text-center">Full History</h3>
+                    <div id="full-pong-history" class="history text-center flex-grow-1 d-flex flex-column">
+                        <!-- Pong history will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <div id="chess-stats-container" class="neon-frame mt-5">
-		<div class="ctm-card ctm-text-light">
-			<h2 class="ctm-text-title text-center mb-4">Chess</h2>
-			<div class="row">
-				<div class="col-md-6">
-					<div class="ms-4">
-						<h3 class="ctm-text-title">Game Stats</h3>
-						<div id="chess-quick-stats" class="stats p-1"></div>
-					</div>
-				</div>
-				<div class="col-md-6">
-					<h3 class="ctm-text-title text-center">Full History</h3>
-					<div id="full-chess-history" class="history">
-						<!-- Chess history will be populated here -->
-					</div>
-				</div>
-			</div>
-		</div>
+        <div class="ctm-card ctm-text-light">
+            <h2 class="ctm-text-title text-center mb-4">Chess</h2>
+            <div class="row d-flex align-items-stretch">
+                <div class="col-md-6 d-flex flex-column">
+                    <div class="ms-4 flex-grow-1 d-flex flex-column">
+                        <h3 class="ctm-text-title">Casual Game Stats</h3>
+                        <div id="chess-casual-stats" class="stats p-1 flex-grow-1"></div>
+                        <h3 class="ctm-text-title mt-4">Ranked Game Stats</h3>
+                        <div id="chess-ranked-stats" class="stats p-1 flex-grow-1"></div>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex flex-column">
+                    <h3 class="ctm-text-title text-center">Full History</h3>
+                    <div id="full-chess-history" class="history flex-grow-1 d-flex flex-column">
+                        <!-- Chess history will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

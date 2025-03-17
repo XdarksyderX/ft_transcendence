@@ -1,6 +1,6 @@
 import { renderMatchHistory } from "./history.js";
 import { getQuickMatchStats, getTournamentStats } from "../../app/pong.js";
-import { getChessStats } from "../../app/chess.js";
+import { getCasualChessStats, getRankedChessStats } from "../../app/chess.js";
 
 export function initializeStatsEvents() {
     renderPongStats();
@@ -21,10 +21,14 @@ async function renderPongStats() {
 }
 
 async function renderChessStats() {
-    const chessQuick = document.getElementById('chess-quick-stats');
-    const stats = await handleGetStats(getChessStats);
-    if (!stats) return ;
-    renderChessGameStats(chessQuick, stats);
+    const casualContainer = document.getElementById('chess-casual-stats');
+    const casualStats = await handleGetStats(getCasualChessStats);
+    if (!casualStats) return ;
+    renderChessCasualStats(casualContainer, casualStats);
+    
+    const rankedsContainer = document.getElementById('chess-ranked-stats');
+    const rankedStats = await handleGetStats(getRankedChessStats);
+    renderChessCasualStats(rankedsContainer, rankedStats, true);
 }
 
 async function handleGetStats(getStatsFunction) {
@@ -57,14 +61,15 @@ function renderTournamentStats(container, stats) {
   `;
 }
 
-function renderChessGameStats(container, stats) {
+function renderChessCasualStats(container, stats, isRanked = false) {
+    const rankedDiv = isRanked ? `<p><span class="fw-bold">Highest Rating:</span> ${stats.highest_rating}</p>` : '' 
 	console.log("hola caracola: ", stats);
     container.innerHTML = `
     <p><span class="fw-bold">Games Played:</span> ${stats.games_played}</p>
     <p><span class="fw-bold">Games Won:</span> ${stats.games_won}</p>
     <p><span class="fw-bold">Games Lost:</span> ${stats.games_lost}</p>
     <p><span class="fw-bold">Draws:</span> ${stats.draws}</p>
-    <p><span class="fw-bold">Highest Rating:</span> ${stats.highest_rating}</p>
+    ${rankedDiv}
 	`;
     // <p><span class="fw-bold">Username:</span> ${stats.username}</p>
     // <p><span class="fw-bold">Created At:</span> ${new Date(stats.created_at).toLocaleString()}</p>

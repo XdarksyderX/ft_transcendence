@@ -7,6 +7,10 @@ import datetime
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+# import logging
+# logger = logging.getLogger(__name__)
+
+
 class User(AbstractUser):
     username = models.CharField(max_length=150, unique=True)
     friends = models.ManyToManyField('self', symmetrical=True, blank=True)
@@ -70,6 +74,7 @@ class ChessGame(models.Model):
         player.save()
         return new_rating
     
+
     def save(self, *args, **kwargs):
         is_finishing = False
         if self.pk:
@@ -80,6 +85,7 @@ class ChessGame(models.Model):
                 pass
         super().save(*args, **kwargs)
         if is_finishing:
+            # logger.info(f"Game {self.id} is finishing. is_ranked={self.is_ranked}")
             for player in [self.player_white, self.player_black]:
                 if player.chess_statistics:
                     outcome = None
@@ -88,7 +94,8 @@ class ChessGame(models.Model):
                     else:
                         outcome = 'draw'
                     new_rating = self._calculate_new_elo(player) if self.is_ranked else None
-                    player.chess_statistics.update_statistics(outcome, new_rating)
+                    # logger.info(f"Updating statistics for player {player.username}. Outcome: {outcome}, New Rating: {new_rating}, is_ranked: {self.is_ranked}")
+                    player.chess_statistics.update_statistics(outcome, new_rating, is_ranked=self.is_ranked)
                     if self.is_ranked:
                         player.elo_games_played += 1
                         player.save()
@@ -160,10 +167,11 @@ class ChessStatistics(models.Model):
     games_lost = models.IntegerField(default=0)
     draws = models.IntegerField(default=0)
     highest_rating = models.IntegerField(default=1200)
+    is_ranked = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
-    def update_statistics(self, outcome, new_rating=None):
+    def update_statistics(self, outcome, new_rating=None, is_ranked=False):
         self.games_played += 1
         if outcome == 'won':
             self.games_won += 1
@@ -171,10 +179,15 @@ class ChessStatistics(models.Model):
             self.games_lost += 1
         elif outcome == 'draw':
             self.draws += 1
-        
+
         if new_rating is not None and new_rating > self.highest_rating:
             self.highest_rating = new_rating
+
+        self.is_ranked = is_ranked  # Explicitly update the ranked flag
+        
+        # logger.info(f"Saving statistics for {self.user.username}. Games Played: {self.games_played}, Games Won: {self.games_won}, Games Lost: {self.games_lost}, Draws: {self.draws}, Highest Rating: {self.highest_rating}, is_ranked: {self.is_ranked}")
         self.save()
+
     
     def __str__(self):
         return f"Chess Statistics for {self.user.username}: {self.games_played} games played"

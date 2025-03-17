@@ -153,5 +153,4 @@ function handleFriendRequestChanges(type, data = null) {
 	}
 }
 
-
 export { notiSocket }

@@ -7,8 +7,13 @@ export async function getChessMatchHistory() {
 export async function getChessMatchDetail(game_key) {
 	return await sendRequestChess('GET', `match/detail/${game_key}`);
 }
-export async function getChessStats() {
-	return await sendRequestChess('GET', `stats/`);
+
+export async function getRankedChessStats() {
+    return await sendRequestChess('GET', `stats/ranked/`);
+}
+
+export async function getCasualChessStats() {
+    return await sendRequestChess('GET', `stats/casual/`);
 }
 // ==================== Tournament Invitation Endpoints ====================
 
