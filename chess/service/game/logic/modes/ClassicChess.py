@@ -5,7 +5,7 @@ from ..pieces import Rook, Knight, Bishop, Queen, King, Pawn
 from ..utils import is_in_check, is_checkmate, is_stalemate, is_insufficient_material
 
 import logging
-
+logger = logging.getLogger('chess_game')
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class ClassicChess(ChessGameMode):
@@ -178,6 +178,7 @@ class ClassicChess(ChessGameMode):
         }
 
         if promotion_pending:
+            logger.debug(f"Promotion pending info: {info}")
             return True, "Valid move, promotion required", new_board, info
 
         opponent_color = "black" if player_color == "white" else "white"
