@@ -5,9 +5,9 @@
 	border: 1px solid var(--light);
 	background-color: var(--dark);
 }
-#full-chess-history {
+/* #full-chess-history {
 	max-height: 441.59px;
-}
+} */
 
 .stats {
 	border-radius: 5px;
