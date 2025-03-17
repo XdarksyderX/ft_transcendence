@@ -22,8 +22,8 @@ class DeleteAccountView(APIView):
         if serializer.is_valid():
             try:
                 user = request.user
-                user.delete()
                 publish_event("auth", "auth.user_deleted", {"user_id": user.id})
+                user.delete()
                 
                 response = Response(
                     {"status": "success", "message": "Account deleted successfully"},
