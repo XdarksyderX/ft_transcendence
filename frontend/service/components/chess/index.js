@@ -151,7 +151,7 @@ function checkPawnDoubleMoveInLastTurn(from, to) {
 function handleGetChessReceivedMessage(event) {
     try {
         const data = JSON.parse(event.data);
-        if (data.status === "game_update") {
+        if (data.status === "game_update" && !data.promotion) {
             const { from, to } = data.last_move;
             const piece = keySquareMapper[from].piece;
             if (piece) {

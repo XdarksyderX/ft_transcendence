@@ -333,7 +333,7 @@ class ChessConsumer(AsyncWebsocketConsumer):
 						"current_player": game["current_player"]
 					}
 					
-					if promotion_data:
+					if promotion_data and promotion_data.get('piece_type') != None:
 						game_update_event["promotion"] = promotion_data
 					
 					await self.channel_layer.group_send(
@@ -426,7 +426,7 @@ class ChessConsumer(AsyncWebsocketConsumer):
 								"type": "game.update",
 								"board": serialize_board(updated_board),
 								"promotion": {
-									"square": game["game_logic"].promotion_position,
+									"square": game["move_history"][-1]["to"],
 									"piece_type": promotion_choice,
 									"color": self.color
 								},
@@ -434,6 +434,7 @@ class ChessConsumer(AsyncWebsocketConsumer):
 							}
 						)
 						logger.debug(f"Sent promotion update to group: {self.group_name}")
+						logger.debug(f"promotion choice: {promotion_choice}")
 				else:
 					await self.send(text_data=json.dumps({
 						"status": "error",

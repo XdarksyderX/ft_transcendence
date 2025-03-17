@@ -2,6 +2,7 @@ import * as pieces from "../Data/pieces.js";
 import { imgStyle, chessSocket } from "../index.js";
 import { navigateTo } from "../../../app/router.js";
 import { isClick } from "../Events/global.js";
+import { globalPiece } from "../Render/main.js";
 
 /**
  * This class  is a design pattern aimed at creating
@@ -54,7 +55,7 @@ class ModalCreator {
  * @param {function} callback - callbackPiece from global.js
  * @param {string} id - The ID of the square where the pawn promotion is happening.
  */
-function pawnPromotion(color, callback, id, pieceTo = null) {
+async function pawnPromotion(color, callback, id, pieceTo = null) {
   //if isClick == haz todo
   //else { sin mostrar el modal llama a callback con el piezeTo con el nombre de la pieza a la que ha promocion }
   const isClickBool = isClick();
@@ -71,13 +72,19 @@ function pawnPromotion(color, callback, id, pieceTo = null) {
     img.onclick = () => {
       callback(piecesMap[pieceName], id);
       handlePromotionChoice(pieceName);
+      modal.hide();
     };
     return img;
   };
   
   if (!isClickBool) {
-    console.log("no estoy siendo clicado");
-    //callback(piecesMap["whiteRook"], "b8"); // marina esto está hardcodeado?
+    console.log("calling waitForPromotionChoice function");
+    const promotionData = await waitForPromotionChoice();
+    console.log("leaving waitForPromotionChoice function");
+    console.log(promotionData);
+    const {pieceColor, pieceType, to} = promotionData;
+    callback(piecesMap[promotionData.pieceType], promotionData.to); 
+    console.log(globalPiece)
     return;
   }
   
@@ -111,6 +118,21 @@ function handlePromotionChoice(pieceType) {
   } catch (e) {
     console.error(e);
   }
+}
+
+function waitForPromotionChoice() {
+  return new Promise((resolve, reject) => {
+    function onMessage(event) {
+      const data = JSON.parse(event.data);
+      if (data?.promotion) {
+        chessSocket.removeEventListener('message', onMessage);
+        //const { color, piece_type } = data.promotion;
+        resolve({ pieceColor: data.promotion.color, pieceType: data.promotion.piece_type, to: data.promotion.square });
+
+      }
+    }
+    chessSocket.addEventListener('message', onMessage);
+  });
 }
 
 function winGame(winBool) {
