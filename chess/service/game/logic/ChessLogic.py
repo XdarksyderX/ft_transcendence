@@ -1,10 +1,12 @@
-from .modes import ClassicChess
+from .modes import ClassicChess, HordeChess, Chess960
 
 
 class ChessLogic:
     def __init__(self, game_mode: str = 'classic'):
         self.mode_handlers = {
             'classic': ClassicChess(),
+            'horde': HordeChess(),
+            '960': Chess960(),
         }
         self.game_mode = self.mode_handlers.get(game_mode, ClassicChess())
         self.board = None
