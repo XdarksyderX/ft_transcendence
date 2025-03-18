@@ -11,6 +11,20 @@ from core.utils.event_domain import publish_event
 
 User = get_user_model()
 
+class TournamentQueueDetailView(APIView):
+	permission_classes = [IsAuthenticated]
+	def get(self, request):
+		queue = TournamentQueue.objects.filter(player=request.user).first()
+		tournament_token = None
+		if queue:
+			tournament_token = queue.tournament.token
+		return Response({
+			"status": "success",
+			"message": "User's current tournament queue status.",
+			"tournament_token": tournament_token
+		}, status=status.HTTP_200_OK)
+
+
 class TournamentJoinQueue(APIView):
 	permission_classes = [IsAuthenticated]
 
@@ -45,6 +59,7 @@ class TournamentJoinQueue(APIView):
 
 		if not pending_match:
 			return Response({
+				"status": "error",
 				"message": "No pending matches found for this user."
 			}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -110,6 +125,7 @@ class TournamentJoinQueue(APIView):
 		publish_event('pong', 'pong.tournament_match_waiting', {
 			'sender_id': request.user.id,
 			'receiver_id': opponent.id,
+			'tournament_name': tournament.name,
 		})
 		return Response({
 			"status": "success",
