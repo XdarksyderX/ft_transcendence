@@ -14,7 +14,7 @@ export async function initializeNewTournament() {
     if (!pendantTour) {
         showNewTournamentSection();
     } else {
-        showEditTournamentSection(pendantTour.token);
+        showEditTournamentSection(pendantTour.token, false);
     }
 }
 
@@ -132,7 +132,7 @@ function createNewTournament(tournamentName) {
                 for (const friend of selectedFriends) {
                     await handleSendTournamentInvitation(token, friend.username);
                 }
-                showEditTournamentSection(token);
+                showEditTournamentSection(token, false, requiredParticipants);
             } catch (error) {
                 throwAlert(`Failed to send invitation: ${error.message}`);
                 await handleDeleteTournament(token); // Delete the tournament if any invitation fails

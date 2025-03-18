@@ -93,6 +93,8 @@ export function getNotificationText(notiContent) {
             return 'A tournament you signed in is ready to start!';
         case 'pong_tournament_match_waiting':
             return 'Your tournament oponent is waiting for you'
+        case 'tournament_round_finished':
+            return 'A tournament round has finished'
         default: // 'friend_removed' 'request_declined' 'request_cancelled'  'avatar_changed' shouldnt generate notification
             return null;
     }
