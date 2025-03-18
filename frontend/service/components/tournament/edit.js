@@ -2,6 +2,7 @@ import { throwAlert } from "../../app/render.js";
 import { getEditableTournaments,  getTournamentDetail, getTournamentInvitationDetail, startTournament, joinTournamentQueue, leaveTournamentQueue} from "../../app/pong.js";
 import { handleGetFriendList } from "../friends/app.js";
 import { handleSendTournamentInvitation, handleDeleteTournament, initializeNewTournament } from "./new.js";
+import { navigateTo } from "../../app/router.js";
 
 
 let selectedFriends = [];
@@ -53,7 +54,7 @@ async function initEditTournamentSection(token, refresh = false) {
       try {
         const response = await startTournament(window.currentTournamentToken);
         if (response.status === "success") {
-          window.location.href = `/ongoing-tournaments`;
+          navigateTo('/ongoing-tournaments');
         } else {
           throw new Error(response.message);
         }

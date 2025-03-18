@@ -89,8 +89,10 @@ export function getNotificationText(notiContent) {
             return 'You have a new friend request';
         case 'friend_added':
             return `${user} has accepted your friend request c:`;
-        case 'tournament_start':
+        case 'pong_tournament_closed':
             return 'A tournament you signed in is ready to start!';
+        case 'pong_tournament_match_waiting':
+            return 'Your tournament oponent is waiting for you'
         default: // 'friend_removed' 'request_declined' 'request_cancelled'  'avatar_changed' shouldnt generate notification
             return null;
     }

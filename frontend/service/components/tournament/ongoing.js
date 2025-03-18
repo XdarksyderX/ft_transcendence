@@ -233,7 +233,7 @@ async function initModalEvents() {
     event.preventDefault();
     // match.token is the tournament token we attached earlier
     const token = modalEl.getAttribute('data-token');
-   // await leaveTournamentQueue(token);
+    await leaveTournamentQueue(token);
     const response = await joinTournamentQueue(token)
     if (response.status === 'success') {
       inQueue = true;
