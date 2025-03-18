@@ -8,6 +8,7 @@ export async function initializeOngoingTournaments() {
   const tournaments = await getAllTournamentsBracket();
   if (tournaments) {
     renderAllTournaments(tournaments);
+    initModalEvents();
   } else {
     renderNoneTournaments();
   }
@@ -221,6 +222,39 @@ function generateMatch(game) {
   return matchElement;
 }
 
+async function initModalEvents() {
+
+  const modalEl = document.getElementById('start-match-modal');
+  const modal = new bootstrap.Modal(modalEl);
+  const playButton = modalEl.querySelector('#play-btn'); // The "Play" button
+
+  playButton.addEventListener('click', async (event) => {
+    
+    event.preventDefault();
+    // match.token is the tournament token we attached earlier
+    const token = modalEl.getAttribute('data-token');
+    await leaveTournamentQueue(token);
+    const response = await joinTournamentQueue(token)
+    if (response.status === 'success') {
+      inQueue = true;
+      toggleModalContent(modalEl);
+    } else {
+      throwAlert(`Error joining match queue`);
+    }
+  });
+
+  modalEl.addEventListener('hide.bs.modal', async () => {
+    console.log("modal closed, queue:", inQueue)
+    if (inQueue) {
+      const token = modalEl.getAttribute('data-token');
+      await leaveTournamentQueue(token);
+      toggleModalContent(modalEl);
+      inQueue = false;
+    }
+  });
+}
+
+let inQueue = false;
 // Triggers the modal to play a match
 async function triggerPlayMatchModal(match)
 {
@@ -228,37 +262,26 @@ async function triggerPlayMatchModal(match)
   const modalEl = document.getElementById('start-match-modal');
   const modal = new bootstrap.Modal(modalEl);
   modal.show();
-
-  // assume the "Play" button is the second .btn in the modal-footer
-  const modalFooterBtns = modalEl.querySelectorAll('.modal-footer .btn.ctm-btn');
-  const playButton = modalFooterBtns[1]; // The "Play" button
-
-  // Attach click event
-  playButton.addEventListener('click', async (event) => {
-    event.preventDefault();
-    try {
-      // match.token is the tournament token we attached earlier
-      const response = await joinTournamentQueue(match.token);
-      if (response.status === "success") {
-          throwAlert("You've joined the queue. Waiting for your opponent to join...");
-      } else {
-        throw new Error("Unexpected match state.");
-      }
-    } catch (error) {
-      throwAlert(`Error joining match: ${error.message}`);
-    }
-  }, { once: true });
+  modalEl.setAttribute('data-token', match.token)
 }
 
-/* function waitForMatching() {
-    return new Promise((resolve, reject) => {
-        function onMessage(event) {
-            const data = JSON.parse(event.data);
-            if (data.status === "game_starting") {
-                chessSocket.removeEventListener('message', onMessage);
-                resolve(data);
-            }
-        }
-        chessSocket.addEventListener('message', onMessage);
-    });
-} */
+function toggleModalContent(modalEl) {
+/*   const yourself = getUsername();
+  const oponent = match.player1 === yourself ? match.player2 : match.player1; */
+  const join = modalEl.querySelector('#join-queue');
+  const wait = modalEl.querySelector('#wait-oponent');
+  const bars = modalEl.querySelector('#loading-bars');
+  const btns = modalEl.querySelector('.modal-footer');
+
+  const elements = [join, wait, bars, btns];
+  elements.forEach(element => {
+    element.classList.toggle('hidden');
+  });
+}
+
+export function handleJoinTournamentMatch(gameKey) {
+  const modalEl = document.getElementById('start-match-modal');
+  const modal = bootstrap.Modal.getInstance(modalEl); 
+  modal.hide();
+  navigateTo('/pong', gameKey);
+}
