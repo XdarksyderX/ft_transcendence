@@ -51,7 +51,7 @@ async function initEditTournamentSection(token, refresh = false, requiredPartici
     startButton.addEventListener("click", async (event) => {
       event.preventDefault();
       try {
-        const response = await startTournament(window.currentTournamentToken);
+        const response = await startTournament(token);
         if (response.status === "success") {
           navigateTo('/ongoing-tournaments');
         } else {
