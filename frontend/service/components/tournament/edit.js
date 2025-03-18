@@ -29,8 +29,7 @@ export async function showEditTournamentSection(token, refresh = false, required
 }
 
 async function initEditTournamentSection(token, refresh = false, requiredParticipants) {
-  // Save token globally so it can be used by the start button event
-  window.currentTournamentToken = token;  
+
   const detail = await handleGetTournamentDetail(token);
   const invitations = await getAllInvitationsStatusMap(detail);
   console.log("detail: ", detail);
@@ -202,7 +201,7 @@ function updateProgress() {
 function isReplacementNeeded() {
   const replacementSection = document.getElementById("replacement-section")
   // i'll have to check for cancels to when its implemented
-  if (alreadyDeclined > 0) {
+  if (alreadyDeclined > 0 && alreadyAccepted < maxPlayers) {
     replacementSection.classList.remove("d-none");
     return (true);
   } else {
