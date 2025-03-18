@@ -28,11 +28,12 @@ notifications.pong.invitation_cancelled,\
 notifications.pong.invitation_decline,\
 notifications.pong.tournament_invitation,\
 notifications.pong.tournament_invitation.accepted,\
-notifications.pong.tournament_invitation.decline,\
+notifications.pong.tournament_invitation.deny,\
 notifications.pong.tournament_closed,\
 notifications.pong.tournament_deleted,\
 notifications.pong.tournament_match_waiting,\
 notifications.pong.tournament_match_ready,\
+notifications.pong.tournament_round_finished,\
 notifications.chess.match_accepted,\
 notifications.chess.invitation_cancelled,\
 notifications.chess.match_accepted_random,\

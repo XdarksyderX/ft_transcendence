@@ -87,6 +87,27 @@ def handle_pong_match_accepted(event):
 
     return f"Notified both users that {sender.username} accepted {receiver.username}'s match invitation"
 
+@shared_task(name="pong.tournament_round_finished")
+def handle_pong_tournament_round_finished(event):
+    event_id = event["event_id"]
+    if event_already_processed(event_id):
+        return f"Event {event_id} already processed."
+
+    event_attributes = event["data"]["attributes"]
+    tournament_token = event_attributes["tournament_token"]
+    players_ids = event_attributes["alive_players"]
+
+    players = User.objects.filter(id__in=players_ids)
+
+    notification = {
+        "event_type": "pong_tournament_round_finished",
+        "tournament_token": tournament_token,
+    }
+
+    for player in players:
+        send_notification(player.id, notification)
+    mark_event_as_processed(event_id, notification["event_type"])
+    return f"Notified players that a tournament round has finished"
 
 @shared_task(name="pong.tournament_invitation")
 def handle_pong_tournament_invitation(event):
@@ -141,8 +162,8 @@ def handle_pong_tournament_invitation_accepted(event):
     return f"Notified new player accepted {sender.username}'s tournament invitation"
 
 
-@shared_task(name="pong.tournament_invitation.accepted")
-def handle_pong_tournament_invitation_accepted(event):
+@shared_task(name="pong.tournament_invitation.deny")
+def handle_pong_tournament_invitation_deny(event):
     event_id = event["event_id"]
     if event_already_processed(event_id):
         return f"Event {event_id} already processed."

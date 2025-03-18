@@ -133,10 +133,19 @@ class PongGame(models.Model):
                     'winner': self.winner.username,
                     'players_id': list(players_id),
                 }
-                print(event)
                 publish_event('pong', 'pong.tournament_match_finished', event)
                 if self.tournament.is_current_round_finished():
                     self.tournament.create_next_round_matches()
+                    alive_players = []
+                    for match in self.tournament.matches.filter(round_number=self.tournament.current_round - 1):
+                        if match.pong_game.winner:
+                            alive_players.append(match.pong_game.winner.id)
+                    event_round = {
+                        "tournament_token": self.tournament.token,
+                        "round_number": self.tournament.current_round,
+                        "alive_players": alive_players
+                    }
+                    publish_event('pong', 'pong.tournament_round_finished', event_round)
 
                 
             # Update statistics only for quick games or tournament finals
@@ -213,7 +222,6 @@ class PongStatistics(models.Model):
     def __str__(self):
         return f"Stats for {self.user}: {self.quick_games_played} quick games, {self.tournaments_played} tournaments"
 
-
 class PendingInvitation(models.Model):
     """
     Represents a pending invitation to a Pong game.
@@ -238,7 +246,6 @@ class PendingInvitation(models.Model):
     
     def __str__(self):
         return f"PendingInvitation {self.token} from {self.sender} to {self.receiver} for game {self.game.id}"
-
 
 class TournamentInvitation(models.Model):
     """
