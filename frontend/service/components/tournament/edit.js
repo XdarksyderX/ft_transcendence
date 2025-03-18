@@ -21,21 +21,21 @@ export async function handleGetEditableTournaments() {
   }
 }
 
-export async function showEditTournamentSection(token, refresh = false) {
+export async function showEditTournamentSection(token, refresh = false, requiredParticipants = 0) {
 
   document.getElementById('new-tournament-container').style.display = 'none';
   document.getElementById('pendant-tournament-container').style.display = 'block';
-  await initEditTournamentSection(token, false);
+  await initEditTournamentSection(token, false, requiredParticipants);
 }
 
-async function initEditTournamentSection(token, refresh = false) {
+async function initEditTournamentSection(token, refresh = false, requiredParticipants) {
   // Save token globally so it can be used by the start button event
   window.currentTournamentToken = token;  
   const detail = await handleGetTournamentDetail(token);
   const invitations = await getAllInvitationsStatusMap(detail);
   console.log("detail: ", detail);
   renderTournamentName(detail.name);
-  initVariables();
+  initVariables(requiredParticipants);
   renderInvitations(invitations);
   if (isReplacementNeeded()) {
     renderReplacementFriends(invitations);
@@ -65,45 +65,14 @@ async function initEditTournamentSection(token, refresh = false) {
   }
 }
 
-/*
-function showTournamentStartedUI(tournament) {
-  // Update the existing tournament-status-container to display a "Tournament Started" message and a Join Match button.
-  const statusContainer = document.getElementById("tournament-status-container");
-  if (statusContainer) {
-    statusContainer.innerHTML = `
-      <h4 class="ctm-text-title text-center">Tournament Started!</h4>
-      <p class="text-center">Tournament Name: ${tournament.name}</p>
-      <button id="join-match-btn" class="btn ctm-btn">Join Match</button>
-    `;
-    // Attach the click event to the join match button.
-    console.log("TEST")
-    const joinBtn = document.getElementById("join-match-btn");
-    joinBtn.addEventListener("click", async (event) => {
-      event.preventDefault();
-      try {
-        // Call the new join queue endpoint.
-        const response = await joinTournamentQueue(tournament.token);
-        if (response.status === "success") {
-          // You can then redirect the user to the match view or update the UI accordingly.
-          // For example, if response contains a game_key, you might do:
-          window.location.href = `/match/${response.game_key}`;
-        } else {
-          throw new Error(response.message);
-        }
-      } catch (error) {
-        throwAlert(`Error joining match: ${error.message}`);
-      }
-    });
-  } else {
-    throwAlert("Tournament has started!");
-  }
-} NOT necessary I think */
-
-function initVariables() {
+function initVariables(requiredParticipants) {
   selectedFriends = [];
   alreadyAccepted = 1;
   alreadyDeclined = 0;
   pending = 0;
+  if (requiredParticipants) {
+    maxPlayers = requiredParticipants;
+  }
   document.getElementById("send-replacement-btn").disabled = 'true';
 }
 
@@ -216,7 +185,6 @@ function getStatusText(status) {
 }
 
 function updateProgress() {
-
   const progressPercent = maxPlayers > 0 ? (alreadyAccepted / maxPlayers) * 100 : 0
   document.getElementById("acceptance-progress").style.width = `${progressPercent}%`
   document.getElementById("acceptance-progress").setAttribute("aria-valuenow", progressPercent)
