@@ -11,6 +11,7 @@ import { handleCancelledInvitation } from "../chat/bubbles.js";
 import { state } from "../chat/socket.js";
 import { refreshFriendStatusOnHome } from "../home/app.js";
 import { handleJoinMatchmakingMatch } from "../home/matchMaking.js";
+import { handleJoinTournamentMatch } from "../tournament/ongoing.js";
 
 let notiSocket = null;
 let reconnectAttempts = 0;
@@ -42,13 +43,12 @@ const notificationHandlers = {
     // Pong Tournament Events
     tournament_invitation: () => console.log("[WebSocket] You have a tournament invitation"),
     tournament_start: () => console.log("[WebSocket] Tournament started"),
-    pong_tournament_match_ready: (data) => navigateTo("/pong", data.game_key),
+    pong_tournament_match_ready: (data) => handleJoinTournamentMatch(data.game_key),
     // Chess Match Events
     chess_match_accepted: (data) => handleAcceptedInvitation('chess', data.game_key),
     chess_match_decline: () => handleDeclinedInvitation(),
     chess_match_cancelled: (data) => handleCancelledInvitation(data.invitation_token),
     chess_match_accepted_random: (data) => handleJoinMatchmakingMatch(data.game_key),
-
 };
  
 

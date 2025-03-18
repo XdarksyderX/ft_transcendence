@@ -10,11 +10,17 @@
                 <button type="button" class="close-modal" data-bs-dismiss="modal" aria-label="Close">x</button>
             </div>
             <div class="modal-body">
-                <p id="modal-text">Do you want to start your tournament match now?</p>
+                <p id="join-queue">Do you want to start your tournament match now?</p>
+                <p id="wait-oponent" class="hidden">Waiting for your oponent to join</p>
+                <div id="loading-bars" class="hidden">
+                    <div  class="loading-bars d-flex justify-content-center align-items-center mb-2">
+                        <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn ctm-btn" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn ctm-btn" data-bs-dismiss="modal">Play</button>
+                <button type="button" class="btn ctm-btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button id="play-btn" type="button" class="btn ctm-btn">Play</button>
             </div>
         </div>
     </div>
