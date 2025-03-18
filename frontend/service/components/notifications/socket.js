@@ -46,6 +46,7 @@ const notificationHandlers = {
     pong_tournament_closed: () => console.log("[WebSocket] Tournament started"),
     pong_tournament_match_ready: (data) => handleJoinTournamentMatch(data.game_key),
     pong_tournament_players_update: () => handleTournamentEvents('invitation'),
+    pong_tournament_match_finished: () => handleTournamentEvents('match'),
     // Chess Match Events
     chess_match_accepted: (data) => handleAcceptedInvitation('chess', data.game_key),
     chess_match_decline: () => handleDeclinedInvitation(),
@@ -161,6 +162,7 @@ function handleTournamentEvents(type) {
             }
         case 'match':
             if (window.location.pathname === '/ongoing-tournaments') {
+                console.log("match played");
                 initializeOngoingTournaments();
             }
     }
