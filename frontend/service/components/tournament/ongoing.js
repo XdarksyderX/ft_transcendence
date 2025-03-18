@@ -27,8 +27,6 @@ async function getAllTournamentsBracket() {
     const tournamentBracket = getTournamentBracket(tournamentDetail);
     tournaments[token] = tournamentBracket;
   }
-  console.log("on getAllTournamentsDetail:")
-  console.log(tournaments);
   return tournaments;
 }
 
@@ -242,21 +240,25 @@ async function triggerPlayMatchModal(match)
       // match.token is the tournament token we attached earlier
       const response = await joinTournamentQueue(match.token);
       if (response.status === "success") {
-        if (response.match_status === "matched" && response.game_key) {
-          console.log("TOURNAMENT GAME START REACHED: both players are ready");
-          // Redirect to /pong with the game key as a query parameter
-          window.location.href = `/pong?gameKey=${response.game_key}`;
-        } else if (response.match_status === "waiting") {
-          // Inform the user they’re waiting and optionally start polling or subscribe via WebSocket ADD LOGIC HERE FOR USER WHO JOINS FIRST TO BE AUTO-REDIRECTED
           throwAlert("You've joined the queue. Waiting for your opponent to join...");
-        } else {
-          throw new Error("Unexpected match state.");
-        }
       } else {
-        throw new Error(response.message);
+        throw new Error("Unexpected match state.");
       }
     } catch (error) {
       throwAlert(`Error joining match: ${error.message}`);
     }
   }, { once: true });
 }
+
+/* function waitForMatching() {
+    return new Promise((resolve, reject) => {
+        function onMessage(event) {
+            const data = JSON.parse(event.data);
+            if (data.status === "game_starting") {
+                chessSocket.removeEventListener('message', onMessage);
+                resolve(data);
+            }
+        }
+        chessSocket.addEventListener('message', onMessage);
+    });
+} */

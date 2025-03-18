@@ -42,8 +42,7 @@ const notificationHandlers = {
     // Pong Tournament Events
     tournament_invitation: () => console.log("[WebSocket] You have a tournament invitation"),
     tournament_start: () => console.log("[WebSocket] Tournament started"),
-    //pong_tournament_accepted: () => handleTournamentStatusChanges(), // this doesnt exists yet
-
+    pong_tournament_match_ready: (data) => navigateTo("/pong", data.game_key),
     // Chess Match Events
     chess_match_accepted: (data) => handleAcceptedInvitation('chess', data.game_key),
     chess_match_decline: () => handleDeclinedInvitation(),
