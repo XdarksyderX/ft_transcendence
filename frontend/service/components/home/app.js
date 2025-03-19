@@ -159,7 +159,7 @@ function toggleChessOptions(event, elements) {
 // selects classic chess variant and goes to friend options
 function chooseClasicChess(toggleTo) {
 	chessVariant = 'classic';
-	sessionStorage.setItem('chessVariant', chessVariant); //borrar -> solucion temporal para asegurar la persistencia de la variable hasta que tengamos backend
+	sessionStorage.setItem('chessVariant', 'classic'); //borrar -> solucion temporal para asegurar la persistencia de la variable hasta que tengamos backend
 	toggleView(currentView, toggleTo);
 }
 // displays the spicy chess variants
@@ -361,7 +361,7 @@ function createFriendBtn(friend, startBtn) {
 export function refreshFriendStatusOnHome() {
 
 	if (!currentView) return ;
-	const container = currentView.querySelector('#friends-container') || currentView.getElementById('#friends-container');
+	const container = currentView.querySelector('#friends-container') || currentView.querySelector('#friends-container');
 	if (container) {
 		renderFriendList(container);
 	}

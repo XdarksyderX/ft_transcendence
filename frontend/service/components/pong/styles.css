@@ -1,5 +1,4 @@
 #board-container {
-    display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -15,7 +14,6 @@
 }
 
 #customizationMenu {
-    display: flex;
     flex-direction: column;
     align-items: center; /* Center items horizontally */
     justify-content: center; /* Center content */

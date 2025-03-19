@@ -1,7 +1,7 @@
 import { throwAlert } from "../../app/render.js";
 import { getEditableTournaments,  getTournamentDetail, getTournamentInvitationDetail, startTournament, joinTournamentQueue, leaveTournamentQueue} from "../../app/pong.js";
 import { handleGetFriendList } from "../friends/app.js";
-import { handleSendTournamentInvitation, handleDeleteTournament, initializeNewTournament } from "./new.js";
+import { handleSendTournamentInvitation, handleDeleteTournament } from "./new.js";
 import { navigateTo } from "../../app/router.js";
 
 
@@ -21,26 +21,27 @@ export async function handleGetEditableTournaments() {
   }
 }
 
-export async function showEditTournamentSection(token, refresh = false, requiredParticipants = 0) {
+export async function showEditTournamentSection(token, addListener, requiredParticipants = 0) {
 
   document.getElementById('new-tournament-container').style.display = 'none';
   document.getElementById('pendant-tournament-container').style.display = 'block';
-  await initEditTournamentSection(token, false, requiredParticipants);
+  await initEditTournamentSection(token, addListener, requiredParticipants);
 }
 
-async function initEditTournamentSection(token, refresh = false, requiredParticipants) {
-  // Save token globally so it can be used by the start button event
-  window.currentTournamentToken = token;  
+async function initEditTournamentSection(token, addListener, requiredParticipants) {
+  
   const detail = await handleGetTournamentDetail(token);
   const invitations = await getAllInvitationsStatusMap(detail);
   console.log("detail: ", detail);
   renderTournamentName(detail.name);
   initVariables(requiredParticipants);
   renderInvitations(invitations);
+  console.log("on initEditTournamentSection, selected Friends: ", selectedFriends);
   if (isReplacementNeeded()) {
     renderReplacementFriends(invitations);
   }
-  if (!refresh) {
+  if (addListener) {
+    console.log("ADDING EVENT LISTENERS")
     const sendBtn = document.getElementById("send-replacement-btn");
     const cancelBtn = document.getElementById("cancel-tournament-btn");
     sendBtn.addEventListener('click', () => sendReplacementInvitations(token));
@@ -52,7 +53,7 @@ async function initEditTournamentSection(token, refresh = false, requiredPartici
     startButton.addEventListener("click", async (event) => {
       event.preventDefault();
       try {
-        const response = await startTournament(window.currentTournamentToken);
+        const response = await startTournament(token);
         if (response.status === "success") {
           navigateTo('/ongoing-tournaments');
         } else {
@@ -202,7 +203,7 @@ function updateProgress() {
 function isReplacementNeeded() {
   const replacementSection = document.getElementById("replacement-section")
   // i'll have to check for cancels to when its implemented
-  if (alreadyDeclined > 0) {
+  if (alreadyAccepted + pending < maxPlayers) {
     replacementSection.classList.remove("d-none");
     return (true);
   } else {
@@ -262,13 +263,17 @@ function toggleFriendSelection(friendName, friendBtn) {
 } 
 
 async function sendReplacementInvitations(tourToken) {
-    try {
-        for (const friend of selectedFriends) {
-            await handleSendTournamentInvitation(tourToken, friend);
-        }
-        initEditTournamentSection(tourToken, true);
-    } catch (error) {
-        throwAlert(`Failed to send invitation: ${error.message}`);
-    }
-}
+  const sendBtn = document.getElementById("send-replacement-btn");
+  sendBtn.disabled = true; // Disable the button to prevent multiple clicks
 
+  try {
+      for (const friend of selectedFriends) {
+          await handleSendTournamentInvitation(tourToken, friend);
+      }
+      initEditTournamentSection(tourToken, true);
+  } catch (error) {
+      throwAlert(`Failed to send invitation: ${error.message}`);
+  } finally {
+      sendBtn.disabled = false; // Re-enable the button after the invitations are sent
+  }
+}

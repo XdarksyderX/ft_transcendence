@@ -7,14 +7,14 @@ let requiredParticipants = 0;
 let selectedFriends = [];
 
 // Initializes the new tournament setup
-export async function initializeNewTournament() {
+export async function initializeNewTournament(addListener) {
     selectedFriends = [];
     const pendantTour = await handleGetEditableTournaments();
     console.log("pendanTour: ", pendantTour);
     if (!pendantTour) {
         showNewTournamentSection();
     } else {
-        showEditTournamentSection(pendantTour.token, false);
+        showEditTournamentSection(pendantTour.token, addListener);
     }
 }
 
@@ -90,26 +90,28 @@ async function renderFriendList(elements) {
         friendBtn.className = "friend-btn"
         friendBtn.innerHTML = `<p class="mb-0">${friend.username}</p>`
         elements.friendsContainer.appendChild(friendBtn)
-        friendBtn.addEventListener("click", () => toggleFriendSelection(friend, friendBtn, elements))
+        friendBtn.addEventListener("click", () => toggleFriendSelection(friend.username, friendBtn, elements))
     })
 }
 
-
-
 // Toggles the selection of friends for the tournament
-function toggleFriendSelection(friend, btn, elements) {
+function toggleFriendSelection(username, btn, elements) {
+    console.log("Before toggle:", selectedFriends);
     if (btn.classList.contains("selected")) {
-        btn.classList.remove("selected")
-        selectedFriends = selectedFriends.filter((f) => f.id !== friend.id)
+        btn.classList.remove("selected");
+        selectedFriends = selectedFriends.filter((u) => u !== username);
+        console.log(`Unselected friend with username: ${username}`);
     } else {
         if (selectedFriends.length === requiredParticipants - 1) {
-            return throwAlert(`You already have ${requiredParticipants} selected friends`)
+            return throwAlert(`You already have ${requiredParticipants} selected friends`);
         }
-        btn.classList.add("selected")
-        selectedFriends.push(friend)
+        btn.classList.add("selected");
+        selectedFriends.push(username);
+        console.log(`Selected friend with username: ${username}`);
     }
-
-    elements.startBtn.disabled = selectedFriends.length !== requiredParticipants - 1
+    console.log("After toggle:", selectedFriends);
+    console.log("selected number: ", selectedFriends.length);
+    elements.startBtn.disabled = selectedFriends.length !== requiredParticipants - 1;
 }
 
 // Initializes the start button for creating a new tournament
@@ -129,10 +131,10 @@ function createNewTournament(tournamentName) {
     handleCreateTournament(tournamentName).then(async (token) => {
         if (token) {
             try {
-                for (const friend of selectedFriends) {
-                    await handleSendTournamentInvitation(token, friend.username);
+                for (const username of selectedFriends) {
+                    await handleSendTournamentInvitation(token, username);
                 }
-                showEditTournamentSection(token, false, requiredParticipants);
+                showEditTournamentSection(token, true, requiredParticipants);
             } catch (error) {
                 throwAlert(`Failed to send invitation: ${error.message}`);
                 await handleDeleteTournament(token); // Delete the tournament if any invitation fails
@@ -163,7 +165,6 @@ export async function handleDeleteTournament(token) {
     if (response.status !== "success") {
         throwAlert(`Failed to delete tournament: ${response.message}`);
     } else {
-        initializeNewTournament();
+        initializeNewTournament(false);
     }
 }
-

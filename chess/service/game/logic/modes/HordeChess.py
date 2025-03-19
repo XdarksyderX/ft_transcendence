@@ -1,10 +1,7 @@
-from .ChessGameMode import ChessGameMode
 from .ClassicChess import ClassicChess
 from ..pieces import Rook, Knight, Bishop, Queen, King, Pawn
 from ..utils import is_in_check, is_checkmate, is_stalemate, is_insufficient_material
 
-# I guess in horde mode, the only differences are in initialization: so all black pieces are pawns
-# and in game over cause white wins if all black pieces are catched
 class HordeChess(ClassicChess):
     def initialize_board(self):
         board = {}
@@ -20,10 +17,17 @@ class HordeChess(ClassicChess):
         for file_idx, file in enumerate("abcdefgh"):
             board[f"{file}2"] = Pawn("white", f"{file}2", str(file_idx + 1))
         
-        for rank in range(1, 9):
-            for file in "abcdefgh":
-                board[f"{file}{rank}"] = Pawn("black", f"{file}{rank}", str(rank))
+        # Black pieces (all pawns on rows 1 and 2)
+        for file in "abcdefgh":
+            board[f"{file}7"] = Pawn("black", f"{file}7", "7")
+            board[f"{file}8"] = Pawn("black", f"{file}8", "8")
         
+        # Empty squares
+        for rank in range(3, 7):
+            for file in "abcdefgh":
+                board[f"{file}{rank}"] = None
+
+        self.position_history.append(self.get_position_key(board))
         return board
 
     def check_game_over(self, board, current_player):
@@ -36,4 +40,31 @@ class HordeChess(ClassicChess):
         if is_insufficient_material(board):
             return "insufficient_material", None
         return None, None
-    
+
+    def validate_move(self, board, from_pos, to_pos, player_color, promotion_choice=None):
+        # Call the validate_move method from ClassicChess
+        success, message, new_board, info = super().validate_move(board, from_pos, to_pos, player_color, promotion_choice)
+        
+        if not success:
+            return success, message, new_board, info
+
+        piece = new_board[to_pos]
+
+        # Special rule for black pawns in Horde Chess
+        if isinstance(piece, Pawn) and piece.color == "black":
+            from_rank = int(from_pos[1])
+            to_rank = int(to_pos[1])
+            if from_rank == 7 and to_rank == 5 and from_pos[0] == to_pos[0] and new_board[to_pos] is None:
+                new_board[to_pos] = piece
+                new_board[from_pos] = None
+                piece.position = to_pos
+                piece.has_moved = True
+                return True, "Valid move", new_board, info
+            if from_rank == 6 and to_rank == 4 and from_pos[0] == to_pos[0] and new_board[to_pos] is None:
+                new_board[to_pos] = piece
+                new_board[from_pos] = None
+                piece.position = to_pos
+                piece.has_moved = True
+                return True, "Valid move", new_board, info
+
+        return success, message, new_board, info

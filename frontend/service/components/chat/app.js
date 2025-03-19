@@ -5,7 +5,7 @@ import { initializeGlobalChatSocket, handleSentMessage } from './socket.js';
 import { createMessageBubble, createSpecialBubble } from './bubbles.js';
 
 let isExpanded = false;
-let currentView = 'recent-chats';
+let currentView;
 
 let chats = {}
 let currentChat = {
@@ -17,10 +17,11 @@ const renderedMessages = new Set();
 
 // Initialize chat events by getting elements, binding event listeners, and showing recent chats
 export async function initializeChatEvents() {
+	currentView = 'recent-chats';
 	const elements = getElements();
 	initializeGlobalChatSocket();
 	bindEventListeners(elements);
-	//await showRecentChats(elements);
+	await updateNotificationIndicator(elements.notificationIndicator);
 }
 
 // Get DOM elements related to the chat functionality

@@ -1,11 +1,15 @@
 import random
+import logging
 from .ClassicChess import ClassicChess
-from .ChessGameMode import ChessGameMode
 from ..pieces import Rook, Knight, Bishop, Queen, King, Pawn
 from ..utils import is_checkmate, is_stalemate, is_insufficient_material
 
+logger = logging.getLogger('chess_game')
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+
 class Chess960(ClassicChess):
     def initialize_board(self):
+        logger.debug("Initializing Chess960 board")
         board = {}
         white_back_rank = self._generate_back_rank()
         black_back_rank = white_back_rank[::-1]
@@ -25,23 +29,37 @@ class Chess960(ClassicChess):
             board[f"{file}2"] = Pawn("white", f"{file}2", str(ord(file) - ord('a') + 1))
             board[f"{file}7"] = Pawn("black", f"{file}7", str(ord(file) - ord('a') + 1))
         
+        # Initialize empty squares
+        for rank in range(3, 7):
+            for file in "abcdefgh":
+                board[f"{file}{rank}"] = None
+
+        self.position_history.append(self.get_position_key(board))
         return board
 
     def _generate_back_rank(self):
-        pieces = [Rook, Knight, Bishop, Queen, King, Bishop, Knight, Rook]
-        while True:
-            random.shuffle(pieces)
-            if self._is_valid_back_rank(pieces):
-                return pieces
+        back_rank = [None] * 8
 
-    def _is_valid_back_rank(self, pieces):
-        # Ensure bishops are on different color squares
-        bishop_positions = [i for i, piece in enumerate(pieces) if piece == Bishop]
-        if bishop_positions[0] % 2 == bishop_positions[1] % 2:
-            return False
-        # Ensure king is between rooks
-        king_position = pieces.index(King)
-        rook_positions = [i for i, piece in enumerate(pieces) if piece == Rook]
-        if not (rook_positions[0] < king_position < rook_positions[1]):
-            return False
-        return True
+        # Place bishops on different color squares
+        bishop_pos1 = random.choice([0, 2, 4, 6])
+        bishop_pos2 = random.choice([1, 3, 5, 7])
+        back_rank[bishop_pos1] = Bishop
+        back_rank[bishop_pos2] = Bishop
+
+        # Place the king between the rooks
+        remaining_positions = [i for i in range(8) if back_rank[i] is None]
+        rook_pos1, rook_pos2 = sorted(random.sample(remaining_positions, 2))
+        king_pos = random.choice([i for i in range(rook_pos1 + 1, rook_pos2)])
+
+        back_rank[rook_pos1] = Rook
+        back_rank[rook_pos2] = Rook
+        back_rank[king_pos] = King
+
+        # Place the remaining pieces (queen and knights)
+        remaining_positions = [i for i in range(8) if back_rank[i] is None]
+        remaining_pieces = [Queen, Knight, Knight]
+        for pos, piece in zip(remaining_positions, remaining_pieces):
+            back_rank[pos] = piece
+
+        logger.debug(f"Generated valid back rank: {back_rank}")
+        return back_rank

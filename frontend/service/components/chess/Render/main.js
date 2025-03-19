@@ -126,11 +126,11 @@ function initGameRender(data, piecePositiont, inTurn)
       squareDiv.id = square.id;
       squareDiv.classList.add(square.color, "square");
       
-      if (chessVariantTmp === "horde") {
-        renderHordePieces(square, globalPiece, assignSpecificPiece);
-      } else {
+      // if (chessVariantTmp === "horde") {
+      //   renderHordePieces(square, globalPiece, assignSpecificPiece);
+      // } else {
           assignSpecificPiece(square, piecePositiont);
-        }
+        // }
         rowEl.appendChild(squareDiv);
       });
       rowEl.classList.add("squareRow");
