@@ -2,7 +2,7 @@ import { navigateTo } from '../../app/router.js';
 import { /* loadChat, loadSidebar,  */throwAlert } from '../../app/render.js';
 import { getUsername, refreshAccessToken, login, resetPassword } from '../../app/auth.js';
 import { requestPasswordReset } from '../../app/auth.js';
-import { parseEmail } from '../signup/signup.js';
+import { parseEmail, parseUsername } from '../signup/signup.js';
 
 export async function initializeLoginEvents() {
     const loginForm = document.getElementById('login-form');
@@ -33,6 +33,9 @@ function init42cosa() { // socorro esto es súper provisional
 
 async function authenticateUser(userCredentials) {
     try {
+        if (!parseUsername) {
+            return throwAlert('Invalid username');
+        }
         const loginData = await login(userCredentials);
 
         if (loginData.status === "success") {

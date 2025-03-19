@@ -114,15 +114,25 @@ function toggleFriendSelection(username, btn, elements) {
     elements.startBtn.disabled = selectedFriends.length !== requiredParticipants - 1;
 }
 
+export function parseTournamentName(tournamentName) {
+    const tournamentNameRegex = /^[a-zA-Z0-9 ]{1,20}$/;
+    if (!tournamentName) {
+        return throwAlert('Please, give your tournament a name');
+    }
+    if (!tournamentNameRegex.test(tournamentName)) {
+        throwAlert('Tournament name can only contain alphanumeric characters and spaces, and must be no more than 20 characters long.');
+        return false;
+    }
+    return true;
+}
 // Initializes the start button for creating a new tournament
 function initStartNewTournament(elements) {
     elements.startBtn.addEventListener('click', () => {
         event.preventDefault();
         const tournamentName = elements.nameInput.value;
-        if (!tournamentName) {
-            return throwAlert('Please, give your tournament a name');
+        if (parseTournamentName) {
+            createNewTournament(tournamentName);
         }
-        createNewTournament(tournamentName);
     })
 }
 

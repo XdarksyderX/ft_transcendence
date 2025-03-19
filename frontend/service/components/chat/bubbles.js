@@ -10,10 +10,11 @@ import { throwAlert } from '../../app/render.js';
 export function createMessageBubble(message) {
 	const card = document.createElement('div');
 	const messageClass = message.sender === getUsername() ? 'out' : 'in';
+	const content = escapeHTML(message.message);
 	card.classList = `message ${messageClass}`;
 	card.innerHTML = `
 		<div class="d-flex">
-			<div class="me-2">${message.message}</div>
+			<div class="me-2">${content}</div>
 			<small class="ms-auto text-muted timestamp">${formatTime(message.sent_at)}</small>
 		</div>
 	`;
@@ -281,3 +282,16 @@ function createTournamentStartedNotification(tourName) {
 		</div>
 	</div> `;
 } */
+
+function escapeHTML(str) {
+	return str.replace(/[&<>"']/g, function (match) {
+		const escape = {
+			'&': '&amp;',
+			'<': '&lt;',
+			'>': '&gt;',
+			'"': '&quot;',
+			"'": '&#39;'
+		};
+		return escape[match];
+	});
+}
