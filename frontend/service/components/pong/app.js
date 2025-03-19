@@ -342,9 +342,16 @@ function endOnlineMatch(message)
 }
 
 // ONLINE CODE END
+function toggleMenu() {
+    const menu = document.getElementById('customizationMenu');
+    menu.classList.toggle('hidden');
+    const board = document.getElementById("board-container");
+    board.classList.toggle('hidden');
+}
 
 function startLocalGame() 
 {
+    toggleMenu();
     let gameConfig =
     {
         playerHeight: 50,
@@ -446,7 +453,7 @@ function hideMenu()
 
 function startGame(gameConfig)
 { 
-    hideMenu();
+    toggleMenu();
     initGame(gameConfig); // To restart all values that are changed in previous games & apply settings changes
 
     if (playAI) 
@@ -696,7 +703,7 @@ function endMatch(LplayerScore, RplayerScore)
     context.fillText(message, board.width / 2, board.height / 2);
 
     // Wait 1.5s before showing menu again
-    setTimeout(() => { reShowMenu();}, 1500);
+    setTimeout(() => { toggleMenu();}, 1500);
 }
 
 function stop() 
