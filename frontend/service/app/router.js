@@ -69,7 +69,7 @@ async function router(key = null) {
             initializeOngoingTournaments();
             break;
         case "/new-tournament":
-            initializeNewTournament();
+            initializeNewTournament(true);
             break;
         case "/profile":
             initializeProfileEvents();

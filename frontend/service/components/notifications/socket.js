@@ -159,7 +159,7 @@ function handleTournamentEvents(type) {
     switch (type) {
         case 'invitation':
             if (window.location.pathname === '/new-tournament') {
-                initializeNewTournament();
+                initializeNewTournament(false);
             } break ;
         case 'match':
             if (window.location.pathname === '/ongoing-tournaments') {

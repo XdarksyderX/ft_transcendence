@@ -7,14 +7,14 @@ let requiredParticipants = 0;
 let selectedFriends = [];
 
 // Initializes the new tournament setup
-export async function initializeNewTournament() {
+export async function initializeNewTournament(addListener) {
     selectedFriends = [];
     const pendantTour = await handleGetEditableTournaments();
     console.log("pendanTour: ", pendantTour);
     if (!pendantTour) {
         showNewTournamentSection();
     } else {
-        showEditTournamentSection(pendantTour.token, false);
+        showEditTournamentSection(pendantTour.token, addListener);
     }
 }
 
@@ -163,7 +163,7 @@ export async function handleDeleteTournament(token) {
     if (response.status !== "success") {
         throwAlert(`Failed to delete tournament: ${response.message}`);
     } else {
-        initializeNewTournament();
+        initializeNewTournament(false);
     }
 }
 
