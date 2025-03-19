@@ -49,44 +49,44 @@ async function handleLeaveMatchmaking() {
 
 function launchMatchmakingModal() {
   // Clean up any existing modals first
-  cleanupExistingModals()
+  // cleanupExistingModals()
 
   const username = getUsername()
-  const modalId = `matchmaking-modal-${username}`
+  // const modalId = `matchmaking-modal-${username}`
 
-  const modalHTML = `
-        <div class="modal fade" id="${modalId}" data-username="${username}" tabindex="-1" aria-labelledby="waitGameLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title ctm-text-title" id="waitGameLabel">Matchmaking</h5>
-                        <button id="close-matchmaking-modal" type="button" class="close-modal" aria-label="Close">x</button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="loading-bars d-flex justify-content-center align-items-center mb-2">
-                            <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
-                        </div>
-                        <p id="waiting-text" class="text-center"> Waiting for a match</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `
+  // const modalHTML = `
+  //       <div class="modal fade" id="matchmaking-modal" data-username="${username}" tabindex="-1" aria-labelledby="waitGameLabel" aria-hidden="true">
+  //           <div class="modal-dialog">
+  //               <div class="modal-content">
+  //                   <div class="modal-header">
+  //                       <h5 class="modal-title ctm-text-title" id="waitGameLabel">Matchmaking</h5>
+  //                       <button id="close-matchmaking-modal" type="button" class="close-modal" aria-label="Close">x</button>
+  //                   </div>
+  //                   <div class="modal-body">
+  //                       <div class="loading-bars d-flex justify-content-center align-items-center mb-2">
+  //                           <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+  //                       </div>
+  //                       <p id="waiting-text" class="text-center"> Waiting for a match</p>
+  //                   </div>
+  //               </div>
+  //           </div>
+  //       </div>
+  //   `
 
-  const modalElement = document.createElement("div")
-  modalElement.innerHTML = modalHTML
-  document.body.appendChild(modalElement)
+  // const modalElement = document.createElement("div")
+  // modalElement.innerHTML = modalHTML
+  // document.body.appendChild(modalElement)
 
-  const modal = document.getElementById(modalId)
-  const matchmakingModal = new bootstrap.Modal(modal, {
+  const modalEl = document.getElementById('matchmaking-modal')
+  const modal = new bootstrap.Modal(modalEl, {
     backdrop: "static",
     keyboard: false,
   })
 
-  matchmakingModal.show()
+  modal.show()
 
-  // Store modal instance in a data attribute for easy access later
-  modal.modalInstance = matchmakingModal
+  // // Store modal instance in a data attribute for easy access later
+  // modal.modalInstance = matchmakingModal
 
   document.getElementById("close-matchmaking-modal").addEventListener("click", async () => {
     if (await handleLeaveMatchmaking()) {
@@ -123,16 +123,16 @@ function closeMatchmakingModal() {
   if (modalElement) {
     const modalInstance = bootstrap.Modal.getInstance(modalElement)
     if (modalInstance) {
-      modalInstance.dispose()
+      modalInstance.hide()
     }
-    modalElement.remove()
+  //   modalElement.remove()
 
-    // Clean up backdrop and body classes
-    const backdrop = document.querySelector(".modal-backdrop")
-    if (backdrop) backdrop.remove()
-    document.body.classList.remove("modal-open")
-    document.body.style.removeProperty("padding-right")
-  }
+  //   // Clean up backdrop and body classes
+  //   const backdrop = document.querySelector(".modal-backdrop")
+  //   if (backdrop) backdrop.remove()
+  //   document.body.classList.remove("modal-open")
+  //   document.body.style.removeProperty("padding-right")
+   }
 }
 
 export function handleJoinMatchmakingMatch(gameKey) {
@@ -153,7 +153,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   console.log("DOM content loaded - checking queue status")
 
   // Clean up any existing modals
-  cleanupExistingModals()
+  // cleanupExistingModals()
 
   // If user was in queue, try to leave the queue
   if (localStorage.getItem("isOnQueue")) {
@@ -166,8 +166,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 })
 
-// Add an unload listener to clean up when navigating away
-window.addEventListener("beforeunload", () => {
-  cleanupExistingModals()
-})
+// // Add an unload listener to clean up when navigating away
+// window.addEventListener("beforeunload", () => {
+//   cleanupExistingModals()
+// })
 

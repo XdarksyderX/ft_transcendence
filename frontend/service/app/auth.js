@@ -35,9 +35,7 @@ export function deleteCookie(name) {
  * Verifica la sesión del usuario y lo redirige según corresponda.
  */
 export async function isLoggedIn() {
-    const accessToken = document.cookie.split('; ').find(row => row.startsWith('access_token='));
-    if (!accessToken) {
-        console.log("evitando hacer 78 fetches :D");
+    if (!getUsername) {
         return false;
     }
     const isValid = await verifyAccessToken();
