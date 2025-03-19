@@ -1,13 +1,13 @@
 import random
 import logging
-from .ClassicChess import ClassicChess
+from .ChessGameMode import ChessGameMode
 from ..pieces import Rook, Knight, Bishop, Queen, King, Pawn
 from ..utils import is_checkmate, is_stalemate, is_insufficient_material
 
 logger = logging.getLogger('chess_game')
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
-class Chess960(ClassicChess):
+class Chess960(ChessGameMode):
     def initialize_board(self):
         logger.debug("Initializing Chess960 board")
         board = {}
