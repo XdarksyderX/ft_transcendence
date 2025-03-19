@@ -98,15 +98,6 @@ def create_next_round_matches(tournament, current_round):
         new_game = PongGame.objects.create(
             player1=p1,
             player2=p2,
-            board_width=700,
-            board_height=500,
-            player_height=50,
-            player_speed=5,
-            ball_side=10,
-            start_speed=7.5,
-            speed_up_multiple=1.02,
-            max_speed=20,
-            points_to_win=3,
             status='pending',
             is_tournament=True,
             tournament=tournament

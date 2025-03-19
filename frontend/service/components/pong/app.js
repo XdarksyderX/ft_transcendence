@@ -1,3 +1,5 @@
+import { navigateTo } from "../../app/router.js";
+
 //frame id
 let id;
 let aiIntervalId;
@@ -59,20 +61,17 @@ function reShowMenu()
     document.getElementById("instructions").hidden = false; // Show instructions
 }
 
-export async function initializePongEvents(gameKey = null) {
-    // Check if a gameKey is provided in the URL query parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    const tournamentGameKey = urlParams.get('gameKey') || gameKey;
-  
-    console.log("Searching for tournament game ...");
-    if (tournamentGameKey) 
+export async function initializePongEvents(gameKey = null) 
+{
+    // Check if a gameKey is provided through param
+    if (gameKey) 
     {
-      console.log("Connecting to tournament game with key:", tournamentGameKey);
-      return connectToOnlineGame(tournamentGameKey);
+      console.log("Connecting to online game with key:", gameKey);
+      return connectToOnlineGame(gameKey);
     }
     
-    // Check for a basic 1v1 online match
-    console.log("Searching for basic 1v1 online game ...");
+    // Check for 1v1 match through fetch
+    console.log("Searching online game through fetch...");
     try 
     {
         const response = await fetch("http://localhost:5052/match/in-progress/", { credentials: "include" });
@@ -83,7 +82,7 @@ export async function initializePongEvents(gameKey = null) {
         console.log(data)
         if (data && data?.match?.game_key) 
         {
-            console.log("Online match found. Connecting...");
+            console.log("Online match found through fetch. Connecting...");
             return connectToOnlineGame(data?.match.game_key);
         }
     }
@@ -339,7 +338,7 @@ function endOnlineMatch(message)
         
     // redirect to home after 1,5s
     setTimeout(() => 
-    { window.location.href = "/home";}, 1500);
+    { navigateTo("/home"); }, 1500);
 }
 
 // ONLINE CODE END
