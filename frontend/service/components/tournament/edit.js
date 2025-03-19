@@ -201,7 +201,7 @@ function updateProgress() {
 function isReplacementNeeded() {
   const replacementSection = document.getElementById("replacement-section")
   // i'll have to check for cancels to when its implemented
-  if (alreadyDeclined > 0 && alreadyAccepted < maxPlayers) {
+  if (alreadyAccepted + pending < maxPlayers) {
     replacementSection.classList.remove("d-none");
     return (true);
   } else {

@@ -38,7 +38,7 @@ const notificationHandlers = {
     // Pong Match Events
     match_invitation: () => console.log("[WebSocket] You have a match invitation"),
     tournament_end: () => console.log("[WebSocket] Tournament ended"),
-    pong_match_accepted: () => handleAcceptedInvitation('pong'),
+    pong_match_accepted: (data) => handleAcceptedInvitation('pong', data.game_key),
     pong_match_decline: () => handleDeclinedInvitation(),
     pong_match_cancelled: (data) => handleCancelledInvitation(data.invitation_token),
 
