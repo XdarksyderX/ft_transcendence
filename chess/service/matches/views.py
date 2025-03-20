@@ -60,14 +60,25 @@ class PendingInvitationCreateView(APIView):
                 "status": "error",
                 "message": "You cannot send invitations while in matchmaking queue"
             }, status=status.HTTP_400_BAD_REQUEST)
-            
+
+        # Get optional mode from request
+        game_mode = request.data.get('game_mode', 'classic')
+
+        # Validate game modes
+        valid_modes = [mode[0] for mode in ChessGame.GAME_MODES]
+        if game_mode not in valid_modes:
+            return Response({
+                "status": "error",
+                "message": f"Invalid game mode: {game_mode}. Valid modes: {valid_modes}"
+            }, status=status.HTTP_400_BAD_REQUEST)
+
         receiver_username = request.data.get('receiver')
         if not receiver_username:
             return Response({
                 "status": "error",
                 "message": "The 'receiver' field is required."
             }, status=status.HTTP_400_BAD_REQUEST)
-            
+
         try:
             receiver_user = User.objects.get(username=receiver_username)
         except User.DoesNotExist:
@@ -75,45 +86,45 @@ class PendingInvitationCreateView(APIView):
                 "status": "error",
                 "message": "The receiver does not exist."
             }, status=status.HTTP_400_BAD_REQUEST)
-            
+
         if receiver_user not in request.user.friends.all():
             return Response({
                 "status": "error",
                 "message": "The user is not your friend."
             }, status=status.HTTP_400_BAD_REQUEST)
-            
+
         sender = request.user
         game = ChessGame.objects.create(
             player_white=sender,
             player_black=receiver_user,
             status='pending',
             available=True,
-            game_mode='classic'
+            game_mode=game_mode,
         )
-        
+
         invitation = PendingInvitation.objects.create(
             sender=sender,
             receiver=receiver_user,
             game=game,
             token=str(uuid.uuid4())
         )
-        
+
         event = {
             'sender_id': invitation.sender.id,
             'receiver_id': invitation.receiver.id,
             'invitation_token': invitation.token,
-            'game_key': str(game.game_key)
+            'game_key': str(game.game_key),
+            'game_mode': game_mode
         }
-        
         publish_event('chess', 'chess.match_invitation', event)
-        
+
         invitation_data = {
             "sender": invitation.sender.username,
             "receiver": invitation.receiver.username,
             "token": invitation.token,
             "created_at": invitation.created_at
         }
-        
+
         return Response({
             "status": "success",
             "message": "Invitation created successfully",

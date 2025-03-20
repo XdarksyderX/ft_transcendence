@@ -1,7 +1,8 @@
 import { createPongMatchInvitation, acceptPongInvitation, denyPongInvitation, cancelPongInvitation } from "../../app/pong.js";
-import { createChessMatchInvitation, acceptChessInvitation, denyChessInvitation, cancelChessInvitation } from "../../app/chess.js";
+import { createChessMatchInvitation, acceptChessInvitation, denyChessInvitation, cancelChessInvitation, getChessInvitationDetail } from "../../app/chess.js";
 import { throwAlert, throwToast } from "../../app/render.js";
 import { navigateTo } from "../../app/router.js";
+import { chessVariant } from "./app.js";
 
 export async function handleSendGameInvitation(gameData, button) {
     button.disabled = true;
@@ -29,7 +30,7 @@ export async function handleSendGameInvitation(gameData, button) {
 }
 
 async function sendQuickGameInvitation(game, friendName) {
-    const response = game === 'pong' ? await createPongMatchInvitation(friendName) : await createChessMatchInvitation(friendName);
+    const response = game === 'pong' ? await createPongMatchInvitation(friendName) : await createChessMatchInvitation(friendName, chessVariant);
     if (response.status === "success") {
         console.log('Invitation sent successfully:', response);
         return response.invitation.token;

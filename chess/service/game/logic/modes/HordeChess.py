@@ -5,28 +5,33 @@ from ..utils import is_in_check, is_checkmate, is_stalemate, is_insufficient_mat
 class HordeChess(ClassicChess):
     def initialize_board(self):
         board = {}
-        # White pieces
-        board["a1"] = Rook("white", "a1", "1")
-        board["b1"] = Knight("white", "b1", "1")
-        board["c1"] = Bishop("white", "c1", "1")
-        board["d1"] = Queen("white", "d1", "")
-        board["e1"] = King("white", "e1", "")
-        board["f1"] = Bishop("white", "f1", "2")
-        board["g1"] = Knight("white", "g1", "2")
-        board["h1"] = Rook("white", "h1", "2")
+        # Black pieces
+        board["a8"] = Rook("blo que no sélack", "a8", "1")
+        board["b8"] = Knight("black", "b8", "1")
+        board["c8"] = Bishop("black", "c8", "1")
+        board["d8"] = Queen("black", "d8", "")
+        board["e8"] = King("black", "e8", "")
+        board["f8"] = Bishop("black", "f8", "2")
+        board["g8"] = Knight("black", "g8", "2")
+        board["h8"] = Rook("black", "h8", "2")
         for file_idx, file in enumerate("abcdefgh"):
-            board[f"{file}2"] = Pawn("white", f"{file}2", str(file_idx + 1))
+            board[f"{file}7"] = Pawn("black", f"{file}7", str(file_idx + 1))
         
-        # Black pieces (all pawns on rows 1 and 2)
-        for file in "abcdefgh":
-            board[f"{file}7"] = Pawn("black", f"{file}7", "7")
-            board[f"{file}8"] = Pawn("black", f"{file}8", "8")
+        # White pieces (horde of pawns)
+        for rank in range(1, 5):
+            for file in "abcdefgh":
+                board[f"{file}{rank}"] = Pawn("white", f"{file}{rank}", str(rank))
+        board["b5"] = Pawn("white", "b5", "5")
+        board["c5"] = Pawn("white", "c5", "5")
+        board["f5"] = Pawn("white", "f5", "5")
+        board["g5"] = Pawn("white", "g5", "5")
         
         # Empty squares
-        for rank in range(3, 7):
+        for rank in range(6, 8):
             for file in "abcdefgh":
-                board[f"{file}{rank}"] = None
-
+                if f"{file}{rank}" not in board:
+                    board[f"{file}{rank}"] = None
+    
         self.position_history.append(self.get_position_key(board))
         return board
 

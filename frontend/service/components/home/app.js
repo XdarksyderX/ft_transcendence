@@ -394,3 +394,5 @@ function unselectFriend(all, btn) {
 		}
 	}    
 }
+
+export { chessVariant }
