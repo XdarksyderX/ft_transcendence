@@ -458,11 +458,14 @@ class Tournament(models.Model):
                     raise Exception("Not all matches in the current round have finished.")
                 winners.append(match.pong_game.winner.id)
             
+            if len(winners) < 2:
+                return
+
             next_round = self.current_round + 1
             for i in range(0, len(winners), 2):
                 p1_id = winners[i]
                 p2_id = winners[i + 1]
-                
+
                 # Retrieve the actual user objects
                 p1 = User.objects.get(id=p1_id)
                 p2 = User.objects.get(id=p2_id)
