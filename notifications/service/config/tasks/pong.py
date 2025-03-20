@@ -94,14 +94,14 @@ def handle_pong_tournament_round_finished(event):
         return f"Event {event_id} already processed."
 
     event_attributes = event["data"]["attributes"]
-    tournament_token = event_attributes["tournament_token"]
+    tournament_name = event_attributes["tournament_name"]
     players_ids = event_attributes["alive_players"]
 
     players = User.objects.filter(id__in=players_ids)
 
     notification = {
         "event_type": "pong_tournament_round_finished",
-        "tournament_token": tournament_token,
+        "tournament_name": tournament_name,
     }
 
     for player in players:

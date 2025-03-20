@@ -151,7 +151,6 @@ class PongGame(models.Model):
                                 "alive_players": alive_players
                             }
                             publish_event('pong', 'pong.tournament_round_finished', event_round)
-
                 
             # Update statistics only for quick games or tournament finals
             if not self.is_tournament or is_final:
@@ -370,6 +369,7 @@ class Tournament(models.Model):
             if not self.seeding:
                 raise Exception("Seeding is not set. Close the tournament first.")
             if self.max_players == 4:
+                print("Creando torneo de 4!")
                 # For 4 players: seeding order [1,2,3,4]
                 game1 = PongGame.objects.create(
                 player1=User.objects.get(id=self.seeding[0]),
