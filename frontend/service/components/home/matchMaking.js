@@ -116,15 +116,18 @@ function cleanupExistingModals() {
 }
 
 function closeMatchmakingModal() {
-  const username = getUsername()
-  const modalId = `matchmaking-modal-${username}`
-  const modalElement = document.getElementById(modalId)
+
+  const modalElement = document.getElementById('matchmaking-modal')
 
   if (modalElement) {
     const modalInstance = bootstrap.Modal.getInstance(modalElement)
     if (modalInstance) {
+      console.log('calling hide()');
       modalInstance.hide()
     }
+    const dismissBtn = document.getElementById('dismiss');
+    dismissBtn.click();
+
   //   modalElement.remove()
 
   //   // Clean up backdrop and body classes
@@ -136,16 +139,13 @@ function closeMatchmakingModal() {
 }
 
 export function handleJoinMatchmakingMatch(gameKey) {
-  // First, ensure we're out of the queue
+
   localStorage.removeItem("isOnQueue")
 
-  // Close the modal properly
-  closeMatchmakingModal()
-
-  // Navigate to the chess page after a small delay to ensure DOM is updated
   setTimeout(() => {
+    closeMatchmakingModal();
     navigateTo("/chess", gameKey)
-  }, 50)
+  }, 2000)
 }
 
 // Clean up on page load
