@@ -4,7 +4,7 @@ import { throwToast } from './render.js';
 import { sendRequestAuth } from './sendRequest.js';
 
 import { chatSocket, state } from '../components/chat/socket.js';
-import { notiSocket } from '../components/notifications/socket.js';
+import { notiSocket } from '../components/events/socket.js';
 
 /**
  * Obtiene el username almacenado en localStorage.
@@ -35,6 +35,9 @@ export function deleteCookie(name) {
  * Verifica la sesión del usuario y lo redirige según corresponda.
  */
 export async function isLoggedIn() {
+    if (!getUsername) {
+        return false;
+    }
     const isValid = await verifyAccessToken();
     return isValid ? true : await refreshAccessToken();
 }

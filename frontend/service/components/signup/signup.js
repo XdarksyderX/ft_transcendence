@@ -40,6 +40,20 @@ export function parseEmail(email) {
     return true
 }
 
+export function parseUsername(username) {
+    const usernameRegex = /^[a-zA-Z0-9_]{1,20}$/;
+    
+    // if (!username) {
+    //     throwAlert('Please, fill in the username field.');
+    //     return false;
+    // }
+    if (!usernameRegex.test(username)) {
+        throwAlert('Username can only contain alphanumeric characters and underscores, and must be no more than 20 characters long.');
+        return false;
+    }
+    return true;
+}
+
 export function initializeSignupEvents() {
     const cancelSignup = document.getElementById('cancel-signup');
     const registerForm = document.getElementById('register');
@@ -59,7 +73,8 @@ export function initializeSignupEvents() {
                 hardcodedSingup();
                 return;
             }
-            if (!parseNewPasswords(password, confirmPassword) || !parseEmail(email)) {
+
+            if (!parseUsername(username) || !parseNewPasswords(password, confirmPassword) || !parseEmail(email)) {
                 return ;
             }
             const userCredentials = { username, email, password };

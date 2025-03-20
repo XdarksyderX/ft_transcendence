@@ -115,24 +115,21 @@
 		</div>
 	</div>
 </div>
-<!-- modal -->
-<!-- <div class="modal fade" id="wait-game" tabindex="-1" aria-labelledby="waitGameLabel" aria-hidden="true">
+
+<div class="modal fade" id="matchmaking-modal" data-username="${username}" tabindex="-1" aria-labelledby="waitGameLabel" aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title ctm-text-title" id="waitGameLabel">Waiting for Friend</h5>
-				<button type="button" class="close-modal" data-bs-dismiss="modal" aria-label="Close">x</button>
+				<h5 class="modal-title ctm-text-title" id="waitGameLabel">Matchmaking</h5>
+				<div type="button" id="dismiss" data-bs-dismiss="modal" aria-label="Close"></div>
+				<button id="close-matchmaking-modal" type="button" class="close-modal" aria-label="Close">x</button>
 			</div>
 			<div class="modal-body">
-				<p id="modal-text"></p>
-				<div class="progress mt-3 position-relative" style="height: 30px;">
-					<div id="progress-bar" class="progress-bar" style="width: 100%" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-					<span id="timer" class="position-absolute top-50 start-50 translate-middle"></span>
+				<div class="loading-bars d-flex justify-content-center align-items-center mb-2">
+					<div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
 				</div>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn ctm-btn" data-bs-dismiss="modal" data-action="cancel-invitation">Cancel</button>
+				<p id="waiting-text" class="text-center"> Waiting for a match</p>
 			</div>
 		</div>
 	</div>
-</div> -->
+</div>

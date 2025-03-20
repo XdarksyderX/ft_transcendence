@@ -5,11 +5,11 @@
         <form id="login-form">
             <div class="mb-3">
                 <label for="username" class="form-label ctm-text-light">User</label>
-                <input type="text" class="form-control ctm-form" id="username" autocomplete="username">
+                <input type="text" class="form-control ctm-form" id="username" autocomplete="username" maxlength="100">
             </div>
             <div class="mb-3">
                 <label for="password" class="form-label ctm-text-light">Password</label>
-                <input type="password" class="password-field form-control ctm-form" id="password" autocomplete="current-password">
+                <input type="password" class="password-field form-control ctm-form" id="password" autocomplete="current-password" maxlength="100">
             </div>
             <div class="d-flex justify-content-center flex-column">
                 <div class="d-flex justify-content-center w-100">
@@ -34,7 +34,7 @@
         <form id="request-reset-pw-form">
             <div class="mb-3">
                 <label for="reset-pw-email" class="form-label ctm-text-light">Enter the email associated to your account</label>
-                <input type="email" class="form-control ctm-form" id="reset-pw-email" required placeholder="vicenta@inventmail.com" autocomplete="email">
+                <input type="email" class="form-control ctm-form" id="reset-pw-email" required placeholder="vicenta@inventmail.com" autocomplete="email" maxlength="100">
             </div>
             <div class="d-flex justify-content-center">
                 <button type="submit" class="btn ctm-btn">Request password reset</button>
