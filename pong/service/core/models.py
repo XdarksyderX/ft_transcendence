@@ -1,4 +1,5 @@
 from django.db import models
+from django.db import transaction
 from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import ArrayField
 import uuid
@@ -335,7 +336,11 @@ class Tournament(models.Model):
         self.closed = True
         self.save()
 
-        self.create_next_round_matches()
+        with transaction.atomic():
+            # Lock the tournament record to avoid race conditions
+            tournament_locked = Tournament.objects.select_for_update().get(id=self.id) #variable not used, just triggers database lock
+            if not TournamentMatch.objects.filter(tournament=self, round_number=1).exists():
+                self.create_next_round_matches()
 
     def is_current_round_finished(self):
         """
@@ -355,7 +360,7 @@ class Tournament(models.Model):
         
         Matches are created with status 'pending'.
         """
-        if self.current_round == 1 and not self.matches.exists():
+        if self.current_round == 1 and self.matches.count() == 0:
             if not self.seeding:
                 raise Exception("Seeding is not set. Close the tournament first.")
             if self.max_players == 4:
