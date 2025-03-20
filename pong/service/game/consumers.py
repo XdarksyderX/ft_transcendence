@@ -297,6 +297,7 @@ class GameConsumer(AsyncWebsocketConsumer):
                                 await async_publish_event("pong", "pong.match_finished", event_data)
                             except Exception as e:
                                 print(traceback.format_exc())
+                            await self.close()
                             break
 
                 # When the ball goes off right, left player scores and right player (conceding) serves.
@@ -332,6 +333,7 @@ class GameConsumer(AsyncWebsocketConsumer):
                                 await async_publish_event("pong", "pong.match_finished", event_data)
                             except Exception as e:
                                 print(traceback.format_exc())
+                            await self.close()
                             break
 
                 # Send the updated game state to all connected clients

@@ -172,6 +172,7 @@ function connectToOnlineGame(gameKey)
             console.log("RECEIVED GAME OVER");
             if (message.state)
                 updateGameState(message.state);
+            socket.close();
             endOnlineMatch(message)
         }
     };
@@ -261,7 +262,10 @@ function queueMoveMessage(direction, socket)
         sendingMove = true;
         setTimeout(() => {
             if (socket.readyState === WebSocket.OPEN && moveMessageQueue !== null) {
+                console.log("[queueMoveMessage] Sending move message:", JSON.stringify({ action: "move", direction: moveMessageQueue }));
                 socket.send(JSON.stringify({ action: "move", direction: moveMessageQueue }));
+            } else {
+                console.warn("[queueMoveMessage] Cannot send move message. Socket readyState:", socket.readyState, "moveMessageQueue:", moveMessageQueue);
             }
             moveMessageQueue = null;
             sendingMove = false;
