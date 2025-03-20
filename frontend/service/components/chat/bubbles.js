@@ -103,10 +103,10 @@ export function createQuickGameInvitation(game, sent_at, sender, token) {
 	const progressBar = card.querySelector('[data-progress] .progress-bar');
 	progressBar.width = '0%';
 	startProgressBar(card, btns, {game: game, token: token, remainingTime: remainingTime});
-	btns.accept.addEventListener('click', () => {
-		if (handleAcceptQuickGameInvitation(game, token))
-			toggleChat(getElements());
-	});
+	// btns.accept.addEventListener('click', () => {
+	// 	if (handleAcceptQuickGameInvitation(game, token))
+	// 		toggleChat(getElements());
+	// });
 	return card; // Return the card element
 }
 
@@ -152,6 +152,11 @@ async function startProgressBar(card, btns, gameData) {
         cleanProgressBar(progressBar, btns, interval);
         handleDeclineInvitation(gameData.game, gameData.token);
     });
+	btns.accept.addEventListener('click', () => {
+		cleanProgressBar(progressBar, btns, interval);
+		if (handleAcceptQuickGameInvitation(gameData.game, gameData.token))
+			toggleChat(getElements());
+	});
 }
 
 function cleanProgressBar(progressBar, btns, interval) {

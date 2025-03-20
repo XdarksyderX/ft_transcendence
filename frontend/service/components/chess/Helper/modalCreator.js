@@ -153,6 +153,7 @@ function winGame(winBool) {
   homeButton.classList.add("btn");
   homeButton.classList.add("ctm-btn-secondary");
   homeButton.onclick = () => {
+    chessSocket.close();
     navigateTo('/home');
     modal.hide();
   }
