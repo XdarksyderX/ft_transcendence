@@ -5,6 +5,9 @@ from core.models import Tournament, TournamentInvitation
 from django.contrib.auth import get_user_model
 from core.utils.event_domain import publish_event
 from ..tournament import get_tournament_bracket
+from django.utils.html import escape
+from django.core.validators import validate_slug
+from django.core.exceptions import ValidationError
 import uuid
 
 User = get_user_model()
@@ -96,7 +99,32 @@ class TournamentCreateView(APIView):
                 "message": "The 'max_players' field must be 4 or 8."
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        tournament = Tournament.objects.create(name=name, organizer=request.user, max_players=max_players, token=str(uuid.uuid4()))
+        sanitized_name = escape(name)
+        
+        if len(sanitized_name) > 100:
+            return Response({
+                "status": "error",
+                "message": "Tournament name cannot exceed 100 characters."
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            if not all(c.isalnum() or c.isspace() or c in '-_.' for c in sanitized_name):
+                return Response({
+                    "status": "error",
+                    "message": "Tournament name contains invalid characters."
+                }, status=status.HTTP_400_BAD_REQUEST)
+        except ValidationError:
+            return Response({
+                "status": "error",
+                "message": "Tournament name contains invalid characters."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        tournament = Tournament.objects.create(
+            name=sanitized_name, 
+            organizer=request.user, 
+            max_players=max_players, 
+            token=str(uuid.uuid4())
+        )
         tournament.players.add(request.user)
         return Response({
             "status": "success",
@@ -108,6 +136,7 @@ class TournamentCreateView(APIView):
                 "updated_at": tournament.updated_at
             }
         })
+
 
 class TournamentInvitationCreateView(APIView):
     def post(self, request, tournament_token, receiver_username):

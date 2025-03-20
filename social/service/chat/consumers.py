@@ -1,8 +1,10 @@
 import json
+import html
 from channels.generic.websocket import AsyncWebsocketConsumer
 from asgiref.sync import sync_to_async
 from django.contrib.auth import get_user_model
 from core.models import Message
+from django.utils.html import escape
 
 User = get_user_model()
 
@@ -46,9 +48,11 @@ class GlobalChatConsumer(AsyncWebsocketConsumer):
                 }))
                 return
 
+            sanitized_message = escape(message_content)
+            
             receiver = await sync_to_async(User.objects.get)(username=receiver_username)
             msg = await sync_to_async(Message.objects.create)(
-                content=message_content,
+                content=sanitized_message,
                 sender=self.user,
                 receiver=receiver
             )
