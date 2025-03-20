@@ -4,7 +4,7 @@ import { throwToast } from './render.js';
 import { sendRequestAuth } from './sendRequest.js';
 
 import { chatSocket, state } from '../components/chat/socket.js';
-import { notiSocket } from '../components/notifications/socket.js';
+import { notiSocket } from '../components/events/socket.js';
 
 /**
  * Obtiene el username almacenado en localStorage.

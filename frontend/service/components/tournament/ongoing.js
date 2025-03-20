@@ -283,5 +283,8 @@ export function handleJoinTournamentMatch(gameKey) {
   const modalEl = document.getElementById('start-match-modal');
   const modal = bootstrap.Modal.getInstance(modalEl); 
   modal.hide();
-  navigateTo('/pong', gameKey);
+  
+  setTimeout(() => {
+    navigateTo('/pong', gameKey);
+  }, 1000);
 }

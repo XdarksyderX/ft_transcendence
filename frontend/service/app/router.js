@@ -17,9 +17,9 @@ import { initializeSettingsEvents } from '../components/settings/app.js';
 import { getUsername } from './auth.js';
 import { initializeResetPasswordEvents } from '../components/login/reset-pw.js';
 import { initializePongEvents } from '../components/pong/app.js';
-import { initializeNotificationEvents } from '../components/notifications/app.js';
+import { initializeNotificationEvents } from '../components/events/app.js';
 import { stopBackgroundMusic, toggleBackgroundMusic } from '../components/chess/index.js';
-import { updateNotificationBell } from '../components/notifications/app.js';
+import { updateNotificationBell } from '../components/events/app.js';
 
 const routes = [
     { url: "/404", file: "./components/error/404.html", allowed: true },
