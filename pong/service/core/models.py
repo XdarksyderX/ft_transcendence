@@ -136,17 +136,21 @@ class PongGame(models.Model):
                 }
                 publish_event('pong', 'pong.tournament_match_finished', event)
                 if self.tournament.is_current_round_finished():
-                    self.tournament.create_next_round_matches()
-                    alive_players = []
-                    for match in self.tournament.matches.filter(round_number=self.tournament.current_round - 1):
-                        if match.pong_game.winner:
-                            alive_players.append(match.pong_game.winner.id)
-                    event_round = {
-                        "tournament_token": self.tournament.token,
-                        "round_number": self.tournament.current_round,
-                        "alive_players": alive_players
-                    }
-                    publish_event('pong', 'pong.tournament_round_finished', event_round)
+                    with transaction.atomic():
+                        tournament_locked = Tournament.objects.select_for_update().get(id=self.tournament.id) #unused variable, but triggers database lock
+                        # Re-check condition within the lock
+                        if self.tournament.is_current_round_finished():
+                            self.tournament.create_next_round_matches()
+                            alive_players = []
+                            for match in self.tournament.matches.filter(round_number=self.tournament.current_round - 1):
+                                if match.pong_game.winner:
+                                    alive_players.append(match.pong_game.winner.id)
+                            event_round = {
+                                "tournament_token": self.tournament.token,
+                                "round_number": self.tournament.current_round,
+                                "alive_players": alive_players
+                            }
+                            publish_event('pong', 'pong.tournament_round_finished', event_round)
 
                 
             # Update statistics only for quick games or tournament finals
@@ -347,6 +351,8 @@ class Tournament(models.Model):
         Returns True if all matches in the current round have finished.
         """
         tournament_matches = self.matches.filter(round_number=self.current_round)
+        if tournament_matches.count() == 0:
+            return False
         return all(tournament_match.pong_game.status == 'finished' for tournament_match in tournament_matches)
 
     def create_next_round_matches(self):
@@ -444,19 +450,20 @@ class Tournament(models.Model):
                     pong_game=game4
                 )
         else:
-        # For later rounds: use winners from the previous round to create new matches.
+            # For later rounds: use winners from the previous round to create new matches.
             previous_matches = self.matches.filter(round_number=self.current_round)
             winners = []
             for match in previous_matches:
                 if match.pong_game.status != 'finished' or not match.pong_game.winner:
                     raise Exception("Not all matches in the current round have finished.")
                 winners.append(match.pong_game.winner.id)
+            
             next_round = self.current_round + 1
             for i in range(0, len(winners), 2):
                 p1_id = winners[i]
                 p2_id = winners[i + 1]
                 
-                # Retrieve the actual user objects (if not already available)
+                # Retrieve the actual user objects
                 p1 = User.objects.get(id=p1_id)
                 p2 = User.objects.get(id=p2_id)
                 
