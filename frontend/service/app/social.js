@@ -57,20 +57,29 @@ export async function searchUsers(username) {
     return await sendRequestSocial('GET', `search/${username}/`);
 }
 
-export async function changeAvatar(formData) {
-    return await sendRequestSocial('POST', 'change-avatar', formData, true);
-}
 
-export async function getAllChats() {
-    return await sendRequestSocial('GET', 'history/all/');
+// ==================== Chat Endpoints ====================
+// returns the last message of each open conversation
+export async function getRecentChats() {
+    return await sendRequestSocial('GET', `recent-chats/`);
 }
-
+// returns all messages of one chat
 export async function getMessages(user_id) {
     return await sendRequestSocial('GET', `messages/${user_id}/`);
 }
-
+// mask one message as read
 export async function markAsReadMessage(user_id) {
     return await sendRequestSocial('POST', `messages/read/${user_id}/`);
+}
+// returns a bool to indicate if you have or not unread messages
+export async function hasUnreadMessages() {
+    return await sendRequestSocial('GET', `unread-messages/`);
+}
+
+// ==================== Avatar Endpoints ====================
+
+export async function changeAvatar(formData) {
+    return await sendRequestSocial('POST', 'change-avatar', formData, true);
 }
 
 /**

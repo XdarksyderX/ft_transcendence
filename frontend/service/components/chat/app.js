@@ -1,8 +1,9 @@
-import { getMessages, markAsReadMessage } from '../../app/social.js';
+import { getMessages, markAsReadMessage, getRecentChats, hasUnreadMessages } from '../../app/social.js';
 import { getUsername } from '../../app/auth.js';
 import { handleGetFriendList } from '../friends/app.js';
 import { initializeGlobalChatSocket, handleSentMessage } from './socket.js';
 import { createMessageBubble, createSpecialBubble } from './bubbles.js';
+import { throwAlert } from '../../app/render.js';
 
 let isExpanded = false;
 let currentView;
@@ -69,29 +70,25 @@ export async function toggleChat(elements) {
 		await showRecentChats(elements);
 	} else if (currentView === 'chat') {
 		await markMessagesAsRead(currentChat.username);
-		await updateNotificationIndicator(elements.notificationIndicator);
-	}
+	} 
+	await updateNotificationIndicator(elements.notificationIndicator);
 }
 
-export async function updateNotificationIndicator(indicator, recentChats = null) {
-    //console.log("Updating notification indicator...");  
-
-    if (!recentChats) {
-        recentChats = await getRecentChats();
-    }
-    let hasUnreadMessages = false;
-
-    for (let [username, chatData] of Object.entries(recentChats)) {
-        //console.log(`Checking chat with ${username}: is_read=${chatData.is_read}, sender=${chatData.sender}`);
-        if (!chatData.is_read && chatData.sender === 'in') {
-            hasUnreadMessages = true;
-            break;
-        }
-    }
-
-    //console.log("Has unread messages:", hasUnreadMessages);
-    //console.log("Is chat expanded:", isExpanded);
-    indicator.style.display = hasUnreadMessages && !isExpanded ? 'block' : 'none';
+export async function updateNotificationIndicator(indicator) {
+	console.log("Updating notification indicator...");  
+	let indicatiorDisplay;
+	if (isExpanded) {
+		indicatiorDisplay = 'none';
+	} else {
+		const response = await hasUnreadMessages();
+		if (response.status === 'success') {
+			const hasUnreadMessages = response.has_unread_messages;
+			indicatiorDisplay = hasUnreadMessages ? 'block' : 'none';
+		} else {
+			throwAlert('Error while fetching unread messages status');
+		}
+	}
+	indicator.style.display = indicatiorDisplay;
 }
 
 /* * * * * * * * * * * * * * * * * *  RECENT CHATS TAB  * * * * * * * * * * * * * * * * * */
@@ -108,7 +105,7 @@ async function showRecentChats(elements) {
 // Renders the recent chats list
 export async function renderRecentChats(elements) {
 	//console.log("render recent chats function called");
-	const recentChats = await getRecentChats();
+	const recentChats = await handleGetRecentChats();
 	chats = { ... recentChats};
 
 /* 	if (Object.keys(recentChats).length === 0) {
@@ -135,7 +132,7 @@ export async function renderRecentChats(elements) {
 		`;
 	}
 	elements.recentChatsList.innerHTML = html;
-	await updateNotificationIndicator(elements.notificationIndicator, recentChats);
+	//await updateNotificationIndicator(elements.notificationIndicator);
 }
 
 export function formatTime(dateString) {
@@ -145,29 +142,16 @@ export function formatTime(dateString) {
     return `${hours}:${minutes}`;
 }
 
-// Get the recent chats by fetching the last message for each friend
-async function getRecentChats() {
-	const friends = await handleGetFriendList();
-	const recentChats = {};
+// Get the recent chats by fetching from the recent-chats endpoint
+async function handleGetRecentChats() {
 
-	for (let friend of friends) {
-		const lastMessage = await fetchLastMessageForUser(friend.username);
-		if (lastMessage) {
-			let invitation = null;
-			if (lastMessage.is_special) {
-				invitation = '[Game notification]'
-			}
-			recentChats[friend.username] = {
-				lastMessage: invitation || lastMessage.content,
-				lastUpdated: lastMessage.sent_at,
-				is_read: lastMessage.is_read,
-				sender: lastMessage.sender === friend.username ? 'in' : 'out'
-			};
-		}
+	const response = await getRecentChats();
+	if (response.status === 'success') {
+		return response.recent_chats;
+	} else {
+		return null;
 	}
-	return recentChats;
 }
-
 // Fetch the last message for a specific user
 async function fetchLastMessageForUser(friendUsername) {
     try {

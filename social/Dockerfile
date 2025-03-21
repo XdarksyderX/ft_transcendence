@@ -3,17 +3,19 @@
 #                                                         :::      ::::::::    #
 #    Dockerfile                                         :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: migarci2 <migarci2@student.42malaga.com    +#+  +:+       +#+         #
+#    By: erivero- <erivero-@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/08/29 16:03:17 by migarci2          #+#    #+#              #
-#    Updated: 2024/10/17 19:43:09 by migarci2         ###   ########.fr        #
+#    Updated: 2025/03/21 10:34:25 by erivero-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 FROM python:3.11-bookworm
 
 RUN apt-get update && apt-get install -y postgresql postgresql-contrib sudo
+
 COPY service /service
+# COPY service/requirements.txt /service/requirements.txt
 
 RUN pip install --no-cache-dir -r /service/requirements.txt
 
