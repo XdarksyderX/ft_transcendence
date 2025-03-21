@@ -65,10 +65,12 @@ border-color: var(--lorange);
 box-shadow: 0 0 5px var(--lorange);
 animation: blink 1s infinite;
 }
+
 .match.done {
 	border-color: var(--accent);
 	box-shadow: 0 0 5px var(--accent);
 }
+
 @keyframes blink {
 0%, 100% {
 box-shadow: 0 0 10px var(--lorange);
@@ -119,12 +121,21 @@ width: 75%;
 .switch .btn:focus {
 	outline: none !important;
 }
+
 .switch-btn-left.active {
 	box-shadow: -4px 4px 4px rgba(0, 0, 0, 0.6);
 }
 .switch-btn-right.active {
 	box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.6);
 }
+
+#tournaments .switch,  #tournaments .switch-btn {
+	background-color: var(--lorange);
+}
+#tournaments .switch-btn.active {
+	background-color: var(--title);
+}
+
 .collapsible {
 	overflow: hidden;
 	max-height: 0;
@@ -145,28 +156,6 @@ width: 75%;
 .friend-btn.denied {
 	border: 1px solid var(--title);
 }
-
-
-
-/* Tab system styles */
-.tournament-tabs {
-	width: 100%;
-  }
-  
-  .tab-content {
-	position: relative;
-	min-height: 200px;
-  }
-  
-  .tab-pane {
-	display: none;
-	opacity: 0;
-	transition: opacity 0.3s ease-in-out;
-  }
-  
-  .tab-pane.active {
-	display: block;
-  }
   
   /* Enhanced switch button styles */
 
@@ -201,6 +190,7 @@ width: 75%;
 	max-width: 400px;
   }
 
-  #ctm-bg-dark {
+  .ctm-bg-dark {
 	background-color: var(--transparent-dark);
   }
+

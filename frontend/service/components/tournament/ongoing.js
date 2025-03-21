@@ -3,22 +3,160 @@ import { throwAlert } from "../../app/render.js";
 import { getUsername } from "../../app/auth.js";
 import { navigateTo } from "../../app/router.js";
 
-// Initializes the ongoing tournaments by fetching their details and rendering them
-export async function initializeOngoingTournaments() {
-  setSwitches();
-  const tournaments = await getAllTournamentsBracket();
-  if (tournaments) {
-    renderAllTournaments(tournaments);
-    initModalEvents();
-  } else {
-    renderNoneTournaments();
+const tournamet1 = {
+  "token": "finished_tournament_123",
+  "name": "Finished Tournament",
+  "max_players": 8,
+  "is_finished": true,
+  "is_closed": true,
+  "bracket": {
+    "rounds": [
+      {
+        "round": 1,
+        "games": [
+          {
+            "game_id": 1,
+            "player1": "Alice",
+            "player2": "Bob",
+            "winner": "Alice"
+          },
+          {
+            "game_id": 2,
+            "player1": "Charlie",
+            "player2": "David",
+            "winner": "Charlie"
+          },
+          {
+            "game_id": 3,
+            "player1": "Eve",
+            "player2": "Frank",
+            "winner": "Eve"
+          },
+          {
+            "game_id": 4,
+            "player1": "Grace",
+            "player2": "Heidi",
+            "winner": "Grace"
+          }
+        ],
+        "status": "closed"
+      },
+      {
+        "round": 2,
+        "games": [
+          {
+            "game_id": 5,
+            "player1": "Alice",
+            "player2": "Charlie",
+            "winner": "Alice"
+          },
+          {
+            "game_id": 6,
+            "player1": "Eve",
+            "player2": "Grace",
+            "winner": "Eve"
+          }
+        ],
+        "status": "closed"
+      },
+      {
+        "round": 3,
+        "games": [
+          {
+            "game_id": 7,
+            "player1": "Alice",
+            "player2": "Eve",
+            "winner": "Alice"
+          }
+        ],
+        "status": "closed"
+      }
+    ]
   }
 }
 
-// Fetches the list of tournaments and their details, then constructs the tournament brackets
-async function getAllTournamentsBracket() {
+const tournament2 = {
+  "token": "ongoing_tournament_456",
+  "name": "Ongoing Tournament",
+  "max_players": 8,
+  "is_finished": false,
+  "is_closed": true,
+  "bracket": {
+    "rounds": [
+      {
+        "round": 1,
+        "games": [
+          {
+            "game_id": 1,
+            "player1": "Alice",
+            "player2": "Bob",
+            "winner": "Alice"
+          },
+          {
+            "game_id": 2,
+            "player1": "Charlie",
+            "player2": "David",
+            "winner": "Charlie"
+          },
+          {
+            "game_id": 3,
+            "player1": "Eve",
+            "player2": "Frank",
+            "winner": "Eve"
+          },
+          {
+            "game_id": 4,
+            "player1": "Grace",
+            "player2": "Heidi",
+            "winner": "Grace"
+          }
+        ],
+        "status": "closed"
+      },
+      {
+        "round": 2,
+        "games": [
+          {
+            "game_id": 5,
+            "player1": "Alice",
+            "player2": "Charlie",
+            "winner": null
+          },
+          {
+            "game_id": 6,
+            "player1": "Eve",
+            "player2": "Grace",
+            "winner": null
+          }
+        ],
+        "status": "open"
+      }
+    ]
+  }
+}
+// Initializes the ongoing tournaments by fetching their details and rendering them
+export async function initializeOngoingTournaments() {
+  setSwitches();
   const tourList = await handleGetTournamentList();
-  const tokens = await getOngoingTournamentsTokens(tourList);
+  const ongoing = await getTournamentsBracket(tourList, false);
+  const finished = await getTournamentsBracket(tourList, true);
+
+  const ongoingContainer = document.getElementById('ongoing-container');
+  const finishedContainer = document.getElementById('finished-container');
+
+  if (ongoing) {
+    initModalEvents();
+  } else {
+    return renderNoneTournaments();
+  }
+    renderAllTournaments(ongoing, ongoingContainer);
+    renderAllTournaments(ongoing, finishedContainer);
+    
+}
+
+// Fetches the list of tournaments and their details, then constructs the tournament brackets
+async function getTournamentsBracket(tourList, finished) {
+  const tokens = await getTournamentsTokens(tourList, finished);
   if (tokens.length === 0) {
     return null;
   }
@@ -32,6 +170,7 @@ async function getAllTournamentsBracket() {
   return tournaments;
 }
 
+
 // Fetches the list of tournaments from the server
 async function handleGetTournamentList() {
   const response = await listTournaments();
@@ -43,9 +182,9 @@ async function handleGetTournamentList() {
 }
 
 // Filters the tournaments to get the tokens of ongoing tournaments
-async function getOngoingTournamentsTokens(tournaments) {
+async function getTournamentsTokens(tournaments, finished) {
   return tournaments
-    .filter(tournament => tournament.is_closed) /* && !tournament.is_finished */
+    .filter(tournament => finished ? tournament.is_finished : (tournament.is_closed && !tournament.is_finished))
     .map(tournament => tournament.token);
 }
 
@@ -98,21 +237,18 @@ function getTournamentBracket(tournament) {
 function renderNoneTournaments() {
   const container = document.getElementById('ongoing-container');
   container.innerHTML = `
-<div class="neon-frame mt-5">
 	<div id="no-tournaments-card" class="card ctm-card p-5">
 		<h3 class="my-2 ctm-text-light text-center">You don't have any ongoing tournament!</h3>
 		<p class="my-3 ctm-text-light text-center">But you can create one or check the status of the ones you already created here!</p>
     <div id="create-edit-btn" class="btn ctm-btn mb-3 flex-grow-1 d-flex align-items-center justify-content-center">Create/edit Tournament</div>
 		</div>
-  </div>
-</div> `;
+  </div>`;
 
   container.querySelector('#create-edit-btn').addEventListener('click', () => navigateTo('new-tournament'));
 }
 
 // Renders all tournaments by generating their HTML elements and appending them to the container
-function renderAllTournaments(tournaments) {
-  const container = document.getElementById('ongoing-container');
+function renderAllTournaments(tournaments, container) {
   container.innerHTML = '';
 
   console.log("generating one tournament element");
@@ -304,5 +440,5 @@ function setSwitches() {
           finishedContainer.classList.toggle('show')
       });
   });
-return switches;
+  return switches;
 }
