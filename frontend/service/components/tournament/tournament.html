@@ -1,6 +1,15 @@
-<div class="d-flex flex-column">
-    <h1 class="ctm-text-title text-center">Ongoing Tournaments</h1>
-    <div id="tournaments-container"></div>
+<div id="tournaments" class="neon-frame p-4 d-flex flex-column justify-content-center align-items-center">
+    <div class="ctm-bg-dark">
+
+        <div class="switch">
+            <button class="switch-btn active switch-btn-left w-50 mx-1" data-ranked="false">Ongoing</button>
+            <button class="switch-btn switch-btn-right w-50 mx-1" data-ranked="true">Finished</button>
+        </div>
+        <div id="ongoing-container" class="collapsible show"></div>
+        <div id="finished-container" class="collapsible"></div>
+    </div>
+</div>
+
 <!-- modal -->
 <div class="modal fade" id="start-match-modal" tabindex="-1" aria-labelledby="startMatchLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -24,6 +33,5 @@
             </div>
         </div>
     </div>
-</div>
 </div>
 

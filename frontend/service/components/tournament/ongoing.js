@@ -5,6 +5,7 @@ import { navigateTo } from "../../app/router.js";
 
 // Initializes the ongoing tournaments by fetching their details and rendering them
 export async function initializeOngoingTournaments() {
+  setSwitches();
   const tournaments = await getAllTournamentsBracket();
   if (tournaments) {
     renderAllTournaments(tournaments);
@@ -95,7 +96,7 @@ function getTournamentBracket(tournament) {
 }
 
 function renderNoneTournaments() {
-  const container = document.getElementById('tournaments-container');
+  const container = document.getElementById('ongoing-container');
   container.innerHTML = `
 <div class="neon-frame mt-5">
 	<div id="no-tournaments-card" class="card ctm-card p-5">
@@ -111,7 +112,7 @@ function renderNoneTournaments() {
 
 // Renders all tournaments by generating their HTML elements and appending them to the container
 function renderAllTournaments(tournaments) {
-  const container = document.getElementById('tournaments-container');
+  const container = document.getElementById('ongoing-container');
   container.innerHTML = '';
 
   console.log("generating one tournament element");
@@ -287,4 +288,21 @@ export function handleJoinTournamentMatch(gameKey) {
   setTimeout(() => {
     navigateTo('/pong', gameKey);
   }, 1000);
+}
+
+function setSwitches() {
+  const switches = document.querySelectorAll("#tournaments .switch-btn");
+  const ongoingContainer = document.getElementById('ongoing-container');
+  const finishedContainer = document.getElementById('finished-container');
+
+  switches.forEach((btn) => {
+      btn.addEventListener('click', (event) => {
+          event.preventDefault();
+          switches.forEach((btn) => btn.classList.remove("active"));
+          btn.classList.add("active");
+          ongoingContainer.classList.toggle('show')
+          finishedContainer.classList.toggle('show')
+      });
+  });
+return switches;
 }

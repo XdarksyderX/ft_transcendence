@@ -104,11 +104,12 @@ width: 75%;
 	border-radius: 5px;
 }
 .switch-btn {
+	border-radius: 2px;
 	height: auto;
 	aspect-ratio: 3/2;
 	background-color: var(--light);
-	border: 1px solid var(--dark);
-	color: var(--dark);
+	border: 1px solid var(--medium);
+	color: var(--darkish);
 	transition: perspective 0.3s ease;
 }
 .switch-btn.active {
@@ -144,3 +145,62 @@ width: 75%;
 .friend-btn.denied {
 	border: 1px solid var(--title);
 }
+
+
+
+/* Tab system styles */
+.tournament-tabs {
+	width: 100%;
+  }
+  
+  .tab-content {
+	position: relative;
+	min-height: 200px;
+  }
+  
+  .tab-pane {
+	display: none;
+	opacity: 0;
+	transition: opacity 0.3s ease-in-out;
+  }
+  
+  .tab-pane.active {
+	display: block;
+  }
+  
+  /* Enhanced switch button styles */
+
+  /* Animation for tab transitions */
+  @keyframes fadeIn {
+	from {
+	  opacity: 0;
+	}
+	to {
+	  opacity: 1;
+	}
+  }
+  
+  @keyframes fadeOut {
+	from {
+	  opacity: 1;
+	}
+	to {
+	  opacity: 0;
+	}
+  }
+  
+  .fade-in {
+	animation: fadeIn 0.3s ease-in-out forwards;
+  }
+  
+  .fade-out {
+	animation: fadeOut 0.3s ease-in-out forwards;
+  }
+  
+  #tournaments .switch {
+	max-width: 400px;
+  }
+
+  #ctm-bg-dark {
+	background-color: var(--transparent-dark);
+  }
