@@ -57,6 +57,7 @@ services:
       - .env
       - social/service/.env
     volumes:
+      # - ./social/service:/service
       - social-data:/var/lib/postgresql/data
     depends_on:
       - auth
