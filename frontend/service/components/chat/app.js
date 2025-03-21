@@ -2,7 +2,7 @@ import { getMessages, markAsReadMessage, getRecentChats, hasUnreadMessages } fro
 import { getUsername } from '../../app/auth.js';
 import { handleGetFriendList } from '../friends/app.js';
 import { initializeGlobalChatSocket, handleSentMessage } from './socket.js';
-import { createMessageBubble, createSpecialBubble } from './bubbles.js';
+import { createMessageBubble, createSpecialBubble, escapeHTML } from './bubbles.js';
 import { throwAlert } from '../../app/render.js';
 
 let isExpanded = false;
@@ -117,6 +117,7 @@ export async function renderRecentChats(elements) {
 		const unreadClass = (!chatData.is_read && chatData.sender === 'in') ? 'unread' : '';
 		const formattedTime = formatTime(chatData.lastUpdated);
 		const checkIcon = chatData.sender === 'out' ? (chatData.is_read ? '✔✔' : '✔') : '';
+		const message = parseLastMessage(chatData);
 		html += `
 			<div class="list-group-item list-group-item-action chat-item" 
 				data-friend-username="${username}">
@@ -125,7 +126,7 @@ export async function renderRecentChats(elements) {
 					<small class="text-muted">${formattedTime}</small>
 				</div>
 				<div class="d-flex w-100 justify-content-between">
-					<p class="mb-1 ${unreadClass}">${chatData.lastMessage}</p>
+					<p class="mb-1 ${unreadClass}">${message}</p>
 					<span class="check-icon">${checkIcon}</span>
 				</div>
 			</div>
@@ -133,6 +134,18 @@ export async function renderRecentChats(elements) {
 	}
 	elements.recentChatsList.innerHTML = html;
 	//await updateNotificationIndicator(elements.notificationIndicator);
+}
+
+function parseLastMessage(data) {
+    if (data.is_special) {
+        return '[Game notification]';
+    } else {
+        const cleanMsg = escapeHTML(data.lastMessage);
+        if (cleanMsg.length > 19) {
+            return cleanMsg.substring(0, 16) + ' ...';
+        }
+        return cleanMsg;
+    }
 }
 
 export function formatTime(dateString) {
