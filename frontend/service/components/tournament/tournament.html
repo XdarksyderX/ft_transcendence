@@ -1,11 +1,19 @@
-<div id="tournaments" class="neon-frame p-4 ">
+<div id="tournaments" class="neon-frame p-4">
     <div class="ctm-bg-dark card p-4 d-flex flex-column justify-content-center align-items-center">
         <div class="switch mb-5">
-            <button class="switch-btn active switch-btn-left w-50 py-2 mx-1" data-ranked="false">Ongoing</button>
-            <button class="switch-btn switch-btn-right w-50 py-2 mx-1" data-ranked="true">Finished</button>
+            <button class="switch-btn active switch-btn-left w-50 py-2 mx-1" data-bs-target="#tournament-carousel" data-bs-slide-to="0">Ongoing</button>
+            <button class="switch-btn switch-btn-right w-50 py-2 mx-1" data-bs-target="#tournament-carousel" data-bs-slide-to="1">Finished</button>
         </div>
-        <div id="ongoing-container" class="collapsible show"></div>
-        <div id="finished-container" class="collapsible"></div>
+        <div id="tournament-carousel" class="carousel slide w-100" data-bs-ride="carousel" data-bs-interval="false">
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <div id="ongoing-container" class="show"></div>
+                </div>
+                <div class="carousel-item">
+                    <div id="finished-container" class="show"></div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 

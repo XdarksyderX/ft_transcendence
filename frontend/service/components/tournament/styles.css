@@ -136,6 +136,10 @@ width: 75%;
 	background-color: var(--title);
 }
 
+#tournaments {
+	width: 70vw;
+}
+
 .collapsible {
 	overflow: hidden;
 	max-height: 0;
