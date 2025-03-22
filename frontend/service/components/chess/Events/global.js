@@ -37,7 +37,7 @@ function changeTurn() {
 
 function captureInTurn(square) {
   const piece = square.piece;
-  
+  console.log('capture, variant:', chessVariantTmp);
   if (piece == selfHighlightState) {
     clearPreviousSelfHighlight(selfHighlightState);
     clearHighlightLocal();

@@ -108,8 +108,9 @@ function parseUrl(fullUrl) {
 
 function redirectURL(isLogged, fullUrl) {
     const url = parseUrl(fullUrl);
-    const allowed = routes.find(route => route.url === url).allowed;
-    //    console.log("is logged?", isLogged)
+    const match = routes.find(route => route.url === url);
+    if (!match) return null;
+    const allowed = match.allowed;
     if (allowed) {
         if (isLogged) {
             return ("/home");
@@ -123,7 +124,6 @@ function redirectURL(isLogged, fullUrl) {
             return ("/");
         }
     }
-
 }
 
 function unloadChatAndSidebar() {
@@ -211,7 +211,7 @@ function toggleNavbarContent(show, hide) {
 
 function updateNavbar(url) {
  //   const navbarContent = document.getElementById('navbar-content');;
-    const allowed = routes.find(route => route.url === url).allowed;
+    const allowed = routes.find(route => route.url === url)?.allowed;
 
     const loggedContent = document.getElementById('logged-content');
     const unloggedContent = document.getElementById('unlogged-content');

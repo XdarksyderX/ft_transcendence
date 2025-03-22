@@ -1,4 +1,4 @@
-import { chessVariant } from '../components/home/app.js';
+// import { chessVariant } from '../components/home/app.js';
 import { sendRequestChess } from './sendRequest.js';
 
 export async function getChessMatchHistory() {
@@ -27,7 +27,7 @@ export async function getPendingChessInvitationsIncoming() {
 }
 
 export async function createChessMatchInvitation(friendName, gameMode = 'classic') {
-	console.log("Creating invitation on front, variant: ", chessVariant);
+	// console.log("Creating invitation on front, variant: ", chessVariant);
     return await sendRequestChess('POST', 'invitation/create/', { receiver: friendName, game_mode: gameMode });
 }
 

@@ -34,6 +34,7 @@ function getAllAffectedPieces(pos) {
 }
   
 function removeSurroundingPieces(pos) {
+    console.log("un rehplandó y hase PUUUUM");
     const affectedPieces = getAllAffectedPieces(pos);
     affectedPieces.forEach(element => {
         const opSquare = keySquareMapper[element]

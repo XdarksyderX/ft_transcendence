@@ -21,6 +21,7 @@ const pieceMap = {
 };
 
 function kirbyTransformation(square, capturedPiece, color) {
+  console.log("kirby capture")
   let piece = square.piece;
 
   if (piece && piece.piece_name.includes("KING")) 

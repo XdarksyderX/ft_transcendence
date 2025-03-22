@@ -3,14 +3,14 @@ import { throwAlert } from '../../app/render.js';
 import { register } from '../../app/auth.js';
 import { verifyEmail } from '../../app/auth.js';
 
-async function hardcodedSingup() {
-    const hardCredentials = { username : "Vicenta" , email : "vicenta@invent.com", password: "12345678"}
-    if (await register(hardCredentials))
-        {
-            throwAlert('Account created successfully. Verify your email to login!');
-            navigateTo('/login');
-        }
-}
+// async function hardcodedSingup() {
+//     const hardCredentials = { username : "Vicenta" , email : "vicenta@invent.com", password: "12345678"}
+//     if (await register(hardCredentials))
+//         {
+//             throwAlert('Account created successfully. Verify your email to login!');
+//             navigateTo('/login');
+//         }
+// }
 
 export function parseNewPasswords(password, confirmPassword) {
 
@@ -43,10 +43,6 @@ export function parseEmail(email) {
 export function parseUsername(username) {
     const usernameRegex = /^[a-zA-Z0-9_]{1,20}$/;
     
-    // if (!username) {
-    //     throwAlert('Please, fill in the username field.');
-    //     return false;
-    // }
     if (!usernameRegex.test(username)) {
         throwAlert('Username can only contain alphanumeric characters and underscores, and must be no more than 20 characters long.');
         return false;
@@ -69,11 +65,9 @@ export function initializeSignupEvents() {
             const confirmPassword = document.getElementById('confirm-password').value;
 
             if (!username || !email || !password || !confirmPassword) {
-            //    throwAlert('Please fill in all fields');
-                hardcodedSingup();
+                throwAlert('Please fill in all fields');
                 return;
             }
-
             if (!parseUsername(username) || !parseNewPasswords(password, confirmPassword) || !parseEmail(email)) {
                 return ;
             }

@@ -332,5 +332,4 @@ function setSwitches() {
       }
     });
   });
-  return switches;
 }
