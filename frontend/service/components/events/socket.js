@@ -11,9 +11,9 @@ import { handleCancelledInvitation } from "../chat/bubbles.js";
 import { state } from "../chat/socket.js";
 import { refreshFriendStatusOnHome } from "../home/app.js";
 import { handleJoinMatchmakingMatch } from "../home/matchMaking.js";
-import { handleJoinTournamentMatch } from "../tournament/ongoing.js";
+import { handleJoinTournamentMatch } from "../tournament/started.js";
 import { initializeNewTournament } from "../tournament/new.js";
-import { initializeOngoingTournaments } from "../tournament/ongoing.js";
+import { initializeOngoingTournaments } from "../tournament/started.js";
 
 let notiSocket = null;
 let reconnectAttempts = 0;
@@ -141,7 +141,7 @@ function handleFriendChanges(type, data, add = 0) {
     }
     if (add) { // we dont see avatar or status on chat or tournament
         refreshChatFriendList(); // chat refreshes in all paths
-        if (path === '/new-tournament') {
+        if (path === '/unstarted-tournament') {
             refreshTournamentFriendList();
         }
 	}
@@ -158,11 +158,11 @@ function handleFriendRequestChanges(type, data = null) {
 function handleTournamentEvents(type) {
     switch (type) {
         case 'invitation':
-            if (window.location.pathname === '/new-tournament') {
+            if (window.location.pathname === '/unstarted-tournament') {
                 initializeNewTournament(false);
             } break ;
         case 'match':
-            if (window.location.pathname === '/ongoing-tournaments') {
+            if (window.location.pathname === '/started-tournaments') {
                 console.log("match played");
                 initializeOngoingTournaments();
             } break;

@@ -55,7 +55,7 @@ async function initEditTournamentSection(token, addListener, requiredParticipant
       try {
         const response = await startTournament(token);
         if (response.status === "success") {
-          navigateTo('/ongoing-tournaments');
+          navigateTo('/started-tournaments');
         } else {
           throw new Error(response.message);
         }
