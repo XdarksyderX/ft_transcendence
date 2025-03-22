@@ -51,6 +51,13 @@
 	color: var(--title);
 	border: 1px solid var(--accent);
 	box-shadow: 0 0 3px #00F56A, 0 0 5px #00F56A, 0 0 3px #00F56A, 0 0 10px #00F56Acc;
-
-
 }
+
+#stats .switch-secondary {
+	max-height: 90px;
+	max-width: 200px;
+}
+
+/* #stats .switch-btn {
+	max-height: 80px;
+} */

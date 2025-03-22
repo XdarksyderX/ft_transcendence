@@ -129,10 +129,13 @@ width: 75%;
 	box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.6);
 }
 
-#tournaments .switch,  #tournaments .switch-btn {
+.switch-secondary,  .switch-secondary .switch-btn {
 	background-color: var(--lorange);
 }
-#tournaments .switch-btn.active {
+/* .switch-secondary {
+	max-height: 90px;
+} */
+.switch-secondary .switch-btn.active {
 	background-color: var(--title);
 }
 

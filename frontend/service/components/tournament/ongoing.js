@@ -320,7 +320,8 @@ function setSwitches() {
   switches.forEach((btn) => {
     btn.addEventListener('click', (event) => {
       event.preventDefault();
-      switches.forEach((btn) => btn.classList.toggle("active"));
+      switches.forEach((btn) => btn.classList.remove("active"));
+      btn.classList.add("active");
 
       // Check if the second switch is clicked and hasFinished is false
       if (btn.classList.contains('switch-btn-right') && !hasFinished) {
