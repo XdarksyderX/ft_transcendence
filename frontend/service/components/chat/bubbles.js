@@ -288,7 +288,7 @@ function createTournamentStartedNotification(tourName) {
 	</div> `;
 } */
 
-function escapeHTML(str) {
+export function escapeHTML(str) {
 	return str.replace(/[&<>"']/g, function (match) {
 		const escape = {
 			'&': '&amp;',

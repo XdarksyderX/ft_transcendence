@@ -6,7 +6,7 @@ class HordeChess(ClassicChess):
     def initialize_board(self):
         board = {}
         # Black pieces
-        board["a8"] = Rook("blo que no sélack", "a8", "1")
+        board["a8"] = Rook("black", "a8", "1")
         board["b8"] = Knight("black", "b8", "1")
         board["c8"] = Bishop("black", "c8", "1")
         board["d8"] = Queen("black", "d8", "")

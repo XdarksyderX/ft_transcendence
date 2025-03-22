@@ -6,6 +6,18 @@ export function initializeStatsEvents() {
     renderPongStats();
     renderChessStats();
     renderMatchHistory();
+    setSwitches();
+}
+function setSwitches() {
+    const switches = document.querySelectorAll("#stats .switch-btn");
+
+    switches.forEach((btn) => {
+        btn.addEventListener('click', (event) => {
+            event.preventDefault();
+            switches.forEach((btn) => btn.classList.remove("active"));
+            btn.classList.add("active");
+        });
+    });
 }
 
 async function renderPongStats() {

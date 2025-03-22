@@ -78,6 +78,7 @@ class RecentChatsView(APIView):
                     "lastMessage": chat.content,
                     "lastUpdated": chat.sent_at,
                     "is_read": chat.is_read,
+                    "is_special": chat.is_special,
                     "sender": "in" if chat.sender != user else "out"
                 }
 

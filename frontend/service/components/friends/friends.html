@@ -1,81 +1,78 @@
 <div class="container p-2 w-75">
-	<div class="row blinking-neon-frame d-flex">
-		<div class="col card ctm-card p-5 m-1">
-			<!-- <button id="cancel-login" class="btn cancel-btn position-absolute top-0 end-0 m-2">x</button> -->
-			<h2 class="text-center ctm-text-title">Your friends</h2>
-			<div id="friend-list" class="h-100 flex-column">
-				<div id="friends-container" class="mb-3 ctm-text-light text-center"></div>
-				<!-- <button id="start-game-with-friend" class="btn ctm-btn mb-3" disabled>Start Game with Friend</button> -->
-				<!-- <button id="back-to-options" class="btn ctm-btn mb-3">Back to Options</button> -->
-			</div>
-		</div> <!-- this closes the card -->
-		<div class="col card ctm-card p-5 m-1">
-			<!-- <button id="cancel-login" class="btn cancel-btn position-absolute top-0 end-0 m-2">x</button> -->            
-			<div id="friend-data" class="h-100 flex-column ctm-text-light text-center">
+    <div class="row neon-frame p-0 p-md-3 d-flex">
+        <div class="col-12 col-md card ctm-card p-5 me-md-1 mb-3 mb-md-0">
+            <h2 class="text-center ctm-text-title">Your friends</h2>
+            <div id="friend-list" class="h-100 flex-column">
+                <div id="friends-container" class="mb-3 ctm-text-light text-center"></div>
+            </div>
+        </div> <!-- this closes the card -->
+        <div class="col-12 col-md card ctm-card p-5 ms-md-1">
+            <!-- <button id="cancel-login" class="btn cancel-btn position-absolute top-0 end-0 m-2">x</button> -->            
+            <div id="friend-data" class="h-100 flex-column ctm-text-light text-center">
                 click on a friend to see their data!
-			</div>
-		</div> <!-- this closes the card -->
-	</div>
+            </div>
+        </div> <!-- this closes the card -->
+    </div>
 
-    <div class="row justify-content-center blinking-neon-frame mt-5">
+    <div class="row justify-content-center blinking-neon-frame p-0 p-md-3 mt-5">
         <!--    <div class="col-md-6"> -->
-            <div class="card ctm-card p-5">
-                <!-- <div class="card-body"> -->
-                    <h2 class="ctm-text-title text-center">New friends</h2>
-                    <div id="requests-container" class="text-center ctm-text-light my-3">
-                    </div>
+        <div class="card ctm-card p-5">
+            <!-- <div class="card-body"> -->
+            <h2 class="ctm-text-title text-center">New friends</h2>
+            <div id="requests-container" class="text-center ctm-text-light my-3">
+            </div>
 
-                    <div id="search-form-container">
-                        <form id="search-form" >
-                            <div class="input-group">
-                                <input type="text" class="form-control ctm-form anexed" placeholder="Search by username" aria-label="Search by username">
-                            </div>
-                        </form>
-                        <button id="toggle-search" class="btn ctm-btn-secondary" aria-label="Open friend request form">
-                            <i class="bi bi-plus"></i>
-                        </button>
+            <div id="search-form-container">
+                <form id="search-form">
+                    <div class="input-group">
+                        <input type="text" class="form-control ctm-form anexed" placeholder="Search by username" aria-label="Search by username">
                     </div>
-                    <div id="search-list-container" class="mt-4 collapsible">
-                        <div id="search-list"></div>
-                        <!-- maybe i can render here possible matches? -->
-                    </div>
-                </div>
-            <!-- </div> -->
+                </form>
+                <button id="toggle-search" class="btn ctm-btn-secondary" aria-label="Open friend request form">
+                    <i class="bi bi-plus"></i>
+                </button>
+            </div>
+            <div id="search-list-container" class="mt-4 collapsible">
+                <div id="search-list"></div>
+                <!-- maybe i can render here possible matches? -->
+            </div>
+        </div>
+        <!-- </div> -->
         <!--    </div> -->
     </div>
     <!-- Modal -->
     <div class="modal fade" id="delete-modal" tabindex="-1" aria-labelledby="delete-modal-label" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title ctm-text-title" id="delete-modal-label">Delete Friend</h5>
-            <button type="button" class="close-modal" data-bs-dismiss="modal" aria-label="Close">x</button>
-          </div>
-          <div class="modal-body">
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn ctm-btn" data-bs-dismiss="modal">Cancel</button>
-            <button id="delete-friend-btn" type="button" class="btn ctm-btn-secondary">Delete</button>
-          </div>
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title ctm-text-title" id="delete-modal-label">Delete Friend</h5>
+                    <button type="button" class="close-modal" data-bs-dismiss="modal" aria-label="Close">x</button>
+                </div>
+                <div class="modal-body">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn ctm-btn" data-bs-dismiss="modal">Cancel</button>
+                    <button id="delete-friend-btn" type="button" class="btn ctm-btn-secondary">Delete</button>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
     
     <!-- Block Modal -->
     <div class="modal fade" id="block-modal" tabindex="-1" aria-labelledby="block-modal-label" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title ctm-text-title" id="block-modal-label">Block Friend</h5>
-            <button type="button" class="close-modal" data-bs-dismiss="modal" aria-label="Close">x</button>
-          </div>
-          <div class="modal-body">
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn ctm-btn" data-bs-dismiss="modal">Cancel</button>
-            <button id="block-friend-btn" type="button" class="btn ctm-btn-danger">Block</button>
-          </div>
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title ctm-text-title" id="block-modal-label">Block Friend</h5>
+                    <button type="button" class="close-modal" data-bs-dismiss="modal" aria-label="Close">x</button>
+                </div>
+                <div class="modal-body">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn ctm-btn" data-bs-dismiss="modal">Cancel</button>
+                    <button id="block-friend-btn" type="button" class="btn ctm-btn-danger">Block</button>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
 </div>

@@ -2,7 +2,7 @@ import { getUsername, refreshAccessToken } from "../../app/auth.js";
 import { handleGetFriendList } from "../friends/app.js";
 import { getAvatar, changeAvatar } from "../../app/social.js";
 import { handleUsernameChange } from "../settings/app.js";
-import { throwAlert } from "../../app/render.js";
+import { throwAlert, throwToast } from "../../app/render.js";
 
 const avatarImages = [
     './resources/avatar/avatar_1.png',
@@ -116,7 +116,7 @@ function showCustomizeSection(elements) {
 async function updateProfilePhoto(formData) {
     const response = await changeAvatar(formData);
     if (response.status === "success") {
-        alert('Photo changes saved successfully.');
+        throwToast('Photo changes saved successfully.');
     } else {
         alert('Failed to save photo changes.');
     }

@@ -51,9 +51,8 @@
 #start-queue {
     max-height: 100px;
 }
-img {
-    /* display: none; */
-    /* max- */height: 250px !important;
+#chose-game img {
+    height: 250px !important;
     width: auto;
 }
 

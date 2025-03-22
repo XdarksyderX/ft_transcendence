@@ -3,21 +3,31 @@ import { throwAlert } from "../../app/render.js";
 import { getUsername } from "../../app/auth.js";
 import { navigateTo } from "../../app/router.js";
 
+let hasFinished = false;
+
 // Initializes the ongoing tournaments by fetching their details and rendering them
 export async function initializeOngoingTournaments() {
-  const tournaments = await getAllTournamentsBracket();
-  if (tournaments) {
-    renderAllTournaments(tournaments);
+  setSwitches();
+  const tourList = await handleGetTournamentList();
+  const ongoing = await getTournamentsBracket(tourList, false);
+  const finished = await getTournamentsBracket(tourList, true);
+
+  const ongoingContainer = document.getElementById('ongoing-container');
+  const finishedContainer = document.getElementById('finished-container');
+
+  if (ongoing) {
     initModalEvents();
-  } else {
-    renderNoneTournaments();
+  } if (finished) {
+    hasFinished = true;
   }
+    renderAllTournaments(ongoing, ongoingContainer, false);
+    renderAllTournaments(finished, finishedContainer, true);
+    
 }
 
 // Fetches the list of tournaments and their details, then constructs the tournament brackets
-async function getAllTournamentsBracket() {
-  const tourList = await handleGetTournamentList();
-  const tokens = await getOngoingTournamentsTokens(tourList);
+async function getTournamentsBracket(tourList, finished) {
+  const tokens = await getTournamentsTokens(tourList, finished);
   if (tokens.length === 0) {
     return null;
   }
@@ -31,6 +41,7 @@ async function getAllTournamentsBracket() {
   return tournaments;
 }
 
+
 // Fetches the list of tournaments from the server
 async function handleGetTournamentList() {
   const response = await listTournaments();
@@ -42,9 +53,9 @@ async function handleGetTournamentList() {
 }
 
 // Filters the tournaments to get the tokens of ongoing tournaments
-async function getOngoingTournamentsTokens(tournaments) {
+async function getTournamentsTokens(tournaments, finished) {
   return tournaments
-    .filter(tournament => tournament.is_closed) /* && !tournament.is_finished */
+    .filter(tournament => finished ? tournament.is_finished : (tournament.is_closed && !tournament.is_finished))
     .map(tournament => tournament.token);
 }
 
@@ -94,24 +105,38 @@ function getTournamentBracket(tournament) {
   };
 }
 
-function renderNoneTournaments() {
-  const container = document.getElementById('tournaments-container');
-  container.innerHTML = `
-<div class="neon-frame mt-5">
-	<div id="no-tournaments-card" class="card ctm-card p-5">
+function renderNoneTournaments(container, finished) {
+  if (finished) {
+    container.innerHTML = `
+        <div id="no-tournaments-card" class="card ctm-card p-5">
+        <h3 class="my-2 ctm-text-light text-center">You don't have finished any tournament!</h3>
+        <p class="my-3 ctm-text-light text-center">Going back to ongoing ones</p>
+ <div class="text-center">
+  <div class="spinner-border ctm-text-light" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+</div>
+      </div>`;
+  } else {
+
+    container.innerHTML = `
+    <div id="no-tournaments-card" class="card ctm-card p-5">
 		<h3 class="my-2 ctm-text-light text-center">You don't have any ongoing tournament!</h3>
 		<p class="my-3 ctm-text-light text-center">But you can create one or check the status of the ones you already created here!</p>
     <div id="create-edit-btn" class="btn ctm-btn mb-3 flex-grow-1 d-flex align-items-center justify-content-center">Create/edit Tournament</div>
 		</div>
-  </div>
-</div> `;
-
-  container.querySelector('#create-edit-btn').addEventListener('click', () => navigateTo('new-tournament'));
+    </div>`;
+    
+    container.querySelector('#create-edit-btn').addEventListener('click', () => navigateTo('new-tournament'));
+  }
 }
 
 // Renders all tournaments by generating their HTML elements and appending them to the container
-function renderAllTournaments(tournaments) {
-  const container = document.getElementById('tournaments-container');
+function renderAllTournaments(tournaments, container, finished) {
+  if (!tournaments) {
+    return renderNoneTournaments(container, finished);
+  }
+
   container.innerHTML = '';
 
   console.log("generating one tournament element");
@@ -138,7 +163,7 @@ function renderAllTournaments(tournaments) {
 // Generates the HTML element for a tournament
 function generateTournament(tournament) {
   const container = document.createElement('div');
-  container.classList.add("ctm-card", "neon-frame", "mt-5");
+  container.classList.add("ctm-card", "p-5");
   const bracket = generateBracket(tournament);
   container.innerHTML = `
     <h3 class="text-center ctm-text-title mb-3">${tournament.name}</h3>
@@ -287,4 +312,25 @@ export function handleJoinTournamentMatch(gameKey) {
   setTimeout(() => {
     navigateTo('/pong', gameKey);
   }, 1000);
+}
+
+function setSwitches() {
+  const switches = document.querySelectorAll("#tournaments .switch-btn");
+
+  switches.forEach((btn) => {
+    btn.addEventListener('click', (event) => {
+      event.preventDefault();
+      switches.forEach((btn) => btn.classList.remove("active"));
+      btn.classList.add("active");
+
+      // Check if the second switch is clicked and hasFinished is false
+      if (btn.classList.contains('switch-btn-right') && !hasFinished) {
+        setTimeout(() => {
+          // Click the first switch button again
+          document.querySelector('.switch-btn-left').click();
+        }, 1500); // Set the timeout duration as needed
+      }
+    });
+  });
+  return switches;
 }

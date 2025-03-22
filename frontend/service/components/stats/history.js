@@ -128,7 +128,7 @@ async function renderPongMatchHistory() {
     const matches = await handleGetMatchHistory('pong');
     const container = document.getElementById('full-pong-history');
     if (matches.length === 0) {
-      container.innerHTML = `<div class="text-center mt-5">you haven't played any pong match yet</div>`
+      container.innerHTML = `<div class="text-center mt-2 mt-md-5">you haven't played any pong match yet</div>`
     } else {
       matches.forEach(match => {
         const card = createPongMatchCard(match);
@@ -141,7 +141,7 @@ async function renderChessMatchHistory() {
     const matches = await handleGetMatchHistory('chess');
     const container = document.getElementById('full-chess-history');
     if (matches.length === 0) {
-      container.innerHTML = `<div class="text-center mt-5">you haven't played any chess game yet</div>`    } else {
+      container.innerHTML = `<div class="text-center mt-2 mt-md-5">you haven't played any chess game yet</div>`    } else {
 
       matches.forEach(match => {
         const card = createChessMatchCard(match);

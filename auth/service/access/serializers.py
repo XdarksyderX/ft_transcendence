@@ -8,7 +8,6 @@ from core.models import User, EmailVerification
 from django.core.signing import BadSignature, Signer
 import re
 
-
 class RegisterUserSerializer(serializers.ModelSerializer):
     username = serializers.CharField(
         error_messages={'required': 'This field is required: username'}
@@ -29,13 +28,6 @@ class RegisterUserSerializer(serializers.ModelSerializer):
         }
 
     def validate(self, data):
-        # Username validation
-        if len(data['username']) > 20:
-            raise serializers.ValidationError({"error": "Username must be at most 20 characters long."})
-        
-        if not re.match(r'^[a-zA-Z0-9_]+$', data['username']):
-            raise serializers.ValidationError({"error": "Username can only contain letters, numbers, and underscores."})
-
         email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         if not re.match(email_regex, data['email']):
             raise serializers.ValidationError({"error": "The email must be a valid address."})
@@ -47,6 +39,36 @@ class RegisterUserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"error": "Password must be at least 8 characters long."})
         
         return data
+
+    def create(self, validated_data):
+        user = User(
+            username=validated_data['username'],
+            email=validated_data['email'],
+            is_email_verified=settings.DEBUG
+        )
+        print(settings.DEBUG)
+        user.set_password(validated_data['password'])
+        user.save()
+
+        verification_code = str(uuid.uuid4())[:6]
+        expires_at = timezone.now() + datetime.timedelta(hours=1)
+
+        EmailVerification.objects.create(
+            user=user,
+            verification_code=verification_code,
+            expires_at=expires_at
+        )
+
+        verification_link = f"{settings.FRONTEND_URL}/verify-email?token={verification_code}"
+        send_mail(
+            subject="Verify your email address",
+            message=f"Please verify your email address by clicking on the following link: {verification_link}",
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[user.email],
+            fail_silently=False,
+        )
+
+        return user
 
 class LogoutSerializer(serializers.Serializer):
     access_token = serializers.CharField(
