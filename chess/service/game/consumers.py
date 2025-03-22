@@ -214,6 +214,7 @@ class ChessConsumer(AsyncWebsocketConsumer):
 				self.group_name,
 				{
 					"type": "player.ready",
+					"game_mode": self.game_obj.game_mode,
 					"color": self.color,
 					"username": self.user.username
 				}
@@ -373,6 +374,7 @@ class ChessConsumer(AsyncWebsocketConsumer):
 				serialized_board = serialize_board(game["board"])
 				await self.send(text_data=json.dumps({
 					"status": "sync_state",
+					"game_mode": self.game_obj.game_mode,
 					"board": serialized_board,
 					"current_player": game["current_player"],
 					"game_status": game["status"],
