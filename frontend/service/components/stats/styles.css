@@ -58,6 +58,16 @@
 	max-width: 200px;
 }
 
+.switch-container {
+    display: flex;
+    justify-content: center;
+}
+
+@media (min-width: 768px) {
+    .switch-container {
+        justify-content: flex-end;
+    }
+}
 /* #stats .switch-btn {
 	max-height: 80px;
 } */

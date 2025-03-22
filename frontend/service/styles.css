@@ -182,7 +182,7 @@ body::before {
     box-shadow: 0 0 10px #00F56A, 0 0 20px #00F56A, 0 0 30px #00F56A, 0 0 40px #00F56Acc;
 }
 .blinking-neon-frame {
-    padding: 10px;
+    /* padding: 10px; */
     border-radius: 10px;
 }
 /* modals */
