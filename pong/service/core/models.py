@@ -146,7 +146,7 @@ class PongGame(models.Model):
                                 if match.pong_game.winner:
                                     alive_players.append(match.pong_game.winner.id)
                             event_round = {
-                                "tournament_token": self.tournament.token,
+                                "tournament_name": self.tournament.name,
                                 "round_number": self.tournament.current_round,
                                 "alive_players": alive_players
                             }

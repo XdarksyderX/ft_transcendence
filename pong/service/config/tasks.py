@@ -2,7 +2,7 @@ from celery import shared_task
 from django.contrib.auth import get_user_model
 from core.models import IncomingEvent
 from core.utils import rabbitmq_client
-from core.models import PongStatistics
+from core.models import TournamentQueue
 import time
 import uuid
 
@@ -142,3 +142,19 @@ def handle_friend_removed(event):
     mark_event_as_processed(event_id, event["event_type"])
     return f"Friend {friend.username} removed from user {user.username}'s friend list. Friendship is a two-way street."
 
+@shared_task(name="events.user_disconnected")
+def handle_user_disconnected(event):
+    event_id = event["event_id"]
+    if event_already_processed(event_id):
+        return f"Event {event_id} already processed."
+
+    event_data = event["data"]["attributes"]
+
+    try:
+        user = User.objects.get(id=event_data["user_id"])
+    except User.DoesNotExist:
+        return f"Error: User with ID {event_data['user_id']} does not exist."
+
+    TournamentQueue.objects.filter(player=user).delete()
+    mark_event_as_processed(event_id, event["event_type"])
+    return f"User {user.username} disconnected."

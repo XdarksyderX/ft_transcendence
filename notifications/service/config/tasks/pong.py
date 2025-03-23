@@ -304,20 +304,18 @@ def handle_tournament_match_finished(event):
         return f"Event {event_id} already processed."
 
     event_attributes = event["data"]["attributes"]
-    player1_id = event_attributes["player1_id"]
-    player2_id = event_attributes["player2_id"]
+    player1_username = event_attributes["player1"]
+    player2_username = event_attributes["player2"]
     players_id = event_attributes["players_id"]
     winner = event_attributes["winner"]
 
-    player1 = User.objects.get(id=player1_id)
-    player2 = User.objects.get(id=player2_id)
     players = User.objects.filter(id__in=players_id)
 
     payload = {
         "event_type": "pong_tournament_match_finished",
         "tournament_token": event_attributes["tournament_token"],
-        "player1": player1.username,
-        "player2": player2.username,
+        "player1": player1_username,
+        "player2": player2_username,
         "winner": winner
     }
 
