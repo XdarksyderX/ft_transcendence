@@ -35,7 +35,7 @@ export function deleteCookie(name) {
  * Verifica la sesión del usuario y lo redirige según corresponda.
  */
 export async function isLoggedIn() {
-    if (!getUsername) {
+    if (!getUsername()) {
         return false;
     }
     const isValid = await verifyAccessToken();

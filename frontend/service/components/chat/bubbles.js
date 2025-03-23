@@ -271,23 +271,6 @@ async function handleDeclineTournamentInvitation(token, btns) {
 	}
 }
 
-
-/* 
-function createTournamentStartedNotification(tourName) {
-	return `
-	<div class="card-border" style="max-width: 250px;">
-		<div class="game-invitation card overflow-hidden">
-			<div class="card-body position-relative p-2" style="z-index: 1;">
-			<h6 class="mb-2 ctm-text-title">tournament info</h6>
-			<p class="card-text mb-2 small ctm-text-light">the <span id="tournament-name"> whatever the name </span>tournament has just started!</p>
-			<div class="d-flex justify-content-between align-items-center">
-				<button id="accept-btn" class="btn btn-sm ctm-btn flex-grow-1 me-1">got it!</button>
-			</div>
-			</div>
-		</div>
-	</div> `;
-} */
-
 export function escapeHTML(str) {
 	return str.replace(/[&<>"']/g, function (match) {
 		const escape = {
