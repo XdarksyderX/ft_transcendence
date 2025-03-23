@@ -117,7 +117,6 @@ function initGameRender(data, piecePositiont, inTurn)
     getChess960Piece();
 
   document.getElementById('root').innerHTML = '';
-  //console.log("desde initGameRender -> piecePositiont: ", piecePositiont)
   data.forEach(element => {
     const rowEl = document.createElement("div");
     element.forEach((square) => {
@@ -125,13 +124,8 @@ function initGameRender(data, piecePositiont, inTurn)
       squareDiv.id = square.id;
       squareDiv.classList.add(square.color, "square");
       
-      // if (gameMode === "horde") {
-      //   renderHordePieces(square, globalPiece, assignSpecificPiece, piecePositiont);
-      // } else {
-      //     assignSpecificPiece(square, piecePositiont);
-      //   }
-        assignSpecificPiece(square, piecePositiont);
-        rowEl.appendChild(squareDiv);
+      assignSpecificPiece(square, piecePositiont);
+      rowEl.appendChild(squareDiv);
       });
       rowEl.classList.add("squareRow");
       document.getElementById('root').appendChild(rowEl);
@@ -144,8 +138,8 @@ function initGameRender(data, piecePositiont, inTurn)
       if (keySquareMapper[position] && keySquareMapper[position].piece) {
           keySquareMapper[position].piece.move = move;
       }
-  }
-    console.log("globalPiece: ", globalPiece)
+    }
+    console.log("intiGameRender: globalPiece: ", globalPiece)
   }
 
   function assignSpecificPiece(square, piecePositiont) {
@@ -178,11 +172,13 @@ function initGameRender(data, piecePositiont, inTurn)
 }
 
 function assignRepeatedPiece(square, color, pieceType) {
-  if (globalPiece[`${color}_${pieceType}_1`])
-    globalPiece[`${color}_${pieceType}_2`] = square.piece;
-  else
-    globalPiece[`${color}_${pieceType}_1`] = square.piece;
+  let i = 1;
+  while (globalPiece[`${color}_${pieceType}_${i}`]) {
+    i++;
+  }
+  globalPiece[`${color}_${pieceType}_${i}`] = square.piece;
 }
+
 
 
 // render highlight circle

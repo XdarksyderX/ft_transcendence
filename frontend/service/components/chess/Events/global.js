@@ -29,7 +29,6 @@ function changeTurn() {
   const pawns = inTurn === "white" ? globalPiece.black_pawns : globalPiece.white_pawns;
   pawns.forEach(pawn => {
     pawn.move = false;
-
   });
 }
 
@@ -84,7 +83,7 @@ function checkWin(piece) {
 //this is the update for globalPiece when a pawn its promoted/demoted to other type of piece
 function globalPieceUpdate(id, realPiece) {
   const pieceType = realPiece.piece_name.split('_')[1].toLowerCase();
-  const color = inTurn === "white" ? "black" : "white";
+  const color = realPiece.piece_name.split('_')[0].toLowerCase();
   let pieceKey = `${color}_${pieceType}`;
 
   if (pieceType === "pawn") {
@@ -96,7 +95,6 @@ function globalPieceUpdate(id, realPiece) {
       pawnArray.push(realPiece);
   }
   else {
-    if (globalPiece[pieceKey]) {
       let i = 1;
       while (globalPiece[`${pieceKey}_${i}`]) {
         i++;
@@ -104,7 +102,6 @@ function globalPieceUpdate(id, realPiece) {
       pieceKey = `${pieceKey}_${i}`;
     }
     globalPiece[pieceKey] = realPiece;
-  }
 }
 
 /**
@@ -134,7 +131,6 @@ function callbackPiece(piece, id) {
   const realPiece = piece(id);
   const currentSquare = keySquareMapper[id];
   const previousPiece = currentSquare.piece;
-  
   
   globalPieceUpdate(id, realPiece);
   
@@ -248,24 +244,9 @@ function makeEnPassant(piece, id) {
 }
 
 function isClick() {
-/*   if (chessSocket && inTurn !== getUserColor(getUsername())) return ;
-  return false; */
   return !(chessSocket && inTurn !== getUserColor(getUsername()));
 }
 
-/**
- *
-Object { status: "game_update", board: {…}, last_move: {…}, current_player: "black" }
-​
-board: Object { a1: {…}, b1: {…}, c1: {…}, … }
-​
-current_player: "black"
-​
-last_move: Object { from: "d2", to: "d4", player: "white" }
-​
-status: "game_update"
-}
- */
 
 /**
  * move a piece by the highlight posibilities.
@@ -314,10 +295,6 @@ function moveElement(piece, id, castle) {
     moveSound.play();
 
   checkForCheck();
-  
-  // if (gameMode === "horde" && inTurn === "black") {
-  //   winBool = checkWinForBlackHorde();
-  // }
 
   if (winBool) {
     setTimeout(() => { winGame(winBool); }, 50);
@@ -328,8 +305,7 @@ function moveElement(piece, id, castle) {
     pawnPromotion(inTurn, callbackPiece, id);
 
   logMoves({from: piece.current_pos, to: id, piece:piece.piece_name}, inTurn, piece, castlingType);
-  
-  //para juan cuando el backend este, aqui es donde podriamos guardar en la base de datos los movimientos: keysquaremap es un objeto que tiene todo el tablero actualizado, piece.current_pos es la pos de origen, id, es la posicion de destino
+  console.log("moveElement: globalPiece: ", globalPiece)
   if (!castle)
     changeTurn();
 }

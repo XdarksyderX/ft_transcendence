@@ -105,6 +105,7 @@ async function pawnPromotion(color, callback, id, pieceTo = null) {
   
   const modal = new ModalCreator(finalContainer);
   modal.show();
+  console.log("pawnPromotion: globalPiece: ", globalPiece)
 }
 
 function handlePromotionChoice(pieceType) {
