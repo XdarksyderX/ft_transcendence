@@ -31,13 +31,12 @@ class BombChess(ClassicChess):
         # Check if the explosion captured the king
         white_king_alive = any(isinstance(piece, King) and piece.color == "white" for piece in new_board.values())
         black_king_alive = any(isinstance(piece, King) and piece.color == "black" for piece in new_board.values())
+        logger.debug(f"Bomb -> white_king_alive: {white_king_alive} & black_king_alive: {black_king_alive}")
 
         if not white_king_alive or not black_king_alive:
             winner = "black" if not white_king_alive else "white"
-            info["game_over"] = {
-                "status": "checkmate",
-                "winner": winner
-            }
+            info["game_over"] = True
+            info["winner"] = winner
             return True, "Game over", new_board, info
 
         return success, message, new_board, info

@@ -38,11 +38,11 @@ class ChessLogic:
                 'promotion_pending': True,
                 'promotion_position': self.promotion_position
             }
-
+    
         # Validar turno del jugador
         if player_color != self.current_player:
             return False, "Not your turn", self.board, {}
-
+    
         # Validar el movimiento mediante el game_mode
         success, message, new_board, info = self.game_mode.validate_move(
             self.board, from_pos, to_pos, player_color, promotion_choice
@@ -50,9 +50,9 @@ class ChessLogic:
         logger.debug(f"on make_move, info {info}")
         if not success:
             return False, message, self.board, {}
-
+    
         self.board = new_board
-
+    
         # Manejo de promoción pendiente
         if info.get('promotion_pending', True):
             logger.debug(f"HOLI QUÉ TAL")
@@ -62,15 +62,15 @@ class ChessLogic:
                 'promotion_pending': True,
                 'promotion_position': to_pos
             }
-
+    
         self._complete_move(from_pos, to_pos, player_color, info)
         game_state, winner = self._check_game_status()
-
+    
         result = {
             'success': True,
             'message': message,
-            'game_over': game_state is not None,
-            'winner': winner,
+            'game_over': info.get('game_over', game_state is not None),
+            'winner': info.get('winner', winner),
             'game_state': game_state,
             'info': info
         }

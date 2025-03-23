@@ -127,9 +127,7 @@ function waitForPromotionChoice() {
       const data = JSON.parse(event.data);
       if (data?.promotion) {
         chessSocket.removeEventListener('message', onMessage);
-        //const { color, piece_type } = data.promotion;
         resolve({ pieceColor: data.promotion.color, pieceType: data.promotion.piece_type, to: data.promotion.square });
-
       }
     }
     chessSocket.addEventListener('message', onMessage);
@@ -137,8 +135,8 @@ function waitForPromotionChoice() {
 }
 
 function winGame(winBool) {
-  if(!winBool)
-    return;
+  // if(!winBool)
+  //   return;
   const modalBody = document.createElement("div");
   modalBody.innerHTML = `
 

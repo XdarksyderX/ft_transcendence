@@ -44,11 +44,15 @@ function captureInTurn(square) {
   if (square.captureHightlight) {
     captureNotation = true
     moveElement(selfHighlightState, piece.current_pos);
-    if (gameMode === "bomb")
+    if (gameMode === "bomb"){
+      console.log("captureInTurn: Bomb: square: ", square);
       removeSurroundingPieces(square.id);
-
-    if (gameMode === "kirby")
-      kirbyTransformation(square, piece, inTurn);
+    }
+    
+    if (gameMode === "kirby"){
+      console.log("captureInTurn: Kirby: square: ", square);
+      kirbyTransformation(square, piece);
+    }
     clearPreviousSelfHighlight(selfHighlightState);
     clearHighlightLocal();
     captureNotation = false;
@@ -239,8 +243,6 @@ function makeEnPassant(piece, id) {
       delete opSquare.piece;
     }
   }
-  console.log("makeEnPassant")
-  console.log(globalPiece)
 }
 
 function isClick() {
@@ -263,6 +265,7 @@ function moveElement(piece, id, castle) {
   
   const isClickBool = isClick()
   const pawnPromotionBool = checkForPawnPromotion(piece, id);
+  let capturedPiece = null;
 
   if (isClickBool) {
       const data = {
@@ -274,11 +277,15 @@ function moveElement(piece, id, castle) {
       console.log("Sending data through WebSocket:", data);
 
     if (piece.piece_name.includes("PAWN") && (Math.abs(id[1] - piece.current_pos[1]) === 2 )) {
-      console.log("soy paco y soy true");
       piece.move = true;
       localStorage.setItem("enPassantTarget", JSON.stringify({ position: id, move: piece.move }));
     } else if (localStorage.getItem("enPassantTarget")) {
       localStorage.removeItem("enPassantTarget");
+    }
+  } else {
+    const capturedSquare = keySquareMapper[id];
+    if (capturedSquare.piece) {
+      capturedPiece = capturedSquare.piece;
     }
   }
 
@@ -297,7 +304,7 @@ function moveElement(piece, id, castle) {
   checkForCheck();
 
   if (winBool) {
-    setTimeout(() => { winGame(winBool); }, 50);
+    // setTimeout(() => { winGame(winBool); }, 50);
     return;
   }
 
@@ -305,9 +312,17 @@ function moveElement(piece, id, castle) {
     pawnPromotion(inTurn, callbackPiece, id);
 
   logMoves({from: piece.current_pos, to: id, piece:piece.piece_name}, inTurn, piece, castlingType);
-  console.log("moveElement: globalPiece: ", globalPiece)
   if (!castle)
     changeTurn();
+  if (!isClickBool && capturedPiece) {
+    if (gameMode === "bomb")
+      removeSurroundingPieces(id);
+
+    if (gameMode === "kirby") {
+      const square = keySquareMapper[piece.current_pos];
+      kirbyTransformation(square, capturedPiece);
+    }
+  }
 }
 
 //local function that will clear hightlight with state
@@ -530,12 +545,12 @@ function clearPreviousSelfHighlight(piece)
 function GlobalEvent() {
   const root = document.getElementById('root');
   root.addEventListener("click", function(event) {
-    if (inTurn !== getUserColor(getUsername())) {
+    if (inTurn !== getUserColor(getUsername())) { // esto iría fuera
       return;
     };
     const target = event.target;
     const isPieceClick = target.localName === "img";
-    const isHighlightClick = target.localName === "span" || target.childNodes.length === 2;
+    const isHighlightClick = target.localName === "span" || target.querySelector(".highlight");
     if (isPieceClick) // '===' compares both the value and the type without converting either value as '==' do (eg: 5 == '5')
     {
       const clickId = event.target.parentNode.id; //get the id of the parent element of the child, means the square, intead of the piece
