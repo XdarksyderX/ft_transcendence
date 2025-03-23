@@ -12,7 +12,7 @@ export function initializeGlobalChatSocket() {
         return;
     }
 
-    chatSocket = new WebSocket(`ws://localhost:5051/ws/chat/`);
+    chatSocket = new WebSocket(`ws://localhost:5000/ws/chat/`);
 
     chatSocket.onopen = () => {
         console.log("Chat WebSocket connected");

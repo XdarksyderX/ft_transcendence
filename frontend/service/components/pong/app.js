@@ -1,4 +1,5 @@
 import { navigateTo } from "../../app/router.js";
+import { getMatchInProgress } from "../../app/pong.js";
 
 //frame id
 let id;
@@ -74,13 +75,10 @@ export async function initializePongEvents(gameKey = null)
     console.log("Searching online game through fetch...");
     try 
     {
-        const response = await fetch("http://localhost:5052/match/in-progress/", { credentials: "include" });
-        if (!response.ok) throw new Error("Failed to fetch online match");
+        const request = await getMatchInProgress();
+        if  (response.status == "error") throw new Error("Failed to fetch online match");
         
-        console.log("Trying to find online match...");
-        const data = await response.json();
-        console.log(data)
-        if (data && data?.match?.game_key) 
+        if (request.match?.game_key) 
         {
             console.log("Online match found through fetch. Connecting...");
             return connectToOnlineGame(data?.match.game_key);
@@ -98,7 +96,7 @@ export async function initializePongEvents(gameKey = null)
 // ONLINE CODE START
 function connectToOnlineGame(gameKey)
 {
-    const socket = new WebSocket(`ws://localhost:5052/ws/game/${gameKey}/`);
+    const socket = new WebSocket(`ws://localhost:5000/ws/pong/${gameKey}/`);
 
     // init board
     board = document.getElementById("board");

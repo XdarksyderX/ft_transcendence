@@ -1,7 +1,10 @@
-// In your JS file (e.g., pongEndpoints.js)
 import { sendRequestPong } from './sendRequest.js';
 
 // ==================== Pong Match Endpoints ====================
+
+export async function getMatchInProgress() {
+  return await sendRequestPong('GET', 'match/in-progress/');
+}
 
 export async function getPongMatchHistory() {
   return await sendRequestPong('GET', 'match/history');

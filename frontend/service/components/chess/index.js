@@ -181,7 +181,7 @@ function handleGetChessReceivedMessage(event) {
 }
 
 function initializeChessSocket(game_key) {
-    chessSocket = new WebSocket(`ws://localhost:5053/ws/game/${game_key}/`);
+    chessSocket = new WebSocket(`ws://localhost:5000/ws/chess/${game_key}/`);
 
     chessSocket.onopen = () => {
         console.log("Chess WebSocket connected");
