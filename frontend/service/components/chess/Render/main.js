@@ -1,11 +1,10 @@
 import * as piece from "../Data/pieces.js";
-import { globalState, highlightColor, keySquareMapper } from "../index.js";
+import { globalState, highlightColor, keySquareMapper, gameMode } from "../index.js";
 import { getChess960Piece } from "../Variants/chess960.js";
 import { renderHordePieces } from "../Variants/horde.js";
 import { initGame } from "../Data/data.js";
 
 const globalPiece = new Object();
-const chessVariantTmp = sessionStorage.getItem('chessVariant'); //borrar -> solucion temporal para asegurar la persistencia de la variable hasta que tengamos backend
 
 /**
  * funciton globlaStateRender is usefull to render pieces from globalStateData,
@@ -114,7 +113,7 @@ function initGameRender(data, piecePositiont, inTurn)
   globalPiece.black_pawns = [];
   globalPiece.white_pawns = [];
 
-  if (chessVariantTmp === "960")
+  if (gameMode === "960")
     getChess960Piece();
 
   document.getElementById('root').innerHTML = '';
@@ -126,7 +125,7 @@ function initGameRender(data, piecePositiont, inTurn)
       squareDiv.id = square.id;
       squareDiv.classList.add(square.color, "square");
       
-      // if (chessVariantTmp === "horde") {
+      // if (gameMode === "horde") {
       //   renderHordePieces(square, globalPiece, assignSpecificPiece);
       // } else {
           assignSpecificPiece(square, piecePositiont);
