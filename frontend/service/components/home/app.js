@@ -159,7 +159,7 @@ function toggleChessOptions(event, elements) {
 // selects classic chess variant and goes to friend options
 function chooseClasicChess(toggleTo) {
 	chessVariant = 'classic';
-	sessionStorage.setItem('chessVariant', 'classic'); //borrar -> solucion temporal para asegurar la persistencia de la variable hasta que tengamos backend
+//	sessionStorage.setItem('chessVariant', 'classic'); //borrar -> solucion temporal para asegurar la persistencia de la variable hasta que tengamos backend
 	toggleView(currentView, toggleTo);
 }
 // displays the spicy chess variants
@@ -177,7 +177,7 @@ function chooseChessVariant(toggleTo) {
 	if (variant) {
 		chessVariant = variant.id.split('-')[0];
 		console.log('selected variant: ', chessVariant);
-		sessionStorage.setItem('chessVariant', chessVariant); //borrar -> solucion temporal para asegurar la persistencia de la variable hasta que tengamos backend
+	//	sessionStorage.setItem('chessVariant', chessVariant); //borrar -> solucion temporal para asegurar la persistencia de la variable hasta que tengamos backend
 		toggleView(currentView, toggleTo);
 	}
 }
