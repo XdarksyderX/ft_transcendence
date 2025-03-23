@@ -29,7 +29,6 @@ function changeTurn() {
   const pawns = inTurn === "white" ? globalPiece.black_pawns : globalPiece.white_pawns;
   pawns.forEach(pawn => {
     pawn.move = false;
-
   });
 }
 
@@ -45,11 +44,15 @@ function captureInTurn(square) {
   if (square.captureHightlight) {
     captureNotation = true
     moveElement(selfHighlightState, piece.current_pos);
-    if (gameMode === "bomb")
+    if (gameMode === "bomb"){
+      console.log("captureInTurn: Bomb: square: ", square);
       removeSurroundingPieces(square.id);
-
-    if (gameMode === "kirby")
-      kirbyTransformation(square, piece, inTurn);
+    }
+    
+    if (gameMode === "kirby"){
+      console.log("captureInTurn: Kirby: square: ", square);
+      kirbyTransformation(square, piece);
+    }
     clearPreviousSelfHighlight(selfHighlightState);
     clearHighlightLocal();
     captureNotation = false;
@@ -84,7 +87,7 @@ function checkWin(piece) {
 //this is the update for globalPiece when a pawn its promoted/demoted to other type of piece
 function globalPieceUpdate(id, realPiece) {
   const pieceType = realPiece.piece_name.split('_')[1].toLowerCase();
-  const color = inTurn === "white" ? "black" : "white";
+  const color = realPiece.piece_name.split('_')[0].toLowerCase();
   let pieceKey = `${color}_${pieceType}`;
 
   if (pieceType === "pawn") {
@@ -96,7 +99,6 @@ function globalPieceUpdate(id, realPiece) {
       pawnArray.push(realPiece);
   }
   else {
-    if (globalPiece[pieceKey]) {
       let i = 1;
       while (globalPiece[`${pieceKey}_${i}`]) {
         i++;
@@ -104,7 +106,6 @@ function globalPieceUpdate(id, realPiece) {
       pieceKey = `${pieceKey}_${i}`;
     }
     globalPiece[pieceKey] = realPiece;
-  }
 }
 
 /**
@@ -134,7 +135,6 @@ function callbackPiece(piece, id) {
   const realPiece = piece(id);
   const currentSquare = keySquareMapper[id];
   const previousPiece = currentSquare.piece;
-  
   
   globalPieceUpdate(id, realPiece);
   
@@ -243,29 +243,12 @@ function makeEnPassant(piece, id) {
       delete opSquare.piece;
     }
   }
-  console.log("makeEnPassant")
-  console.log(globalPiece)
 }
 
 function isClick() {
-/*   if (chessSocket && inTurn !== getUserColor(getUsername())) return ;
-  return false; */
   return !(chessSocket && inTurn !== getUserColor(getUsername()));
 }
 
-/**
- *
-Object { status: "game_update", board: {…}, last_move: {…}, current_player: "black" }
-​
-board: Object { a1: {…}, b1: {…}, c1: {…}, … }
-​
-current_player: "black"
-​
-last_move: Object { from: "d2", to: "d4", player: "white" }
-​
-status: "game_update"
-}
- */
 
 /**
  * move a piece by the highlight posibilities.
@@ -282,6 +265,7 @@ function moveElement(piece, id, castle) {
   
   const isClickBool = isClick()
   const pawnPromotionBool = checkForPawnPromotion(piece, id);
+  let capturedPiece = null;
 
   if (isClickBool) {
       const data = {
@@ -293,11 +277,15 @@ function moveElement(piece, id, castle) {
       console.log("Sending data through WebSocket:", data);
 
     if (piece.piece_name.includes("PAWN") && (Math.abs(id[1] - piece.current_pos[1]) === 2 )) {
-      console.log("soy paco y soy true");
       piece.move = true;
       localStorage.setItem("enPassantTarget", JSON.stringify({ position: id, move: piece.move }));
     } else if (localStorage.getItem("enPassantTarget")) {
       localStorage.removeItem("enPassantTarget");
+    }
+  } else {
+    const capturedSquare = keySquareMapper[id];
+    if (capturedSquare.piece) {
+      capturedPiece = capturedSquare.piece;
     }
   }
 
@@ -314,13 +302,9 @@ function moveElement(piece, id, castle) {
     moveSound.play();
 
   checkForCheck();
-  
-  if (gameMode === "horde" && inTurn === "black") {
-    winBool = checkWinForBlackHorde();
-  }
 
   if (winBool) {
-    setTimeout(() => { winGame(winBool); }, 50);
+    // setTimeout(() => { winGame(winBool); }, 50);
     return;
   }
 
@@ -328,10 +312,17 @@ function moveElement(piece, id, castle) {
     pawnPromotion(inTurn, callbackPiece, id);
 
   logMoves({from: piece.current_pos, to: id, piece:piece.piece_name}, inTurn, piece, castlingType);
-  
-  //para juan cuando el backend este, aqui es donde podriamos guardar en la base de datos los movimientos: keysquaremap es un objeto que tiene todo el tablero actualizado, piece.current_pos es la pos de origen, id, es la posicion de destino
   if (!castle)
     changeTurn();
+  if (!isClickBool && capturedPiece) {
+    if (gameMode === "bomb")
+      removeSurroundingPieces(id);
+
+    if (gameMode === "kirby") {
+      const square = keySquareMapper[piece.current_pos];
+      kirbyTransformation(square, capturedPiece);
+    }
+  }
 }
 
 //local function that will clear hightlight with state
@@ -554,12 +545,12 @@ function clearPreviousSelfHighlight(piece)
 function GlobalEvent() {
   const root = document.getElementById('root');
   root.addEventListener("click", function(event) {
-    if (inTurn !== getUserColor(getUsername())) {
+    if (inTurn !== getUserColor(getUsername())) { // esto iría fuera
       return;
     };
     const target = event.target;
     const isPieceClick = target.localName === "img";
-    const isHighlightClick = target.localName === "span" || target.childNodes.length === 2;
+    const isHighlightClick = target.localName === "span" || target.querySelector(".highlight");
     if (isPieceClick) // '===' compares both the value and the type without converting either value as '==' do (eg: 5 == '5')
     {
       const clickId = event.target.parentNode.id; //get the id of the parent element of the child, means the square, intead of the piece

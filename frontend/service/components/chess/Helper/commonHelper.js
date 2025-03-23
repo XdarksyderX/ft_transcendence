@@ -270,7 +270,7 @@ function giveKingCaptureIds(id, color) {
 
 function checkEnPassant(curr_pos, color, num) {
     const row = color === "white" ? 5 : 4; // Row where en passant is possible
-    if (curr_pos[1] != row) return false;
+    if (curr_pos && curr_pos[1] != row) return false;
     console.log(`Checking en passant for ${color} at position ${curr_pos} on row ${row}`);
 
     const leftPos = `${String.fromCharCode(curr_pos[0].charCodeAt(0) - 1)}${curr_pos[1]}`;
@@ -281,10 +281,6 @@ function checkEnPassant(curr_pos, color, num) {
 
     // Helper function to check if a position is valid for en passant
     function isValidEnPassant(pos) {
-/*         return pos[0] >= 'a' && pos[0] <= 'h' &&
-        checkPieceExist(pos) &&
-        keySquareMapper[pos].piece.piece_name.toLowerCase().includes(opponentColor) &&
-        keySquareMapper[pos].piece.move; */
         const pieceExists = checkPieceExist(pos);
         const isOpponentPiece = pieceExists && keySquareMapper[pos].piece.piece_name.toLowerCase().includes(opponentColor);
         const hasMoved = pieceExists && keySquareMapper[pos].piece.move;
@@ -348,10 +344,39 @@ function isPathSafeForCastling(kingPath, color) {
     return kingPath.every(square => !opponentMoves.has(square));
 }  
 
+// function hasPieceMoved(piece, moveLogger) {
+//     const originalPositions = {
+//         "white_king": "e1",
+//         "black_king": "e8",
+//         "white_rook_1": "a1",
+//         "white_rook_2": "h1",
+//         "black_rook_1": "a8",
+//         "black_rook_2": "h8",
+//     };
+
+//     const pieceKey = `${piece.color}_${piece.piece_name.toLowerCase()}`;
+//     const originalPosition = originalPositions[pieceKey];
+
+//     if (!originalPosition) {
+//         return false; // Piece not found in original positions
+//     }
+
+//     let hasMoved = false;
+//     for (const move of moveLogger) {
+//         if (move.notation.includes(originalPosition)) {
+//             hasMoved = true;
+//         }
+//     }
+
+//     return hasMoved;
+// }
+
 /*this function check whether all castling conditions are true, and the push that possible move
  * to array tha contains all the moves that a king can make.*/
 function castlingCheck(piece, color, res) {
-    if (piece.piece_name.includes("KING") && !piece.move) {
+    // if (!piece.piece_name.includes("KING")) return ;
+    // const moveLogger = localStorage.getItem('chessMoves');
+    if (!piece.piece_name.includes("KING") && !piece.move) {
         const rook1 = globalPiece[`${color}_rook_1`];
         const rook2 = globalPiece[`${color}_rook_2`];
 

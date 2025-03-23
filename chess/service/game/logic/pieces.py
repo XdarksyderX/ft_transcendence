@@ -68,6 +68,7 @@ class Pawn(ChessPiece):
         front_pos = f"{file}{rank + direction}"
         if front_pos in board and board[front_pos] is None:
             moves.append(front_pos)
+
             
             if not self.has_moved:
                 double_pos = f"{file}{rank + 2*direction}"

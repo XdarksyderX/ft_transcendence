@@ -21,7 +21,7 @@ class KirbyChess(ClassicChess):
         captured_piece = board[to_pos] #what was before the capture?
 
         # Special rule for Kirby Chess: convert capturing piece into captured piece
-        if captured_piece:
+        if captured_piece and not piece.__class__.__name__.lower() == 'king':
             logger.debug(f"Kirby captured piece: {captured_piece.__class__.__name__} at {to_pos}")
             new_piece = self.create_piece(captured_piece.__class__.__name__.lower(), player_color)
             if new_piece:

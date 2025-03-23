@@ -105,7 +105,6 @@ class ClassicChess(ChessGameMode):
         piece = board[from_pos]
         if piece.color != player_color:
             return False, "You cannot move your opponent's pieces", board, {}
-
         possible_moves = piece.get_possible_moves(board, self.en_passant_target) if isinstance(piece, Pawn) else piece.get_possible_moves(board)
 
         if to_pos not in possible_moves:

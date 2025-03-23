@@ -117,7 +117,6 @@ function initGameRender(data, piecePositiont, inTurn)
     getChess960Piece();
 
   document.getElementById('root').innerHTML = '';
-
   data.forEach(element => {
     const rowEl = document.createElement("div");
     element.forEach((square) => {
@@ -125,12 +124,8 @@ function initGameRender(data, piecePositiont, inTurn)
       squareDiv.id = square.id;
       squareDiv.classList.add(square.color, "square");
       
-      // if (gameMode === "horde") {
-      //   renderHordePieces(square, globalPiece, assignSpecificPiece);
-      // } else {
-          assignSpecificPiece(square, piecePositiont);
-        // }
-        rowEl.appendChild(squareDiv);
+      assignSpecificPiece(square, piecePositiont);
+      rowEl.appendChild(squareDiv);
       });
       rowEl.classList.add("squareRow");
       document.getElementById('root').appendChild(rowEl);
@@ -143,8 +138,7 @@ function initGameRender(data, piecePositiont, inTurn)
       if (keySquareMapper[position] && keySquareMapper[position].piece) {
           keySquareMapper[position].piece.move = move;
       }
-  }
-    console.log("globalPiece: ", globalPiece)
+    }
   }
 
   function assignSpecificPiece(square, piecePositiont) {
@@ -177,19 +171,11 @@ function initGameRender(data, piecePositiont, inTurn)
 }
 
 function assignRepeatedPiece(square, color, pieceType) {
-  if (globalPiece[`${color}_${pieceType}_1`])
-    globalPiece[`${color}_${pieceType}_2`] = square.piece;
-  else
-    globalPiece[`${color}_${pieceType}_1`] = square.piece;
-}
-
-
-// render highlight circle
-function renderHighlight(squareId) {
-  const highlightSpan = document.createElement("span");
-  highlightSpan.classList.add("highlight");
-  highlightSpan.style.backgroundColor = highlightColor; // Aplicar el color de highlight
-  document.getElementById(squareId).appendChild(highlightSpan);
+  let i = 1;
+  while (globalPiece[`${color}_${pieceType}_${i}`]) {
+    i++;
+  }
+  globalPiece[`${color}_${pieceType}_${i}`] = square.piece;
 }
 
 // clear all hightlight from the board
@@ -215,15 +201,6 @@ function circleHighlightRender(highlightSquareIds, keySquareMapper) {
   highlightSquareIds.forEach(highlight => {
     const element = keySquareMapper[highlight];
     element.highlight = true;
-
-    // create and add the element .highlight if doesn't exist
-    let highlightSpan = document.getElementById(highlight).querySelector('.highlight');
-    if (!highlightSpan) {
-      highlightSpan = document.createElement("span");
-      highlightSpan.classList.add("highlight");
-      document.getElementById(highlight).appendChild(highlightSpan);
-    }
-    highlightSpan.style.backgroundColor = highlightColor;
   });
 }
 
@@ -246,4 +223,4 @@ function convertToPiecePositions(boardMap) {
   return piecePositionsTmp;
 }
 
-export { initGameRender, renderHighlight, clearHighlight, selfHighlight, globalStateRender, globalPiece, circleHighlightRender, piecePositions, convertToPiecePositions };
+export { initGameRender, clearHighlight, selfHighlight, globalStateRender, globalPiece, circleHighlightRender, piecePositions, convertToPiecePositions };

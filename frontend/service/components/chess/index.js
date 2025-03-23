@@ -86,7 +86,6 @@ export async function initializeChessEvents(key) {
     const inTurn = getUserColor(getUsername()) === data.current_player;
     const piecePositions = convertToPiecePositions(data.board);
 
-    //console.log(piecePositions)
     initGameRender(globalState, piecePositions, inTurn);
     GlobalEvent();
     generateCoordinates();
