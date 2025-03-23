@@ -1,7 +1,15 @@
-!/bin/bash
+#!/bin/sh
 
-service postgresql start
-sleep 5
+
+# Initialize PostgreSQL
+sudo -u postgres initdb -D /var/lib/postgresql/data
+sudo -u postgres postgres -D /var/lib/postgresql/data &
+
+
+until pg_isready -h localhost -p 5432; do
+echo "Waiting for PostgreSQL to be available..."
+  sleep 1
+done
 
 if [[ "$DROP_DB" == "TRUE" ]]; then
 	if [[ -x "./dropdb.sh" ]]; then
@@ -23,5 +31,5 @@ cd service
 
 celery -A config worker --loglevel=info --queues=consistency.subscribe_now.auth &
 
-exec python manage.py runserver 0.0.0.0:5050
-!/bin/bash
+exec python3 manage.py runserver 0.0.0.0:5050
+# !/bin/sh
