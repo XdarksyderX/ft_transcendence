@@ -112,18 +112,23 @@ export async function initializeChessEvents(key) {
     "status": "in_progress",
     "created_at": "2025-03-08T13:55:04.641631Z"
 } */
+
+let gameMode = null;
+
 async function handleGetChessMatchDetail(key) {
     const res = await getChessMatchDetail(key);
     if (res.status === "success") {
         const white = res.match.player_white;
         const black = res.match.player_black;
-        //console.log(res);
+
         whoIsWho[white] = "white";
         whoIsWho[black] = "black";
-        //console.log("desde handle")
-        //console.log(whoIsWho)
+
+        gameMode = res.match.game_mode;
     }
 }
+
+
 
 async function initOnlineChess(key) {
     // white or black 
@@ -365,4 +370,4 @@ String.prototype.replaceAt = function (index, replacement) {
     return (this.substring(0, index) + replacement + this.substring(index + replacement.length));
 };
 
-export { globalState, keySquareMapper, highlightColor, imgStyle, stopBackgroundMusic, toggleBackgroundMusic, getUserColor , chessSocket, inTurn};
+export { globalState, keySquareMapper, highlightColor, imgStyle, stopBackgroundMusic, toggleBackgroundMusic, getUserColor , chessSocket, inTurn, gameMode};

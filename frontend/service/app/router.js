@@ -7,7 +7,7 @@ import { initializeProfileEvents } from '../components/profile/app.js';
 import { initialize404 } from '../components/error/app.js';
 import { initializeFriendsEvents } from '../components/friends/app.js';
 import { initializeStatsEvents } from '../components/stats/app.js';
-import { initializeOngoingTournaments } from '../components/tournament/ongoing.js';
+import { initializeOngoingTournaments } from '../components/tournament/started.js';
 import { initializeNewTournament } from '../components/tournament/new.js';
 import { initializeChessEvents } from '../components/chess/index.js';
 import { loadChat, loadSidebar } from './render.js';
@@ -31,8 +31,8 @@ const routes = [
     { url: "/friends", file: "./components/friends/friends.html", allowed: false },
     { url: "/game-stats", file: "./components/stats/stats.html", allowed: false },
     { url: "/settings", file: "./components/settings/settings.html", allowed: false },
-    { url: "/ongoing-tournaments", file: "./components/tournament/tournament.html", allowed: false },
-    { url: "/new-tournament", file: "./components/tournament/new-tournament.html", allowed: false },
+    { url: "/started-tournaments", file: "./components/tournament/started.html", allowed: false },
+    { url: "/unstarted-tournaments", file: "./components/tournament/unstarted.html", allowed: false },
     { url: "/chess", file: "./components/chess/chess.html", allowed: false },
     { url: "/pong", file: "./components/pong/pong.html", allowed: false },
     { url: "/reset-password", file: "./components/login/reset-password.html", allowed: true },
@@ -65,10 +65,10 @@ async function router(key = null) {
             initializeHomeEvents();
 
             break;
-        case "/ongoing-tournaments":
+        case "/started-tournaments":
             initializeOngoingTournaments();
             break;
-        case "/new-tournament":
+        case "/unstarted-tournaments":
             initializeNewTournament(true);
             break;
         case "/profile":
@@ -108,8 +108,9 @@ function parseUrl(fullUrl) {
 
 function redirectURL(isLogged, fullUrl) {
     const url = parseUrl(fullUrl);
-    const allowed = routes.find(route => route.url === url).allowed;
-    //    console.log("is logged?", isLogged)
+    const match = routes.find(route => route.url === url);
+    if (!match) return null;
+    const allowed = match.allowed;
     if (allowed) {
         if (isLogged) {
             return ("/home");
@@ -123,7 +124,6 @@ function redirectURL(isLogged, fullUrl) {
             return ("/");
         }
     }
-
 }
 
 function unloadChatAndSidebar() {
@@ -185,10 +185,10 @@ function getTitleForUrl(url) {
             return "Game Stats";
         case "/settings":
             return "Settings";
-        case "/ongoing-tournaments":
-            return "Ongoing Tournaments";
-        case "/new-tournament":
-            return "New Tournament";
+        case "/started-tournaments":
+            return "Started Tournaments";
+        case "/unstarted-tournament":
+            return "New/Edit Tournament";
         case "/chess":
             return "Chess";
         case "/pong":
@@ -211,7 +211,7 @@ function toggleNavbarContent(show, hide) {
 
 function updateNavbar(url) {
  //   const navbarContent = document.getElementById('navbar-content');;
-    const allowed = routes.find(route => route.url === url).allowed;
+    const allowed = routes.find(route => route.url === url)?.allowed;
 
     const loggedContent = document.getElementById('logged-content');
     const unloggedContent = document.getElementById('unlogged-content');

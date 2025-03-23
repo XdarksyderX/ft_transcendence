@@ -127,7 +127,7 @@ function renderNoneTournaments(container, finished) {
 		</div>
     </div>`;
     
-    container.querySelector('#create-edit-btn').addEventListener('click', () => navigateTo('new-tournament'));
+    container.querySelector('#create-edit-btn').addEventListener('click', () => navigateTo('unstarted-tournaments'));
   }
 }
 
@@ -332,5 +332,4 @@ function setSwitches() {
       }
     });
   });
-  return switches;
 }

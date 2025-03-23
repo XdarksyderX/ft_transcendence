@@ -7,7 +7,7 @@ import { removeSurroundingPieces } from "../Variants/atomic.js";
 import { kirbyTransformation } from "../Variants/kirby.js";
 import { checkWinForBlackHorde, whitePawnHordeRenderMoves } from "../Variants/horde.js"
 import { getUsername } from "../../../app/auth.js";
-import { inTurn } from "../index.js";
+import { inTurn, gameMode } from "../index.js";
 
 //highlighted or not => state
 let highlight_state = false;
@@ -22,8 +22,6 @@ let whoInCheck = null;
 let winBool = false;
 let captureNotation = false;
 
-const chessVariantTmp = sessionStorage.getItem('chessVariant'); //borrar -> solucion temporal para asegurar la persistencia de la variable hasta que tengamos backend
-
 const moveSound = new Audio('components/chess/Assets/music/sound2.mp3');
 
 function changeTurn() {
@@ -37,7 +35,7 @@ function changeTurn() {
 
 function captureInTurn(square) {
   const piece = square.piece;
-  
+  console.log('capture, variant:', gameMode);
   if (piece == selfHighlightState) {
     clearPreviousSelfHighlight(selfHighlightState);
     clearHighlightLocal();
@@ -47,10 +45,10 @@ function captureInTurn(square) {
   if (square.captureHightlight) {
     captureNotation = true
     moveElement(selfHighlightState, piece.current_pos);
-    if (chessVariantTmp === "bomb")
+    if (gameMode === "bomb")
       removeSurroundingPieces(square.id);
 
-    if (chessVariantTmp === "kirby")
+    if (gameMode === "kirby")
       kirbyTransformation(square, piece, inTurn);
     clearPreviousSelfHighlight(selfHighlightState);
     clearHighlightLocal();
@@ -317,7 +315,7 @@ function moveElement(piece, id, castle) {
 
   checkForCheck();
   
-  if (chessVariantTmp === "horde" && inTurn === "black") {
+  if (gameMode === "horde" && inTurn === "black") {
     winBool = checkWinForBlackHorde();
   }
 
@@ -362,7 +360,7 @@ function captureHightlightSquare(square, piece) {
 }
 
 function checkForCheck() {
-  if (chessVariantTmp === "horde" && inTurn === "white") return null;
+  if (gameMode === "horde" && inTurn === "white") return null;
 
   whoInCheck = null;
   const kingPosition = inTurn === "white" ? globalPiece.white_king.current_pos : globalPiece.black_king.current_pos;
@@ -510,7 +508,7 @@ function handlePieceClick(square, color, pieceType) {
 
   switch (pieceType) {
     case 'pawn':
-      if (chessVariantTmp === "horde" && inTurn === "white")
+      if (gameMode === "horde" && inTurn === "white")
         whitePawnHordeRenderMoves(piece, color, circleHighlightRender);
       else
         filterMovesForKingProtection(piece, color, help.pawnMovesOptions, help.pawnCaptureOptions, pieceType);

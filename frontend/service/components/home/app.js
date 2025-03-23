@@ -87,8 +87,8 @@ function initPongEvents(elements) {
 	elements.pong.quickPlay.playFriend.addEventListener('click', () => playPongWithFriend(elements));
 	elements.pong.quickPlay.playMachine.addEventListener('click', playAgainstMachine);
 	elements.pong.tournament.btn.addEventListener('click', () => showTournamentOptions(elements));
-	elements.pong.tournament.ongoing.addEventListener('click', () => navigateTo("/ongoing-tournaments"));
-    elements.pong.tournament.new.addEventListener('click', () => navigateTo("/new-tournament"));
+	elements.pong.tournament.ongoing.addEventListener('click', () => navigateTo("/started-tournaments"));
+    elements.pong.tournament.new.addEventListener('click', () => navigateTo("/unstarted-tournaments"));
 
     elements.pong.quickPlay.startGameWithFriendButton.addEventListener('click', () => {
 		const gameData = {

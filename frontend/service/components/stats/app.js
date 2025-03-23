@@ -69,7 +69,7 @@ function renderTournamentStats(container, stats) {
   container.innerHTML = `
     <p><span class="fw-bold mt-2">Tournaments Played:</span> ${stats.played}</p>
     <p><span class="fw-bold">First place:</span> ${stats.first}</p>
-    <p><span class="fw-bold">Second place:</span> ${stats.second}</p>
+    <p class="mb-2" ><span class="fw-bold">Second place:</span> ${stats.second}</p>
   `;
 }
 
@@ -89,6 +89,6 @@ function renderChessGameStats(container, stats, isRanked = false) {
     <p><span class="fw-bold">Games Won:</span> ${stats.games_won}</p>
     <p><span class="fw-bold">Games Lost:</span> ${stats.games_lost}</p>
     <p><span class="fw-bold">Draws:</span> ${stats.draws}</p>
-    <p><span class="fw-bold">${rate.title}</span> ${rate.value}</p>
+    <p class="mb-2"><span class="fw-bold">${rate.title}</span> ${rate.value}</p>
 	`;
 }
