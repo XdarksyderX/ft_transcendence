@@ -19,7 +19,7 @@ class MatchHistoryView(APIView):
 
     def get(self, request):
         user = request.user
-        history = user.games.filter(status='finished')
+        history = user.games.filter(status='finished').order_by('-created_at')
         serializer = PongGameHistorySerializer(history, many=True)
         return Response({
             "status": "success",

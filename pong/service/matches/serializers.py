@@ -43,8 +43,9 @@ class PongGameHistorySerializer(serializers.ModelSerializer):
             'score_player1',
             'score_player2',
             'status',
+            'is_tournament'
             'created_at',
-            'updated_at'
+            'updated_at',
         ]
 
 class PendingInvitationDetailSerializer(serializers.ModelSerializer):

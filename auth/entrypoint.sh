@@ -1,4 +1,4 @@
-!/bin/bash
+#!/bin/bash
 
 service postgresql start
 sleep 5
@@ -21,7 +21,4 @@ python3 service/manage.py migrate
 
 cd service
 
-celery -A config worker --loglevel=info --queues=consistency.subscribe_now.auth &
-
 exec python manage.py runserver 0.0.0.0:5050
-!/bin/bash

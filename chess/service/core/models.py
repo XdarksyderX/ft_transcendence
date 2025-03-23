@@ -54,6 +54,7 @@ class ChessGame(models.Model):
     game_mode = models.CharField(max_length=20, choices=GAME_MODES, default='classic')
     is_ranked = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     board_states = models.JSONField(default=list)
     move_history = models.JSONField(default=list)  # Historial detallado de movimientos
     current_player = models.CharField(max_length=10, choices=[('white', 'White'), ('black', 'Black')], default='white')

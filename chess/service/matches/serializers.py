@@ -36,8 +36,9 @@ class ChessGameHistorySerializer(serializers.ModelSerializer):
             'winner',
             'game_mode',
             'status',
+            'is_ranked',
             'created_at',
-           # 'updated_at'
+            'updated_at'
         ]
 
 class PendingInvitationDetailSerializer(serializers.ModelSerializer):
