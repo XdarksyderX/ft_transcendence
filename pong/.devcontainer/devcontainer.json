@@ -1,7 +1,7 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/python
 {
-	"name": "Python 3",
+	"name": "pong",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
 	"image": "mcr.microsoft.com/devcontainers/python:1-3.11-bookworm",
 	"features": {
@@ -17,7 +17,8 @@
 	"runArgs": [
     "--env-file", "service/.env",
 	"--env-file", "../.env",
-	"--network=dev_network"
+	"--network=dev_network",
+	"--name=pong"
   	],
 	
 

@@ -1,12 +1,6 @@
 import jwtDecode from 'https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.esm.js';
 
-const SERVICE_HOSTS = {
-    auth: 'http://localhost:5050',
-    social: 'http://localhost:5051',
-    pong: 'http://localhost:5052',
-    chess: 'http://localhost:5053',
-    notifications: 'http://localhost:5054'
-};
+const GATEWAY_URL = 'http://localhost:5000';
 
 let isRefreshingToken = false;
 
@@ -19,7 +13,7 @@ async function refreshAccessToken() {
     isRefreshingToken = true;
 
     try {
-        const response = await fetch(`${SERVICE_HOSTS.auth}/refresh/`, {
+        const response = await fetch(`${GATEWAY_URL}/api/auth/refresh/`, {
             method: 'POST',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' }
@@ -48,12 +42,6 @@ async function refreshAccessToken() {
 }
 
 async function sendRequest(service, method, endpoint, body = null, isFormData = false, retried = false) {
-    const baseUrl = SERVICE_HOSTS[service];
-    if (!baseUrl) {
-        console.error(`Service "${service}" not found in SERVICE_HOSTS`);
-        return { status: "error", message: `Unknown service: ${service}` };
-    }
-
     try {
         const headers = isFormData ? {} : { 'Content-Type': 'application/json' };
         const requestPayload = {
@@ -63,9 +51,9 @@ async function sendRequest(service, method, endpoint, body = null, isFormData = 
             body: body ? (isFormData ? body : JSON.stringify(body)) : null
         };
 
-        console.log(`Sending request to ${baseUrl}/${endpoint}`, requestPayload);
+        console.log(`Sending request to ${GATEWAY_URL}/api/${service}/${endpoint}`, requestPayload);
 
-        const response = await fetch(`${baseUrl}/${endpoint}`, requestPayload);
+        const response = await fetch(`${GATEWAY_URL}/api/${service}/${endpoint}`, requestPayload);
 
         let responseData = null;
 

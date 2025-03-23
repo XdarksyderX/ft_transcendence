@@ -1,14 +1,9 @@
 {
-	"name": "Frontend",
+	"name": "frontend",
 	"image": "alpine:latest",
-	"runArgs": ["--init"],
+	"runArgs": ["--init", "--name=frontend", "--network=dev_network"],
 	"postCreateCommand": "apk update && apk add lighttpd && mkdir -p /var/www/ && ln -s $(pwd)/service /var/www/service && cp ./lighttpd.conf /etc/lighttpd/lighttpd.conf && sh entrypoint.sh",
 	"forwardPorts": [
-		80
-	],
-	"portsAttributes": {
-		"80": {
-			"label": "frontend"
-		}
-	}
+		5080
+	]
 }

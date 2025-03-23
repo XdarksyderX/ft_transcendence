@@ -14,14 +14,6 @@ services:
     ports:
       - "6379"
 
-  consistency:
-    build:
-      context: consistency
-      dockerfile: Dockerfile
-    env_file: .env
-    depends_on:
-      - rabbitmq
-
   auth:
     build:
       context: auth
@@ -41,7 +33,7 @@ services:
       context: frontend
       dockerfile: Dockerfile
     ports:
-      - "5080:80"
+      - "5080:5080"
     volumes:
       - ./frontend/service:/var/www/service
     depends_on:
