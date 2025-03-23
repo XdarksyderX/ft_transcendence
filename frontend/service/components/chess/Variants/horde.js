@@ -15,7 +15,7 @@ const piecePositionsHorde = {
 };
 
 //esto es un parche y esta mal -> guarrada
-function renderHordePieces(square, globalPiece, assignSpecificPiece) {
+function renderHordePieces(square, globalPiece, assignSpecificPiece, piecePositiont) {
   if (square.id[1] == 7) {
     square.piece = piece.blackPawn(square.id);
     globalPiece.black_pawns.push(square.piece);
@@ -23,8 +23,8 @@ function renderHordePieces(square, globalPiece, assignSpecificPiece) {
     || square.id == "b5" || square.id == "c5" || square.id == "f2" || square.id == "g2") {
     square.piece = piece.whitePawn(square.id);
     globalPiece.white_pawns.push(square.piece);
-  } else if (piecePositionsHorde[square.id]) {
-    square.piece = piecePositionsHorde[square.id](square.id);
+  } else if (piecePositiont[square.id]) {
+    square.piece = piecePositiont[square.id](square.id);
     assignSpecificPiece(square);
   }
 }

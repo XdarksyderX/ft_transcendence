@@ -117,7 +117,7 @@ function initGameRender(data, piecePositiont, inTurn)
     getChess960Piece();
 
   document.getElementById('root').innerHTML = '';
-
+  //console.log("desde initGameRender -> piecePositiont: ", piecePositiont)
   data.forEach(element => {
     const rowEl = document.createElement("div");
     element.forEach((square) => {
@@ -126,10 +126,11 @@ function initGameRender(data, piecePositiont, inTurn)
       squareDiv.classList.add(square.color, "square");
       
       // if (gameMode === "horde") {
-      //   renderHordePieces(square, globalPiece, assignSpecificPiece);
+      //   renderHordePieces(square, globalPiece, assignSpecificPiece, piecePositiont);
       // } else {
-          assignSpecificPiece(square, piecePositiont);
-        // }
+      //     assignSpecificPiece(square, piecePositiont);
+      //   }
+        assignSpecificPiece(square, piecePositiont);
         rowEl.appendChild(squareDiv);
       });
       rowEl.classList.add("squareRow");

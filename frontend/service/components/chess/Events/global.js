@@ -315,9 +315,9 @@ function moveElement(piece, id, castle) {
 
   checkForCheck();
   
-  if (gameMode === "horde" && inTurn === "black") {
-    winBool = checkWinForBlackHorde();
-  }
+  // if (gameMode === "horde" && inTurn === "black") {
+  //   winBool = checkWinForBlackHorde();
+  // }
 
   if (winBool) {
     setTimeout(() => { winGame(winBool); }, 50);
