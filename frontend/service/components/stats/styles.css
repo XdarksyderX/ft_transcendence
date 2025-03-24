@@ -24,7 +24,7 @@
 /* .history-card:last-child {
     margin-bottom: 0px;
 } */
-.history-card .score {
+/* .history-card  */.score {
     font-size: 1.5rem;
     border-radius: 5px;
     border: 1px solid var(--light);

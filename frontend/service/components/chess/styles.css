@@ -296,13 +296,48 @@
 }
 
 
-#chess-container {
+#board-container {
   /* background-color: var(--dark); */
   background: linear-gradient(225deg, var(--dark), var(--darkish));
   box-shadow: 0 0 10px #00F56A, 0 0 10px #00F56A, 0 0 10px #00f56a79, 0 0 40px #00F56Acc;
   color: var(--light);
   border-radius: 5px;
 }
+
+
+.chess-turn {
+  border: 1px solid var(--light);
+  color: var(--light);
+  border-radius: 5px;
+  padding: 0.6rem;
+}
+.chess-turn.inturn {
+  border: 1px solid var(--accent);
+  box-shadow: 0 0 3px #00F56A, 0 0 10px #00F56Acc;
+  animation: light-blink 1s infinite;
+  
+}
+@keyframes light-blink {
+	0%, 100% {
+	box-shadow: 0 0 10px var(--light);
+	}
+	50% {
+	box-shadow: 0 0 5px transparent;
+	}
+}
+
+.chess-turn.white-turn.inturn {
+  border: 1px solid var(--accent);
+  background-color: var(--light);
+  color: var(--dark);
+}
+
+.chess-turn.black-turn.inturn {
+  border: 1px solid var(--accent);
+  background-color: var(--dark);
+  /* color: var(--dark); */
+}
+
 
 .empty-tile {
   width: 40px;

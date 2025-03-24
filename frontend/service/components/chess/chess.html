@@ -1,36 +1,39 @@
-  <div id="promote-btn" class="btn ctm-btn-secondary">:o</div>
-  <div id="win-btn" class="btn ctm-btn">:D</div>
-  <div id="app-container" class="d-flex flex-column flex-md-row"> <!-- with this, side content is pushed under the chess on narrow screens -->
-      <div id="chess-container">
-        <div id="alpha-coord" class="row w-100 ms-0"></div>
-        <div id="grid-container" class="d-flex">
-          <div id="num-coord" class="d-flex flex-column"></div>
-          <div id="root"> </div>
-          <div id="num-coord-right" class="d-flex flex-column"></div>
-        </div>
-        <div id="alpha-coord-bottom" class="row w-100 ms-0"></div>
-      </div>
-      <div id="chess-side-container" class="d-flex flex-column ms-4 align-items-center">
-        <div id="move-logger" class="flex-grow-1">
-          <div class="d-flex p-4 justify-content-center">
-            <div id="leftCol" class="col ms-3"></div>
-            <div id="rightCol" class="col ms-5"></div>
-          </div>
-        </div>
-        <!-- Nueva sección para los botones -->
-        <div id="button-container" class="d-flex justify-content-center my-3">
-          <button id="button1" class="btn ctm-btn-dark mx-2" title="Settings">
-            <i class="bi bi-gear button-image" alt="Button 1 Image"></i>
-          </button>
-          <button id="button3" class="btn ctm-btn-secondary mx-2" title="Flip Board">
-            <i class="bi bi-arrow-down-up button-image" alt="Button 3 Image"></i>
-          </button>
-          <button id="button2" class="btn ctm-btn-danger mx-2" title="Resign" data-bs-toggle="modal" data-bs-target="#chess-resign-modal">
-            <i class="bi bi-flag-fill button-image" alt="Button 2 Image"></i>
-          </button>
-        </div>
-      </div>    
+<div id="app-container" class="d-flex flex-column flex-md-row"> <!-- with this, side content is pushed under the chess on narrow screens -->
+  <div id="chess-container">
+    <div id="players-container" class="ms-0 row w-100 mb-5">
+    
     </div>
+    <div id="board-container">
+      <div id="alpha-coord" class="row w-100 ms-0"></div>
+      <div id="grid-container" class="d-flex">
+        <div id="num-coord" class="d-flex flex-column"></div>
+        <div id="root"> </div>
+        <div id="num-coord-right" class="d-flex flex-column"></div>
+      </div>
+      <div id="alpha-coord-bottom" class="row w-100 ms-0"></div>
+    </div>
+  </div>
+  <div id="chess-side-container" class="d-flex flex-column ms-4 align-items-center">
+    <div id="move-logger" class="flex-grow-1">
+      <div class="d-flex p-4 justify-content-center">
+        <div id="leftCol" class="col ms-3"></div>
+        <div id="rightCol" class="col ms-5"></div>
+      </div>
+    </div>
+    <!-- Nueva sección para los botones -->
+    <div id="button-container" class="d-flex justify-content-center my-3">
+      <button id="button1" class="btn ctm-btn-dark mx-2" title="Settings">
+        <i class="bi bi-gear button-image" alt="Button 1 Image"></i>
+      </button>
+      <button id="button3" class="btn ctm-btn-secondary mx-2" title="Flip Board">
+        <i class="bi bi-arrow-down-up button-image" alt="Button 3 Image"></i>
+      </button>
+      <button id="button2" class="btn ctm-btn-danger mx-2" title="Resign" data-bs-toggle="modal" data-bs-target="#chess-resign-modal">
+        <i class="bi bi-flag-fill button-image" alt="Button 2 Image"></i>
+      </button>
+    </div>
+  </div>    
+</div>
     <!-- Panel de configuración -->
   <div id="settings-panel" class="settings-panel hidden"> <!-- blinking-neon-frame -->
     <h3 class="ctm-text-title"> Customize Your Chess Game</h3>

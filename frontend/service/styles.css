@@ -175,6 +175,16 @@ body::before {
     border-radius: 10px;
     background: linear-gradient(to bottom, var(--medium), var(--dark));
 }
+.ctm-bg-dark {
+	background-color: var(--dark);
+  }
+.ctm-bg-darkish {
+	background-color: var(--transparent-dark);
+  }
+.ctm-bg-light {
+	background-color: var(--light);
+  }
+
 .neon-frame {
     border: 2px solid transparent;
     padding: 10px;
