@@ -86,7 +86,7 @@ export async function initializeChessEvents(key) {
     const inTurn = getUserColor(getUsername()) === data.current_player;
     const piecePositions = convertToPiecePositions(data.board);
 
-    renderPlayers(whoIsWho);
+
     initGameRender(globalState, piecePositions, inTurn);
     GlobalEvent();
     generateCoordinates();
@@ -135,6 +135,7 @@ async function initOnlineChess(key) {
     // white or black 
     //getChessMatchDetail(key);
     await handleGetChessMatchDetail(key);
+    renderPlayers(whoIsWho);
     initializeChessSocket(key);
     // initialize socket
     

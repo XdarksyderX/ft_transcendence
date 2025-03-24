@@ -344,60 +344,80 @@ function isPathSafeForCastling(kingPath, color) {
     return kingPath.every(square => !opponentMoves.has(square));
 }  
 
-// function hasPieceMoved(piece, moveLogger) {
-//     const originalPositions = {
-//         "white_king": "e1",
-//         "black_king": "e8",
-//         "white_rook_1": "a1",
-//         "white_rook_2": "h1",
-//         "black_rook_1": "a8",
-//         "black_rook_2": "h8",
-//     };
-
-//     const pieceKey = `${piece.color}_${piece.piece_name.toLowerCase()}`;
-//     const originalPosition = originalPositions[pieceKey];
-
-//     if (!originalPosition) {
-//         return false; // Piece not found in original positions
-//     }
-
-//     let hasMoved = false;
-//     for (const move of moveLogger) {
-//         if (move.notation.includes(originalPosition)) {
-//             hasMoved = true;
-//         }
-//     }
-
-//     return hasMoved;
-// }
 
 /*this function check whether all castling conditions are true, and the push that possible move
  * to array tha contains all the moves that a king can make.*/
-function castlingCheck(piece, color, res) {
-    // if (!piece.piece_name.includes("KING")) return ;
-    // const moveLogger = localStorage.getItem('chessMoves');
-    if (!piece.piece_name.includes("KING") && !piece.move) {
-        const rook1 = globalPiece[`${color}_rook_1`];
-        const rook2 = globalPiece[`${color}_rook_2`];
+// function castlingCheck(piece, color, res) {
+//     // if (!piece.piece_name.includes("KING")) return ;
+//     // const moveLogger = localStorage.getItem('chessMoves');
+//     if (piece.piece_name.includes("KING") && !piece.move) {
+//         const rook1 = globalPiece[`${color}_rook_1`];
+//         const rook2 = globalPiece[`${color}_rook_2`];
 
-        if (!rook1.move) {
-            const b = keySquareMapper[`${color === "white" ? 'b1' : 'b8'}`];
-            const c = keySquareMapper[`${color === "white" ? 'c1' : 'c8'}`];
-            const d = keySquareMapper[`${color === "white" ? 'd1' : 'd8'}`];
-            const kingPath = [`${color === "white" ? 'e1' : 'e8'}`, `${color === "white" ? 'd1' : 'd8'}`, `${color === "white" ? 'c1' : 'c8'}`];
+//         if (!rook1.move) {
+//             const b = keySquareMapper[`${color === "white" ? 'b1' : 'b8'}`];
+//             const c = keySquareMapper[`${color === "white" ? 'c1' : 'c8'}`];
+//             const d = keySquareMapper[`${color === "white" ? 'd1' : 'd8'}`];
+//             const kingPath = [`${color === "white" ? 'e1' : 'e8'}`, `${color === "white" ? 'd1' : 'd8'}`, `${color === "white" ? 'c1' : 'c8'}`];
             
-            if (!b.piece && !c.piece && !d.piece && isPathSafeForCastling(kingPath, color))
-                res.push(`${color === "white" ? 'c1' : 'c8'}`);
-        }
-        if (!rook2.move) {
-            const f = keySquareMapper[`${color === "white" ? 'f1' : 'f8'}`];
-            const g = keySquareMapper[`${color === "white" ? 'g1' : 'g8'}`];
-            const kingPath = [`${color === "white" ? 'e1' : 'e8'}`, `${color === "white" ? 'f1' : 'f8'}`, `${color === "white" ? 'g1' : 'g8'}`];
+//             if (!b.piece && !c.piece && !d.piece && isPathSafeForCastling(kingPath, color))
+//                 res.push(`${color === "white" ? 'c1' : 'c8'}`);
+//         }
+//         if (!rook2.move) {
+//             const f = keySquareMapper[`${color === "white" ? 'f1' : 'f8'}`];
+//             const g = keySquareMapper[`${color === "white" ? 'g1' : 'g8'}`];
+//             const kingPath = [`${color === "white" ? 'e1' : 'e8'}`, `${color === "white" ? 'f1' : 'f8'}`, `${color === "white" ? 'g1' : 'g8'}`];
             
-            if (!f.piece && !g.piece && isPathSafeForCastling(kingPath, color))
-                res.push(`${color === "white" ? 'g1' : 'g8'}`);
+//             if (!f.piece && !g.piece && isPathSafeForCastling(kingPath, color))
+//                 res.push(`${color === "white" ? 'g1' : 'g8'}`);
+//         }
+//     }
+// }
+
+function castlingCheck(piece, color, res) {
+    if (!piece.piece_name.includes("KING")) return ;
+    const row = color === "white" ? '1' : '8';
+    const possibleKing = keySquareMapper[`e${row}`];
+    const moveLogger = JSON.parse(localStorage.getItem('chessMoves'));
+    if (hasPieceMoved(possibleKing, `${color}_king`, moveLogger)) return ;
+    const possibleRook1 = keySquareMapper[`a${row}`];
+    const possibleRook2 = keySquareMapper[`h${row}`];
+
+    if (!hasPieceMoved(possibleRook1, `${color}_rook`, moveLogger)) {
+        const b = keySquareMapper[`b${row}`];
+        const c = keySquareMapper[`c${row}`];
+        const d = keySquareMapper[`d${row}`];
+        const kingPath = [`e${row}`, `d${row}`, `c${row}`];
+        
+        if (!b.piece && !c.piece && !d.piece && isPathSafeForCastling(kingPath, color))
+            res.push(`${color === "white" ? 'c1' : 'c8'}`);
+    }
+    if (!hasPieceMoved(possibleRook2, `${color}_rook`, moveLogger)) {
+        const f = keySquareMapper[`f${row}`];
+        const g = keySquareMapper[`g${row}`];
+        const kingPath = [`e${row}`, `f${row}`, `g${row}`];
+        
+        if (!f.piece && !g.piece && isPathSafeForCastling(kingPath, color))
+            res.push(`g${row}`);
+    }
+
+}
+
+function hasPieceMoved(square, pieceName, moveLogger) {
+    if (!square.piece || !square.piece.piece_name || !square.piece.piece_name.includes(pieceName.toUpperCase())) {
+        console.log(`${pieceName} is not the expected piece`);
+        return true;
+    }
+    for (const move of moveLogger) {
+        // console.log("move : ", move);
+        if (move.notation.includes(square.id)) {
+            console.log(`${pieceName} has already moved`);
+            return true;
         }
     }
+    
+    console.log(`${pieceName} hasn't moved! :D`);
+    return false;
 }
 
 function markCaptureMoves(allMoves, color) {
