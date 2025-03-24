@@ -10,7 +10,7 @@ import { initializeStatsEvents } from '../components/stats/app.js';
 import { initializeOngoingTournaments } from '../components/tournament/started.js';
 import { initializeNewTournament } from '../components/tournament/new.js';
 import { initializeChessEvents } from '../components/chess/index.js';
-import { loadChat, loadSidebar, toggleSidebar } from './render.js';
+import { loadChat, loadSidebar } from './render.js';
 import { initializeIndexEvents } from '../components/index/app.js';
 import { isLoggedIn } from './auth.js';
 import { initializeSettingsEvents } from '../components/settings/app.js';
@@ -20,6 +20,7 @@ import { initializePongEvents } from '../components/pong/app.js';
 import { initializeNotificationEvents } from '../components/events/app.js';
 import { stopBackgroundMusic, toggleBackgroundMusic } from '../components/chess/index.js';
 import { updateNotificationBell } from '../components/events/app.js';
+import { toggleSidebarDisplay } from '../components/sidebar/app.js';
 
 const routes = [
     { url: "/404", file: "./components/error/404.html", allowed: true },
@@ -134,7 +135,7 @@ function unloadChatAndSidebar() {
 
     chatContainer.innerHTML = '';
     sidebarContainer.innerHTML = '';
-    toggleSidebar(false);
+    toggleSidebarDisplay(false);
 }
 
 function loadLoggedContent(isLogged) {
@@ -230,13 +231,13 @@ function updateNavbar(url) {
             const button4 = document.getElementById('button4');
             button4.style.display = 'block';
             lcText.style.display = 'none';
-            toggleSidebar(false)
+            toggleSidebarDisplay(false)
         }
         else {
             const button4 = document.getElementById('button4');
             button4.style.display = 'none';
             lcText.style.display = 'block';
-            toggleSidebar(true);
+            toggleSidebarDisplay(true);
         }
     } else {
         toggleNavbarContent(unloggedContent, loggedContent);

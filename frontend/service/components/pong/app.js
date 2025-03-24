@@ -75,13 +75,13 @@ export async function initializePongEvents(gameKey = null)
     console.log("Searching online game through fetch...");
     try 
     {
-        const request = await getMatchInProgress();
+        const response = await getMatchInProgress();
         if  (response.status == "error") throw new Error("Failed to fetch online match");
         
-        if (request.match?.game_key) 
+        if (response.match?.game_key) 
         {
             console.log("Online match found through fetch. Connecting...");
-            return connectToOnlineGame(data?.match.game_key);
+            return connectToOnlineGame(response?.match.game_key);
         }
     }
     catch (error)
