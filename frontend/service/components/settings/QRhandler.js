@@ -36,7 +36,7 @@ export function handle2FAmodal(status, secret = null) {
         closeButtons.forEach(button => {
             button.disabled = false;
         });
-    }, 5000); // 5 segundos
+    }, 5090); // 5 segundos
     refreshAccessToken();
   }
 

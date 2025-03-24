@@ -12,7 +12,7 @@ export function initializeGlobalChatSocket() {
         return;
     }
 
-    chatSocket = new WebSocket(`ws://localhost:5000/ws/chat/`);
+    chatSocket = new WebSocket(`ws://localhost:5090/ws/chat/`);
 
     chatSocket.onopen = () => {
         console.log("Chat WebSocket connected");
@@ -43,7 +43,7 @@ export function initializeGlobalChatSocket() {
                 console.warn("Failed to refresh token, staying disconnected");
             }
         }
-        setTimeout(initializeGlobalChatSocket, 5000); 
+        setTimeout(initializeGlobalChatSocket, 5090); 
     };
 }
 

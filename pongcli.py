@@ -16,7 +16,7 @@ def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
 
 def login_user(username, password):
-    login_url = "http://localhost:5000/api/auth/login"
+    login_url = "http://localhost:5090/api/auth/login"
     login_data = {
         "username": username,
         "password": password
@@ -46,7 +46,7 @@ def login_user(username, password):
         sys.exit(1)
 
 def check_in_progress_match(token):
-    url = "http://localhost:5000/api/pong/match/in-progress/"
+    url = "http://localhost:5090/api/pong/match/in-progress/"
     
     try:
         response = requests.get(
@@ -198,7 +198,7 @@ async def process_input(queue, ws, running):
             print(f"Error processing input: {e}")
 
 async def pong_game_client(token, game_key):
-	uri = f"ws://localhost:5000/ws/pong/{game_key}"
+	uri = f"ws://localhost:5090/ws/pong/{game_key}"
 	
 	print(f"Connecting to game {game_key}...")
 	

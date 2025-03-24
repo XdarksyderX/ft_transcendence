@@ -96,7 +96,7 @@ export async function initializePongEvents(gameKey = null)
 // ONLINE CODE START
 function connectToOnlineGame(gameKey)
 {
-    const socket = new WebSocket(`ws://localhost:5000/ws/pong/${gameKey}/`);
+    const socket = new WebSocket(`ws://localhost:5090/ws/pong/${gameKey}/`);
 
     // init board
     board = document.getElementById("board");

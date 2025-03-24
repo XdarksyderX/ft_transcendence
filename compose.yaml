@@ -102,8 +102,9 @@ services:
       context: gateway
       dockerfile: Dockerfile
     ports:
-      - "5000:5000"
-      - "80:80"
+      - "5090:5090"
+      - "5800:80"
+      - "5443:443"
     depends_on:
       - auth
       - social
@@ -111,7 +112,6 @@ services:
       - chess
       - notifications
       - frontend
-      - consistency
     restart: on-failure
 
 networks:
