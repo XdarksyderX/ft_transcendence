@@ -34,6 +34,7 @@ export function initializeSidebarEvents() {
     }
     document.addEventListener('click', handleHideOnClick);
 
+
     // Function to handle window resize to show/hide sidebar
     function handleResize() {
         const sidebarContainer = document.getElementById('sidebar-container');
@@ -58,3 +59,14 @@ export function initializeSidebarEvents() {
 	logoutBtn.addEventListener('click', logout);
 	//I'll have to uncoment it when oauth implemented
 }
+
+export function toggleSidebarDisplay(show) {
+    console.log("on toggle, show: ", show);
+    const sidebarContainer = document.getElementById('sidebar-container');
+    const sidebarToggle = document.getElementById('sidebar-toggle-container');
+    const margin = (show && window.innerWidth > 991) ? '250px' : 'auto'
+      sidebarContainer.style.display = show ? 'block' : 'none';
+      sidebarToggle.style.display = show ? 'inline-block' : 'none';
+      document.getElementById('app').style.marginLeft = margin;
+  }
+  
