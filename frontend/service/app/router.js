@@ -10,7 +10,7 @@ import { initializeStatsEvents } from '../components/stats/app.js';
 import { initializeOngoingTournaments } from '../components/tournament/started.js';
 import { initializeNewTournament } from '../components/tournament/new.js';
 import { initializeChessEvents } from '../components/chess/index.js';
-import { loadChat, loadSidebar } from './render.js';
+import { loadChat, loadSidebar, toggleSidebar } from './render.js';
 import { initializeIndexEvents } from '../components/index/app.js';
 import { isLoggedIn } from './auth.js';
 import { initializeSettingsEvents } from '../components/settings/app.js';
@@ -119,7 +119,8 @@ function redirectURL(isLogged, fullUrl) {
         }
     } else {
         if (isLogged) {
-            return (url);
+            const inGame = sessionStorage.getItem('inGame');
+            return (inGame || url);
         } else {
             return ("/");
         }
@@ -133,9 +134,7 @@ function unloadChatAndSidebar() {
 
     chatContainer.innerHTML = '';
     sidebarContainer.innerHTML = '';
-    sidebarContainer.style.display = 'none';
-    sidebarToggle.style.display = 'none';
-    document.getElementById('app').style.marginLeft = 'auto';
+    toggleSidebar(false);
 }
 
 function loadLoggedContent(isLogged) {
@@ -212,7 +211,8 @@ function toggleNavbarContent(show, hide) {
 function updateNavbar(url) {
  //   const navbarContent = document.getElementById('navbar-content');;
     const allowed = routes.find(route => route.url === url)?.allowed;
-
+    const sidebarContainer = document.getElementById('sidebar-container');
+    
     const loggedContent = document.getElementById('logged-content');
     const unloggedContent = document.getElementById('unlogged-content');
    // const bellDropdown = document.getElementById('bell-dropdown');
@@ -229,10 +229,14 @@ function updateNavbar(url) {
         if (url === '/chess' || url === '/pong') {
             const button4 = document.getElementById('button4');
             button4.style.display = 'block';
+            lcText.style.display = 'none';
+            toggleSidebar(false)
         }
         else {
             const button4 = document.getElementById('button4');
             button4.style.display = 'none';
+            lcText.style.display = 'block';
+            toggleSidebar(true);
         }
     } else {
         toggleNavbarContent(unloggedContent, loggedContent);
