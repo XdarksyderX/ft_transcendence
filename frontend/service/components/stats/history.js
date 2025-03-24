@@ -195,11 +195,12 @@ function createPongMatchCard(match) {
 function createChessMatchCard(match) {
   const isWhiteWinner = match.winner === match.player_white;
   const isBlackWinner = match.winner === match.player_black;
+  const ranked = match.is_ranked === true ? 'ranked' : '';
   const date = formatDateTime(match.created_at);
 
   const card = document.createElement('div');
   card.innerHTML = `
-    <div class="history-card overflow-hidden">
+    <div class="history-card ${ranked} overflow-hidden">
       <div class="card-body text-center position-relative" style="z-index: 1;">
         <small class="text-center mb-2 small ctm-text-light">${date}</small>
         <div class="row justify-content-center align-items-center">

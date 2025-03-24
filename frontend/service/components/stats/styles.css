@@ -37,6 +37,10 @@
 	object-fit: contain;
 
 }
+.history-card.ranked {
+    background: linear-gradient(225deg, var(--transparent-dark), var(--dark),  var(--darkish), var(--transparent-dark));
+
+}
 
 .history-card .score svg {
   width: 100%;

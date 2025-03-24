@@ -1,7 +1,7 @@
 import { sendRequestChess } from './sendRequest.js';
 
 export async function getChessMatchHistory() {
-	return await sendRequestChess('GET', 'match/history');
+	return await sendRequestChess('GET', 'match/history/');
 }
 
 export async function getChessMatchDetail(game_key) {
