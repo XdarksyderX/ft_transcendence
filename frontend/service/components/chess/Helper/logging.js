@@ -69,9 +69,10 @@ function logMoves(logMoves, inTurn, piece, castlingType) {
     moveLogger.scrollTop = moveLogger.scrollHeight;
 }
 
-function appendPromotion(inTurn, pieceName) {
+function appendPromotion(pieceName) {
     const letter = getLetterAfterUnderscore(pieceName);
-    const col = inTurn === "black" ? "left" : "right";
+    const color = pieceName.split('_')[0];
+    const col = color === "BLACK" ? "right" : "left";
     const targetCol = document.getElementById(`${col}Col`);
     if (targetCol && targetCol.lastChild)
         targetCol.lastChild.innerHTML += `=${letter}`;

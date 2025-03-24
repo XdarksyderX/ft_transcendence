@@ -1,5 +1,5 @@
 import { initGame } from "./Data/data.js";
-import { initGameRender, clearHighlight } from "./Render/main.js";
+import { initGameRender, clearHighlight, renderPlayers, toggleTurn } from "./Render/main.js";
 import { GlobalEvent, clearYellowHighlight, moveElement } from "./Events/global.js";
 import { resingOption } from "./Helper/modalCreator.js";
 
@@ -50,19 +50,19 @@ function updateHighlightYellowColor(whiteTileColor, blackTileColor) {
     styleSheet.insertRule(blackTileRule, styleSheet.cssRules.length);
 }
 
-function provisionalModalHandle() {
+// function provisionalModalHandle() {
     
-    document.getElementById("promote-btn").addEventListener("click", () => {
-      pawnPromotion("white", (piece, id) => {
-        console.log(`Promoted to: ${piece.name} at square: ${id}`);
-      }, "e8");
-    });
+//     document.getElementById("promote-btn").addEventListener("click", () => {
+//       pawnPromotion("white", (piece, id) => {
+//         console.log(`Promoted to: ${piece.name} at square: ${id}`);
+//       }, "e8");
+//     });
 
-    document.getElementById("win-btn").addEventListener("click", () => {
-        winGame(true);
-    });
+//     document.getElementById("win-btn").addEventListener("click", () => {
+//         winGame(true);
+//     });
     
-}
+// }
 
 export async function initializeChessEvents(key) {
     const button1 = document.getElementById('button1');
@@ -86,6 +86,7 @@ export async function initializeChessEvents(key) {
     const inTurn = getUserColor(getUsername()) === data.current_player;
     const piecePositions = convertToPiecePositions(data.board);
 
+
     initGameRender(globalState, piecePositions, inTurn);
     GlobalEvent();
     generateCoordinates();
@@ -98,7 +99,7 @@ export async function initializeChessEvents(key) {
         }
     });
 
-    provisionalModalHandle();
+    // provisionalModalHandle();
 }
 //'ws/game/<str:game_key>/'
 
@@ -125,6 +126,7 @@ async function handleGetChessMatchDetail(key) {
 
         gameMode = res.match.game_mode;
     }
+    console.log("on handleGetChessMatchDetail: ", res)
 }
 
 
@@ -133,6 +135,7 @@ async function initOnlineChess(key) {
     // white or black 
     //getChessMatchDetail(key);
     await handleGetChessMatchDetail(key);
+    renderPlayers(whoIsWho);
     initializeChessSocket(key);
     // initialize socket
     
@@ -173,6 +176,7 @@ function handleGetChessReceivedMessage(event) {
         if (data?.current_player) {
             inTurn = data.current_player;
             console.log('updating turn to: ', inTurn);
+            toggleTurn(inTurn);
         }
     }
     catch (e) {

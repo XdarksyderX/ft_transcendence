@@ -140,7 +140,7 @@ function callbackPiece(piece, id) {
   
   piece.current_pos = id;
   currentSquare.piece = realPiece;
-  appendPromotion(inTurn, realPiece.piece_name);
+  appendPromotion(realPiece.piece_name);
   
   const image = document.createElement('img');
   image.src = realPiece.img;

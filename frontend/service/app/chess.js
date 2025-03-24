@@ -5,7 +5,7 @@ export async function getChessMatchHistory() {
 }
 
 export async function getChessMatchDetail(game_key) {
-	return await sendRequestChess('GET', `match/detail/${game_key}`);
+	return await sendRequestChess('GET', `match/detail/${game_key}/`);
 }
 
 export async function getRankedChessStats() {
@@ -30,7 +30,7 @@ export async function createChessMatchInvitation(friendName, gameMode = 'classic
 }
 
 export async function getChessInvitationDetail(token) {
-	return await sendRequestChess('GET', `invitation/detail/${token}`);
+	return await sendRequestChess('GET', `invitation/detail/${token}/`);
 }
 export async function denyChessInvitation(token) {
 	return await sendRequestChess('POST', `invitation/deny/${token}/`);

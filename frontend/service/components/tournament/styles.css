@@ -63,7 +63,7 @@
 .match.available {
 border-color: var(--lorange);
 box-shadow: 0 0 5px var(--lorange);
-animation: blink 1s infinite;
+animation: lorange-blink 1s infinite;
 }
 
 .match.done {
@@ -71,13 +71,13 @@ animation: blink 1s infinite;
 	box-shadow: 0 0 5px var(--accent);
 }
 
-@keyframes blink {
-0%, 100% {
-box-shadow: 0 0 10px var(--lorange);
-}
-50% {
-box-shadow: 0 0 5px transparent;
-}
+@keyframes lorange-blink {
+	0%, 100% {
+	box-shadow: 0 0 10px var(--lorange);
+	}
+	50% {
+	box-shadow: 0 0 5px transparent;
+	}
 }
 
 
@@ -197,7 +197,4 @@ width: 75%;
 	max-width: 400px;
   }
 
-  .ctm-bg-dark {
-	background-color: var(--transparent-dark);
-  }
 
