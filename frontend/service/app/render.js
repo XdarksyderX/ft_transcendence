@@ -49,6 +49,16 @@ async function loadSidebar() {
     }
 }
 
+export function toggleSidebar(show) {
+  console.log("on toggle, show: ", show);
+  const sidebarContainer = document.getElementById('sidebar-container');
+  const sidebarToggle = document.getElementById('sidebar-toggle-container');
+
+    sidebarContainer.style.display = show ? 'block' : 'none';
+    sidebarToggle.style.display = show ? 'inline-block' : 'none';
+    document.getElementById('app').style.marginLeft = show ? '250px' : 'auto';
+}
+
 function throwAlert(text) {
     // Eliminar cualquier modal previo
     const prevModal = document.getElementById('alert-modal');

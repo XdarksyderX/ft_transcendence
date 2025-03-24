@@ -143,6 +143,7 @@ function connectToOnlineGame(gameKey)
 
     socket.onopen = () =>
     {
+        sessionStorage.setItem('inGame', '/pong');
         console.log("WebSocket connected to game:", gameKey);
         socket.send(JSON.stringify({ action: "ready" })); // Send "ready" signal
 
@@ -185,6 +186,7 @@ function connectToOnlineGame(gameKey)
 
     socket.onclose = () =>
     {
+        sessionStorage.removeItem('inGame');
         console.log("WebSocket Closed.");
         // Remove event listeners using the same function references
         document.removeEventListener("keydown", handleKeyDown);

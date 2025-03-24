@@ -2,14 +2,13 @@ import { initGame } from "./Data/data.js";
 import { initGameRender, clearHighlight, renderPlayers, toggleTurn } from "./Render/main.js";
 import { GlobalEvent, clearYellowHighlight, moveElement } from "./Events/global.js";
 import { resingOption } from "./Helper/modalCreator.js";
-
-import { pawnPromotion } from "./Helper/modalCreator.js"; // fully provisional
 import { winGame } from "./Helper/modalCreator.js";
 import { getChessMatchDetail, getChessPendingMatches } from "../../app/chess.js";
-import { chatSocket } from "../chat/socket.js";
 import { getUsername } from "../../app/auth.js";
 import { convertToPiecePositions } from "./Render/main.js";
 import { reloadMoveLogger } from "./Helper/logging.js";
+
+
 
 let globalState = initGame();
 let keySquareMapper = {};
@@ -50,20 +49,6 @@ function updateHighlightYellowColor(whiteTileColor, blackTileColor) {
     styleSheet.insertRule(blackTileRule, styleSheet.cssRules.length);
 }
 
-// function provisionalModalHandle() {
-    
-//     document.getElementById("promote-btn").addEventListener("click", () => {
-//       pawnPromotion("white", (piece, id) => {
-//         console.log(`Promoted to: ${piece.name} at square: ${id}`);
-//       }, "e8");
-//     });
-
-//     document.getElementById("win-btn").addEventListener("click", () => {
-//         winGame(true);
-//     });
-    
-// }
-
 export async function initializeChessEvents(key) {
     const button1 = document.getElementById('button1');
     const settingsPanel = document.getElementById('settings-panel');
@@ -98,20 +83,7 @@ export async function initializeChessEvents(key) {
             settingsPanel.classList.add('hidden');
         }
     });
-
-    // provisionalModalHandle();
 }
-//'ws/game/<str:game_key>/'
-
-/* {
-    "id": 1,
-    "player_white": "pepe9003",
-    "player_black": "paco20149",
-    "winner": null,
-    "game_mode": "classic",
-    "status": "in_progress",
-    "created_at": "2025-03-08T13:55:04.641631Z"
-} */
 
 let gameMode = null;
 
@@ -188,6 +160,7 @@ function initializeChessSocket(game_key) {
     chessSocket = new WebSocket(`ws://localhost:5090/ws/chess/${game_key}/`);
 
     chessSocket.onopen = () => {
+        sessionStorage.setItem('inGame', '/chess');
         console.log("Chess WebSocket connected");
         chessSocket.send(JSON.stringify({ action: "ready", color: getUserColor(getUsername()), username: getUsername() }));
         attemptedReconnection = false;
@@ -202,6 +175,7 @@ function initializeChessSocket(game_key) {
     };
 
     chessSocket.onclose = async (event) => {
+        sessionStorage.removeItem('inGame');
         console.log("Chess WebSocket closed");
     }
 
