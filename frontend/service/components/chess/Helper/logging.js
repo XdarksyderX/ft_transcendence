@@ -62,7 +62,7 @@ function logMoves(logMoves, inTurn, piece, castlingType) {
     // Save move to localStorage
     const savedMoves = JSON.parse(localStorage.getItem("chessMoves")) || [];
     savedMoves.push({ inTurn, notation: row.innerHTML });
-    localStorage.setItem("chessMoves", JSON.stringify(savedMoves));
+    sessionStorage.setItem("chessMoves", JSON.stringify(savedMoves));
 
     // Scroll to the bottom of the move logger
     const moveLogger = document.getElementById("move-logger");
