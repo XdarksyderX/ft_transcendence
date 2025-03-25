@@ -18,8 +18,6 @@ FRONTEND_URL = os.getenv('FRONTEND_URL')
 APPEND_SLASH = True
 DEBUG = True
 
-ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1']
-
 RABBITMQ_CONFIG = {
     "AMQP_ENABLED": True,
     "RABBITMQ_HOST": os.getenv("RABBITMQ_HOST", "rabbitmq"),
@@ -29,15 +27,30 @@ RABBITMQ_CONFIG = {
     "RABBITMQ_VHOST": os.getenv("RABBITMQ_VHOST", "/")
 }
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5080",
-    "https://localhost:443",
-    "https://localhost:5433",
-    "http://localhost:80",
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
 ]
 
-CORS_ALLOW_CREDENTIALS = True
-
+CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
 
 INSTALLED_APPS = [
     'django.contrib.auth',

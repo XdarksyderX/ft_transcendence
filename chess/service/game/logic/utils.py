@@ -3,7 +3,6 @@ import copy
 # Constant for board files
 FILES = "abcdefgh"
 
-
 def is_position_under_attack(board, position, color, depth=0, memo=None):
     """
     Verifica si una posición está bajo ataque por piezas del color opuesto.
@@ -142,7 +141,7 @@ def is_checkmate(board, color, depth=0, memo=None):
     Returns:
         True si es jaque mate, False en caso contrario
     """
-    if depth > 3:
+    if depth > 10:
         return False
 
     if memo is None:
