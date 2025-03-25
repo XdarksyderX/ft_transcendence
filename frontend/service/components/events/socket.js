@@ -156,9 +156,10 @@ function handleFriendRequestChanges(type, data = null) {
 	}
 }
 function handleTournamentEvents(type) {
+    console.log("pong_tournament_players_update")
     switch (type) {
         case 'invitation':
-            if (window.location.pathname === '/unstarted-tournament') {
+            if (window.location.pathname === '/unstarted-tournaments') {
                 initializeNewTournament(false);
             } break ;
         case 'match':

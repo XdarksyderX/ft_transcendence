@@ -104,7 +104,7 @@ export async function login(userCredentials) {
  */
 async function verifyAccessToken() {
     try {
-        const response = await sendRequestAuth('GET', 'verify-token/');
+        const response = await sendRequestAuth('POST', 'verify-token/');
 
         if (response.status !== "success") {
             console.error('Token verification failed:', response.status);

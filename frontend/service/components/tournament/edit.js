@@ -4,7 +4,6 @@ import { handleGetFriendList } from "../friends/app.js";
 import { handleSendTournamentInvitation, handleDeleteTournament } from "./new.js";
 import { navigateTo } from "../../app/router.js";
 
-
 let selectedFriends = [];
 let maxPlayers = 0;
 let alreadyAccepted = 1;
@@ -27,9 +26,10 @@ export async function showEditTournamentSection(token, addListener, requiredPart
   document.getElementById('pendant-tournament-container').style.display = 'block';
   await initEditTournamentSection(token, addListener, requiredParticipants);
 }
-
+// addListener is to avoid adding event listener while "refreshing" with events
+// anyway, if the eventListener already existed cause we cancel and go back to create and then again to edit
+// we need to remove the previous event listener, and set the new one with the new token
 async function initEditTournamentSection(token, addListener, requiredParticipants) {
-  
   const detail = await handleGetTournamentDetail(token);
   const invitations = await getAllInvitationsStatusMap(detail);
   console.log("detail: ", detail);
@@ -44,25 +44,35 @@ async function initEditTournamentSection(token, addListener, requiredParticipant
     console.log("ADDING EVENT LISTENERS")
     const sendBtn = document.getElementById("send-replacement-btn");
     const cancelBtn = document.getElementById("cancel-tournament-btn");
-    sendBtn.addEventListener('click', () => sendReplacementInvitations(token));
-    cancelBtn.addEventListener('click', () => handleDeleteTournament(token));
-  }
-  // Attach click event for the Start With Accepted button
-  const startButton = document.getElementById("start-with-accepted-btn");
-  if (startButton) {
-    startButton.addEventListener("click", async (event) => {
-      event.preventDefault();
-      try {
-        const response = await startTournament(token);
-        if (response.status === "success") {
-          navigateTo('/started-tournaments');
-        } else {
-          throw new Error(response.message);
+
+    // Replace the send button with a clone to remove all existing event listeners
+    const newSendBtn = sendBtn.cloneNode(true);
+    sendBtn.parentNode.replaceChild(newSendBtn, sendBtn);
+    newSendBtn.addEventListener('click', () => sendReplacementInvitations(token));
+
+    // Replace the cancel button with a clone to remove all existing event listeners
+    const newCancelBtn = cancelBtn.cloneNode(true);
+    cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+    newCancelBtn.addEventListener('click', () => handleDeleteTournament(token));
+    // Attach click event for the Start With Accepted button
+    const startButton = document.getElementById("start-with-accepted-btn");
+    if (startButton) {
+      const newStartButton = startButton.cloneNode(true);
+      startButton.parentNode.replaceChild(newStartButton, startButton);
+      newStartButton.addEventListener("click", async (event) => {
+        event.preventDefault();
+        try {
+          const response = await startTournament(token);
+          if (response.status === "success") {
+            navigateTo('/started-tournaments');
+          } else {
+            throw new Error(response.message);
+          }
+        } catch (error) {
+          throwAlert(`Error starting tournament: ${error.message}`);
         }
-      } catch (error) {
-        throwAlert(`Error starting tournament: ${error.message}`);
-      }
-    }, { once: true });
+      }, { once: true });
+    }
   }
 }
 
