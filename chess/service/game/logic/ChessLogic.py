@@ -1,4 +1,6 @@
 from .modes import ClassicChess, HordeChess, Chess960, KirbyChess, BombChess
+from .utils import is_in_check
+import copy
 
 import logging
 logger = logging.getLogger('chess_game')
@@ -145,7 +147,22 @@ class ChessLogic:
     def get_possible_moves(self, position: str):
         if position not in self.board or self.board[position] is None:
             return []
-        return self.board[position].get_possible_moves(self.board)
+    
+        piece = self.board[position]
+        possible_moves = piece.get_possible_moves(self.board)
+        legal_moves = []
+    
+        for move in possible_moves:
+            # Simulate the move
+            new_board = copy.deepcopy(self.board)
+            new_board[move] = new_board[position]
+            new_board[position] = None
+    
+            # Check if the king is still in check after the move
+            if not is_in_check(new_board, piece.color):
+                legal_moves.append(move)
+    
+        return legal_moves
 
     def get_all_possible_moves(self, player_color: str):
         moves = {

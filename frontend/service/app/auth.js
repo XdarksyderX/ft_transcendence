@@ -36,6 +36,10 @@ export function deleteCookie(name) {
  */
 export async function isLoggedIn() {
     if (!getUsername()) {
+            return false
+    }
+    if (!getUsername() && (path === '/' || path === '/login' || path === '/singup')) {
+        console.log("nono, path: ", path);
         return false;
     }
     const isValid = await verifyAccessToken();
