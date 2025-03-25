@@ -54,7 +54,7 @@ function initInstructionsTooltip()
     }
 }
 
-function reShowMenu()
+function reShowMenu() // unused
 {
     document.getElementById("board").hidden = true; // Hide board
     document.getElementById("neonFrame").hidden = true; // Hide frame
@@ -123,10 +123,7 @@ function connectToOnlineGame(gameKey)
             },
             "ball": {
                 "x": boardWidth,
-                "y": boardHeight,
-                "xVel": 6.130611304052482,
-                "yVel": -4.827257403394182,
-                "speed": 7.803000000000001
+                "y": boardHeight
             },
             "status": "in_progress"
         }
@@ -155,7 +152,6 @@ function connectToOnlineGame(gameKey)
     socket.onmessage = (event) =>
     {
         const message = JSON.parse(event.data);
-        console.log("message:", message.status);
         
         if (message.status === "game_starting")
         {
@@ -207,6 +203,7 @@ function updateGameState(state)
         Lplayer.x = state.players.player1.x;
         Lplayer.y = state.players.player1.y;
         Lplayer.score = state.players.player1.score;
+        Lplayer.username = state.players.player1.username;
     }
     
     if (state.players.player2) 
@@ -214,6 +211,7 @@ function updateGameState(state)
         Rplayer.x = state.players.player2.x;
         Rplayer.y = state.players.player2.y;
         Rplayer.score = state.players.player2.score;
+        Rplayer.username = state.players.player2.username;
     }
 
     // Update ball position
@@ -231,6 +229,24 @@ function renderGame()
 {
     // Clear the board
     context.clearRect(0, 0, board.width, board.height);
+
+    // Set up a small font for usernames
+    context.font = "14px Arial";
+    context.fillStyle = "white"; // Dont know what color, white maybe
+
+    // Draw player1's username at the top left
+    if (Lplayer.username) 
+    {
+        context.fillText(Lplayer.username, 10, 20);  // x:10, y:20
+    }
+
+    // Draw player2's username at the top right
+    if (Rplayer.username) 
+    {
+        // Measure text width for right alignment
+        const textWidth = context.measureText(Rplayer.username).width;
+        context.fillText(Rplayer.username, board.width - textWidth - 10, 20);
+    }
 
     // Draw center dashed line
     context.fillStyle = accentColor;
@@ -262,7 +278,6 @@ function queueMoveMessage(direction, socket)
         sendingMove = true;
         setTimeout(() => {
             if (socket.readyState === WebSocket.OPEN && moveMessageQueue !== null) {
-                console.log("[queueMoveMessage] Sending move message:", JSON.stringify({ action: "move", direction: moveMessageQueue }));
                 socket.send(JSON.stringify({ action: "move", direction: moveMessageQueue }));
             } else {
                 console.warn("[queueMoveMessage] Cannot send move message. Socket readyState:", socket.readyState, "moveMessageQueue:", moveMessageQueue);
@@ -332,17 +347,25 @@ function keyUpHandlerOnline(event, socket) {
 
 function endOnlineMatch(message)
 {
+    console.log("FINAL MESSAGE: " + message.state);
     context.clearRect(0, 0, board.width, board.height);
     context.fillStyle = accentColor;
     context.font = "45px 'ROG LyonsType Regular'";
     context.textAlign = "center";
     const finalMessage = message.winner + " won!";
     context.fillText(finalMessage, board.width / 2, board.height / 2);
-        
-        
-    // redirect to home after 1,5s
-    setTimeout(() => 
-    { navigateTo("/home"); }, 1500);
+       
+    // redirect after 1,5s
+    if (message.is_tournament)
+    {
+        setTimeout(() => 
+            { navigateTo("/started-tournaments"); }, 1500);
+    }
+    else
+    {
+        setTimeout(() => 
+        { navigateTo("/home"); }, 1500);
+    }
 }
 
 // ONLINE CODE END
@@ -480,34 +503,6 @@ function startGame(gameConfig)
 	// Stop the game when the back/forward button is clicked
 	window.addEventListener("popstate", () => {stop()});
 }
-/* {
-    "type": "game_update",
-    "status": "game_update",
-    "state": {
-        "players": {
-            "player1": {
-                "username": "pepe17271",
-                "x": 12,
-                "y": 225,
-                "score": 2
-            },
-            "player2": {
-                "username": "paco29770",
-                "x": 676,
-                "y": 225,
-                "score": 2
-            }
-        },
-        "ball": {
-            "x": boardWidth,
-            "y": boardHeight
-            "xVel": 6.130611304052482,
-            "yVel": -4.827257403394182,
-            "speed": 7.803000000000001
-        },
-        "status": "in_progress"
-    }
-} */
 
 function initGame(gameConfig)
 {

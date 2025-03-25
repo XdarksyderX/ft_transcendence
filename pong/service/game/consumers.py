@@ -95,7 +95,8 @@ class GameConsumer(AsyncWebsocketConsumer):
                 await self.accept()
                 await self.send(text_data=json.dumps({
                     "status": "game_over",
-                    "message": "This game has already finished."
+                    "message": "This game has already finished.",
+                    "is_tournament": self.game_obj.is_tournament
                 }))
                 await asyncio.sleep(1)
                 await self.close()
@@ -287,7 +288,8 @@ class GameConsumer(AsyncWebsocketConsumer):
                                     "type": "game.message",
                                     "message": json.dumps({
                                         "status": "game_over",
-                                        "winner": game["players"]["player2"]["username"]
+                                        "winner": game["players"]["player2"]["username"],
+                                        "is_tournament": self.game_obj.is_tournament
                                     })
                                 }
                             )
@@ -323,7 +325,8 @@ class GameConsumer(AsyncWebsocketConsumer):
                                     "type": "game.message",
                                     "message": json.dumps({
                                         "status": "game_over",
-                                        "winner": game["players"]["player1"]["username"]
+                                        "winner": game["players"]["player1"]["username"],
+                                        "is_tournament": self.game_obj.is_tournament
                                     })
                                 }
                             )
