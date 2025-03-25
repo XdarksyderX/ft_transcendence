@@ -102,8 +102,8 @@ function drawCountdownNumber(number)
     context.clearRect(0, 0, boardWidth, boardHeight);
   
     // Set up text style
-    context.fillStyle = "white"; // Dont know what color
-    context.font = "144px Arial"; // Adjust font size as needed
+    context.fillStyle = accentColor; 
+    context.font = "144px 'ROG LyonsType Regular'"; // Adjust font size as needed
     context.textAlign = "center";
     context.textBaseline = "middle";
   
@@ -246,8 +246,8 @@ function renderGame()
     context.clearRect(0, 0, board.width, board.height);
 
     // Set up a small font for usernames
-    context.font = "14px Arial";
-    context.fillStyle = "white"; // Dont know what color, white maybe
+    context.font = "14px 'ROG LyonsType Regular'";
+    context.fillStyle = lightColor;
     context.textAlign = "left";
 
     // Draw player1's username at the top left
