@@ -27,13 +27,13 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-# CORS Config
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:44519",
-    "http://localhost:8000",
     "http://localhost:5080",
+    "https://localhost:443",
+    "https://localhost:5433",
     "http://localhost:80",
 ]
+
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = True
 

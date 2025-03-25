@@ -75,34 +75,24 @@ def check_in_progress_match(token):
         print("❌ Error: Invalid response from server")
         return None
 
-def get_key():
-    fd = sys.stdin.fileno()
-    old_settings = termios.tcgetattr(fd)
-    try:
-        tty.setraw(fd)
-        ch = sys.stdin.read(1)
-    finally:
-        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-    return ch
-
-async def key_input(queue):
+# Mejorado: sistema de entrada no bloqueante
+async def get_input(queue):
     while True:
-        if sys.stdin.isatty():
-            if select_stdin():
-                fd = sys.stdin.fileno()
-                old_settings = termios.tcgetattr(fd)
-                try:
-                    tty.setraw(fd)
-                    ch = sys.stdin.read(1)
-                    await queue.put(ch)
-                except Exception as e:
-                    print(f"Error reading input: {e}")
-                finally:
-                    termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+        if select.select([sys.stdin], [], [], 0)[0]:
+            fd = sys.stdin.fileno()
+            old_settings = termios.tcgetattr(fd)
+            try:
+                tty.setraw(sys.stdin.fileno())
+                ch = sys.stdin.read(1)
+                await queue.put(ch)
+            finally:
+                termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
         await asyncio.sleep(0.05)
 
 async def send_move(ws, direction):
     try:
+        # Debug log
+        print(f"Sending move: {direction}")
         message = json.dumps({"action": "move", "direction": direction})
         await ws.send(message)
     except Exception as e:
@@ -123,11 +113,17 @@ def render_game(state):
         print("Waiting for game state...")
         return
     
-    players = state['players']
+    players_data = state['players']
     ball = state.get('ball', {'x': 0, 'y': 0})
     
-    width = state.get('width', 80)
-    height = state.get('height', 24)
+    # Default dimensions - adjust as needed
+    width = 80
+    height = 24
+    
+    # Scale coordinates from game dimensions to terminal dimensions
+    # Assuming game coordinates are based on a canvas of about 700x500
+    def scale_x(x): return int(x * width / 700)
+    def scale_y(y): return int(y * height / 500)
     
     # Create empty board
     board = [[' ' for _ in range(width)] for _ in range(height)]
@@ -142,17 +138,34 @@ def render_game(state):
         if y % 2 == 0:
             board[y][width // 2] = '|'
     
-    # Add paddles
-    for player in players:
-        x = 2 if player['side'] == 'left' else width - 3
-        for i in range(player['size']):
-            y = player['y'] + i
+    # Add player paddles
+    players_list = []
+    
+    # Extract player data into a consistent format
+    for player_key, player_data in players_data.items():
+        side = "left" if player_key == "player1" else "right"
+        x_pos = scale_x(player_data['x'])
+        y_pos = scale_y(player_data['y'])
+        
+        # Store player data for score display
+        players_list.append({
+            'side': side,
+            'username': player_data['username'],
+            'score': player_data['score'],
+            'x': x_pos,
+            'y': y_pos,
+            'connected': player_data['connected']
+        })
+        
+        # Draw paddle (5 units tall)
+        for i in range(-2, 3):  # 5 units centered on y_pos
+            y = y_pos + i
             if 0 <= y < height:
-                board[y][x] = '█'
+                board[y][x_pos] = '█'
     
     # Add ball
-    ball_x = int(ball['x'])
-    ball_y = int(ball['y'])
+    ball_x = scale_x(ball['x'])
+    ball_y = scale_y(ball['y'])
     if 0 <= ball_y < height and 0 <= ball_x < width:
         board[ball_y][ball_x] = '●'
     
@@ -163,27 +176,29 @@ def render_game(state):
     print("-" * (width + 2))
     
     # Print scores
-    left_score = next((p['score'] for p in players if p['side'] == 'left'), 0)
-    right_score = next((p['score'] for p in players if p['side'] == 'right'), 0)
+    left_player = next((p for p in players_list if p['side'] == 'left'), {})
+    right_player = next((p for p in players_list if p['side'] == 'right'), {})
+    
+    left_score = left_player.get('score', 0)
+    right_score = right_player.get('score', 0)
+    left_username = left_player.get('username', "Player 1")
+    right_username = right_player.get('username', "Player 2")
+    
+    # Show connection status
+    left_status = "🟢" if left_player.get('connected', False) else "🔴"
+    right_status = "🟢" if right_player.get('connected', False) else "🔴"
     
     print(f"\nScore: {left_score} - {right_score}")
-    
-    # Print player usernames
-    left_player = next((p['username'] for p in players if p['side'] == 'left'), "Player 1")
-    right_player = next((p['username'] for p in players if p['side'] == 'right'), "Player 2")
-    
-    print(f"{left_player} vs {right_player}")
+    print(f"{left_status} {left_username} vs {right_username} {right_status}")
     print("\nControls: W = Up, S = Down, Q = Quit")
 
-def select_stdin():
-    rlist, _, _ = select.select([sys.stdin], [], [], 0)
-    return rlist
 
 async def process_input(queue, ws, running):
     while running[0]:
         try:
             key = await asyncio.wait_for(queue.get(), 0.1)
             
+            # No imprimir la tecla presionada
             if key.lower() == 'w':
                 await send_move(ws, "up")
             elif key.lower() == 's':
@@ -198,76 +213,100 @@ async def process_input(queue, ws, running):
             print(f"Error processing input: {e}")
 
 async def pong_game_client(token, game_key):
-	uri = f"ws://localhost:5090/ws/pong/{game_key}"
-	
-	print(f"Connecting to game {game_key}...")
-	
-	try:
-		# Include authorization header in websocket connection
-		headers = {
-			"Authorization": f"Bearer {token}"
-		}
-		
-		# Connect with authorization headers
-		async with websockets.connect(uri, additional_headers=headers) as ws:
-			running = [True]
-			
-			# Set up input queue
-			input_queue = asyncio.Queue()
-			input_task = asyncio.create_task(key_input(input_queue))
-			process_task = asyncio.create_task(process_input(input_queue, ws, running))
-			
-			# Send ready signal
-			await send_ready(ws)
-			
-			while running[0]:
-				try:
-					# Receive game state
-					message = await asyncio.wait_for(ws.recv(), 0.1)
-					data = json.loads(message)
-					
-					status = data.get('status')
-					
-					if status == 'game_state':
-						current_state = data.get('state')
-						render_game(current_state)
-					elif status == 'game_over':
-						winner = data.get('winner')
-						print(f"\n🏆 Game Over! Winner: {winner}")
-						print("Exiting in 5 seconds...")
-						await asyncio.sleep(5)
-						running[0] = False
-						break
-					elif status == 'reconnected':
-						current_state = data.get('state')
-						render_game(current_state)
-						print("Reconnected to existing game!")
-					
-				except asyncio.TimeoutError:
-					pass
-				except Exception as e:
-					print(f"Error in game loop: {e}")
-					running[0] = False
-					break
-			
-			input_task.cancel()
-			process_task.cancel()
-			
-			try:
-				await input_task
-			except asyncio.CancelledError:
-				pass
-			
-			try:
-				await process_task
-			except asyncio.CancelledError:
-				pass
-			
-			return True
-	
-	except Exception as e:
-		print(f"WebSocket connection error: {e}")
-		return False
+    uri = f"ws://localhost:5090/ws/pong/{game_key}"
+    
+    print(f"Connecting to game {game_key}...")
+    
+    try:
+        # Debug información
+        print(f"Attempting connection to: {uri}")
+        print(f"With Authorization header: Bearer {token[:10]}...")
+        
+        # IMPORTANTE: Enviar el token correctamente como header de autorización
+        headers = {
+            "Authorization": f"Bearer {token}"
+        }
+        
+        async with websockets.connect(uri, additional_headers=headers) as ws:
+            print("⭐ WebSocket connection established!")
+            running = [True]
+            
+            # Set up input queue
+            input_queue = asyncio.Queue()
+            input_task = asyncio.create_task(get_input(input_queue))
+            process_task = asyncio.create_task(process_input(input_queue, ws, running))
+            
+            # Send ready signal
+            await send_ready(ws)
+            
+            # Mostrar debug de recepción de mensajes
+            print("Waiting for game messages...")
+            
+            while running[0]:
+                try:
+                    # Receive game state con timeout breve
+                    message = await asyncio.wait_for(ws.recv(), 0.1)
+                    data = json.loads(message)
+                    
+                    status = data.get('status')
+                    print(f"Game status: {status}")
+                    
+                    if status == 'game_update':
+                        current_state = data.get('state')
+                        render_game(current_state)
+                    elif status == 'game_over':
+                        winner = data.get('winner')
+                        print(f"\n🏆 Game Over! Winner: {winner}")
+                        print("Exiting in 5 seconds...")
+                        await asyncio.sleep(5)
+                        running[0] = False
+                        break
+                    elif status == 'reconnected':
+                        current_state = data.get('state')
+                        render_game(current_state)
+                        print("Reconnected to existing game!")
+                    elif status == 'game_starting':
+                        print("Game starting soon...")
+                    elif status == 'player_ready':
+                        print("Player ready signal received!")
+                    else:
+                        print(f"Unknown status: {status}")
+                        print(f"Message content: {message[:100]}...")
+                    
+                except asyncio.TimeoutError:
+                    # No hay mensaje, seguir esperando
+                    pass
+                except Exception as e:
+                    print(f"Error in game loop: {e}")
+                    import traceback
+                    traceback.print_exc()
+                    running[0] = False
+                    break
+            
+            input_task.cancel()
+            process_task.cancel()
+            
+            try:
+                await input_task
+            except asyncio.CancelledError:
+                pass
+            
+            try:
+                await process_task
+            except asyncio.CancelledError:
+                pass
+            
+            return True
+    
+    except websockets.exceptions.InvalidStatusCode as e:
+        print(f"WebSocket connection error: Invalid status code: {e}")
+        print(f"This usually means the server rejected the connection or authentication.")
+        return False
+    except Exception as e:
+        print(f"WebSocket connection error: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
 
 async def wait_for_match(token):
     print("Looking for available match...")
@@ -285,6 +324,8 @@ async def wait_for_match(token):
             
             if result is False:
                 print("Reconnecting to match search...")
+                # Pequeña pausa para evitar reconexiones demasiado rápidas
+                await asyncio.sleep(2)
                 continue
             else:
                 print("Match completed. Looking for new match...")
@@ -293,15 +334,20 @@ async def wait_for_match(token):
         print(f"\rSearching for match{dots.ljust(3)}", end="", flush=True)
         attempt += 1
         
-        # Check for 'q' key press without requiring root
-        if sys.stdin.isatty():
-            if select_stdin():
-                ch = get_key()
+        # Check for 'q' key press
+        if sys.stdin.isatty() and select.select([sys.stdin], [], [], 0)[0]:
+            fd = sys.stdin.fileno()
+            old_settings = termios.tcgetattr(fd)
+            try:
+                tty.setraw(fd)
+                ch = sys.stdin.read(1)
                 if ch in ('q', 'Q'):
                     print("\nExiting search...")
                     running = False
+            finally:
+                termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
         
-        await asyncio.sleep(3)
+        await asyncio.sleep(1)
 
 def main():
     # Set up terminal to handle Ctrl+C gracefully
