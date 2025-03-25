@@ -54,21 +54,18 @@ function initInstructionsTooltip()
     }
 }
 
-function reShowMenu() // unused
-{
-    document.getElementById("board").hidden = true; // Hide board
-    document.getElementById("neonFrame").hidden = true; // Hide frame
-    document.getElementById("customizationMenu").hidden = false; // Show menu
-    document.getElementById("instructions").hidden = false; // Show instructions
-}
-
 export async function initializePongEvents(gameKey = null) 
 {
     // Check if a gameKey is provided through param
     if (gameKey) 
     {
-      console.log("Connecting to online game with key:", gameKey);
-      return connectToOnlineGame(gameKey);
+        initBoard();
+        startCountdownOnBoard(3, () => 
+        {
+            console.log("Countdown finished. Connecting to online game with key:", gameKey);
+            connectToOnlineGame(gameKey);
+        });
+        return;
     }
     
     // Check for 1v1 match through fetch
@@ -80,8 +77,13 @@ export async function initializePongEvents(gameKey = null)
         
         if (response.match?.game_key) 
         {
-            console.log("Online match found through fetch. Connecting...");
-            return connectToOnlineGame(response?.match.game_key);
+            initBoard();
+            startCountdownOnBoard(3, () => 
+            {
+                console.log("Countdown finished. Connecting to online game with key:", response?.match.game_key);
+                connectToOnlineGame(response?.match.game_key);
+            });
+            return;
         }
     }
     catch (error)
@@ -94,40 +96,53 @@ export async function initializePongEvents(gameKey = null)
 }
 
 // ONLINE CODE START
-function connectToOnlineGame(gameKey)
+function drawCountdownNumber(number) 
 {
-    const socket = new WebSocket(`ws://localhost:5090/ws/pong/${gameKey}/`);
+    // Clear the canvas
+    context.clearRect(0, 0, boardWidth, boardHeight);
+  
+    // Set up text style
+    context.fillStyle = "white"; // Dont know what color
+    context.font = "144px Arial"; // Adjust font size as needed
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+  
+    // Draw the number in the center of the board
+    context.fillText(number, boardWidth / 2, boardHeight / 2);
+}
 
+function startCountdownOnBoard(seconds, callback)
+{
+    let count = seconds;
+
+    drawCountdownNumber(count);
+    count--;
+
+    const intervalId = setInterval(() => 
+    {
+      drawCountdownNumber(count);
+      count--;
+      if (count < 0) {
+        clearInterval(intervalId);
+        // Clear the countdown display (if needed)
+        context.clearRect(0, 0, boardWidth, boardHeight);
+        callback();
+      }
+    }, 1000);
+}
+
+function initBoard()
+{
     // init board
     board = document.getElementById("board");
     board.width = boardWidth;
     board.height = boardHeight;
     context = board.getContext("2d");
-    updateGameState({
-        "type": "game_update",
-        "status": "game_update",
-        "state": {
-            "players": {
-                "player1": {
-                    "username": "player 2",
-                    "x": 12,
-                    "y": 225,
-                    "score": 0
-                },
-                "player2": {
-                    "username": "player 1",
-                    "x": 676,
-                    "y": 225,
-                    "score": 0
-                }
-            },
-            "ball": {
-                "x": boardWidth,
-                "y": boardHeight
-            },
-            "status": "in_progress"
-        }
-    })
+}
+
+function connectToOnlineGame(gameKey)
+{
+    const socket = new WebSocket(`ws://localhost:5090/ws/pong/${gameKey}/`);
     
     // Define event handler functions for consistent reference
     function handleKeyDown(event) {
@@ -233,6 +248,7 @@ function renderGame()
     // Set up a small font for usernames
     context.font = "14px Arial";
     context.fillStyle = "white"; // Dont know what color, white maybe
+    context.textAlign = "left";
 
     // Draw player1's username at the top left
     if (Lplayer.username) 
@@ -240,13 +256,16 @@ function renderGame()
         context.fillText(Lplayer.username, 10, 20);  // x:10, y:20
     }
 
+    context.textAlign = "right";
     // Draw player2's username at the top right
     if (Rplayer.username) 
     {
-        // Measure text width for right alignment
-        const textWidth = context.measureText(Rplayer.username).width;
-        context.fillText(Rplayer.username, board.width - textWidth - 10, 20);
+        context.fillText(Rplayer.username, board.width - 10, 20);
     }
+
+    // reset alignments
+    context.textAlign = "start";
+    context.textBaseline = "alphabetic";
 
     // Draw center dashed line
     context.fillStyle = accentColor;
@@ -369,6 +388,7 @@ function endOnlineMatch(message)
 }
 
 // ONLINE CODE END
+
 function toggleMenu() {
     const menu = document.getElementById('customizationMenu');
     menu.classList.toggle('hidden');
