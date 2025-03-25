@@ -118,11 +118,11 @@ function checkPawnDoubleMoveInLastTurn(from, to) {
     if (tmp.piece_name.includes("PAWN")){
         if (Math.abs(to[1] - from[1]) === 2) {
             tmp.move = true;
-            localStorage.setItem("enPassantCapture", JSON.stringify({ position: to, color: tmp.color, move: tmp.move }));
+            sessionStorage.setItem("enPassantCapture", JSON.stringify({ position: to, color: tmp.color, move: tmp.move }));
         } else {
             tmp.move = false;
-            if (localStorage.getItem("enPassantCapture"))
-                localStorage.removeItem("enPassantCapture");
+            if (sessionStorage.getItem("enPassantCapture"))
+                sessionStorage.removeItem("enPassantCapture");
         }
     }
 }
@@ -140,10 +140,10 @@ function handleGetChessReceivedMessage(event) {
         }
         if (data.status === "game_over") {
             winGame(data.winner);
-            localStorage.removeItem("chessMoves");
-            if (localStorage.getItem("enPassantCapture"))
-                localStorage.removeItem("enPassantCapture");
-            chessSocket.close(); // i forgot xd
+            // sessionStorage.removeItem("chessMoves");
+            // if (sessionStorage.getItem("enPassantCapture"))
+            //     sessionStorage.removeItem("enPassantCapture");
+            chessSocket.close(); // now we clear all the session storage on the socket.onclose()
         }
         if (data?.current_player) {
             inTurn = data.current_player;
@@ -175,7 +175,8 @@ function initializeChessSocket(game_key) {
     };
 
     chessSocket.onclose = async (event) => {
-        sessionStorage.removeItem('inGame');
+        //sessionStorage.removeItem('inGame');
+        sessionStorage.clear();
         console.log("Chess WebSocket closed");
     }
 

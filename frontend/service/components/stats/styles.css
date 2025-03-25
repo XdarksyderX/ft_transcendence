@@ -21,10 +21,8 @@
 	margin: 10px;
 	background-color: var(--transparent-dark);
 }
-/* .history-card:last-child {
-    margin-bottom: 0px;
-} */
-/* .history-card  */.score {
+
+.score {
     font-size: 1.5rem;
     border-radius: 5px;
     border: 1px solid var(--light);
@@ -35,6 +33,10 @@
     margin: 0 auto;
 	margin-bottom: 10px;
 	object-fit: contain;
+
+}
+.history-card.ranked {
+    background: linear-gradient(225deg, var(--transparent-dark), var(--dark),  var(--darkish), var(--transparent-dark));
 
 }
 
@@ -51,6 +53,12 @@
 	color: var(--title);
 	border: 1px solid var(--accent);
 	box-shadow: 0 0 3px #00F56A, 0 0 5px #00F56A, 0 0 3px #00F56A, 0 0 10px #00F56Acc;
+}
+.history-card .header {
+    display: flex !important;
+    flex-direction: row !important;
+    
+    align-items: center; /* Align items vertically in the center */
 }
 
 #stats .switch-secondary {

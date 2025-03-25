@@ -278,9 +278,9 @@ function moveElement(piece, id, castle) {
 
     if (piece.piece_name.includes("PAWN") && (Math.abs(id[1] - piece.current_pos[1]) === 2 )) {
       piece.move = true;
-      localStorage.setItem("enPassantTarget", JSON.stringify({ position: id, move: piece.move }));
-    } else if (localStorage.getItem("enPassantTarget")) {
-      localStorage.removeItem("enPassantTarget");
+      sessionStorage.setItem("enPassantTarget", JSON.stringify({ position: id, move: piece.move }));
+    } else if (sessionStorage.getItem("enPassantTarget")) {
+      sessionStorage.removeItem("enPassantTarget");
     }
   } else {
     const capturedSquare = keySquareMapper[id];

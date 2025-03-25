@@ -195,13 +195,19 @@ function createPongMatchCard(match) {
 function createChessMatchCard(match) {
   const isWhiteWinner = match.winner === match.player_white;
   const isBlackWinner = match.winner === match.player_black;
+  const ranked = match.is_ranked === true ? 'ranked' : '';
   const date = formatDateTime(match.created_at);
+  const gameMode = ranked || match.game_mode;
 
+  // <div class="btn cancel-btn position-absolute top-0 end-0 m-2">ranked</div>
   const card = document.createElement('div');
   card.innerHTML = `
-    <div class="history-card overflow-hidden">
-      <div class="card-body text-center position-relative" style="z-index: 1;">
-        <small class="text-center mb-2 small ctm-text-light">${date}</small>
+    <div class="history-card ${ranked} overflow-hidden">
+    <div class="card-body text-center position-relative" style="z-index: 1;">
+      <p class="mb-2">
+          <span class="small ctm-text-light me-1">${date}</span>
+          <span class="small ctm-text-accent ms-1">${gameMode}</span>
+      </p>
         <div class="row justify-content-center align-items-center">
           <div class="col-5 text-center">
             <p class="ctm-text-title score ${isWhiteWinner ? 'winner' : ''}">
