@@ -165,7 +165,7 @@ function handleTournamentEvents(type) {
         case 'match':
             if (window.location.pathname === '/started-tournaments') {
                 console.log("match played");
-                initializeOngoingTournaments();
+                initializeOngoingTournaments(false);
             } break;
     }
 }
