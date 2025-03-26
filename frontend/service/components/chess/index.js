@@ -1,5 +1,5 @@
 import { initGame } from "./Data/data.js";
-import { initGameRender, clearHighlight, renderPlayers, toggleTurn } from "./Render/main.js";
+import { initGameRender, clearHighlight, renderPlayers, toggleTurn, piecePositions } from "./Render/main.js";
 import { GlobalEvent, clearYellowHighlight, moveElement } from "./Events/global.js";
 import { resingOption } from "./Helper/modalCreator.js";
 import { winGame } from "./Helper/modalCreator.js";
@@ -7,7 +7,9 @@ import { getChessMatchDetail, getChessPendingMatches } from "../../app/chess.js"
 import { getUsername } from "../../app/auth.js";
 import { convertToPiecePositions } from "./Render/main.js";
 import { reloadMoveLogger } from "./Helper/logging.js";
+import { initOfflineChess } from "./offline.js";
 
+// import * as piece from "./Data/pieces.js"
 
 
 let globalState = initGame();
@@ -65,14 +67,16 @@ export async function initializeChessEvents(key) {
             key = res?.match?.game_key;
             console.log("RECARGAR PAGINA");
             await initOnlineChess(key);
+        } else {
+            initOfflineChess();
         }
     }
-    const data = await waitForBoardStatus();
-    const inTurn = getUserColor(getUsername()) === data.current_player;
-    const piecePositions = convertToPiecePositions(data.board);
+    // const data = await waitForBoardStatus();
+    // const inTurn = getUserColor(getUsername()) === data.current_player;
+    // const piecePositions = convertToPiecePositions(data.board);
 
 
-    initGameRender(globalState, piecePositions, inTurn);
+//    initGameRender(globalState, piecePositions, inTurn);
     GlobalEvent();
     generateCoordinates();
     reloadMoveLogger();
@@ -104,13 +108,54 @@ async function handleGetChessMatchDetail(key) {
 
 
 async function initOnlineChess(key) {
-    // white or black 
-    //getChessMatchDetail(key);
     await handleGetChessMatchDetail(key);
     renderPlayers(whoIsWho);
     initializeChessSocket(key);
-    // initialize socket
-    
+
+    const data = await waitForBoardStatus();
+    const inTurn = getUserColor(getUsername()) === data.current_player;
+    const piecePositions = convertToPiecePositions(data.board);
+
+    initGameRender(globalState, piecePositions, inTurn);    
+}
+
+function getBoard() {
+    const board = {};
+    const pieceSetup = {
+        1: ["Rook", "Knight", "Bishop", "Queen", "King", "Bishop", "Knight", "Rook"],
+        2: Array(8).fill("Pawn"),
+        7: Array(8).fill("Pawn"),
+        8: ["Rook", "Knight", "Bishop", "Queen", "King", "Bishop", "Knight", "Rook"]
+    };
+
+    const colors = {
+        1: "white",
+        2: "white",
+        7: "black",
+        8: "black"
+    };
+
+    for (let row = 1; row <= 8; row++) {
+        for (let col = 0; col < 8; col++) {
+            const position = String.fromCharCode(97 + col) + row; // 'a' + col + row
+            if (pieceSetup[row]) {
+                const type = pieceSetup[row][col];
+                const color = colors[row];
+                const piece_id = type === "Pawn" ? (col + 1).toString() : (col < 4 ? "1" : "2");
+                board[position] = {
+                    type,
+                    color,
+                    position,
+                    piece_id: ["King", "Queen"].includes(type) ? "" : piece_id,
+                    has_moved: false
+                };
+            } else {
+                board[position] = null;
+            }
+        }
+    }
+
+    return board;
 }
 
 function checkPawnDoubleMoveInLastTurn(from, to) {

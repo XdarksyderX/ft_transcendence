@@ -43,7 +43,7 @@ function selfHighlight(piece){
  * representing the piece to the square's HTML element.
  * @param {*} data data 2D array representing the chessboard
  */
-function pieceRender(data)
+export function pieceRender(data)
 {
   data.forEach(row => {
     row.forEach(square => {
@@ -219,7 +219,7 @@ function convertToPiecePositions(boardMap) {
       piecePositionsTmp[key] = piece[pieceKey];
     }
   });
-
+  console.log("piecePositions: ", piecePositionsTmp);
   return piecePositionsTmp;
 }
 

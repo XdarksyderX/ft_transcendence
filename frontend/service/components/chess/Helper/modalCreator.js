@@ -68,6 +68,7 @@ async function pawnPromotion(color, callback, id, pieceTo = null) {
   
   const createPieceImage = (pieceName) => {
     const img = document.createElement("img");
+    img.classList.add("promotion-choice")
     img.src = `components/chess/Assets/pieces/${imgStyle}/${color}/${pieceName}.png`;
     img.onclick = () => {
       callback(piecesMap[pieceName], id);
@@ -142,7 +143,7 @@ function winGame(winBool) {
 
     <div class="tv mx-4 position-relative mb-3">
        <p class="ctm-text-title">${winBool} Wins! </p>
-        <img src="../../resources/win.gif">
+        <img class="dancing-bot" src="../../resources/win.gif">
        </div>
        
        `;

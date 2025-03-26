@@ -93,7 +93,6 @@ class ChessPiece(ABC):
 
 class Pawn(ChessPiece):
     def get_possible_moves(self, board, en_passant_target=None):
-        # logging.debug(f"pawnpawnpawn")
         moves = []
         file, rank = self.position[0], int(self.position[1])
         direction = 1 if self.color == 'white' else -1
