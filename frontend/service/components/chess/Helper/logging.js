@@ -11,7 +11,7 @@ const pieceNotation = {
 
 // Load moves from localStorage
 function reloadMoveLogger() {
-    const savedMoves = JSON.parse(localStorage.getItem("chessMoves")) || [];
+    const savedMoves = JSON.parse(sessionStorage.getItem("chessMoves")) || [];
     const leftCol = document.getElementById("leftCol");
     const rightCol = document.getElementById("rightCol");
     savedMoves.forEach(move => {
@@ -60,7 +60,7 @@ function logMoves(logMoves, inTurn, piece, castlingType) {
     }
 
     // Save move to localStorage
-    const savedMoves = JSON.parse(localStorage.getItem("chessMoves")) || [];
+    const savedMoves = JSON.parse(sessionStorage.getItem("chessMoves")) || [];
     savedMoves.push({ inTurn, notation: row.innerHTML });
     sessionStorage.setItem("chessMoves", JSON.stringify(savedMoves));
 

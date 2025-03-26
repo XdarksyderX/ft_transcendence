@@ -378,7 +378,7 @@ function castlingCheck(piece, color, res) {
     if (!piece.piece_name.includes("KING")) return ;
     const row = color === "white" ? '1' : '8';
     const possibleKing = keySquareMapper[`e${row}`];
-    const moveLogger = JSON.parse(localStorage.getItem('chessMoves'));
+    const moveLogger = JSON.parse(sessionStorage.getItem('chessMoves'));
     if (hasPieceMoved(possibleKing, `${color}_king`, moveLogger)) return ;
     const possibleRook1 = keySquareMapper[`a${row}`];
     const possibleRook2 = keySquareMapper[`h${row}`];
