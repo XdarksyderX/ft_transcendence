@@ -33,7 +33,6 @@ function getElements() {
     return {
         newContainer: document.getElementById('new-tournament-container'),
         pendantContainer: document.getElementById('pendant-tournament-container'),
-        startBtn: document.getElementById('start-tournament-btn'),
         switchButtons: document.querySelectorAll('.switch-btn'),
         friendsContainer: document.getElementById("friends-container"),
         friendList: document.getElementById('tournament-friends-list'),
@@ -48,19 +47,23 @@ function setSwitches(elements) {
             event.preventDefault();
             elements.switchButtons.forEach((btn) => btn.classList.remove("active"));
             button.classList.add("active");
-            updateRequiredParticipants(button.getAttribute("data-participants"), elements);
+            updateRequiredParticipants(button.getAttribute("data-participants"));
             elements.friendList.classList.add('show');
         });
     });
 }
 
 // Updates the required number of participants and manages the start button state
-function updateRequiredParticipants(total, elements) {
+function updateRequiredParticipants(total) {
+
+    const startBtn = document.getElementById('start-tournament-btn');
+
+
     requiredParticipants = Number.parseInt(total, 10); // -1 cause we already include the creator 
     if (selectedFriends.length === requiredParticipants - 1) {
-        elements.startBtn.disabled = false;
+        startBtn.disabled = false;
     } else {
-        elements.startBtn.disabled = true;
+        startBtn.disabled = true;
         if (selectedFriends.length >= requiredParticipants) {
             const excedent = selectedFriends.length - requiredParticipants;
             throwAlert(`You'll have to unselect ${excedent} friend${excedent === 1 ? '' : 's'}`);
@@ -90,12 +93,13 @@ async function renderFriendList(elements) {
         friendBtn.className = "friend-btn"
         friendBtn.innerHTML = `<p class="mb-0">${friend.username}</p>`
         elements.friendsContainer.appendChild(friendBtn)
-        friendBtn.addEventListener("click", () => toggleFriendSelection(friend.username, friendBtn, elements))
+        friendBtn.addEventListener("click", () => toggleFriendSelection(friend.username, friendBtn))
     })
 }
 
 // Toggles the selection of friends for the tournament
-function toggleFriendSelection(username, btn, elements) {
+function toggleFriendSelection(username, btn) {
+    const startBtn = document.getElementById('start-tournament-btn');
     console.log("Before toggle:", selectedFriends);
     if (btn.classList.contains("selected")) {
         btn.classList.remove("selected");
@@ -111,7 +115,7 @@ function toggleFriendSelection(username, btn, elements) {
     }
     console.log("After toggle:", selectedFriends);
     console.log("selected number: ", selectedFriends.length);
-    elements.startBtn.disabled = selectedFriends.length !== requiredParticipants - 1;
+    startBtn.disabled = selectedFriends.length !== requiredParticipants - 1;
 }
 
 export function parseTournamentName(tournamentName) {
@@ -125,17 +129,20 @@ export function parseTournamentName(tournamentName) {
     }
     return true;
 }
-// Initializes the start button for creating a new tournament
+
 function initStartNewTournament(elements) {
-    elements.startBtn.addEventListener('click', () => {
+    const startBtn = document.getElementById('start-tournament-btn');
+    const newStartBtn = startBtn.cloneNode(true);
+    startBtn.parentNode.replaceChild(newStartBtn, startBtn);
+    console.log("adding event listener");
+    newStartBtn.addEventListener('click', (event) => {
         event.preventDefault();
         const tournamentName = elements.nameInput.value;
-        if (parseTournamentName) {
+        if (parseTournamentName(tournamentName)) {
             createNewTournament(tournamentName);
         }
-    })
+    });
 }
-
 // Creates a new tournament with the selected friends
 function createNewTournament(tournamentName) {
     handleCreateTournament(tournamentName).then(async (token) => {

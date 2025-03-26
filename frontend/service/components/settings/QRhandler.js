@@ -47,7 +47,9 @@ export function handle2FAmodal(status, secret = null) {
     }
 
     // Construir la URL en formato otpauth
-    const otpUrl = `otpauth://totp/${encodeURIComponent(service)}:${encodeURIComponent(user)}?secret=${secret}&issuer=${encodeURIComponent(service)}`;
+    //const otpUrl = `otpauth://totp/${encodeURIComponent(service)}:${encodeURIComponent(user)}?secret=${secret}&issuer=${encodeURIComponent(service)}`;
+    const otpUrl = `otpauth://totp/${encodeURIComponent(service)}:${encodeURIComponent(user)}?secret=${secret}&issuer=${encodeURIComponent(service)}&algorithm=SHA1&digits=6`;
+
 
     // Obtener el contenedor donde se insertará el QR
     const qrContainer = document.getElementById(containerId);
@@ -61,8 +63,8 @@ export function handle2FAmodal(status, secret = null) {
     // Generar el código QR usando qrcode.js
     new QRCode(qrContainer, {
         text: otpUrl,
-        width: 300,
-        height: 300
+        width: 200,
+        height: 200
     });
 
     console.log(`QR Code generated in container: #${containerId}`);

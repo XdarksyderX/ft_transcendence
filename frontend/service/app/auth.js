@@ -36,6 +36,10 @@ export function deleteCookie(name) {
  */
 export async function isLoggedIn() {
     if (!getUsername()) {
+            return false
+    }
+    if (!getUsername() && (path === '/' || path === '/login' || path === '/singup')) {
+        console.log("nono, path: ", path);
         return false;
     }
     const isValid = await verifyAccessToken();
@@ -100,7 +104,7 @@ export async function login(userCredentials) {
  */
 async function verifyAccessToken() {
     try {
-        const response = await sendRequestAuth('GET', 'verify-token/');
+        const response = await sendRequestAuth('POST', 'verify-token/');
 
         if (response.status !== "success") {
             console.error('Token verification failed:', response.status);

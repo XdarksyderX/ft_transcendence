@@ -1,4 +1,6 @@
 from .modes import ClassicChess, HordeChess, Chess960, KirbyChess, BombChess
+from .utils import is_in_check
+import copy
 
 import logging
 logger = logging.getLogger('chess_game')
@@ -141,10 +143,15 @@ class ChessLogic:
             self.state = 'GAME_OVER'
         return game_state, winner
 
+    # def get_possible_moves(self, position: str):
+    #     if position not in self.board or self.board[position] is None:
+    #         return []
+    #     return self.board[position].get_possible_moves(self.board)
     def get_possible_moves(self, position: str):
+        logger.debug(f"MIAU MIAU")
         if position not in self.board or self.board[position] is None:
             return []
-        return self.board[position].get_possible_moves(self.board)
+        return self.board[position].get_legal_moves(self.board)
 
     def get_all_possible_moves(self, player_color: str):
         moves = {
