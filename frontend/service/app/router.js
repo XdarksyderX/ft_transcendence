@@ -67,7 +67,7 @@ async function router(key = null) {
 
             break;
         case "/started-tournaments":
-            initializeOngoingTournaments();
+            initializeOngoingTournaments(true);
             break;
         case "/unstarted-tournaments":
             initializeNewTournament(true);

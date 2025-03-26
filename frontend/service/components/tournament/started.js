@@ -6,7 +6,7 @@ import { navigateTo } from "../../app/router.js";
 let hasFinished = false;
 
 // Initializes the ongoing tournaments by fetching their details and rendering them
-export async function initializeOngoingTournaments() {
+export async function initializeOngoingTournaments(addListener) {
   setSwitches();
   const tourList = await handleGetTournamentList();
   const ongoing = await getTournamentsBracket(tourList, false);
@@ -15,13 +15,13 @@ export async function initializeOngoingTournaments() {
   const ongoingContainer = document.getElementById('ongoing-container');
   const finishedContainer = document.getElementById('finished-container');
 
-  if (ongoing) {
+  if (ongoing && addListener) {
     initModalEvents();
   } if (finished) {
     hasFinished = true;
   }
-    renderAllTournaments(ongoing, ongoingContainer, false);
-    renderAllTournaments(finished, finishedContainer, true);
+  renderAllTournaments(ongoing, ongoingContainer, false);
+  renderAllTournaments(finished, finishedContainer, true);
     
 }
 
@@ -248,9 +248,9 @@ function generateMatch(game) {
 }
 
 async function initModalEvents() {
-
+  console.log("adding event listeners");
   const modalEl = document.getElementById('start-match-modal');
-  const modal = new bootstrap.Modal(modalEl);
+  // const modal = new bootstrap.Modal(modalEl);
   const playButton = modalEl.querySelector('#play-btn'); // The "Play" button
 
   playButton.addEventListener('click', async (event) => {
