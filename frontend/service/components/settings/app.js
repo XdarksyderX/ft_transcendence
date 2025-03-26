@@ -6,6 +6,7 @@ import { handle2FAmodal } from './QRhandler.js';
 import { logout } from '../../app/auth.js';
 import { getBlockedList, unblockUser, getAvatar } from '../../app/social.js'
 import { initOTPform } from '../login/login.js';
+import { resizeSidebarUsername } from '../sidebar/app.js';
 
 
 export function initializeSettingsEvents() {
@@ -273,6 +274,7 @@ function cleanAfterChanges(changedData) {
 		input.classList.remove('selected');
 	});
 	document.getElementById('sidebar-username').innerText = changedData.username;
+	resizeSidebarUsername();
 }
 
 async function handleSaveChanges(password, changedData, otp) {

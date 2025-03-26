@@ -9,6 +9,12 @@
     background: linear-gradient(225deg, var(--dark), var(--darkish),  var(--transition), var(--title));
     box-shadow: 0 0 10px -5px #00F56A, 10px 0 10px -5px #00F56A, 10px 0 15px -5px #00F56A, 10px 0 30px -5px #00F56Acc;
 }
+#sidebar-username {
+    word-wrap: break-word; /* Allow breaking long words */
+    overflow-wrap: break-word; /* Ensure compatibility */
+    word-break: break-word; /* Break long words */
+}
+
 .sidebar.show {
     left: 0;
 }
