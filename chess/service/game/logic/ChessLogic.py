@@ -143,25 +143,15 @@ class ChessLogic:
             self.state = 'GAME_OVER'
         return game_state, winner
 
+    # def get_possible_moves(self, position: str):
+    #     if position not in self.board or self.board[position] is None:
+    #         return []
+    #     return self.board[position].get_possible_moves(self.board)
     def get_possible_moves(self, position: str):
+        logger.debug(f"MIAU MIAU")
         if position not in self.board or self.board[position] is None:
             return []
-    
-        piece = self.board[position]
-        possible_moves = piece.get_possible_moves(self.board)
-        legal_moves = []
-    
-        for move in possible_moves:
-            # Simulate the move
-            new_board = copy.deepcopy(self.board)
-            new_board[move] = new_board[position]
-            new_board[position] = None
-    
-            # Check if the king is still in check after the move
-            if not is_in_check(new_board, piece.color):
-                legal_moves.append(move)
-    
-        return legal_moves
+        return self.board[position].get_legal_moves(self.board)
 
     def get_all_possible_moves(self, player_color: str):
         moves = {

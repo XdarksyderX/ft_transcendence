@@ -44,7 +44,7 @@ def is_position_under_attack(board, position, color, depth=0, memo=None):
             continue
 
         piece_type = piece.__class__.__name__
-        logging.debug(f"Checking attacks from {piece_type} at {pos}")
+        # logging.debug(f"Checking attacks from {piece_type} at {pos}")
 
         # Manejo especial para el Rey: se verifican sus casillas adyacentes
         if piece_type == 'King':
@@ -185,7 +185,7 @@ def is_checkmate(board, color, depth=0, memo=None):
         if piece is not None and piece.color == color:
             logging.debug(f"Checking moves for piece at {pos} ({piece})")
             try:
-                moves = piece.get_possible_moves(board)
+                moves = piece.get_legal_moves(board)
                 if moves:  # Se encontró al menos una jugada legal.
                     logging.debug(f"Found legal moves for piece at {pos}, returning False")
                     memo[key] = False

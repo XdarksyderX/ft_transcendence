@@ -34,6 +34,42 @@ class ChessPiece(ABC):
     @abstractmethod
     def get_possible_moves(self, board):
         pass
+    # new method to return only the movements that doesnt leave you on check
+    def get_legal_moves(self, board):
+        """Retorna solo los movimientos que no dejan al rey en jaque."""
+        legal_moves = []
+        for move in self.get_possible_moves(board):
+            test_board = copy.deepcopy(board)
+
+            # Mueve la pieza en el tablero simulado
+            test_board[move] = self
+            test_board[self.position] = None
+            old_position = self.position  # Guardar la posición original
+            self.position = move  # Actualizar temporalmente la posición de la pieza
+            
+            # Encontrar la posición del rey después del movimiento
+            king_position = None
+            for pos, piece in test_board.items():
+                if piece and piece.color == self.color and isinstance(piece, King):
+                    king_position = pos
+                    break
+            
+            # Verificar si el rey sigue en jaque después del movimiento
+            logging.debug(f"Checking legal moves for {self} at {self.position}")
+
+            if king_position and is_in_check(test_board, self.color):
+                logging.debug(f"Move {self.position} -> {move} rejected: king still in check")
+            else:
+                logging.debug(f"Move {self.position} -> {move} accepted")
+
+
+            # Restaurar la posición original
+            self.position = old_position  
+
+        return legal_moves
+
+
+    
 
     # Utility method for sliding pieces (Rook, Bishop, Queen)
     def sliding_moves(self, board, directions):
@@ -61,6 +97,7 @@ class ChessPiece(ABC):
 
 class Pawn(ChessPiece):
     def get_possible_moves(self, board, en_passant_target=None):
+        logging.debug(f"pawnpawnpawn")
         moves = []
         file, rank = self.position[0], int(self.position[1])
         direction = 1 if self.color == 'white' else -1
