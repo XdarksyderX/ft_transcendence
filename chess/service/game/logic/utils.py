@@ -3,9 +3,9 @@ import copy
 # Constant for board files
 FILES = "abcdefgh"
 
-import logging
+# import logging
 
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+# # logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def is_position_under_attack(board, position, color, depth=0, memo=None):
     """
@@ -21,10 +21,10 @@ def is_position_under_attack(board, position, color, depth=0, memo=None):
     Returns:
         True si la posición está bajo ataque, False en caso contrario
     """
-    logging.debug(f"Checking if position {position} is under attack by {color} at depth {depth}")
+    # logging.debug(f"Checking if position {position} is under attack by {color} at depth {depth}")
 
     if depth > 3:
-        logging.debug("Depth limit exceeded, returning False")
+        # logging.debug("Depth limit exceeded, returning False")
         return False
 
     if memo is None:
@@ -32,7 +32,7 @@ def is_position_under_attack(board, position, color, depth=0, memo=None):
 
     key = (position, color, depth, 'under_attack')
     if key in memo:
-        logging.debug(f"Memoization hit for key {key}, returning {memo[key]}")
+        # logging.debug(f"Memoization hit for key {key}, returning {memo[key]}")
         return memo[key]
 
     opponent_color = 'black' if color == 'white' else 'white'
@@ -44,7 +44,7 @@ def is_position_under_attack(board, position, color, depth=0, memo=None):
             continue
 
         piece_type = piece.__class__.__name__
-        # logging.debug(f"Checking attacks from {piece_type} at {pos}")
+        logging.debug(f"Checking attacks from {piece_type} at {pos}")
 
         # Manejo especial para el Rey: se verifican sus casillas adyacentes
         if piece_type == 'King':
@@ -61,7 +61,7 @@ def is_position_under_attack(board, position, color, depth=0, memo=None):
                 if 0 <= new_idx < 8 and 1 <= new_rank <= 8:
                     target_pos = f"{FILES[new_idx]}{new_rank}"
                     if target_pos == position:
-                        logging.debug(f"Position {position} is under attack by King at {pos}")
+                        # logging.debug(f"Position {position} is under attack by King at {pos}")
                         memo[key] = True
                         return True
 
@@ -76,7 +76,7 @@ def is_position_under_attack(board, position, color, depth=0, memo=None):
                 if 0 <= new_idx < 8:
                     attack_pos = f"{FILES[new_idx]}{rank + direction}"
                     if attack_pos == position:
-                        logging.debug(f"Position {position} is under attack by Pawn at {pos}")
+                        # logging.debug(f"Position {position} is under attack by Pawn at {pos}")
                         memo[key] = True
                         return True
 
@@ -93,11 +93,11 @@ def is_position_under_attack(board, position, color, depth=0, memo=None):
                     possible_attacks = piece.get_possible_moves(board)
 
             if position in possible_attacks:
-                logging.debug(f"Position {position} is under attack by {piece_type} at {pos}")
+                # logging.debug(f"Position {position} is under attack by {piece_type} at {pos}")
                 memo[key] = True
                 return True
 
-    logging.debug(f"Position {position} is not under attack")
+    # logging.debug(f"Position {position} is not under attack")
     memo[key] = False
     return False
 
@@ -115,10 +115,10 @@ def is_in_check(board, color, depth=0, memo=None):
     Returns:
         True si el rey está en jaque, False en caso contrario
     """
-    logging.debug(f"Checking if {color} king is in check at depth {depth}")
+    # logging.debug(f"Checking if {color} king is in check at depth {depth}")
 
     if depth > 3:
-        logging.debug("Depth limit exceeded, returning False")
+        # logging.debug("Depth limit exceeded, returning False")
         return False
 
     if memo is None:
@@ -126,7 +126,7 @@ def is_in_check(board, color, depth=0, memo=None):
 
     key = ('in_check', color, depth)
     if key in memo:
-        logging.debug(f"Memoization hit for key {key}, returning {memo[key]}")
+        # logging.debug(f"Memoization hit for key {key}, returning {memo[key]}")
         return memo[key]
 
     king_position = None
@@ -137,11 +137,11 @@ def is_in_check(board, color, depth=0, memo=None):
 
     # Si no se encuentra el rey, asumimos que no está en jaque (otra lógica debería encargarse del fin de partida)
     if not king_position:
-        logging.debug(f"No king found for {color}, assuming not in check")
+        # logging.debug(f"No king found for {color}, assuming not in check")
         memo[key] = False
         return False
 
-    logging.debug(f"King of {color} found at {king_position}")
+    # logging.debug(f"King of {color} found at {king_position}")
     result = is_position_under_attack(board, king_position, color, depth=depth+1, memo=memo)
     memo[key] = result
     return result
@@ -160,10 +160,10 @@ def is_checkmate(board, color, depth=0, memo=None):
     Returns:
         True si es jaque mate, False en caso contrario
     """
-    logging.debug(f"Checking checkmate for {color} at depth {depth}")
+    # logging.debug(f"Checking checkmate for {color} at depth {depth}")
 
     if depth > 3:
-        logging.debug("Depth limit exceeded, returning False")
+        # logging.debug("Depth limit exceeded, returning False")
         return False
 
     if memo is None:
@@ -171,31 +171,31 @@ def is_checkmate(board, color, depth=0, memo=None):
 
     key = ('checkmate', color, depth)
     if key in memo:
-        logging.debug(f"Memoization hit for key {key}, returning {memo[key]}")
+        # logging.debug(f"Memoization hit for key {key}, returning {memo[key]}")
         return memo[key]
 
     # Si el rey no está en jaque, no puede ser jaque mate.
     if not is_in_check(board, color, depth=depth+1, memo=memo):
-        logging.debug(f"King of {color} is not in check, returning False")
+        # logging.debug(f"King of {color} is not in check, returning False")
         memo[key] = False
         return False
 
     # Buscar si existe algún movimiento legal que saque del jaque.
     for pos, piece in board.items():
         if piece is not None and piece.color == color:
-            logging.debug(f"Checking moves for piece at {pos} ({piece})")
+            # logging.debug(f"Checking moves for piece at {pos} ({piece})")
             try:
                 moves = piece.get_legal_moves(board)
                 if moves:  # Se encontró al menos una jugada legal.
-                    logging.debug(f"Found legal moves for piece at {pos}, returning False")
+                    # logging.debug(f"Found legal moves for piece at {pos}, returning False")
                     memo[key] = False
                     return False
             except (RecursionError, Exception) as e:
-                logging.debug(f"Exception occurred while getting moves for piece at {pos}: {e}")
+                # logging.debug(f"Exception occurred while getting moves for piece at {pos}: {e}")
                 memo[key] = False
                 return False
 
-    logging.debug(f"No legal moves found, {color} is in checkmate")
+    # logging.debug(f"No legal moves found, {color} is in checkmate")
     memo[key] = True
     return True
 

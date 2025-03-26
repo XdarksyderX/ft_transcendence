@@ -2,9 +2,9 @@ import copy
 from abc import ABC, abstractmethod
 from .utils import is_position_under_attack, is_in_check
 
-import logging
+# import logging
 
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+# # logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 # Constant for board files
 FILES = "abcdefgh"
 
@@ -55,18 +55,14 @@ class ChessPiece(ABC):
                     break
             
             # Verificar si el rey sigue en jaque después del movimiento
-            logging.debug(f"Checking legal moves for {self} at {self.position}")
-
-            if king_position and is_in_check(test_board, self.color):
-                logging.debug(f"Move {self.position} -> {move} rejected: king still in check")
-            else:
-                logging.debug(f"Move {self.position} -> {move} accepted")
-
+            if king_position and not is_in_check(test_board, self.color):
+                legal_moves.append(move)
 
             # Restaurar la posición original
             self.position = old_position  
 
         return legal_moves
+
 
 
     
@@ -97,7 +93,7 @@ class ChessPiece(ABC):
 
 class Pawn(ChessPiece):
     def get_possible_moves(self, board, en_passant_target=None):
-        logging.debug(f"pawnpawnpawn")
+        # logging.debug(f"pawnpawnpawn")
         moves = []
         file, rank = self.position[0], int(self.position[1])
         direction = 1 if self.color == 'white' else -1
