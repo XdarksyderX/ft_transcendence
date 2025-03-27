@@ -24,15 +24,16 @@ const chessVariantTmp = sessionStorage.getItem('chessVariant'); //borrar -> solu
 const moveSound = new Audio('components/chess/Assets/music/sound2.mp3');
 
 function changeTurn() {
-  if (!chessSocket) { // if we're not online, we update inTurn manually
-    const newTurn = inTurn === "white" ? "black" : "white";
-    console.log("updating OFFline turn to: ", newTurn);
-    updateInTurn(newTurn);
-  }
+  // clean the previous pawn movements for en passant reasons
   const pawns = inTurn === "white" ? globalPiece.black_pawns : globalPiece.white_pawns;
   pawns.forEach(pawn => {
     pawn.move = false;
   });
+  // update turn manually if we're in local play
+  if (!chessSocket) {
+    const newTurn = inTurn === "white" ? "black" : "white";
+    updateInTurn(newTurn);
+  }
 }
 
 function captureInTurn(square) {

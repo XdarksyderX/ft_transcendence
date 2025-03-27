@@ -111,6 +111,7 @@ const piecePositions = {
  */
 function initGameRender(data, piecePositions, detail)
 {
+
   globalPiece.black_pawns = [];
   globalPiece.white_pawns = [];
 

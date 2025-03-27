@@ -304,6 +304,7 @@ function checkEnPassant(curr_pos, color, num) {
 
 //on intial postion, pawns moves different
 function pawnMovesOptions(piece, unusedFunc = null, color) {
+    // debugger
     let highlightSquareIds = null;
     const curr_pos = piece.current_pos;
     const row = color === "white" ? "2" : "7";
