@@ -1,5 +1,6 @@
 import { highlightColor, keySquareMapper } from "../index.js";
 import { circleHighlightRender, globalPiece } from "../Render/main.js";
+const chessVariantTmp = sessionStorage.getItem('chessVariant'); //borrar -> solucion temporal para asegurar la persistencia de la variable hasta que tengamos backend
 
 /**
  * function to check if opponnet piece exist and highlight it with captureColor,
@@ -30,7 +31,7 @@ function checkOpponetPieceByElement(id, color, captureHighlight = true) {
 //function to check weather piece exists or not by square-id
 function checkPieceExist(squareId) {
     const square = keySquareMapper[squareId];
-    if (square && square.piece)
+    if (square.piece)
         return square;
     else
         return false;
@@ -268,37 +269,26 @@ function giveKingCaptureIds(id, color) {
     return res;
 }
 
+
 function checkEnPassant(curr_pos, color, num) {
     const row = color === "white" ? 5 : 4; // Row where en passant is possible
-    if (curr_pos && curr_pos[1] != row) return false;
-    console.log(`Checking en passant for ${color} at position ${curr_pos} on row ${row}`);
+    if (curr_pos[1] != row) return false;
 
     const leftPos = `${String.fromCharCode(curr_pos[0].charCodeAt(0) - 1)}${curr_pos[1]}`;
     const rightPos = `${String.fromCharCode(curr_pos[0].charCodeAt(0) + 1)}${curr_pos[1]}`;
     const opponentColor = color === "white" ? "black" : "white";
     
-    console.log(`Left position: ${leftPos}, Right position: ${rightPos}, Opponent color: ${opponentColor}`);
-
     // Helper function to check if a position is valid for en passant
     function isValidEnPassant(pos) {
-        const pieceExists = checkPieceExist(pos);
-        const isOpponentPiece = pieceExists && keySquareMapper[pos].piece.piece_name.toLowerCase().includes(opponentColor);
-        const hasMoved = pieceExists && keySquareMapper[pos].piece.move;
-        
-        console.log(`Checking position ${pos}: pieceExists=${pieceExists}, isOpponentPiece=${isOpponentPiece}, hasMoved=${hasMoved}`);
-        console.log(keySquareMapper[pos]);
-        
-        return pos[0] >= 'a' && pos[0] <= 'h' && pieceExists && isOpponentPiece && hasMoved;
+        return pos[0] >= 'a' && pos[0] <= 'h' &&
+        checkPieceExist(pos) &&
+        keySquareMapper[pos].piece.piece_name.toLowerCase().includes(opponentColor) &&
+        keySquareMapper[pos].piece.move;
     }
-    if (isValidEnPassant(leftPos)){
-        //console.log(`${leftPos[0]}${Number(leftPos[1]) + num}`)
+    if (isValidEnPassant(leftPos))
         return `${leftPos[0]}${Number(leftPos[1]) + num}`;
-    }
-    if (isValidEnPassant(rightPos)){
-        //console.log(`${rightPos[0]}${Number(rightPos[1]) + num}`)
+    if (isValidEnPassant(rightPos))
         return `${rightPos[0]}${Number(rightPos[1]) + num}`;
-    }
-    //console.log("en checkEnPassant devuelve falso")
     return false;
 }
 
@@ -317,7 +307,6 @@ function pawnMovesOptions(piece, unusedFunc = null, color) {
         highlightSquareIds = [`${curr_pos[0]}${Number(curr_pos[1]) + direction}`,];
         let enPassant = "";
         if (enPassant = checkEnPassant(curr_pos, color, direction)) {
-            //isClick false no highlitees
             highlightSquareIds.push(enPassant);
         }
     }
@@ -344,80 +333,31 @@ function isPathSafeForCastling(kingPath, color) {
     return kingPath.every(square => !opponentMoves.has(square));
 }  
 
-
 /*this function check whether all castling conditions are true, and the push that possible move
  * to array tha contains all the moves that a king can make.*/
-// function castlingCheck(piece, color, res) {
-//     // if (!piece.piece_name.includes("KING")) return ;
-//     // const moveLogger = localStorage.getItem('chessMoves');
-//     if (piece.piece_name.includes("KING") && !piece.move) {
-//         const rook1 = globalPiece[`${color}_rook_1`];
-//         const rook2 = globalPiece[`${color}_rook_2`];
-
-//         if (!rook1.move) {
-//             const b = keySquareMapper[`${color === "white" ? 'b1' : 'b8'}`];
-//             const c = keySquareMapper[`${color === "white" ? 'c1' : 'c8'}`];
-//             const d = keySquareMapper[`${color === "white" ? 'd1' : 'd8'}`];
-//             const kingPath = [`${color === "white" ? 'e1' : 'e8'}`, `${color === "white" ? 'd1' : 'd8'}`, `${color === "white" ? 'c1' : 'c8'}`];
-            
-//             if (!b.piece && !c.piece && !d.piece && isPathSafeForCastling(kingPath, color))
-//                 res.push(`${color === "white" ? 'c1' : 'c8'}`);
-//         }
-//         if (!rook2.move) {
-//             const f = keySquareMapper[`${color === "white" ? 'f1' : 'f8'}`];
-//             const g = keySquareMapper[`${color === "white" ? 'g1' : 'g8'}`];
-//             const kingPath = [`${color === "white" ? 'e1' : 'e8'}`, `${color === "white" ? 'f1' : 'f8'}`, `${color === "white" ? 'g1' : 'g8'}`];
-            
-//             if (!f.piece && !g.piece && isPathSafeForCastling(kingPath, color))
-//                 res.push(`${color === "white" ? 'g1' : 'g8'}`);
-//         }
-//     }
-// }
-
 function castlingCheck(piece, color, res) {
-    if (!piece.piece_name.includes("KING")) return ;
-    const row = color === "white" ? '1' : '8';
-    const possibleKing = keySquareMapper[`e${row}`];
-    const moveLogger = JSON.parse(sessionStorage.getItem('chessMoves'));
-    if (hasPieceMoved(possibleKing, `${color}_king`, moveLogger)) return ;
-    const possibleRook1 = keySquareMapper[`a${row}`];
-    const possibleRook2 = keySquareMapper[`h${row}`];
+    if (piece.piece_name.includes("KING") && !piece.move) {
+        const rook1 = globalPiece[`${color}_rook_1`];
+        const rook2 = globalPiece[`${color}_rook_2`];
 
-    if (!hasPieceMoved(possibleRook1, `${color}_rook`, moveLogger)) {
-        const b = keySquareMapper[`b${row}`];
-        const c = keySquareMapper[`c${row}`];
-        const d = keySquareMapper[`d${row}`];
-        const kingPath = [`e${row}`, `d${row}`, `c${row}`];
-        
-        if (!b.piece && !c.piece && !d.piece && isPathSafeForCastling(kingPath, color))
-            res.push(`${color === "white" ? 'c1' : 'c8'}`);
-    }
-    if (!hasPieceMoved(possibleRook2, `${color}_rook`, moveLogger)) {
-        const f = keySquareMapper[`f${row}`];
-        const g = keySquareMapper[`g${row}`];
-        const kingPath = [`e${row}`, `f${row}`, `g${row}`];
-        
-        if (!f.piece && !g.piece && isPathSafeForCastling(kingPath, color))
-            res.push(`g${row}`);
-    }
-
-}
-
-function hasPieceMoved(square, pieceName, moveLogger) {
-    if (!square.piece || !square.piece.piece_name || !square.piece.piece_name.includes(pieceName.toUpperCase())) {
-        console.log(`${pieceName} is not the expected piece`);
-        return true;
-    }
-    for (const move of moveLogger) {
-        // console.log("move : ", move);
-        if (move.notation.includes(square.id)) {
-            console.log(`${pieceName} has already moved`);
-            return true;
+        if (!rook1.move) {
+            const b = keySquareMapper[`${color === "white" ? 'b1' : 'b8'}`];
+            const c = keySquareMapper[`${color === "white" ? 'c1' : 'c8'}`];
+            const d = keySquareMapper[`${color === "white" ? 'd1' : 'd8'}`];
+            const kingPath = [`${color === "white" ? 'e1' : 'e8'}`, `${color === "white" ? 'd1' : 'd8'}`, `${color === "white" ? 'c1' : 'c8'}`];
+            
+            if (!b.piece && !c.piece && !d.piece && isPathSafeForCastling(kingPath, color))
+                res.push(`${color === "white" ? 'c1' : 'c8'}`);
+        }
+        if (!rook2.move) {
+            const f = keySquareMapper[`${color === "white" ? 'f1' : 'f8'}`];
+            const g = keySquareMapper[`${color === "white" ? 'g1' : 'g8'}`];
+            const kingPath = [`${color === "white" ? 'e1' : 'e8'}`, `${color === "white" ? 'f1' : 'f8'}`, `${color === "white" ? 'g1' : 'g8'}`];
+            
+            if (!f.piece && !g.piece && isPathSafeForCastling(kingPath, color))
+                res.push(`${color === "white" ? 'g1' : 'g8'}`);
         }
     }
-    
-    console.log(`${pieceName} hasn't moved! :D`);
-    return false;
 }
 
 function markCaptureMoves(allMoves, color) {

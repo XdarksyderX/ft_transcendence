@@ -1,10 +1,11 @@
 import * as piece from "../Data/pieces.js";
-import { globalState, highlightColor, keySquareMapper, gameMode } from "../index.js";
+import { globalState, highlightColor, keySquareMapper } from "../index.js";
 import { getChess960Piece } from "../Variants/chess960.js";
 import { renderHordePieces } from "../Variants/horde.js";
 import { initGame } from "../Data/data.js";
 
 const globalPiece = new Object();
+const chessVariantTmp = sessionStorage.getItem('chessVariant'); //borrar -> solucion temporal para asegurar la persistencia de la variable hasta que tengamos backend
 
 /**
  * funciton globlaStateRender is usefull to render pieces from globalStateData,
@@ -43,7 +44,7 @@ function selfHighlight(piece){
  * representing the piece to the square's HTML element.
  * @param {*} data data 2D array representing the chessboard
  */
-export function pieceRender(data)
+function pieceRender(data)
 {
   data.forEach(row => {
     row.forEach(square => {
@@ -108,12 +109,12 @@ const piecePositions = {
  * representing the piece to the square's HTML element.
  * @param {*} data a 2D array representing the chessboard, where each element is a row of squares.
  */
-function initGameRender(data, piecePositiont, inTurn)
+function initGameRender(data, piecePositions, detail)
 {
   globalPiece.black_pawns = [];
   globalPiece.white_pawns = [];
 
-  if (gameMode === "960")
+  if (detail.gameMode === "960")
     getChess960Piece();
 
   document.getElementById('root').innerHTML = '';
@@ -124,14 +125,15 @@ function initGameRender(data, piecePositiont, inTurn)
       squareDiv.id = square.id;
       squareDiv.classList.add(square.color, "square");
       
-      assignSpecificPiece(square, piecePositiont);
+      assignSpecificPiece(square, piecePositions);
       rowEl.appendChild(squareDiv);
       });
       rowEl.classList.add("squareRow");
       document.getElementById('root').appendChild(rowEl);
     });
     pieceRender(data);
-    const enpassantItem = inTurn ? 'enPassantCapture' : 'enPassantTarget'
+    // migración enpassant
+    const enpassantItem = detail.inTurn ? 'enPassantCapture' : 'enPassantTarget'
     const enPassantState = JSON.parse(localStorage.getItem(enpassantItem));
     if (enPassantState) {
       const { position, move } = enPassantState;
@@ -139,43 +141,51 @@ function initGameRender(data, piecePositiont, inTurn)
           keySquareMapper[position].piece.move = move;
       }
     }
-  }
+}
 
-  function assignSpecificPiece(square, piecePositiont) {
-    if (!piecePositiont[square.id]) {
-      square.piece = null;
-      return;
+function assignSpecificPiece(square, piecePositions) {
+  if (!piecePositions[square.id]) {
+    square.piece = null;
+    return;
+  }
+  const fullName = piecePositions[square.id].name;
+  const color = fullName.startsWith("black") ? "black" : "white";
+  const pieceType = fullName.replace(color, '').toLowerCase();
+  
+  if (pieceType === 'rook' || pieceType === 'knight' || pieceType === 'bishop'){
+    square.piece = piecePositions[square.id](square.id)
+    assignRepeatedPiece(square, color, pieceType);
+  }
+  else if (pieceType == 'pawn') {
+    if (color == "black"){
+      square.piece = piece.blackPawn(square.id);
+      globalPiece.black_pawns.push(square.piece);
     }
-    const fullName = piecePositiont[square.id].name;
-    const color = fullName.startsWith("black") ? "black" : "white";
-    const pieceType = fullName.replace(color, '').toLowerCase();
-    
-    if (pieceType === 'rook' || pieceType === 'knight' || pieceType === 'bishop'){
-      square.piece = piecePositiont[square.id](square.id)
-      assignRepeatedPiece(square, color, pieceType);
+    else {
+      square.piece = piece.whitePawn(square.id);
+      globalPiece.white_pawns.push(square.piece);
     }
-    else if (pieceType == 'pawn') {
-      if (color == "black"){
-        square.piece = piece.blackPawn(square.id);
-        globalPiece.black_pawns.push(square.piece);
-      }
-      else {
-        square.piece = piece.whitePawn(square.id);
-        globalPiece.white_pawns.push(square.piece);
-      }
-    }
-    else if (pieceType == 'king' || pieceType == 'queen'){
-      square.piece = piecePositiont[square.id](square.id)
-      globalPiece[`${color}_${pieceType}`] = square.piece;
-    }
+  }
+  else if (pieceType == 'king' || pieceType == 'queen'){
+    square.piece = piecePositions[square.id](square.id)
+    globalPiece[`${color}_${pieceType}`] = square.piece;
+  }
 }
 
 function assignRepeatedPiece(square, color, pieceType) {
-  let i = 1;
-  while (globalPiece[`${color}_${pieceType}_${i}`]) {
-    i++;
-  }
-  globalPiece[`${color}_${pieceType}_${i}`] = square.piece;
+  if (globalPiece[`${color}_${pieceType}_1`])
+    globalPiece[`${color}_${pieceType}_2`] = square.piece;
+  else
+    globalPiece[`${color}_${pieceType}_1`] = square.piece;
+}
+
+
+// render highlight circle
+function renderHighlight(squareId) {
+  const highlightSpan = document.createElement("span");
+  highlightSpan.classList.add("highlight");
+  highlightSpan.style.backgroundColor = highlightColor; // Aplicar el color de highlight
+  document.getElementById(squareId).appendChild(highlightSpan);
 }
 
 // clear all hightlight from the board
@@ -201,101 +211,16 @@ function circleHighlightRender(highlightSquareIds, keySquareMapper) {
   highlightSquareIds.forEach(highlight => {
     const element = keySquareMapper[highlight];
     element.highlight = true;
-  });
-}
 
-function convertToPiecePositions(boardMap) {
-  const piecePositionsTmp = {};
-
-
-  Object.keys(boardMap).forEach(key => {
-    const square = boardMap[key];
-    if (!square) {
-      piecePositionsTmp[key] = null;
-    } else {
-      const pieceType = square.type.toLowerCase();
-      const pieceColor = square.color === "white" ? "white" : "black";
-      const pieceKey = `${pieceColor}${pieceType.charAt(0).toUpperCase() + pieceType.slice(1)}`;
-      piecePositionsTmp[key] = piece[pieceKey];
+    // create and add the element .highlight if doesn't exist
+    let highlightSpan = document.getElementById(highlight).querySelector('.highlight');
+    if (!highlightSpan) {
+      highlightSpan = document.createElement("span");
+      highlightSpan.classList.add("highlight");
+      document.getElementById(highlight).appendChild(highlightSpan);
     }
+    highlightSpan.style.backgroundColor = highlightColor;
   });
-  console.log("piecePositions: ", piecePositionsTmp);
-  return piecePositionsTmp;
 }
 
-function getPlayerNameByColor(color, whoIsWho) {
-  for (const [player, playerColor] of Object.entries(whoIsWho)) {
-      if (playerColor === color) {
-          return player;
-      }
-  }
-  return null; // Return null if no player is found with the given color
-}
-
-function renderPlayers(whoIswho) {
-  const whitePlayer = getPlayerNameByColor("white", whoIswho);
-  const blackPlayer = getPlayerNameByColor("black", whoIswho);
-
-  console.log("rendeirng players");
-  const container = document.getElementById('players-container');
-  container.innerHTML = `
-  <div id="white-turn" class="col d-flex align-items-center justify-content-start chess-turn white-turn inturn me-2">
-        <p class="score ctm-bg-dark m-0">
-          <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" width="32" height="32">
-            <path fill="var(--light)" d="
-              M256 40c-44.2 0-80 35.8-80 80 0 28.1 14.4 52.9 36.2 67.8-39 11.4-68.2 
-              47.7-68.2 90.2v8h224v-8c0-42.5-29.1-78.8-68.2-90.2 
-              21.8-14.9 36.2-39.7 36.2-67.8 0-44.2-35.8-80-80-80z
-              M128 320h256c49.8 21.9 84.8 71.4 84.8 128v24H43.2v-24
-              c0-56.6 35-106.1 84.8-128z
-            "/>
-          </svg>
-        </p>
-        <div id="white-player" class="ms-2">${whitePlayer}</div>
-      </div>
-      <div id="black-turn" class="col d-flex align-items-center justify-content-end chess-turn black-turn ms-auto">
-        <div id="black-player" class="ctm-text-light me-2">${blackPlayer}</div>
-        <p class="score m-0 ctm-bg-light">
-          <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" width="32" height="32">
-            <path fill="var(--dark)" d="
-              M256 40c-44.2 0-80 35.8-80 80 0 28.1 14.4 52.9 36.2 67.8-39 11.4-68.2 
-              47.7-68.2 90.2v8h224v-8c0-42.5-29.1-78.8-68.2-90.2 
-              21.8-14.9 36.2-39.7 36.2-67.8 0-44.2-35.8-80-80-80z
-              M128 320h256c49.8 21.9 84.8 71.4 84.8 128v24H43.2v-24
-              c0-56.6 35-106.1 84.8-128z
-            "/>
-          </svg>
-        </p>
-      </div>
-  `
-}
-
-function toggleTurn(inTurn) {
-  const notInTurn = inTurn == 'white' ? 'black' : 'white';
-//  console.log("inTurn: ", inTurn, notInTurn);
-  const inTurnElement = document.getElementById(`${inTurn}-turn`);
-  inTurnElement?.classList.add('inturn');
-  const notInTurnElement = document.getElementById(`${notInTurn}-turn`);
-  notInTurnElement?.classList.remove('inturn');
-}
-
-// function toggleTurn(inTurn) {
-//     const whiteTurnElement = document.getElementById('white-turn');
-//     const blackTurnElement = document.getElementById('black-turn');
-
-//     console.log("toggliung turrnnr")
-//     if (whiteTurnElement) {
-//         whiteTurnElement.classList.remove('inturn');
-//     }
-//     if (blackTurnElement) {
-//       console.log("eee")
-//         blackTurnElement.classList.remove('inturn');
-//     }
-
-//     const currentTurnElement = document.querySelector(`.${inTurn}-turn`);
-//     if (currentTurnElement) {
-//         currentTurnElement.classList.add('inturn');
-//     }
-// }
-
-export { initGameRender, clearHighlight, selfHighlight, globalStateRender, globalPiece, circleHighlightRender, piecePositions, convertToPiecePositions, renderPlayers, toggleTurn };
+export { initGameRender, renderHighlight, clearHighlight, selfHighlight, globalStateRender, globalPiece, circleHighlightRender, piecePositions };

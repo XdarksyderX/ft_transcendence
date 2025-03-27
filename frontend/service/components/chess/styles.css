@@ -31,21 +31,6 @@
 /*   justify-content: center;
   align-items: center; */
 }
-/* .promotion-choice {
-  background: none !important;
-  margin-bottom: 15px;
-  } */
-  
-  .dancing-bot {
-    position: relative;
-    max-height: 150px;
-    background-color: var(--transparent-dark);
-    display: flex;
-    flex-direction: column;
-} 
-.dancing-bot:hover {
-  border: none !important;
-}
 
 .white{
   background-color: #84cca3;
@@ -126,7 +111,7 @@
   border-bottom: 1px solid var(--light);
 }
 
-.promotion-choice{
+.chess-modal img{
   box-sizing: border-box;
   width: 20%;
   height: auto;
@@ -143,7 +128,11 @@
 }
  */
 
-
+.chess-modal .tv img { /* fully provisional */
+  background: none !important;
+  transform: scale(350%);
+  margin-bottom: 15px;
+}
 
 @keyframes darker {
   0% {
@@ -154,7 +143,7 @@
   }
 }
 
-.promotion-choice:hover {
+.chess-modal img:hover {
   border: 5px solid var(--light);
   background: linear-gradient(to bottom, var(--darkish), var(--dark));
   border-radius: 5px;
@@ -173,13 +162,13 @@
 
 /* Media queries para ajustar el tamaño de las imágenes en pantallas más pequeñas */
 @media (max-width: 768px) {
-  .promotion-choice {
+  .chess-modal img {
     width: 45%;
   }
 }
 
 @media (max-width: 480px) {
-  .promotion-choice {
+  .chess-modal img {
     width: 90%;
   }
 }
@@ -307,48 +296,13 @@
 }
 
 
-#board-container {
+#chess-container {
   /* background-color: var(--dark); */
   background: linear-gradient(225deg, var(--dark), var(--darkish));
   box-shadow: 0 0 10px #00F56A, 0 0 10px #00F56A, 0 0 10px #00f56a79, 0 0 40px #00F56Acc;
   color: var(--light);
   border-radius: 5px;
 }
-
-
-.chess-turn {
-  border: 1px solid var(--light);
-  color: var(--light);
-  border-radius: 5px;
-  padding: 0.6rem;
-}
-.chess-turn.inturn {
-  border: 1px solid var(--accent);
-  box-shadow: 0 0 3px #00F56A, 0 0 10px #00F56Acc;
-  animation: light-blink 1s infinite;
-  
-}
-@keyframes light-blink {
-	0%, 100% {
-	box-shadow: 0 0 10px var(--light);
-	}
-	50% {
-	box-shadow: 0 0 5px transparent;
-	}
-}
-
-.chess-turn.white-turn.inturn {
-  border: 1px solid var(--accent);
-  background-color: var(--light);
-  color: var(--dark);
-}
-
-.chess-turn.black-turn.inturn {
-  border: 1px solid var(--accent);
-  background-color: var(--dark);
-  /* color: var(--dark); */
-}
-
 
 .empty-tile {
   width: 40px;
@@ -455,10 +409,10 @@
 }
 
 
-select {
-  background-color: var(--darkish) !important;
-  color: var(--light) !important;
-  border: 1px solid var(--light) !important;
+.option select {
+  background-color: var(--darkish);
+  color: var(--light);
+  border: 1px solid var(--light);
   border-radius: 5px;
   padding: 3px;
 }

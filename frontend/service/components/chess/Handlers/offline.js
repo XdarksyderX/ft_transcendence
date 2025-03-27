@@ -1,8 +1,9 @@
-import * as piece from "./Data/pieces.js";
-import { globalState, highlightColor } from "./index.js";
-import { getChess960Piece } from "./Variants/chess960.js";
-import { renderHordePieces } from "./Variants/horde.js";
-import { renderPlayers, globalPiece, pieceRender, convertToPiecePositions, initGameRender } from "./Render/main.js";
+import * as piece from "../Data/pieces.js";
+import { globalState, highlightColor, updateInTurn } from "../index.js";
+import { getChess960Piece } from "../Variants/chess960.js";
+import { renderHordePieces } from "../Variants/horde.js";
+import { initGameRender } from "../Render/main.js";
+import { convertToPiecePositions } from "./online.js";
 
 
 
@@ -95,14 +96,22 @@ import { renderPlayers, globalPiece, pieceRender, convertToPiecePositions, initG
 /// versión 2 porque va igual de mal pero es más pro :c
 
 
-export function initOfflineChess() {
-    let whoIsWho = {};
-    whoIsWho['player1'] = "white";
-    whoIsWho['player2'] = "black";
+const matchDetail = {
+	gameMode: 'classic', // migración
+	inTurn: true // initGameRenders needs a boolean
+}
+
+function initOfflineChess() {
+
+	console.log("initializing offline chess");
+    const whoIsWho = {
+        player1: 'white',
+        player2: 'black'
+    }
     const piecePositions = convertToPiecePositions(getBoard());
-    console.log("piecePositions: ", piecePositions)
-    renderPlayers(whoIsWho);
-    initGameRender(globalState, piecePositions, 'white');
+//    renderPlayers(whoIsWho); migración
+    initGameRender(globalState, piecePositions, matchDetail);
+    updateInTurn('white');
 
 }
 
@@ -145,3 +154,5 @@ function getBoard() {
 
     return board;
 }
+
+export { initOfflineChess }
