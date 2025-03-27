@@ -306,9 +306,13 @@ function checkEnPassant(curr_pos, color, num) {
 function pawnMovesOptions(piece, unusedFunc = null, color) {
     // debugger
     let highlightSquareIds = null;
+    //if (!piece || !piece.current_pos) return null; // pdte ver con marina
     const curr_pos = piece.current_pos;
     const row = color === "white" ? "2" : "7";
     const direction = color === "white" ? 1 : -1;
+    if (!curr_pos) {
+        console.log("on PawnMovesOptions: ", piece);
+    }
     if (curr_pos[1] == row) {
         highlightSquareIds = [
             `${curr_pos[0]}${Number(curr_pos[1]) + direction}`,
@@ -348,32 +352,6 @@ function isPathSafeForCastling(kingPath, color) {
 
 /*this function check whether all castling conditions are true, and the push that possible move
  * to array tha contains all the moves that a king can make.*/
-// function castlingCheck(piece, color, res) {
-//     // if (!piece.piece_name.includes("KING")) return ;
-//     // const moveLogger = localStorage.getItem('chessMoves');
-//     if (piece.piece_name.includes("KING") && !piece.move) {
-//         const rook1 = globalPiece[`${color}_rook_1`];
-//         const rook2 = globalPiece[`${color}_rook_2`];
-
-//         if (!rook1.move) {
-//             const b = keySquareMapper[`${color === "white" ? 'b1' : 'b8'}`];
-//             const c = keySquareMapper[`${color === "white" ? 'c1' : 'c8'}`];
-//             const d = keySquareMapper[`${color === "white" ? 'd1' : 'd8'}`];
-//             const kingPath = [`${color === "white" ? 'e1' : 'e8'}`, `${color === "white" ? 'd1' : 'd8'}`, `${color === "white" ? 'c1' : 'c8'}`];
-            
-//             if (!b.piece && !c.piece && !d.piece && isPathSafeForCastling(kingPath, color))
-//                 res.push(`${color === "white" ? 'c1' : 'c8'}`);
-//         }
-//         if (!rook2.move) {
-//             const f = keySquareMapper[`${color === "white" ? 'f1' : 'f8'}`];
-//             const g = keySquareMapper[`${color === "white" ? 'g1' : 'g8'}`];
-//             const kingPath = [`${color === "white" ? 'e1' : 'e8'}`, `${color === "white" ? 'f1' : 'f8'}`, `${color === "white" ? 'g1' : 'g8'}`];
-            
-//             if (!f.piece && !g.piece && isPathSafeForCastling(kingPath, color))
-//                 res.push(`${color === "white" ? 'g1' : 'g8'}`);
-//         }
-//     }
-// }
 
 function castlingCheck(piece, color, res) {
     if (!piece.piece_name.includes("KING")) return ;
