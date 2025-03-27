@@ -301,38 +301,40 @@ function moveElement(piece, id, castle) {
     makeEnPassant(piece, id);
 
   updateGlobalState(piece, id);
+  console.log("globalState after making move: ", globalState.flat());
   clearHighlight();
   updatePiecePosition(piece, id);
 
-  if (inTurn == getUserColor(getUsername()))
+  if (!chessSocket || inTurn == getUserColor(getUsername()))
     moveSound.play();
-  checkForCheck();
-  if (!chessSocket) {
-    if (gameMode === "horde" && inTurn === "black") {
-      winBool = checkWinForBlackHorde();
-    } else {
-      // should we check for checkmate here?
-    }
-    if (winBool) {
-      setTimeout(() => { winGame(winBool); }, 50);
-      return;
-    }
-  }
   
-
+  
   if (pawnPromotionBool)
     pawnPromotion(inTurn, callbackPiece, id);
-
+  
   logMoves({from: piece.current_pos, to: id, piece:piece.piece_name}, inTurn, piece, castlingType);
   if (!castle)
     changeTurn();
   if (!isClickBool && capturedPiece) {
     if (gameMode === "bomb")
       removeSurroundingPieces(id);
-
+    
     if (gameMode === "kirby") {
       const square = keySquareMapper[piece.current_pos];
       kirbyTransformation(square, capturedPiece);
+    }
+  }
+  //checkForCheck(); // pdte preguntar a marina
+
+  if (!chessSocket) {
+    if (gameMode === "horde" && inTurn === "black") {
+      winBool = checkWinForBlackHorde();
+    } else {
+      winBool = checkForCheckmate();
+    }
+    if (winBool) {
+      setTimeout(() => { winGame(winBool); }, 50);
+      return;
     }
   }
 }
@@ -371,6 +373,7 @@ function checkForCheck() {
   }
 
   whoInCheck = null;
+
   const kingPosition = inTurn === "white" ? globalPiece.white_king.current_pos : globalPiece.black_king.current_pos;
   const enemyColor = inTurn === "white" ? "black" : "white";
   const enemyPieces = Object.values(globalPiece).flat().filter(piece => piece && piece.piece_name && piece.piece_name.includes(enemyColor.toUpperCase()));
@@ -404,7 +407,68 @@ function checkForCheck() {
   const checkOrNot = finalListCheck.find((element) => element === kingPosition);
   if (checkOrNot)
     whoInCheck = inTurn;
-}  
+} 
+
+
+function checkForCheckmate() {
+  console.log("Checking for checkmate...");
+  checkForCheck();
+  if (!whoInCheck) {
+    console.log("No check detected. Not a checkmate.");
+    return false; // If not in check, it's not checkmate
+  }
+
+  console.log(`${inTurn} is in check. Checking for possible moves to escape...`);
+  const currentColor = inTurn; // The color of the player in turn
+  const allPieces = Object.values(globalPiece).flat().filter(piece =>
+    piece && piece.piece_name && piece.piece_name.includes(currentColor.toUpperCase())
+  );
+
+  for (let piece of allPieces) {
+    const pieceType = piece.piece_name.split('_')[1].toLowerCase();
+    const possibleMoves = getPossibleMovesForPiece(piece, pieceType, currentColor);
+
+    console.log(`Piece: ${piece.piece_name}, Position: ${piece.current_pos}, Possible Moves:`, possibleMoves);
+
+    const safeMoves = [];
+    simulateMoves(piece, possibleMoves, safeMoves, currentColor);
+    // debugger
+    if (safeMoves.length > 0) {
+      console.log(`Safe moves found for ${piece.piece_name} at ${piece.current_pos}:`, safeMoves);
+      return false; // Not checkmate
+    }
+  }
+
+  console.log("No safe moves found. Checkmate!");
+  return true;
+}
+
+function getPossibleMovesForPiece(piece, pieceType, color) {
+  switch (pieceType) {
+    case 'pawn':
+      return help.pawnMovesOptions(piece, help.pawnCaptureOptions, color);
+    case 'knight':
+      return help.knightMovesOptions(piece, help.giveKnightHighlightIds, color);
+    case 'bishop':
+      return help.getPossibleMoves(piece, help.giveBishopHighlightIds, color);
+    case 'rook':
+      return help.getPossibleMoves(piece, help.giveRookHighlightIds, color);
+    case 'queen':
+      return help.getPossibleMoves(piece, help.giveQueenHighlightIds, color);
+    case 'king':
+      return help.getPossibleMoves(
+        piece,
+        help.giveKingHighlightIds,
+        color,
+        true, // Include castling logic
+        (moves) => help.limitKingMoves(moves, color), // Limit king moves to avoid checks
+        true // Ensure king-specific rules are applied
+      );
+    default:
+      return []; // If the piece type is unknown, return an empty array
+  }
+}
+
 
 function simulateMoves(piece, possibleMoves, safeMoves, color) {
   possibleMoves.forEach(move => {
@@ -414,7 +478,6 @@ function simulateMoves(piece, possibleMoves, safeMoves, color) {
     updatePiecePosition(piece, move);
 
     checkForCheck();
-
     if (whoInCheck !== color)
       safeMoves.push(move);
 
@@ -540,6 +603,8 @@ function handlePieceClick(square, color, pieceType) {
   }
   globalStateRender();
 }
+
+
 
 //simple function that clear the yellow highlight when you click a square with a piece
 function clearPreviousSelfHighlight(piece)
