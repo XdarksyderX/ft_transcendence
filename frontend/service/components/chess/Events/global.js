@@ -1,4 +1,4 @@
-import { globalState, keySquareMapper, inTurn, updateInTurn } from "../index.js"; //import globalState object, a 2D array representing the state of the chessboard
+import { globalState, keySquareMapper, inTurn, updateInTurn, gameMode } from "../index.js"; //import globalState object, a 2D array representing the state of the chessboard
 import { clearHighlight, globalStateRender, selfHighlight, globalPiece, circleHighlightRender } from "../Render/main.js";
 import * as help from "../Helper/commonHelper.js"
 import { logMoves, appendPromotion } from "../Helper/logging.js"
@@ -21,7 +21,6 @@ let winBool = false;
 let captureNotation = false;
 
 const chessVariantTmp = sessionStorage.getItem('chessVariant'); //borrar -> solucion temporal para asegurar la persistencia de la variable hasta que tengamos backend
-let gameMode = 'classic' // migración
 const moveSound = new Audio('components/chess/Assets/music/sound2.mp3');
 
 function changeTurn() {
@@ -306,13 +305,19 @@ function moveElement(piece, id, castle) {
 
   if (inTurn == getUserColor(getUsername()))
     moveSound.play();
-
   checkForCheck();
-
-  if (winBool) {
-    // setTimeout(() => { winGame(winBool); }, 50);
-    return;
+  if (!chessSocket) {
+    if (gameMode === "horde" && inTurn === "black") {
+      winBool = checkWinForBlackHorde();
+    } else {
+      // should we check for checkmate here?
+    }
+    if (winBool) {
+      setTimeout(() => { winGame(winBool); }, 50);
+      return;
+    }
   }
+  
 
   if (pawnPromotionBool)
     pawnPromotion(inTurn, callbackPiece, id);
@@ -357,7 +362,12 @@ function captureHightlightSquare(square, piece) {
 }
 
 function checkForCheck() {
-  if (gameMode === "horde" && inTurn === "white") return null;
+  if (gameMode === "horde" && inTurn === "white") {
+    console.log("returning on checkForcheck");
+    return null;
+  } else {
+    console.log("on checkForCheck: ", gameMode, inTurn);
+  }
 
   whoInCheck = null;
   const kingPosition = inTurn === "white" ? globalPiece.white_king.current_pos : globalPiece.black_king.current_pos;

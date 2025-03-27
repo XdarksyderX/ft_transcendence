@@ -12,6 +12,7 @@ import { winGame } from "./Helper/modalCreator.js";
 import { initOnlineChess, onlineInfo } from "./Handlers/online.js";
 import { offlineInfo } from "./Handlers/offline.js";
 import { initOfflineChess } from "./Handlers/offline.js";
+import { toggleTurn } from "./Render/main.js";
 
 let globalState = initGame();
 let keySquareMapper = {};
@@ -51,19 +52,19 @@ function updateHighlightYellowColor(whiteTileColor, blackTileColor) {
     styleSheet.insertRule(blackTileRule, styleSheet.cssRules.length);
 }
 
-function provisionalModalHandle() {
+// function provisionalModalHandle() {
     
-    document.getElementById("promote-btn").addEventListener("click", () => {
-      pawnPromotion("white", (piece, id) => {
-        console.log(`Promoted to: ${piece.name} at square: ${id}`);
-      }, "e8");
-    });
+//     document.getElementById("promote-btn").addEventListener("click", () => {
+//       pawnPromotion("white", (piece, id) => {
+//         console.log(`Promoted to: ${piece.name} at square: ${id}`);
+//       }, "e8");
+//     });
 
-    document.getElementById("win-btn").addEventListener("click", () => {
-        winGame(true);
-    });
+//     document.getElementById("win-btn").addEventListener("click", () => {
+//         winGame(true);
+//     });
     
-}
+// }
 
 export async function initializeChessEvents(key) {
     const button1 = document.getElementById('button1');
@@ -89,7 +90,6 @@ export async function initializeChessEvents(key) {
         gameMode = onlineInfo.gameMode || offlineInfo.gameMode ;
     }
 
-    //migración: falta el reload move logger
     GlobalEvent();
     generateCoordinates();
     setupButtonEvents(settingsPanel, saveSettingsButton, cancelSettingsButton, pieceStyleSelect)
@@ -100,7 +100,7 @@ export async function initializeChessEvents(key) {
         }
     });
 
-    provisionalModalHandle();
+    // provisionalModalHandle();
 }
 
 function setupButtonEvents(settingsPanel, saveSettingsButton, cancelSettingsButton, pieceStyleSelect) {
@@ -246,6 +246,7 @@ function stopBackgroundMusic() {
 function updateInTurn(to) {
     console.log('updating turn to: ', to);
     inTurn = to;
+    toggleTurn(inTurn);
 }
 
 /*add a custom method to String prototipe that replace a part of an

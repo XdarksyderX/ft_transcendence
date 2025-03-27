@@ -171,7 +171,9 @@ function winGame(winBool) {
   finalContainer.appendChild(buttonContainer);
   finalContainer.classList.add("chess-modal");
   const modal = new ModalCreator(finalContainer);
-  modal.show();
+  setTimeout(() => { modal.show(); }, 500);
+
+
 }
 
 function resingOption() {

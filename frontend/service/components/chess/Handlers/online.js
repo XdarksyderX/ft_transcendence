@@ -7,6 +7,7 @@ import { initGameRender } from "../Render/main.js";
 import { moveElement } from "../Events/global.js";
 import { reloadMoveLogger } from "../Helper/logging.js";
 import { winGame } from "../Helper/modalCreator.js";
+import { renderPlayers } from "../Render/main.js";
 
 
 let onlineInfo = {
@@ -20,7 +21,7 @@ let chessSocket = null;
 
 async function initOnlineChess(key) {
     await handleGetChessMatchDetail(key);
-    //renderPlayers(whoIsWho); migración
+    renderPlayers(whoIsWho)
     initializeChessSocket(key);
 
     const data = await waitForBoardStatus();
@@ -90,7 +91,6 @@ function handleGetChessReceivedMessage(event) {
         }
         if (data?.current_player) {
 			updateInTurn(data.current_player);
-            // toggleTurn(inTurn); migración
         }
     }
     catch (e) {

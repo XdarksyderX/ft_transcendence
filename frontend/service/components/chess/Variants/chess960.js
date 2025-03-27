@@ -65,4 +65,4 @@ function placePiece(positions, piece) {
     positions[pos] = piece;
 }
 
-export { generateChess960Position };
+export { generateChess960Position }

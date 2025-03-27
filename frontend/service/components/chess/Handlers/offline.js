@@ -1,9 +1,9 @@
-import * as piece from "../Data/pieces.js";
-import { globalState, highlightColor, updateInTurn } from "../index.js";
+import { globalState, updateInTurn } from "../index.js";
  import { generateHordePosition } from "../Variants/horde.js";
 import { generateChess960Position } from "../Variants/chess960.js";
 import { initGameRender } from "../Render/main.js";
 import { convertToPiecePositions } from "./online.js";
+import { renderPlayers } from "../Render/main.js";
 
 const offlineInfo = {
 	gameMode: null,
@@ -19,7 +19,7 @@ function initOfflineChess() {
     }
     offlineInfo.gameMode = 	sessionStorage.getItem('chessVariant');
     const piecePositions = convertToPiecePositions(getBoard());
-//    renderPlayers(whoIsWho); migración
+    renderPlayers(whoIsWho);
     initGameRender(globalState, piecePositions, offlineInfo);
     updateInTurn('white'); // GlobalState needs inTurn to be a string
 
