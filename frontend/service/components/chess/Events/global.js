@@ -1,4 +1,4 @@
-import { globalState, keySquareMapper, inTurn } from "../index.js"; //import globalState object, a 2D array representing the state of the chessboard
+import { globalState, keySquareMapper, inTurn, updateInTurn } from "../index.js"; //import globalState object, a 2D array representing the state of the chessboard
 import { clearHighlight, globalStateRender, selfHighlight, globalPiece, circleHighlightRender } from "../Render/main.js";
 import * as help from "../Helper/commonHelper.js"
 import { logMoves, appendPromotion } from "../Helper/logging.js"
@@ -6,7 +6,8 @@ import { pawnPromotion, winGame } from "../Helper/modalCreator.js";
 import { removeSurroundingPieces } from "../Variants/atomic.js";
 import { kirbyTransformation } from "../Variants/kirby.js";
 import { checkWinForBlackHorde, whitePawnHordeRenderMoves } from "../Variants/horde.js"
-
+import { getUserColor, chessSocket } from "../Handlers/online.js";
+import { getUsername } from "../../../app/auth.js";
 //highlighted or not => state
 let highlight_state = false;
 
@@ -15,19 +16,21 @@ let selfHighlightState = null;
 
 //in move state or not
 let moveState = null;
-//let inTurn = "white";
 let whoInCheck = null;
 let winBool = false;
 let captureNotation = false;
 
 const chessVariantTmp = sessionStorage.getItem('chessVariant'); //borrar -> solucion temporal para asegurar la persistencia de la variable hasta que tengamos backend
-
+let gameMode = 'classic' // migración
 const moveSound = new Audio('components/chess/Assets/music/sound2.mp3');
 
 function changeTurn() {
-  inTurn = inTurn === "white" ? "black" : "white";
-
-  const pawns = inTurn === "white" ? globalPiece.white_pawns : globalPiece.black_pawns;
+  if (!chessSocket) { // if we're not online, we update inTurn manually
+    const newTurn = inTurn === "white" ? "black" : "white";
+    console.log("updating OFFline turn to: ", newTurn);
+    updateInTurn(newTurn);
+  }
+  const pawns = inTurn === "white" ? globalPiece.black_pawns : globalPiece.white_pawns;
   pawns.forEach(pawn => {
     pawn.move = false;
   });
@@ -35,7 +38,7 @@ function changeTurn() {
 
 function captureInTurn(square) {
   const piece = square.piece;
-  
+  console.log('capture, variant:', gameMode);
   if (piece == selfHighlightState) {
     clearPreviousSelfHighlight(selfHighlightState);
     clearHighlightLocal();
@@ -45,11 +48,15 @@ function captureInTurn(square) {
   if (square.captureHightlight) {
     captureNotation = true
     moveElement(selfHighlightState, piece.current_pos);
-    if (chessVariantTmp === "bomb")
+    if (gameMode === "bomb"){
+      console.log("captureInTurn: Bomb: square: ", square);
       removeSurroundingPieces(square.id);
-
-    if (chessVariantTmp === "kirby")
-      kirbyTransformation(square, piece, inTurn);
+    }
+    
+    if (gameMode === "kirby"){
+      console.log("captureInTurn: Kirby: square: ", square);
+      kirbyTransformation(square, piece);
+    }
     clearPreviousSelfHighlight(selfHighlightState);
     clearHighlightLocal();
     captureNotation = false;
@@ -84,7 +91,7 @@ function checkWin(piece) {
 //this is the update for globalPiece when a pawn its promoted/demoted to other type of piece
 function globalPieceUpdate(id, realPiece) {
   const pieceType = realPiece.piece_name.split('_')[1].toLowerCase();
-  const color = inTurn === "white" ? "black" : "white";
+  const color = realPiece.piece_name.split('_')[0].toLowerCase();
   let pieceKey = `${color}_${pieceType}`;
 
   if (pieceType === "pawn") {
@@ -96,7 +103,6 @@ function globalPieceUpdate(id, realPiece) {
       pawnArray.push(realPiece);
   }
   else {
-    if (globalPiece[pieceKey]) {
       let i = 1;
       while (globalPiece[`${pieceKey}_${i}`]) {
         i++;
@@ -104,7 +110,6 @@ function globalPieceUpdate(id, realPiece) {
       pieceKey = `${pieceKey}_${i}`;
     }
     globalPiece[pieceKey] = realPiece;
-  }
 }
 
 /**
@@ -135,12 +140,11 @@ function callbackPiece(piece, id) {
   const currentSquare = keySquareMapper[id];
   const previousPiece = currentSquare.piece;
   
-  
   globalPieceUpdate(id, realPiece);
   
   piece.current_pos = id;
   currentSquare.piece = realPiece;
-  appendPromotion(inTurn, realPiece.piece_name);
+  appendPromotion(realPiece.piece_name);
   
   const image = document.createElement('img');
   image.src = realPiece.img;
@@ -245,17 +249,52 @@ function makeEnPassant(piece, id) {
   }
 }
 
+function isClick() {
+  return !(chessSocket && inTurn !== getUserColor(getUsername()));
+}
+
+
 /**
  * move a piece by the highlight posibilities.
  * @param {*} piece an object representing a game piece.
  * @param {*} id the new position id where the piece should be moved.
  * @param {boolean} castle Indicates if the move is a castling move.
  */
+
+//si el mov es por socket lo importante es llamar a moveElement y el unico problema es la promocion de peones
+
 function moveElement(piece, id, castle) {
   if (!piece)
     return;
-
+  
+  const isClickBool = isClick()
   const pawnPromotionBool = checkForPawnPromotion(piece, id);
+  let capturedPiece = null;
+
+  if (isClickBool) {
+    if (chessSocket) {
+
+      const data = {
+        action: "move",
+        from: piece.current_pos,
+        to: id
+      } 
+      chessSocket.send(JSON.stringify(data));
+      console.log("Sending data through WebSocket:", data);
+    }
+    if (piece.piece_name.includes("PAWN") && (Math.abs(id[1] - piece.current_pos[1]) === 2 )) {
+      piece.move = true;
+      sessionStorage.setItem("enPassantTarget", JSON.stringify({ position: id, move: piece.move }));
+    } else if (sessionStorage.getItem("enPassantTarget")) {
+      sessionStorage.removeItem("enPassantTarget");
+    }
+  } else {
+    const capturedSquare = keySquareMapper[id];
+    if (capturedSquare.piece) {
+      capturedPiece = capturedSquare.piece;
+    }
+  }
+
   let castlingType = moveTwoCastlingPieces(piece, id);
   const direction = piece.piece_name.includes("PAWN") ? (inTurn === "white" ? 1 : -1) : null;
   if (help.checkEnPassant(piece.current_pos, inTurn, direction))
@@ -265,27 +304,31 @@ function moveElement(piece, id, castle) {
   clearHighlight();
   updatePiecePosition(piece, id);
 
-  moveSound.play();
+  if (inTurn == getUserColor(getUsername()))
+    moveSound.play();
 
   checkForCheck();
-  
-  if (chessVariantTmp === "horde" && inTurn === "black") {
-    winBool = checkWinForBlackHorde();
-  }
 
   if (winBool) {
-    setTimeout(() => { winGame(winBool); }, 50);
+    // setTimeout(() => { winGame(winBool); }, 50);
     return;
   }
-  
+
   if (pawnPromotionBool)
     pawnPromotion(inTurn, callbackPiece, id);
 
   logMoves({from: piece.current_pos, to: id, piece:piece.piece_name}, inTurn, piece, castlingType);
-  
-  //para juan cuando el backend este, aqui es donde podriamos guardar en la base de datos los movimientos: keysquaremap es un objeto que tiene todo el tablero actualizado, piece.current_pos es la pos de origen, id, es la posicion de destino
   if (!castle)
     changeTurn();
+  if (!isClickBool && capturedPiece) {
+    if (gameMode === "bomb")
+      removeSurroundingPieces(id);
+
+    if (gameMode === "kirby") {
+      const square = keySquareMapper[piece.current_pos];
+      kirbyTransformation(square, capturedPiece);
+    }
+  }
 }
 
 //local function that will clear hightlight with state
@@ -314,7 +357,7 @@ function captureHightlightSquare(square, piece) {
 }
 
 function checkForCheck() {
-  if (chessVariantTmp === "horde" && inTurn === "white") return null;
+  if (gameMode === "horde" && inTurn === "white") return null;
 
   whoInCheck = null;
   const kingPosition = inTurn === "white" ? globalPiece.white_king.current_pos : globalPiece.black_king.current_pos;
@@ -462,7 +505,7 @@ function handlePieceClick(square, color, pieceType) {
 
   switch (pieceType) {
     case 'pawn':
-      if (chessVariantTmp === "horde" && inTurn === "white")
+      if (gameMode === "horde" && inTurn === "white")
         whitePawnHordeRenderMoves(piece, color, circleHighlightRender);
       else
         filterMovesForKingProtection(piece, color, help.pawnMovesOptions, help.pawnCaptureOptions, pieceType);
@@ -504,14 +547,17 @@ function clearPreviousSelfHighlight(piece)
  * callback function is executed. We check if the clicked element is an <img> tag. This ensure that the code ontly runs when
  * an image of a chess piece is clicked.
  */
+
 function GlobalEvent() {
   const root = document.getElementById('root');
-  
   root.addEventListener("click", function(event) {
-    console.log("in GlobalEvent, inTurn: ", inTurn);
+    if (chessSocket && inTurn !== getUserColor(getUsername())) { // esto iría fuera
+      console.log("oh hi :D: ", inTurn, getUserColor(getUsername()))
+      return;
+    };
     const target = event.target;
     const isPieceClick = target.localName === "img";
-    const isHighlightClick = target.localName === "span" || target.childNodes.length === 2;
+    const isHighlightClick = target.localName === "span" || target.querySelector(".highlight");
     if (isPieceClick) // '===' compares both the value and the type without converting either value as '==' do (eg: 5 == '5')
     {
       const clickId = event.target.parentNode.id; //get the id of the parent element of the child, means the square, intead of the piece
@@ -537,7 +583,7 @@ function GlobalEvent() {
 }
 
  //if the person precisely click on the round hightlight  //gets the id of the parent node of the clickd 'span'  //if the clicked element is not a span but still has exactly one child node, means the square minus the round highlight, to ensure the proper movement either way
-function handleHighlightClickEvent(target) {
+ function handleHighlightClickEvent(target) {
   clearPreviousSelfHighlight(selfHighlightState);
   const id = target.localName === "span" ? target.parentNode.id : target.id;
   if (moveState.piece_name.includes("PAWN"))
@@ -570,4 +616,4 @@ function clearYellowHighlight() {
   selfHighlightState = null;
 }
 
-export { GlobalEvent, captureNotation, clearYellowHighlight, globalPieceUpdate, callbackPiece};
+export { GlobalEvent, captureNotation, clearYellowHighlight, globalPieceUpdate, callbackPiece, moveElement };

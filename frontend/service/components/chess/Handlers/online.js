@@ -1,9 +1,11 @@
 
 import * as piece from "../Data/pieces.js";
-import { globalState, updateInTurn } from "../index.js";
+import { globalState, updateInTurn, keySquareMapper } from "../index.js";
 import { getChessMatchDetail } from "../../../app/chess.js";
 import { getUsername } from "../../../app/auth.js";
 import { initGameRender } from "../Render/main.js";
+import { moveElement } from "../Events/global.js";
+
 
 let onlineInfo = {
 	gameMode: null,
@@ -93,6 +95,20 @@ function handleGetChessReceivedMessage(event) {
     }
 }
 
+function checkPawnDoubleMoveInLastTurn(from, to) {
+    let tmp = keySquareMapper[to].piece;
+    if (tmp.piece_name.includes("PAWN")){
+        if (Math.abs(to[1] - from[1]) === 2) {
+            tmp.move = true;
+            sessionStorage.setItem("enPassantCapture", JSON.stringify({ position: to, color: tmp.color, move: tmp.move }));
+        } else {
+            tmp.move = false;
+            if (sessionStorage.getItem("enPassantCapture"))
+                sessionStorage.removeItem("enPassantCapture");
+        }
+    }
+}
+
 // gets the user's piece color
 function getUserColor(username) {
     return whoIsWho[username];
@@ -131,4 +147,4 @@ function convertToPiecePositions(boardMap) {
 	return piecePositionsTmp;
 }
 
-export {initOnlineChess, getUserColor, convertToPiecePositions, onlineInfo}
+export {initOnlineChess, getUserColor, convertToPiecePositions, onlineInfo, chessSocket}
