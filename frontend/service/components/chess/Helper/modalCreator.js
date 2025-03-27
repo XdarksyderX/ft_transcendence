@@ -1,6 +1,10 @@
 import * as pieces from "../Data/pieces.js";
-import { imgStyle } from "../index.js";
+import { imgStyle, inTurn } from "../index.js";
 import { navigateTo } from "../../../app/router.js";
+import { isClick } from "../Events/global.js";
+import { globalPiece } from "../Render/main.js";
+import { chessSocket } from "../Handlers/online.js";
+
 
 /**
  * This class  is a design pattern aimed at creating
@@ -53,24 +57,40 @@ class ModalCreator {
  * @param {function} callback - callbackPiece from global.js
  * @param {string} id - The ID of the square where the pawn promotion is happening.
  */
-function pawnPromotion(color, callback, id) {
+async function pawnPromotion(color, callback, id, pieceTo = null) {
+  //if isClick == haz todo
+  //else { sin mostrar el modal llama a callback con el piezeTo con el nombre de la pieza a la que ha promocion }
+  const isClickBool = isClick();
   const piecesMap = {
     rook: pieces[color === "white" ? "whiteRook" : "blackRook"],
     knight: pieces[color === "white" ? "whiteKnight" : "blackKnight"],
     bishop: pieces[color === "white" ? "whiteBishop" : "blackBishop"],
     queen: pieces[color === "white" ? "whiteQueen" : "blackQueen"],
   };
-
+  
   const createPieceImage = (pieceName) => {
     const img = document.createElement("img");
+    img.classList.add("promotion-choice")
     img.src = `components/chess/Assets/pieces/${imgStyle}/${color}/${pieceName}.png`;
     img.onclick = () => {
       callback(piecesMap[pieceName], id);
+      handlePromotionChoice(pieceName);
       modal.hide();
     };
     return img;
   };
-
+  
+  if (!isClickBool) {
+    console.log("calling waitForPromotionChoice function");
+    const promotionData = await waitForPromotionChoice();
+    console.log("leaving waitForPromotionChoice function");
+    console.log(promotionData);
+    const {pieceColor, pieceType, to} = promotionData;
+    callback(piecesMap[promotionData.pieceType], promotionData.to); 
+    console.log(globalPiece)
+    return;
+  }
+  
   const imageContainer = document.createElement("div");
   imageContainer.classList.add("image-container");
   ["rook", "knight", "bishop", "queen"].forEach((pieceName) => {
@@ -88,29 +108,57 @@ function pawnPromotion(color, callback, id) {
   
   const modal = new ModalCreator(finalContainer);
   modal.show();
+  console.log("pawnPromotion: globalPiece: ", globalPiece)
+}
+
+function handlePromotionChoice(pieceType) {
+  if (!chessSocket) return ;
+  const data = {
+    action: "promotion_choice",
+    piece_type: pieceType
+  };
+  try {
+    chessSocket.send(JSON.stringify(data));
+    console.log("Sending promotion choice through WebSocket:", data);
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+function waitForPromotionChoice() {
+  return new Promise((resolve, reject) => {
+    function onMessage(event) {
+      const data = JSON.parse(event.data);
+      if (data?.promotion) {
+        chessSocket.removeEventListener('message', onMessage);
+        resolve({ pieceColor: data.promotion.color, pieceType: data.promotion.piece_type, to: data.promotion.square });
+      }
+    }
+    chessSocket.addEventListener('message', onMessage);
+  });
 }
 
 function winGame(winBool) {
-  if(!winBool)
-    return;
+  // if(!winBool)
+  //   return;
   const modalBody = document.createElement("div");
   modalBody.innerHTML = `
 
     <div class="tv mx-4 position-relative mb-3">
        <p class="ctm-text-title">${winBool} Wins! </p>
-        <img src="../../resources/win.gif">
+        <img class="dancing-bot" src="../../resources/win.gif">
        </div>
        
        `;
-      //  <img src="https://media.tenor.com/3ruuMQDaetoAAAAj/rolling-rainbow-cat.gif">
 
   const homeButton = document.createElement("button");
   homeButton.textContent = "Got it!";
   homeButton.classList.add("btn");
   homeButton.classList.add("ctm-btn-secondary");
-  // homeButton.classList.add("mt-5");
   homeButton.onclick = () => {
-    //aqui guardariamos la victoria y/o derrota en el historial
+    if (chessSocket) {
+      chessSocket.close();
+    }
     navigateTo('/home');
     modal.hide();
   }
@@ -129,8 +177,16 @@ function winGame(winBool) {
 function resingOption() {
   const resignButton = document.getElementById("resign-button");
   resignButton.onclick = () => {
-    //aqui guardariamos la victoria y/o derrota en el historial
-    navigateTo('/home');
+    
+    if (chessSocket && chessSocket.readyState === WebSocket.OPEN) {
+      const data = { action: "resign" };
+      console.log("Attempting to send data through WebSocket:", data);
+      chessSocket.send(JSON.stringify(data));
+      console.log("Sending data through WebSocket:", data);
+    } else if (!chessSocket) {
+        const winner = inTurn === 'white' ? 'black' : 'white';
+        winGame(winner);
+    }
   }
 }
 

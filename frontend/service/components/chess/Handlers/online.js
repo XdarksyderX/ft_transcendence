@@ -5,6 +5,8 @@ import { getChessMatchDetail } from "../../../app/chess.js";
 import { getUsername } from "../../../app/auth.js";
 import { initGameRender } from "../Render/main.js";
 import { moveElement } from "../Events/global.js";
+import { reloadMoveLogger } from "../Helper/logging.js";
+import { winGame } from "../Helper/modalCreator.js";
 
 
 let onlineInfo = {
@@ -25,7 +27,8 @@ async function initOnlineChess(key) {
     const piecePositions = convertToPiecePositions(data.board);
 	onlineInfo.isInTurn = getUserColor(getUsername()) === data.current_player;
 
-    initGameRender(globalState, piecePositions, onlineInfo);    
+    initGameRender(globalState, piecePositions, onlineInfo);
+	reloadMoveLogger();
 }
 
 
