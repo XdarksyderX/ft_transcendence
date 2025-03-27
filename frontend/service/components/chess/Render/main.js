@@ -1,7 +1,7 @@
 import * as piece from "../Data/pieces.js";
 import { globalState, highlightColor, keySquareMapper } from "../index.js";
-import { getChess960Piece } from "../Variants/chess960.js";
-import { renderHordePieces } from "../Variants/horde.js";
+// import { getChess960Piece } from "../Variants/chess960.js";
+// import { renderHordePieces } from "../Variants/horde.js";
 import { initGame } from "../Data/data.js";
 
 const globalPiece = new Object();
@@ -114,8 +114,8 @@ function initGameRender(data, piecePositions, detail)
   globalPiece.black_pawns = [];
   globalPiece.white_pawns = [];
 
-  if (detail.gameMode === "960")
-    getChess960Piece();
+  // if (detail.gameMode === "960")
+  //   getChess960Piece();
 
   document.getElementById('root').innerHTML = '';
   data.forEach(element => {

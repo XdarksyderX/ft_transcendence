@@ -10,6 +10,7 @@ import { resingOption } from "./Helper/modalCreator.js";
 import { pawnPromotion } from "./Helper/modalCreator.js"; // fully provisional
 import { winGame } from "./Helper/modalCreator.js";
 import { initOnlineChess, onlineInfo } from "./Handlers/online.js";
+import { offlineInfo } from "./Handlers/offline.js";
 import { initOfflineChess } from "./Handlers/offline.js";
 
 let globalState = initGame();
@@ -75,18 +76,17 @@ export async function initializeChessEvents(key) {
     if (key) {
         await initOnlineChess(key);
         // inTurn = onlineInfo.inTurn;
-        gameMode = onlineInfo.gameMode;
     } else {
         let res = await getChessPendingMatches();
         if (res.status === "success" && res.match) {
             key = res?.match?.game_key;
             await initOnlineChess(key);
             // inTurn = onlineInfo.inTurn;
-            gameMode = onlineInfo.gameMode;
         } else {
             initOfflineChess();
-
+            
         }
+        gameMode = onlineInfo.gameMode || offlineInfo.gameMode ;
     }
 
     //migración: falta el reload move logger
