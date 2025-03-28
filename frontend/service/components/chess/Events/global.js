@@ -294,7 +294,7 @@ function moveElement(piece, id, castle) {
   //checkForCheck(); // pdte preguntar a marina
 
   if (!chessSocket) {
-    if (gameMode === "horde" && inTurn === "black") {
+    if (gameMode === "horde" && inTurn === "white") { // white because the turn has already changed
       winBool = checkWinForBlackHorde();
     } else {
       winBool = checkForCheckmate();

@@ -36,7 +36,7 @@ function getAllAffectedPieces(pos) {
   
 function removeSurroundingPieces(pos) {
     const affectedPieces = getAllAffectedPieces(pos);
-    let kingHasDied = false; // Flag to check if the king has been removed
+    let kingHasDied = false;
 
     affectedPieces.forEach(element => {
         const opSquare = keySquareMapper[element];
@@ -60,7 +60,9 @@ function removeSurroundingPieces(pos) {
         }, 1000);
     });
     if (kingHasDied) {
-        setTimeout(() => { winGame(inTurn); }, 50);
+        const winner = inTurn === 'white' ? 'black' : 'white';
+        console.log(`not to be dramatic but ${inTurn} king has exploded`);
+        setTimeout(() => { winGame(winner); }, 50);
     }
 }
 
