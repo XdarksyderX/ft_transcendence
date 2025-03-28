@@ -181,13 +181,13 @@ function assignRepeatedPiece(square, color, pieceType) {
 }
 
 
-// render highlight circle
-function renderHighlight(squareId) {
-  const highlightSpan = document.createElement("span");
-  highlightSpan.classList.add("highlight");
-  highlightSpan.style.backgroundColor = highlightColor; // Aplicar el color de highlight
-  document.getElementById(squareId).appendChild(highlightSpan);
-}
+// // render highlight circle
+// function renderHighlight(squareId) {
+//   const highlightSpan = document.createElement("span");
+//   highlightSpan.classList.add("highlight");
+//   highlightSpan.style.backgroundColor = highlightColor; // Aplicar el color de highlight
+//   document.getElementById(squareId).appendChild(highlightSpan);
+// }
 
 // clear all hightlight from the board
 function clearHighlight() {
@@ -214,13 +214,13 @@ function circleHighlightRender(highlightSquareIds, keySquareMapper) {
     element.highlight = true;
 
     // create and add the element .highlight if doesn't exist
-    let highlightSpan = document.getElementById(highlight).querySelector('.highlight');
-    if (!highlightSpan) {
-      highlightSpan = document.createElement("span");
-      highlightSpan.classList.add("highlight");
-      document.getElementById(highlight).appendChild(highlightSpan);
-    }
-    highlightSpan.style.backgroundColor = highlightColor;
+    // let highlightSpan = document.getElementById(highlight).querySelector('.highlight');
+    // if (!highlightSpan) {
+    //   highlightSpan = document.createElement("span");
+    //   highlightSpan.classList.add("highlight");
+    //   document.getElementById(highlight).appendChild(highlightSpan);
+    // }
+    // highlightSpan.style.backgroundColor = highlightColor;
   });
 }
 
@@ -279,4 +279,4 @@ function toggleTurn(inTurn) {
   notInTurnElement?.classList.remove('inturn');
 }
 
-export { initGameRender, renderHighlight, clearHighlight, selfHighlight, globalStateRender, globalPiece, circleHighlightRender, piecePositions, renderPlayers, toggleTurn };
+export { initGameRender, clearHighlight, selfHighlight, globalStateRender, globalPiece, circleHighlightRender, piecePositions, renderPlayers, toggleTurn };
