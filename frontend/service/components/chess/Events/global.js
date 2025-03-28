@@ -38,7 +38,7 @@ function changeTurn() {
 
 function captureInTurn(square) {
   const piece = square.piece;
-  console.log('capture, variant:', gameMode);
+  //console.log('capture, variant:', gameMode);
   if (piece == selfHighlightState) {
     clearPreviousSelfHighlight(selfHighlightState);
     clearHighlightLocal();
@@ -49,7 +49,7 @@ function captureInTurn(square) {
     captureNotation = true
     moveElement(selfHighlightState, piece.current_pos);
     if (gameMode === "bomb"){
-      console.log("captureInTurn: Bomb: square: ", square);
+      //console.log("captureInTurn: Bomb: square: ", square);
       winBool = removeSurroundingPieces(square.id);
       if (winBool && !chessSocket) {
         
@@ -57,7 +57,7 @@ function captureInTurn(square) {
     }
     
     if (gameMode === "kirby"){
-      console.log("captureInTurn: Kirby: square: ", square);
+      //console.log("captureInTurn: Kirby: square: ", square);
       kirbyTransformation(square, piece);
     }
     clearPreviousSelfHighlight(selfHighlightState);
@@ -247,7 +247,7 @@ function moveElement(piece, id, castle) {
         to: id
       } 
       chessSocket.send(JSON.stringify(data));
-      console.log("Sending data through WebSocket:", data);
+      //console.log("Sending data through WebSocket:", data);
     }
     if (piece.piece_name.includes("PAWN") && (Math.abs(id[1] - piece.current_pos[1]) === 2 )) {
       piece.move = true;
@@ -268,7 +268,7 @@ function moveElement(piece, id, castle) {
     makeEnPassant(piece, id);
 
   updateGlobalState(piece, id);
-  console.log("globalState after making move: ", globalState.flat());
+  //console.log("globalState after making move: ", globalState.flat());
   clearHighlight();
   updatePiecePosition(piece, id);
 
@@ -343,7 +343,6 @@ function handlePieceClick(square, color, pieceType) {
   highlight_state = true;
   selfHighlightState = piece;
   moveState = piece;
-
   switch (pieceType) {
     case 'pawn':
       if (gameMode === "horde" && inTurn === "white")
@@ -364,6 +363,7 @@ function handlePieceClick(square, color, pieceType) {
       filterMovesForKingProtection(piece, color, help.getPossibleMoves, help.giveQueenHighlightIds);
       break;
     case 'king':
+      debugger
       const kingHighlightSquareIds = help.getPossibleMoves(piece, help.giveKingHighlightIds, color, true, (moves) => help.limitKingMoves(moves, color), true);
       circleHighlightRender(kingHighlightSquareIds, keySquareMapper);
       break;
@@ -395,7 +395,7 @@ function GlobalEvent() {
   const root = document.getElementById('root');
   root.addEventListener("click", function(event) {
     if (chessSocket && inTurn !== getUserColor(getUsername())) { // esto iría fuera
-      console.log("oh hi :D: ", inTurn, getUserColor(getUsername()))
+      //console.log("oh hi :D: ", inTurn, getUserColor(getUsername()))
       return;
     };
     const target = event.target;

@@ -6,10 +6,10 @@ let whoInCheck = null;
 
 function checkForCheck() {
 	if (gameMode === "horde" && inTurn === "white") {
-	console.log("returning on checkForCheck");
+	//console.log("returning on checkForCheck");
 	return null;
 	} else {
-	console.log("on checkForCheck: ", gameMode, inTurn);
+	//console.log("on checkForCheck: ", gameMode, inTurn);
 	}
 
 	whoInCheck = null;
@@ -56,19 +56,19 @@ function checkForCheck() {
 	whoInCheck = inTurn;
 	}
 
-	console.log("Checking pieces:", checkingPieces);
+	//console.log("Checking pieces:", checkingPieces);
 	return checkingPieces; // Return the pieces putting the king in check
 }
 
 function checkForCheckmate() {
-	console.log("Checking for checkmate...");
+	//console.log("Checking for checkmate...");
 	const checkingPieces = checkForCheck(); // Get the pieces putting the king in check
 	if (!whoInCheck) {
-	console.log("No check detected. Not a checkmate.");
+	//console.log("No check detected. Not a checkmate.");
 	return false; // If not in check, it's not checkmate
 	}
 
-	console.log(`${inTurn} is in check. Checking for possible moves to escape...`);
+	//console.log(`${inTurn} is in check. Checking for possible moves to escape...`);
 	const currentColor = inTurn; // The color of the player in turn
 	const allPieces = Object.values(globalPiece).flat().filter(piece =>
 	piece && piece.piece_name && piece.current_pos != null && piece.piece_name.includes(currentColor.toUpperCase())
@@ -77,30 +77,28 @@ function checkForCheckmate() {
 	// Check if any piece can move to escape the check
 	for (let piece of allPieces) {
 	const pieceType = piece.piece_name.split('_')[1].toLowerCase();
-	const possibleMoves = getPossibleMovesForPiece(piece, pieceType, currentColor);
-
-	console.log(`Piece: ${piece.piece_name}, Position: ${piece.current_pos}, Possible Moves:`, possibleMoves);
-
+	
+	//console.log(`Piece: ${piece.piece_name}, Position: ${piece.current_pos}, Possible Moves:`, possibleMoves);
+	
 	
 	// Check if this piece can capture any of the checking pieces
 	const captureOptions = returnOnePieceCaptureOptions(piece, pieceType, currentColor);
 	for (let checkingPiece of checkingPieces) {
 		if (captureOptions.includes(checkingPiece.current_pos)) {
-		console.log(
-			`${piece.piece_name} at ${piece.current_pos} can capture ${checkingPiece.piece_name} at ${checkingPiece.current_pos}`
-		);
+			//console.log(`${piece.piece_name} at ${piece.current_pos} can capture ${checkingPiece.piece_name} at ${checkingPiece.current_pos}`);
 		return false; // Not checkmate
-		}
 	}
+}
 	const safeMoves = [];
+	const possibleMoves = getPossibleMovesForPiece(piece, pieceType, currentColor);
 	simulateMoves(piece, possibleMoves, safeMoves, currentColor);
 	if (safeMoves.length > 0) {
-		console.log(`Safe moves found for ${piece.piece_name} at ${piece.current_pos}:`, safeMoves);
+		//console.log(`Safe moves found for ${piece.piece_name} at ${piece.current_pos}:`, safeMoves);
 		return false; // Not checkmate
 	}
 	}
 
-	console.log("No safe moves found. Checkmate!");
+	//console.log("No safe moves found. Checkmate!");
 	return true;
 }
 

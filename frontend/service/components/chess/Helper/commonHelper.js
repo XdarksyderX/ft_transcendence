@@ -271,13 +271,13 @@ function giveKingCaptureIds(id, color) {
 function checkEnPassant(curr_pos, color, num) {
     const row = color === "white" ? 5 : 4; // Row where en passant is possible
     if (curr_pos && curr_pos[1] != row) return false;
-    console.log(`Checking en passant for ${color} at position ${curr_pos} on row ${row}`);
+    //console.log(`Checking en passant for ${color} at position ${curr_pos} on row ${row}`);
 
     const leftPos = `${String.fromCharCode(curr_pos[0].charCodeAt(0) - 1)}${curr_pos[1]}`;
     const rightPos = `${String.fromCharCode(curr_pos[0].charCodeAt(0) + 1)}${curr_pos[1]}`;
     const opponentColor = color === "white" ? "black" : "white";
     
-    console.log(`Left position: ${leftPos}, Right position: ${rightPos}, Opponent color: ${opponentColor}`);
+    //console.log(`Left position: ${leftPos}, Right position: ${rightPos}, Opponent color: ${opponentColor}`);
 
     // Helper function to check if a position is valid for en passant
     function isValidEnPassant(pos) {
@@ -285,8 +285,8 @@ function checkEnPassant(curr_pos, color, num) {
         const isOpponentPiece = pieceExists && keySquareMapper[pos].piece.piece_name.toLowerCase().includes(opponentColor);
         const hasMoved = pieceExists && keySquareMapper[pos].piece.move;
         
-        console.log(`Checking position ${pos}: pieceExists=${pieceExists}, isOpponentPiece=${isOpponentPiece}, hasMoved=${hasMoved}`);
-        console.log(keySquareMapper[pos]);
+        //console.log(`Checking position ${pos}: pieceExists=${pieceExists}, isOpponentPiece=${isOpponentPiece}, hasMoved=${hasMoved}`);
+        //console.log(keySquareMapper[pos]);
         
         return pos[0] >= 'a' && pos[0] <= 'h' && pieceExists && isOpponentPiece && hasMoved;
     }
@@ -304,9 +304,7 @@ function checkEnPassant(curr_pos, color, num) {
 
 //on intial postion, pawns moves different
 function pawnMovesOptions(piece, unusedFunc = null, color) {
-    // debugger
     let highlightSquareIds = null;
-    //if (!piece || !piece.current_pos) return null; // pdte ver con marina
     const curr_pos = piece.current_pos;
     const row = color === "white" ? "2" : "7";
     const direction = color === "white" ? 1 : -1;
@@ -322,7 +320,6 @@ function pawnMovesOptions(piece, unusedFunc = null, color) {
         highlightSquareIds = [`${curr_pos[0]}${Number(curr_pos[1]) + direction}`,];
         let enPassant = "";
         if (enPassant = checkEnPassant(curr_pos, color, direction)) {
-            //isClick false no highlitees
             highlightSquareIds.push(enPassant);
         }
     }
@@ -388,7 +385,6 @@ function hasPieceMoved(square, pieceName, moveLogger) {
         return true;
     }
     for (const move of moveLogger) {
-        // console.log("move : ", move);
         if (move.notation.includes(square.id)) {
             console.log(`${pieceName} has already moved`);
             return true;
@@ -434,11 +430,17 @@ function getPossibleMoves(piece, highlightIdsFunc, color, renderBool = false, pr
     let tmp = [], res = [];
   
     for (const direction in highlightSquareIds) {
-      if (highlightSquareIds.hasOwnProperty(direction)) {
+        if (highlightSquareIds.hasOwnProperty(direction)) {
         const squares = highlightSquareIds[direction];
         res.push(checkSquareCaptureId(squares));
         tmp.push(squares);
-      }
+        }
+    }
+    if (piece && piece.piece_name && piece.piece_name.includes("KING")) {
+        console.log("en getPossibleMoves -> highlightSquareIds: ", highlightSquareIds);
+        console.log("en getPossibleMoves -> res: ", res);
+        console.log("en getPossibleMoves -> tmp: ", tmp);
+        console.log("---------------");
     }
     if (skipCastlingCheck)
         castlingCheck(piece, color, res);
@@ -492,12 +494,14 @@ function getOpponentMoves(color) {
 can be a direct checkmate, the it remove that option to avoid the checkmate*/
 function limitKingMoves(kingInitialMoves, color) {
     let res = getOpponentMoves(color);
-
+    console.log("limitKingMoves -> kingInitialMoves: ", kingInitialMoves);
+    console.log("limitKingMoves -> res: ", res);
     for (let i = kingInitialMoves.length - 1; i >= 0; i--) {
         if (res.has(kingInitialMoves[i])) {
             kingInitialMoves.splice(i, 1);
         }
     }
+    console.log("limitKingMoves -> kingInitialMoves despues de eliminar opciones de mov: ", kingInitialMoves);
 }
 
 //this funtion is to fix some bug for the knight circle highlight moves

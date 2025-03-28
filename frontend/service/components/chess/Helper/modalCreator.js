@@ -81,13 +81,13 @@ async function pawnPromotion(color, callback, id, pieceTo = null) {
   };
   
   if (!isClickBool) {
-    console.log("calling waitForPromotionChoice function");
+    //Checking enconsole.log("calling waitForPromotionChoice function");
     const promotionData = await waitForPromotionChoice();
-    console.log("leaving waitForPromotionChoice function");
-    console.log(promotionData);
+    //Checking enconsole.log("leaving waitForPromotionChoice function");
+    //Checking enconsole.log(promotionData);
     const {pieceColor, pieceType, to} = promotionData;
     callback(piecesMap[promotionData.pieceType], promotionData.to); 
-    console.log(globalPiece)
+    //Checking enconsole.log(globalPiece)
     return;
   }
   
@@ -108,7 +108,7 @@ async function pawnPromotion(color, callback, id, pieceTo = null) {
   
   const modal = new ModalCreator(finalContainer);
   modal.show();
-  console.log("pawnPromotion: globalPiece: ", globalPiece)
+  // console.log("pawnPromotion: globalPiece: ", globalPiece)
 }
 
 function handlePromotionChoice(pieceType) {
