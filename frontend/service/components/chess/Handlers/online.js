@@ -66,8 +66,6 @@ function initializeChessSocket(game_key) {
 	};
 
 	chessSocket.onclose = async (event) => {
-		//sessionStorage.removeItem('inGame');
-		sessionStorage.clear();
 		console.log("Chess WebSocket closed");
 	}
 

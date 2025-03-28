@@ -17,6 +17,7 @@ function initOfflineChess() {
         player1: 'white',
         player2: 'black'
     }
+    sessionStorage.clear(); // to clean in reloads
     offlineInfo.gameMode = 	sessionStorage.getItem('chessVariant');
     const piecePositions = convertToPiecePositions(getBoard());
     renderPlayers(whoIsWho);

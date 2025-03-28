@@ -1,5 +1,6 @@
 import { globalState, keySquareMapper, inTurn } from "../index.js";
 import { winGame } from "../Helper/modalCreator.js";
+import { chessSocket } from "../Handlers/online.js";
 
 function getSurroundingSquares(pos) {
     const alpha = pos[0];
@@ -59,7 +60,7 @@ function removeSurroundingPieces(pos) {
             opPiece.classList.remove('animate__animated', 'animate__tada', 'explosion-red');
         }, 1000);
     });
-    if (kingHasDied) {
+    if (kingHasDied && !chessSocket) {
         const winner = inTurn === 'white' ? 'black' : 'white';
         console.log(`not to be dramatic but ${inTurn} king has exploded`);
         setTimeout(() => { winGame(winner); }, 50);

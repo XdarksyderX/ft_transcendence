@@ -159,6 +159,7 @@ function winGame(winBool) {
     if (chessSocket) {
       chessSocket.close();
     }
+    sessionStorage.clear();
     navigateTo('/home');
     modal.hide();
   }

@@ -1,4 +1,5 @@
 import { captureNotation } from "../Events/global.js";
+import { chessSocket } from "../Handlers/online.js";
 let num = 1;
 const pieceNotation = {
     "pawn": "",
@@ -61,9 +62,12 @@ function logMoves(logMoves, inTurn, piece, castlingType) {
     }
 
     // Save move to localStorage
-    const savedMoves = JSON.parse(sessionStorage.getItem("chessMoves")) || [];
-    savedMoves.push({ inTurn, notation: row.innerHTML });
-    sessionStorage.setItem("chessMoves", JSON.stringify(savedMoves));
+    if (chessSocket && chessSocket.readyState === 'ready') {
+        console.log("pero güeno por qué")
+        const savedMoves = JSON.parse(sessionStorage.getItem("chessMoves")) || [];
+        savedMoves.push({ inTurn, notation: row.innerHTML });
+        sessionStorage.setItem("chessMoves", JSON.stringify(savedMoves));
+    }
 
     // Scroll to the bottom of the move logger
     const moveLogger = document.getElementById("move-logger");
