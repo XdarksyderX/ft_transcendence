@@ -1,4 +1,5 @@
-import { globalState, keySquareMapper } from "../index.js";
+import { globalState, keySquareMapper, inTurn } from "../index.js";
+import { winGame } from "../Helper/modalCreator.js";
 
 function getSurroundingSquares(pos) {
     const alpha = pos[0];
@@ -35,10 +36,17 @@ function getAllAffectedPieces(pos) {
   
 function removeSurroundingPieces(pos) {
     const affectedPieces = getAllAffectedPieces(pos);
+    let kingHasDied = false; // Flag to check if the king has been removed
+
     affectedPieces.forEach(element => {
-        const opSquare = keySquareMapper[element]
+        const opSquare = keySquareMapper[element];
         const opPiece = document.getElementById(element);
         const flatData = globalState.flat();
+
+        // Check if the piece being removed is a king
+        if (opSquare.piece && opSquare.piece.piece_name.includes("KING")) {
+            kingHasDied = true;
+        }
 
         opPiece.classList.add('animate__animated', 'animate__tada', 'explosion-red');
         setTimeout(() => {
@@ -51,6 +59,9 @@ function removeSurroundingPieces(pos) {
             opPiece.classList.remove('animate__animated', 'animate__tada', 'explosion-red');
         }, 1000);
     });
+    if (kingHasDied) {
+        setTimeout(() => { winGame(inTurn); }, 50);
+    }
 }
 
 export { removeSurroundingPieces }

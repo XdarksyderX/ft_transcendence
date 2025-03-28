@@ -50,7 +50,10 @@ function captureInTurn(square) {
     moveElement(selfHighlightState, piece.current_pos);
     if (gameMode === "bomb"){
       console.log("captureInTurn: Bomb: square: ", square);
-      removeSurroundingPieces(square.id);
+      winBool = removeSurroundingPieces(square.id);
+      if (winBool && !chessSocket) {
+        
+      }
     }
     
     if (gameMode === "kirby"){
@@ -85,6 +88,9 @@ function checkWin(piece) {
     winBool =  "White";
   else if (inTurn === "black" && piece.piece_name.includes("WHITE_KING"))
     winBool = "Black";
+  if (winBool && !chessSocket) {
+    setTimeout(() => { winGame(winBool); }, 50);
+  }
   winBool = false;
 }
 
