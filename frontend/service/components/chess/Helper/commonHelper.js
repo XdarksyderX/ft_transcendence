@@ -1,5 +1,6 @@
 import { highlightColor, keySquareMapper } from "../index.js";
 import { circleHighlightRender, globalPiece } from "../Render/main.js";
+import { oneMore } from "../Events/global.js";
 
 /**
  * function to check if opponnet piece exist and highlight it with captureColor,
@@ -36,14 +37,42 @@ function checkPieceExist(squareId) {
         return false;
 }
 
+
+
+function checkForOneMore(attack, defense) {
+    if (oneMore) {
+        console.log("jjjjjj")
+        // if (attack.piece_name.includes('QUEEN'))
+        //     debugger
+        const attackColor = attack.piece_name.split('_')[0];
+        const kingColor = attackColor === 'WHITE' ? 'BLACK' : 'WHITE';
+
+            if (!attack.piece_name.includes('PAWN') && !attack.piece_name.includes('KNIGHT')) {
+                if (defense.piece_name.includes(`${kingColor}_KING`)) { 
+                    return 1;
+                } else if (defense.piece_name.includes(attackColor)) {
+                    return 0;
+                }
+
+            }
+    }
+    return -1
+}
+
 //function to check capture id square
-function checkSquareCaptureId(array) {
+function checkSquareCaptureId(array, piece = null) {
     let returnArray = [];
     for (let i = 0; i < array.length; i++) {
-        const squareId = array[i];
+        let squareId = array[i];
         const square = keySquareMapper[squareId];
 
         if (square.piece) {
+            const extraMove = checkForOneMore(piece, square.piece);
+            if (extraMove !== -1) {
+                i += extraMove;
+                squareId = array[i];
+                returnArray.push(squareId);
+            }
             break;
         }
         returnArray.push(squareId);
@@ -432,7 +461,7 @@ function getPossibleMoves(piece, highlightIdsFunc, color, renderBool = false, pr
     for (const direction in highlightSquareIds) {
         if (highlightSquareIds.hasOwnProperty(direction)) {
         const squares = highlightSquareIds[direction];
-        res.push(checkSquareCaptureId(squares));
+        res.push(checkSquareCaptureId(squares, piece));
         tmp.push(squares);
         }
     }
@@ -449,7 +478,7 @@ function getPossibleMoves(piece, highlightIdsFunc, color, renderBool = false, pr
         preRenderCallback(highlightSquareIds);
     if (renderBool) {
         circleHighlightRender(highlightSquareIds, keySquareMapper);
-        markCaptureMoves(tmp, color);
+        markCaptureMoves(tmp, color); //
     }
     return highlightSquareIds;
 }
@@ -487,6 +516,7 @@ function getOpponentMoves(color) {
         if (auxCapture)
             res = new Set([...res, ...auxCapture]);
     }
+    debugger
     return res;
 }
   

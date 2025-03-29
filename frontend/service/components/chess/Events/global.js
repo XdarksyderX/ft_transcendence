@@ -20,6 +20,7 @@ let moveState = null;
 
 let winBool = false;
 let captureNotation = false;
+let oneMore = false;
 
 const moveSound = new Audio('components/chess/Assets/music/sound2.mp3');
 
@@ -363,9 +364,12 @@ function handlePieceClick(square, color, pieceType) {
       filterMovesForKingProtection(piece, color, help.getPossibleMoves, help.giveQueenHighlightIds);
       break;
     case 'king':
-      debugger
+      console.log("ole ole los caracole")
+      //debugger
+      oneMore = true;
       const kingHighlightSquareIds = help.getPossibleMoves(piece, help.giveKingHighlightIds, color, true, (moves) => help.limitKingMoves(moves, color), true);
       circleHighlightRender(kingHighlightSquareIds, keySquareMapper);
+      oneMore = false;
       break;
   }
   globalStateRender();
@@ -459,4 +463,4 @@ function clearYellowHighlight() {
   selfHighlightState = null;
 }
 
-export { GlobalEvent, captureNotation, clearYellowHighlight, globalPieceUpdate, callbackPiece, moveElement, isClick, checkWin };
+export { GlobalEvent, captureNotation, clearYellowHighlight, globalPieceUpdate, callbackPiece, moveElement, isClick, checkWin, oneMore };
