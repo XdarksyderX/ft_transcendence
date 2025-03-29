@@ -30,6 +30,7 @@ function changeTurn() {
   pawns.forEach(pawn => {
     pawn.move = false;
   });
+  captureNotation = false;
   // update turn manually if we're in local play
   if (!chessSocket) {
     const newTurn = inTurn === "white" ? "black" : "white";
@@ -47,7 +48,8 @@ function captureInTurn(square) {
   }
   
   if (square.captureHightlight) {
-    captureNotation = true
+    captureNotation = true;
+
     moveElement(selfHighlightState, piece.current_pos);
     if (gameMode === "bomb"){
       //console.log("captureInTurn: Bomb: square: ", square);
@@ -260,6 +262,7 @@ function moveElement(piece, id, castle) {
     const capturedSquare = keySquareMapper[id];
     if (capturedSquare.piece) {
       capturedPiece = capturedSquare.piece;
+      captureNotation = true;
     }
   }
 
