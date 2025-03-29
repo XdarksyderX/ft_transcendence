@@ -368,6 +368,7 @@ function handlePieceClick(square, color, pieceType) {
       break;
     case 'king':
       oneMore = true;
+      // debugger;
       const kingHighlightSquareIds = help.getPossibleMoves(piece, help.giveKingHighlightIds, color, true, (moves) => help.limitKingMoves(moves, color), true);
       circleHighlightRender(kingHighlightSquareIds, keySquareMapper);
       oneMore = false;

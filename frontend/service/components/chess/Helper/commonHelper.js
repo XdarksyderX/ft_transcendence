@@ -56,7 +56,7 @@ function checkForOneMore(attack, defense) {
             }
         }
     }
-    return -1
+    return 0
 }
 
 //function to check capture id square
@@ -68,9 +68,8 @@ function checkSquareCaptureId(array, piece = null) {
 
         if (square.piece) {
             const extraMove = checkForOneMore(piece, square.piece);
-            if (extraMove !== -1) {
-                i += extraMove;
-                squareId = array[i];
+            if (extraMove) {
+                squareId = array[++i];
                 returnArray.push(squareId);
             }
             break;
@@ -409,6 +408,7 @@ function castlingCheck(piece, color, res) {
 }
 
 function hasPieceMoved(square, pieceName, moveLogger) {
+    if (!moveLogger) return false;
     if (!square.piece || !square.piece.piece_name || !square.piece.piece_name.includes(pieceName.toUpperCase())) {
         console.log(`${pieceName} is not the expected piece`);
         return true;
