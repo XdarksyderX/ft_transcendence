@@ -44,23 +44,17 @@ let forbiddenCaptures = [];
 
 function checkForOneMore(attack, defense) {
     if (oneMore) {
-        console.log("jjjjjj")
-        // if (attack.piece_name.includes('QUEEN'))
-        //     debugger
         const attackColor = attack.piece_name.split('_')[0];
         const kingColor = attackColor === 'WHITE' ? 'BLACK' : 'WHITE';
 
-            if (!attack.piece_name.includes('PAWN') && !attack.piece_name.includes('KNIGHT')) {
-                if (defense.piece_name.includes(`${kingColor}_KING`)) { 
-                    return 1;
-                } else if (defense.piece_name.includes(attackColor)) {
-                    forbiddenCaptures.push(defense.current_pos);
-                    console.log(`adding   ${defense.current_pos} to forbidden captures`);
-                    console.log(forbiddenCaptures);
-                    return 0;
-                }
-
+        if (!attack.piece_name.includes('PAWN') && !attack.piece_name.includes('KNIGHT')) {
+            if (defense.piece_name.includes(`${kingColor}_KING`)) { 
+                return 1;
+            } else if (defense.piece_name.includes(attackColor)) {
+                forbiddenCaptures.push(defense.current_pos);
+                return 0;
             }
+        }
     }
     return -1
 }
@@ -343,9 +337,9 @@ function pawnMovesOptions(piece, unusedFunc = null, color) {
     const curr_pos = piece.current_pos;
     const row = color === "white" ? "2" : "7";
     const direction = color === "white" ? 1 : -1;
-    if (!curr_pos) {
-        console.log("on PawnMovesOptions: ", piece);
-    }
+    // if (!curr_pos) {
+    //     console.log("on PawnMovesOptions: ", piece);
+    // }
     if (curr_pos[1] == row) {
         highlightSquareIds = [
             `${curr_pos[0]}${Number(curr_pos[1]) + direction}`,
@@ -471,12 +465,6 @@ function getPossibleMoves(piece, highlightIdsFunc, color, renderBool = false, pr
         tmp.push(squares);
         }
     }
-    if (piece && piece.piece_name && piece.piece_name.includes("KING")) {
-        console.log("en getPossibleMoves -> highlightSquareIds: ", highlightSquareIds);
-        console.log("en getPossibleMoves -> res: ", res);
-        console.log("en getPossibleMoves -> tmp: ", tmp);
-        console.log("---------------");
-    }
     if (skipCastlingCheck)
         castlingCheck(piece, color, res);
     highlightSquareIds = res.flat();
@@ -484,11 +472,20 @@ function getPossibleMoves(piece, highlightIdsFunc, color, renderBool = false, pr
         preRenderCallback(highlightSquareIds);
     if (renderBool) {
         circleHighlightRender(highlightSquareIds, keySquareMapper);
-        markCaptureMoves(tmp, color); // holi
+        cleanForbiddenCaptures(tmp);
+        markCaptureMoves(tmp, color);
+        forbiddenCaptures = [];
     }
     return highlightSquareIds;
 }
 
+function cleanForbiddenCaptures(tmp) {
+    for (let i = forbiddenCaptures.length - 1; i >= 0; i--) {
+        if (!tmp.find(element => element == forbiddenCaptures[i])) {
+            forbiddenCaptures.splice(i, 1);
+        }
+    }
+}
 // this function return all the possible moves of the opponent pices
 function getOpponentMoves(color) {
     let res = new Set();
@@ -522,7 +519,6 @@ function getOpponentMoves(color) {
         if (auxCapture)
             res = new Set([...res, ...auxCapture]);
     }
-    debugger
     return res;
 }
   
@@ -530,14 +526,14 @@ function getOpponentMoves(color) {
 can be a direct checkmate, the it remove that option to avoid the checkmate*/
 function limitKingMoves(kingInitialMoves, color) {
     let res = getOpponentMoves(color);
-    console.log("limitKingMoves -> kingInitialMoves: ", kingInitialMoves);
-    console.log("limitKingMoves -> res: ", res);
+    // console.log("limitKingMoves -> kingInitialMoves: ", kingInitialMoves);
+    // console.log("limitKingMoves -> res: ", res);
     for (let i = kingInitialMoves.length - 1; i >= 0; i--) {
         if (res.has(kingInitialMoves[i])) {
             kingInitialMoves.splice(i, 1);
         }
     }
-    console.log("limitKingMoves -> kingInitialMoves despues de eliminar opciones de mov: ", kingInitialMoves);
+    // console.log("limitKingMoves -> kingInitialMoves despues de eliminar opciones de mov: ", kingInitialMoves);
 }
 
 //this funtion is to fix some bug for the knight circle highlight moves
