@@ -19,11 +19,14 @@ let whoIsWho = {};
 let chessSocket = null;
 
 
-async function initOnlineChess(key) {
+async function initOnlineChess(key, clean) {
     await handleGetChessMatchDetail(key);
     renderPlayers(whoIsWho)
     initializeChessSocket(key);
 
+    if (clean) {
+        sessionStorage.removeItem('chessMoves')
+    }
     const data = await waitForBoardStatus();
     const piecePositions = convertToPiecePositions(data.board);
 	onlineInfo.isInTurn = getUserColor(getUsername()) === data.current_player;
@@ -86,6 +89,7 @@ function handleGetChessReceivedMessage(event) {
         if (data.status === "game_over") {
             winGame(data.winner);
             chessSocket.close();
+            chessSocket = null;
         }
         if (data?.current_player) {
 			updateInTurn(data.current_player);

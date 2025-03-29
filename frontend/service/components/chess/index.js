@@ -75,13 +75,12 @@ export async function initializeChessEvents(key) {
     
     
     if (key) {
-        await initOnlineChess(key);
-        // inTurn = onlineInfo.inTurn;
+        await initOnlineChess(key, true);
     } else {
         let res = await getChessPendingMatches();
         if (res.status === "success" && res.match) {
             key = res?.match?.game_key;
-            await initOnlineChess(key);
+            await initOnlineChess(key, false);
             // inTurn = onlineInfo.inTurn;
         } else {
             initOfflineChess();

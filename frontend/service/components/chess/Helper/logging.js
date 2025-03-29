@@ -29,6 +29,12 @@ function reloadMoveLogger() {
     num = Math.floor(savedMoves.length / 2) + 1;
 }
 
+function resetLoggerIndex() {
+    if (!sessionStorage.getItem('chessMoves')) {
+        num = 1;
+    }
+}
+
 function logMoves(logMoves, inTurn, piece, castlingType) {
     const pieceName = piece.piece_name.split('_')[1].toLowerCase();
     const pieceLetter = pieceNotation[pieceName] || "";
@@ -89,4 +95,4 @@ function getLetterAfterUnderscore(str) {
     return '';
 }
 
-export { logMoves, appendPromotion, reloadMoveLogger }
+export { logMoves, appendPromotion, reloadMoveLogger, resetLoggerIndex }

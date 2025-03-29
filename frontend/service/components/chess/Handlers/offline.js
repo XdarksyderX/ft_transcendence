@@ -4,6 +4,7 @@ import { generateChess960Position } from "../Variants/chess960.js";
 import { initGameRender } from "../Render/main.js";
 import { convertToPiecePositions } from "./online.js";
 import { renderPlayers } from "../Render/main.js";
+import { resetLoggerIndex } from "../Helper/logging.js";
 
 const offlineInfo = {
 	gameMode: null,
@@ -17,7 +18,10 @@ function initOfflineChess() {
         player1: 'white',
         player2: 'black'
     }
-  //  sessionStorage.clear(); // to clean in reloads
+    if (sessionStorage.getItem('chessMoves')) {
+        sessionStorage.removeItem('chessMoves')
+    }
+    resetLoggerIndex();
     offlineInfo.gameMode = 	sessionStorage.getItem('chessVariant');
     const piecePositions = convertToPiecePositions(getBoard());
     renderPlayers(whoIsWho);
