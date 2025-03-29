@@ -16,7 +16,9 @@ function checkOpponetPieceByElement(id, color, captureHighlight = true) {
 
     if (!element)
         return false;
-
+    if (oneMore && forbiddenCaptures.includes(id)) {
+        return false;
+    }
     if (element.piece && element.piece.piece_name.includes(opponentColor)) {
         if (captureHighlight) {
             const el = document.getElementById(id);
@@ -38,6 +40,7 @@ function checkPieceExist(squareId) {
 }
 
 
+let forbiddenCaptures = [];
 
 function checkForOneMore(attack, defense) {
     if (oneMore) {
@@ -51,6 +54,9 @@ function checkForOneMore(attack, defense) {
                 if (defense.piece_name.includes(`${kingColor}_KING`)) { 
                     return 1;
                 } else if (defense.piece_name.includes(attackColor)) {
+                    forbiddenCaptures.push(defense.current_pos);
+                    console.log(`adding   ${defense.current_pos} to forbidden captures`);
+                    console.log(forbiddenCaptures);
                     return 0;
                 }
 
@@ -478,7 +484,7 @@ function getPossibleMoves(piece, highlightIdsFunc, color, renderBool = false, pr
         preRenderCallback(highlightSquareIds);
     if (renderBool) {
         circleHighlightRender(highlightSquareIds, keySquareMapper);
-        markCaptureMoves(tmp, color); //
+        markCaptureMoves(tmp, color); // holi
     }
     return highlightSquareIds;
 }
