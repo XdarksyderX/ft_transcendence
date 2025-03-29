@@ -33,8 +33,11 @@ clean:
 	rm -f private.pem
 	rm -f public.pem
 
-prepare: keys
+prepare: keys cert
 	mkdir -p volume-data/ volume-data/auth volume-data/social volume-data/pong volume-data/chess volume-data/notifications
+
+cert:
+	bash gencert.sh
 
 keys:
 	@if [ ! -f private.pem ]; then openssl genpkey -algorithm RSA -out private.pem -pkeyopt rsa_keygen_bits:2048; fi
@@ -49,7 +52,6 @@ keys:
 	cp public.pem pong/service/config/keys/public.pem
 	cp public.pem chess/service/config/keys/public.pem
 	cp public.pem notifications/service/config/keys/public.pem
-
 
 re: down up
 

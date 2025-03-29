@@ -62,7 +62,7 @@ export function initializeNotificationsSocket() {
         return;
     }
 
-    notiSocket = new WebSocket(`ws://localhost:5054/ws/events/`);
+    notiSocket = new WebSocket(`wss://${GATEWAY_HOST}/ws/events/`);
 
     notiSocket.onopen = () => {
         console.log("[WebSocket] Notifications connected");

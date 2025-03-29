@@ -20,15 +20,16 @@ MODIFIED_USERNAMES=()
 PASSWORD="12345678"
 USER_JWT=()
 
-# Add the number to usernames if provided
+# Añadir el sufijo a los nombres de usuario si se proporcionó
 for USERNAME in "${USERNAMES[@]}"; do
     MODIFIED_USERNAME="${USERNAME}${NUMBER_SUFFIX}"
     MODIFIED_USERNAMES+=("$MODIFIED_USERNAME")
 done
 
+# Registrar usuarios y obtener sus tokens JWT
 for USERNAME in "${MODIFIED_USERNAMES[@]}"; do
-    EMAIL=$(echo "${USERNAME}@paco.com" | tr '[:upper:]' '[:lower:]')  # Convert to lowercase
-    curl -s -X POST http://localhost:5050/register \
+    EMAIL=$(echo "${USERNAME}@paco.com" | tr '[:upper:]' '[:lower:]')  # Convertir a minúsculas
+    curl -k -s -X POST https://localhost:5090/api/auth/register \
     -H "Content-Type: application/json" \
     -d "{
         \"email\": \"${EMAIL}\",
@@ -37,7 +38,7 @@ for USERNAME in "${MODIFIED_USERNAMES[@]}"; do
     }" > /dev/null
     check_success $? "Registro de usuario ${USERNAME}"
 
-    JWT=$(curl -s -X POST http://localhost:5050/login \
+    JWT=$(curl -k -s -X POST https://localhost:5090/api/auth/login \
     -H "Content-Type: application/json" \
     -d "{\"username\": \"${USERNAME}\", \"password\": \"${PASSWORD}\"}" | jq -r '.access_token')
 
@@ -55,13 +56,16 @@ echo "Password: ${PASSWORD}"
 echo "Making friends..."
 sleep 3
 
+# Realizar solicitudes y aceptar amistades entre todos los pares
 for ((i=0; i<${#MODIFIED_USERNAMES[@]}; i++)); do
     for ((j=i+1; j<${#MODIFIED_USERNAMES[@]}; j++)); do
-        curl -s -X POST "http://localhost:5051/requests/send/${MODIFIED_USERNAMES[j]}/" \
+        # Enviar solicitud de amistad de MODIFIED_USERNAMES[i] a MODIFIED_USERNAMES[j]
+        curl -k -s -X POST "https://localhost:5090/api/social/requests/send/${MODIFIED_USERNAMES[j]}/" \
         -H "Cookie: access_token=${USER_JWT[i]}" > /dev/null
         check_success $? "Envío de solicitud de amistad de ${MODIFIED_USERNAMES[i]} a ${MODIFIED_USERNAMES[j]}"
 
-        REQUEST_ID=$(curl -s -X GET "http://localhost:5051/requests/pending/received/" \
+        # Obtener el ID de la solicitud pendiente recibida para MODIFIED_USERNAMES[j]
+        REQUEST_ID=$(curl -k -s -X GET "https://localhost:5090/api/social/requests/pending/received/" \
         -H "Cookie: access_token=${USER_JWT[j]}" | jq -r '.incoming[0].id')
 
         if [ -z "$REQUEST_ID" ] || [ "$REQUEST_ID" == "null" ]; then
@@ -69,7 +73,8 @@ for ((i=0; i<${#MODIFIED_USERNAMES[@]}; i++)); do
             exit 1
         fi
 
-        curl -s -X POST "http://localhost:5051/requests/accept/${REQUEST_ID}/" \
+        # Aceptar la solicitud de amistad
+        curl -k -s -X POST "https://localhost:5090/api/social/requests/accept/${REQUEST_ID}/" \
         -H "Cookie: access_token=${USER_JWT[j]}" > /dev/null
         check_success $? "Aceptación de solicitud de amistad de ${MODIFIED_USERNAMES[j]} a ${MODIFIED_USERNAMES[i]}"
     done

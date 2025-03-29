@@ -12,7 +12,7 @@ CONSISTENCY_TOKEN = os.getenv('CONSISTENCY_TOKEN')
 APPEND_SLASH = True
 DEBUG = True
 
-ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['*']
 
 SIMPLE_JWT = {
     "ALGORITHM": "RS256",

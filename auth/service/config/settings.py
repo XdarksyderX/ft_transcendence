@@ -14,7 +14,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 FRONTEND_URL = os.getenv('FRONTEND_URL')
 CONSISTENCY_TOKEN = os.getenv('CONSISTENCY_TOKEN')
 DEBUG = os.getenv("DEBUG", "True") == "True"
-ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['*']
 
 # JWT Configuration
 SIMPLE_JWT = {

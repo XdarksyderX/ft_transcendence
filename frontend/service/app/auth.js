@@ -1,10 +1,11 @@
 import jwtDecode from 'https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.esm.js';
 import { navigateTo } from './router.js';
 import { throwToast } from './render.js';
-import { sendRequestAuth } from './sendRequest.js';
+import { GATEWAY_URL, sendRequestAuth } from './sendRequest.js';
 
 import { chatSocket, state } from '../components/chat/socket.js';
 import { notiSocket } from '../components/events/socket.js';
+
 
 /**
  * Obtiene el username almacenado en localStorage.
@@ -51,7 +52,7 @@ export async function isLoggedIn() {
  */
 export async function logout() {
     try {
-        await fetch('http://localhost:5050/logout/', {
+        await fetch(`${GATEWAY_URL}/logout/`, {
             method: 'POST',
             credentials: 'include',
         });

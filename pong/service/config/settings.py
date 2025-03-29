@@ -18,7 +18,7 @@ FRONTEND_URL = os.getenv('FRONTEND_URL')
 APPEND_SLASH = True
 DEBUG = True
 
-ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['*']
 
 RABBITMQ_CONFIG = {
     "AMQP_ENABLED": True,

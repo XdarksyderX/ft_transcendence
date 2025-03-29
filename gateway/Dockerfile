@@ -14,6 +14,10 @@ FROM nginx:1.21.1
 
 COPY config/nginx.conf /etc/nginx/nginx.conf
 
+COPY config/selfsigned.key /etc/nginx/selfsigned.key
+
+COPY config/selfsigned.crt /etc/nginx/selfsigned.crt
+
 COPY config/entrypoint.sh /entrypoint.sh
 
 RUN chmod +x /entrypoint.sh
