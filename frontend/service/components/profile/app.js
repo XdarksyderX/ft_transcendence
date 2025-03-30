@@ -1,6 +1,6 @@
 import { getUsername, refreshAccessToken } from "../../app/auth.js";
 import { handleGetFriendList } from "../friends/app.js";
-import { getAvatar, changeAvatar, getProfile } from "../../app/social.js";
+import { getAvatar, changeAvatar, getProfile, changeAlias } from "../../app/social.js";
 import { handleUsernameChange } from "../settings/app.js";
 import { throwAlert, throwToast } from "../../app/render.js";
 import { parseUsername } from "../signup/signup.js";
@@ -12,27 +12,27 @@ const avatarImages = [
     './resources/avatar/avatar_3.png',
 ];
 
-// async function handleAliasChange() {
-//     const newAlias ='pato';
+async function handleAliasChange() {
+    const newAlias ='pato';
 
-//     if (!newAlias) {
-//         alert('Alias cannot be empty.');
-//         return;
-//     }
+    if (!newAlias) {
+        alert('Alias cannot be empty.');
+        return;
+    }
 
-//     try {
-//         const response = await changeAlias(newAlias);
-//         if (response.status === 'success') {
-//             alert('Alias updated successfully!');
-//             document.getElementById('alias').textContent = response.alias;
-//         } else {
-//             alert(`Error: ${response.message}`);
-//         }
-//     } catch (error) {
-//         console.error('Error updating alias:', error);
-//         alert('An error occurred while updating the alias.');
-//     }
-// }
+    try {
+        const response = await changeAlias(newAlias);
+        if (response.status === 'success') {
+            alert('Alias updated successfully!');
+            document.getElementById('alias').textContent = response.alias;
+        } else {
+            alert(`Error: ${response.message}`);
+        }
+    } catch (error) {
+        console.error('Error updating alias:', error);
+        alert('An error occurred while updating the alias.');
+    }
+}
 
 export async function initializeProfileEvents(toggle = false) {
     const elements = getElements();
