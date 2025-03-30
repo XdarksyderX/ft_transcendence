@@ -9,7 +9,7 @@ from django.dispatch import receiver
 from core.utils.event_domain import publish_event
 
 class User(AbstractUser):
-    username = models.CharField(max_length=150, unique=True)
+    username = models.CharField(max_length=20, unique=True)
     friends = models.ManyToManyField('self', symmetrical=True, blank=True)
     pong_statistics = models.OneToOneField(
         'PongStatistics',
