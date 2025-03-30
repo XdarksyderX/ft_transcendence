@@ -54,7 +54,7 @@ class ChessLogic:
         self.board = new_board
     
         # Manejo de promoción pendiente
-        if info.get('promotion_pending', True):
+        if info.get('promotion_pending', False):
             self.state = 'PROMOTION_PENDING'
             self.promotion_position = to_pos
             return True, "Choose a piece for promotion (queen, rook, bishop, knight)", self.board, {
