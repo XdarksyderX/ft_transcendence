@@ -116,7 +116,7 @@ export async function getAvatar(username = null, user = null, path = null) {
         throw new Error("Invalid avatar path");
     }
 
-    return `${GATEWAY_URL}/api/social/${path}`;
+    return `${GATEWAY_URL}/api/social${path}`;
 }
 
 export async function getUserData(username) {

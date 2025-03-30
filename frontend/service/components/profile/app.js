@@ -3,6 +3,7 @@ import { handleGetFriendList } from "../friends/app.js";
 import { getAvatar, changeAvatar } from "../../app/social.js";
 import { handleUsernameChange } from "../settings/app.js";
 import { throwAlert, throwToast } from "../../app/render.js";
+import { parseUsername } from "../signup/signup.js";
 
 const avatarImages = [
     './resources/avatar/avatar_1.png',
@@ -157,7 +158,9 @@ async function updateUsername(username) {
 	const modal = new bootstrap.Modal(modalElement);
     modal.show();
     const confirmSaveBtn = document.getElementById('confirm-save-changes');
-    confirmSaveBtn.addEventListener('click', async () => {
+    const newBtn = confirmSaveBtn.cloneNode(true);
+    confirmSaveBtn.parentNode.replaceChild(newBtn, confirmSaveBtn);
+    newBtn.addEventListener('click', async () => {
 		
 		const password = document.getElementById("confirm-changes-password").value;
 		if (!password) {
@@ -174,13 +177,19 @@ async function updateUsername(username) {
 async function saveNameChanges(elements) {
     const nameInput = elements.username.querySelector('input')
     const newName = nameInput.value;
-    if (newName !== getUsername()) {
-        await updateUsername(newName);
-        nameInput.value = '';
+
+console.log("on save nae changes: ");
+    if (!newName || newName == '' ) {
+        return throwAlert("Name field can't be empty");
+    } else if (!parseUsername(newName)) {
         return ;
-    } else {
-        await initializeProfileEvents(true);
     }
+    else if (newName !== getUsername()) {
+        await updateUsername(newName);
+        nameInput.value = getUsername();
+        return ;
+    }
+    await initializeProfileEvents(true);
  
 }
 
