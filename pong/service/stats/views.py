@@ -38,3 +38,33 @@ class TournamentStatisticsView(APIView):
 			"message": "Tournament statistics retrieved successfully",
 			"stats": data
 		})
+
+
+class PongStatisticsView(APIView):
+	permission_classes = [IsAuthenticated]
+	def get(self, request):
+		user = request.user
+		pong_statistics = PongStatistics.objects.filter(user=user).first()
+		
+		quick_data = {
+			"played": pong_statistics.quick_games_played,
+			"won": pong_statistics.quick_games_won,
+			"lost": pong_statistics.quick_games_lost,
+			"streak": pong_statistics.current_streak,
+			"highest_score": pong_statistics.highest_score
+		}
+		
+		tournament_data = {
+			"played": pong_statistics.tournaments_played,
+			"first": pong_statistics.tournaments_first,
+			"second": pong_statistics.tournaments_second,
+		}
+		
+		return Response({
+			"status": "success",
+			"message": "Combined statistics retrieved successfully",
+			"stats": {
+				"quick": quick_data,
+				"tournament": tournament_data
+			}
+		})
