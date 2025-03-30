@@ -26,7 +26,9 @@
     display: none;
 }
 
-
+#profile-section .card {
+    min-height: 625px;
+}
 /* canvas.profile-picture {
     background-color: transparent;
 } */

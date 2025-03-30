@@ -1,9 +1,11 @@
-import { getMessages, markAsReadMessage, getRecentChats, hasUnreadMessages } from '../../app/social.js';
+import { getMessages, markAsReadMessage, getRecentChats, hasUnreadMessages, getUserData, getAvatar } from '../../app/social.js';
 import { getUsername } from '../../app/auth.js';
 import { handleGetFriendList } from '../friends/app.js';
 import { initializeGlobalChatSocket, handleSentMessage } from './socket.js';
 import { createMessageBubble, createSpecialBubble, escapeHTML } from './bubbles.js';
 import { throwAlert } from '../../app/render.js';
+
+import { GATEWAY_URL } from '../../app/sendRequest.js';
 
 let isExpanded = false;
 let currentView;
@@ -36,6 +38,7 @@ export function getElements() {
         backToRecents: document.getElementById('back-to-recents'),
         startNewChat: document.getElementById('start-a-new-chat'),
         chatTab: document.getElementById('chat-window'),
+		profileTab: document.getElementById('chat-profile'),
         newChatBtn: document.getElementById('new-chat-btn'),
         toggleIcon: document.getElementById('toggle-icon'),
         friendList: document.getElementById('friends-list'),
@@ -66,7 +69,6 @@ export async function toggleChat(elements) {
 	elements.chatBody.style.display = isExpanded ? 'block' : 'none';
 	elements.toggleIcon.className = isExpanded ? 'fas fa-chevron-down' : 'fas fa-chevron-up';
 	if (isExpanded && currentView === 'recent-chats') {
-		console.log("CI");
 		await showRecentChats(elements);
 	} else if (currentView === 'chat') {
 		await markMessagesAsRead(currentChat.username);
@@ -291,7 +293,11 @@ function showChatWindow(elements, friendUsername) {
     elements.recentChatsTab.style.display = 'none';
     elements.newChatTab.style.display = 'none';
     elements.chatTab.style.display = 'flex';
-    elements.currentChatName.textContent = friendUsername;
+	const nameBtn = document.getElementById('current-chat-name');
+	const newNameBtn = elements.currentChatName.cloneNode();
+	nameBtn.parentNode.replaceChild(newNameBtn, nameBtn);
+	newNameBtn.addEventListener('click', () => showProfileOnChat(elements, friendUsername));
+    newNameBtn.textContent = friendUsername;
 }
 
 const generateMessageId = (message) => `${message.sender}-${message.sent_at}`;
@@ -320,6 +326,46 @@ export async function renderChat(elements) {
 
         elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
     }
+}
+
+async function showProfileOnChat(elements, username) {
+
+	const container = document.getElementById('profile-data-container');
+
+	currentView = 'profile';
+	elements.chatTab.style.display = 'none';
+	elements.profileTab.style.display = 'block';
+	const backBtn = document.getElementById('back-to-chat');
+	const newBackBtn = backBtn.cloneNode(true);
+	backBtn.parentNode.replaceChild(newBackBtn, backBtn);
+	newBackBtn.addEventListener('click', () => {
+		container.innerHTML = ``;
+		openChat(username, elements);
+	});
+	await fillProfileData(username, container);
+}
+
+async function fillProfileData(username, container) {
+    const user = await getUserData(username);
+    const avatar = await getAvatar(null, null, user.avatar);
+    let color = user.is_online ? 'var(--accent)' : '#808080';
+
+    if (!user) return;
+
+    container.innerHTML = `
+        <h5 id="friend-name" class="ctm-text-title my-3">${user.username}</h5>
+        <img src="${avatar}" alt="${user.username}" class="mb-3 friend-picture-expanded">
+        <div class="footer mt-auto mb-5">
+            <p>
+				<div> status:
+                <span class="friend-status" style="color: ${color};"> ${user.is_online ? 'online' : 'offline'}</span>
+                <span class="status-circle" style="background-color: ${color};"></span>
+				</div>
+            </p>
+            <p>Alias: not_yet</p>
+        </div>
+    
+    `;
 }
 
 export {currentChat, currentView, isExpanded}

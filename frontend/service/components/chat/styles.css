@@ -32,7 +32,7 @@
 	box-shadow: 0 0 10px 0 var(--lorange);
 }
 
-#chat-window, #recent-chats, #new-chat {
+.chat-tab {
 	background-color: var(--medium);
 	height: 351px;
 	display: flex;
@@ -127,13 +127,21 @@
 	color: var(--accent);
 }
 
-.back-to-recents {
+.chat-subheader {
 	cursor: pointer;
 	color: var(--title);
 	background-color: var(--darkish);
 	position: sticky;
 	top: 0;
-	/* z-index: 1000; */
+}
+
+#chat-window .chat-subheader {
+	padding: 0;
+}
+
+#chat-window .fa-arrow-left {
+	height: 100%;
+	padding-top: 10px !important;
 }
 
 #start-a-new-chat {
@@ -141,7 +149,7 @@
 	background-color: var(--darkish);
 }
 
-.back-to-recents:hover {
+.header-hover:hover {
 	background-color: var(--dark);
 	color: var(--lorange);
 	font-weight: 600;
