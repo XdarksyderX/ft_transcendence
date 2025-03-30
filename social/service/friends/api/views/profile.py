@@ -71,14 +71,13 @@ class ChangeAvatarView(APIView):
         new_name = f"{request.user.username}_{timezone.now().strftime('%Y%m%d%H%M%S')}{extension}"
         avatar.name = new_name
 
-        if request.user.avatar:
+        if request.user.avatar and not request.user.avatar.name.endswith('default.png'):
             request.user.avatar.delete(save=False)
 
         user = request.user
         user.avatar = avatar
         user.save()
 
-        # Access the URL after saving the avatar
         avatar_url = user.avatar.url
 
         publish_event("social", "social.avatar_changed", {"user_id": user.id, "new_avatar": avatar_url})
