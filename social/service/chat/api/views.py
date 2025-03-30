@@ -66,21 +66,28 @@ class RecentChatsView(APIView):
 
         logger.debug(f"Conversation users: {[u.username for u in conversation_users]}")
 
+        # Blocked users
+        user_model = User.objects.get(username=user)
+        blocked_users = user_model.blocked.all()
+
         recent_chats = {}
         for participant in conversation_users:
-            chat = Message.objects.filter(
-                Q(sender=user, receiver=participant) |
-                Q(sender=participant, receiver=user)
-            ).order_by("-sent_at").first()
+            participat_user_model = User.objects.get(username=participant)
+            participant_blocked = participat_user_model.blocked.all()
+            if participant not in blocked_users and user not in participant_blocked:
+                chat = Message.objects.filter(
+                    Q(sender=user, receiver=participant) |
+                    Q(sender=participant, receiver=user)
+                ).order_by("-sent_at").first()
 
-            if chat:
-                recent_chats[participant.username] = {
-                    "lastMessage": chat.content,
-                    "lastUpdated": chat.sent_at,
-                    "is_read": chat.is_read,
-                    "is_special": chat.is_special,
-                    "sender": "in" if chat.sender != user else "out"
-                }
+                if chat:
+                    recent_chats[participant.username] = {
+                        "lastMessage": chat.content,
+                        "lastUpdated": chat.sent_at,
+                        "is_read": chat.is_read,
+                        "is_special": chat.is_special,
+                        "sender": "in" if chat.sender != user else "out"
+                    }
 
         return Response({"status": "success", "recent_chats": recent_chats})
 
