@@ -1,0 +1,37 @@
+{
+	"name": "Nginx Gateway",
+	"build": {
+		"dockerfile": "../Dockerfile",
+		"context": ".."
+	},
+	"forwardPorts": [5090, 443, 80],
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"william-voyek.vscode-nginx",
+				"pkief.material-icon-theme",
+				"ms-azuretools.vscode-docker",
+				"esbenp.prettier-vscode"
+			],
+			"settings": {
+				"editor.formatOnSave": true,
+				"editor.tabSize": 2,
+				"files.associations": {
+					"nginx.conf": "nginx"
+				}
+			}
+		}
+	},
+	"remoteUser": "root",
+	"features": {
+		"ghcr.io/devcontainers/features/common-utils:2": {
+			"installZsh": true,
+			"username": "vscode",
+			"upgradePackages": true
+		}
+	},
+	"runArgs": [
+	"--network=dev_network",
+	"--name=gateway"
+  	]
+}

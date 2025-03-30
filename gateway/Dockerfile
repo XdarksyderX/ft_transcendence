@@ -18,7 +18,7 @@ COPY config/selfsigned.key /etc/nginx/selfsigned.key
 
 COPY config/selfsigned.crt /etc/nginx/selfsigned.crt
 
-COPY config/entrypoint.sh /entrypoint.sh
+COPY entrypoint.sh /entrypoint.sh
 
 RUN chmod +x /entrypoint.sh
 

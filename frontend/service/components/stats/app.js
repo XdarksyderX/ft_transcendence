@@ -46,7 +46,7 @@ async function renderChessStats() {
 async function handleGetStats(getStatsFunction) {
     const response = await getStatsFunction();
     if (response.status === "success") {
-        return response.stats || response.data;
+        return response.stats
     } else {
         console.error("Error while fetching stats", response.message);
         return null;
