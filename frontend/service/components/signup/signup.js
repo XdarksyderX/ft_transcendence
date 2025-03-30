@@ -41,10 +41,10 @@ export function parseEmail(email) {
 }
 
 export function parseUsername(username) {
-    const usernameRegex = /^[a-zA-Z0-9_]{1,20}$/;
+    const usernameRegex = /^[a-zA-Z0-9_]{1,18}$/;
     
     if (!usernameRegex.test(username)) {
-        throwAlert('Username can only contain alphanumeric characters and underscores, and must be no more than 20 characters long.');
+        throwAlert('Username can only contain alphanumeric characters and underscores, and must be no more than 18 characters long.');
         return false;
     }
     return true;

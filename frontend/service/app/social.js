@@ -1,5 +1,6 @@
 import { handleSearchUsers } from '../components/friends/requests.js';
 import { sendRequestSocial } from './sendRequest.js';
+import { GATEWAY_URL } from './sendRequest.js';
 
 export async function getFriendsList() {
     return await sendRequestSocial('GET', 'friends/list/');
@@ -76,7 +77,13 @@ export async function hasUnreadMessages() {
     return await sendRequestSocial('GET', `unread-messages/`);
 }
 
+
 // ==================== Avatar Endpoints ====================
+
+export async function changeAlias(newAlias) {
+    const payload = { alias: newAlias };
+    return await sendRequestSocial('POST', 'change-alias', payload);
+}
 
 export async function changeAvatar(formData) {
     return await sendRequestSocial('POST', 'change-avatar', formData, true);
@@ -99,15 +106,13 @@ export async function getAvatar(username = null, user = null, path = null) {
             if (!username) {
                 throw new Error("Username, user object, or path must be provided");
             }
-            console.log('username: ', username);
-            const search = await handleSearchUsers(username);
-            if (search) {
-                user = search.find(u => u.username === username);
-                if (!user) {
-                    throw new Error("User not found");
-                }
-            } else {
-                throw new Error("Failed to search users");
+            try {
+                // Reuse getUserData to fetch the user object
+                user = await getUserData(username);
+            } catch (error) {
+                console.error(`Error fetching user data for username "${username}":`, error.message);
+                // Optionally, return a default avatar if the user is not found
+                return `http://localhost:5051/media/default-avatar.png`;
             }
         }
         path = user.avatar;
@@ -116,6 +121,19 @@ export async function getAvatar(username = null, user = null, path = null) {
     if (!path.startsWith('/media/')) {
         throw new Error("Invalid avatar path");
     }
-   // console.log(`http://localhost:5051${path}`)
-    return `http://localhost:5051${path}`;
+
+    return `${GATEWAY_URL}/api/social${path}`;
+}
+
+export async function getUserData(username) {
+    const search = await handleSearchUsers(username);
+    if (search) {
+        const user = search.find(u => u.username === username);
+        if (!user) {
+            throw new Error("User not found");
+        }
+        return user;
+    } else {
+        throw new Error("Failed to search users");
+    }
 }

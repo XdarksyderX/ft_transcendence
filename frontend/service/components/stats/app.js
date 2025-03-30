@@ -1,6 +1,7 @@
 import { renderMatchHistory } from "./history.js";
-import { getQuickMatchStats, getTournamentStats } from "../../app/pong.js";
-import { getCasualChessStats, getRankedChessStats } from "../../app/chess.js";
+import { getQuickMatchStats, getTournamentStats, getUserPongStats } from "../../app/pong.js";
+import { getCasualChessStats, getRankedChessStats, getUserChessStats } from "../../app/chess.js";
+import { throwAlert } from "../../app/render.js";
 
 export function initializeStatsEvents() {
     renderPongStats();
@@ -83,7 +84,6 @@ function renderChessGameStats(container, stats, isRanked = false) {
         rate.title = 'Win Rate:'
         rate.value = `${winRate}%`;
     }
-	console.log("hola caracola: ", stats);
     container.innerHTML = `
     <p><span class="fw-bold">Games Played:</span> ${stats.games_played}</p>
     <p><span class="fw-bold">Games Won:</span> ${stats.games_won}</p>
@@ -93,47 +93,24 @@ function renderChessGameStats(container, stats, isRanked = false) {
 	`;
 }
 
-export async function getResumeStats() {
-    try {
-        // Fetch stats for Pong Quick Match
-        const quickGameStats = await handleGetStats(getQuickMatchStats);
-        const pongQuickWins = quickGameStats ? quickGameStats.won : 0;
-        const pongQuickLosses = quickGameStats ? quickGameStats.lost : 0;
-        const pongQuickPlayed = quickGameStats ? quickGameStats.played : 0;
-
-        // Fetch stats for Pong Tournament
-        const tournamentStats = await handleGetStats(getTournamentStats);
-        const pongTournamentWins = tournamentStats ? tournamentStats.first : 0;
-        const pongTournamentPlayed = tournamentStats ? tournamentStats.played : 0;
-
-        // Fetch stats for Chess Casual
-        const casualChessStats = await handleGetStats(getCasualChessStats);
-        const chessCasualWins = casualChessStats ? casualChessStats.games_won : 0;
-        const chessCasualLosses = casualChessStats ? casualChessStats.games_lost : 0;
-        const chessCasualPlayed = casualChessStats ? casualChessStats.games_played : 0;
-
-        // Fetch stats for Chess Ranked
-        const rankedChessStats = await handleGetStats(getRankedChessStats);
-        const chessRankedWins = rankedChessStats ? rankedChessStats.games_won : 0;
-        const chessRankedLosses = rankedChessStats ? rankedChessStats.games_lost : 0;
-        const chessRankedPlayed = rankedChessStats ? rankedChessStats.games_played : 0;
-
-        // Calculate totals
-        const totalWins = pongQuickWins + pongTournamentWins + chessCasualWins + chessRankedWins;
-        const totalLosses = pongQuickLosses + chessCasualLosses + chessRankedLosses;
-        const totalPlayed = pongQuickPlayed + pongTournamentPlayed + chessCasualPlayed + chessRankedPlayed;
-
-        return {
-            totalWins,
-            totalLosses,
-            totalPlayed
-        };
-    } catch (error) {
-        console.error("Error while calculating resume stats:", error);
-        return {
-            totalWins: 0,
-            totalLosses: 0,
-            totalPlayed: 0
-        };
+export async function handleGetResumeStats(username) {
+    const pongResponse = await getUserPongStats(username);
+    if (pongResponse.status !== "success") {
+        return throwAlert("Error while fetching stats");
     }
+    const chessResponse = await getUserChessStats(username);
+    if (chessResponse.status !== "success") {
+        return throwAlert("Error while fetching stats");
+    }
+
+    console.log("chess response: ", pongResponse);
+    
+    let resumeStats = {
+        totalPong: pongResponse.stats.quick.played,
+        totalChess: chessResponse.stats.casual.games_played + chessResponse.stats.ranked.games_played,
+        firstPlace: pongResponse.stats.tournament.first,
+        chessElo: chessResponse.stats.ranked.highest_rating
+    }
+    return resumeStats;
+
 }

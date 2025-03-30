@@ -1,8 +1,10 @@
 import { getUsername, refreshAccessToken } from "../../app/auth.js";
 import { handleGetFriendList } from "../friends/app.js";
-import { getAvatar, changeAvatar } from "../../app/social.js";
+import { getAvatar, changeAvatar, getProfile, changeAlias } from "../../app/social.js";
 import { handleUsernameChange } from "../settings/app.js";
 import { throwAlert, throwToast } from "../../app/render.js";
+import { parseUsername } from "../signup/signup.js";
+import { handleGetResumeStats } from "../stats/app.js";
 
 const avatarImages = [
     './resources/avatar/avatar_1.png',
@@ -10,33 +12,65 @@ const avatarImages = [
     './resources/avatar/avatar_3.png',
 ];
 
+async function handleAliasChange() {
+    const newAlias ='pato';
+
+    if (!newAlias) {
+        alert('Alias cannot be empty.');
+        return;
+    }
+
+    try {
+        const response = await changeAlias(newAlias);
+        if (response.status === 'success') {
+            alert('Alias updated successfully!');
+            document.getElementById('alias').textContent = response.alias;
+        } else {
+            alert(`Error: ${response.message}`);
+        }
+    } catch (error) {
+        console.error('Error updating alias:', error);
+        alert('An error occurred while updating the alias.');
+    }
+}
+
 export async function initializeProfileEvents(toggle = false) {
     const elements = getElements();
     const user = getUserData();
     await fillUserData(elements, user);
     loadCanvases();
+    handleAliasChange();
     if (!toggle) {
         btnHandler(elements);
     }
     if (toggle) {
         toggleEditMode(false, elements);
     }
+    const stats = await handleGetResumeStats(getUsername());
+    console.log("AAAAA ", stats);
 }
 let chosenAvatarColor = null;
 let chosenBgColor = null;
 
+
 function getElements() { 
     return (
         {
+            // user data:
+            profilePicture: document.getElementById('profile-picture'),
             username: document.getElementById('username'),
-            registration: document.getElementById('registration'),
+            alias: document.getElementById('alias'),
             totalFriends: document.getElementById('total-friends'),
-            totalMatches: document.getElementById('total-matches'),
+            // stats
+            totalPongMatches: document.getElementById('total-pong-matches'), // New element
+            totalChessMatches: document.getElementById('total-chess-matches'), // New element
+            tournamentFirst: document.getElementById('tournament-first'), // New element
+            chessElo: document.getElementById('chess-elo'), // New element
+            // edit section
             editProfile: document.getElementById('edit-profile'),
             saveChanges: document.getElementById('save-changes'),
             cancelChanges: document.querySelectorAll('.cancel-btn'),
             profileCard: document.querySelector('#profile-section .card'),
-            profilePicture: document.getElementById('profile-picture'),
             fileInput: document.getElementById('file-input'),
             changePicture: document.getElementById('change-picture'),
             profileSection: document.getElementById('profile-section'),
@@ -47,36 +81,41 @@ function getElements() {
             avatarColorPicker: document.getElementById('avatar-color-picker'),
             backgroundColorButton: document.getElementById('choose-background-color'),
             backgroundColorPicker: document.getElementById('background-color-picker'),
-            applyColor: document.getElementById('apply-color')
+            applyColor: document.getElementById('apply-color'),
         }
     );
 }
 
 async function getUserData() {
+    const response = await getProfile();
+    if (response.status !== 'success') {
+        return throwAlert("Error while fetching profile data");
+    }
+    const profileData = response.data;
     const name = getUsername();
     return {
         username: name,
-        registration: '3/11/24',
-        totalFriends: await getNumberOfFriends(),
-        totalMatches: 42,
-        profilePicture: await getAvatar(name)
+        alias: profileData.alias,
+        totalFriends: profileData.total_friends,
+        resumeStats: await handleGetResumeStats(name),
+        profilePicture: await getAvatar(null, null, profileData.avatar)
     };
 }
 
-async function getNumberOfFriends() {
-    const friends = await handleGetFriendList();
-    const number = friends.length;
-    return (number);
-}
 
 
 async function fillUserData(elements) {
+
     const user = await getUserData();
+    console.log("on fill: ", user.resumeStats);
     console.log(user);
-    elements.username.textContent = user.username;
-    elements.registration.textContent = `Registered on: ${user.registration}`;
-    elements.totalFriends.textContent = `Friends: ${user.totalFriends}`;
-    elements.totalMatches.textContent = `Total matches: ${user.totalMatches}`;
+    elements.username.textContent = `${user.username}`;
+    elements.alias.textContent = user.alias || user.username;
+    elements.totalFriends.textContent = `${user.totalFriends}`;
+    elements.totalPongMatches.textContent = `${user.resumeStats.totalPong}`;
+    elements.tournamentFirst.textContent = `${user.resumeStats.firstPlace}`;
+    elements.totalChessMatches.textContent = `${user.resumeStats.totalChess}`;
+    elements.chessElo.textContent = `${user.resumeStats.chessElo}`;
     if (!user.profilePicture)
         user.profilePicture = avatarImages[0];
     elements.profilePicture.src = user.profilePicture;
@@ -94,7 +133,6 @@ export function toggleEditMode(isEditing, elements) {
     
     if (isEditing) {
         elements.username.innerHTML = `
-            <div class="mb-2">New username:</div>
             <input type="text" class="form-control ctm-form mb-2" value="${getUsername()}">
         `;
         elements.cancelChanges.forEach(button => button.style.display = 'block');
@@ -157,7 +195,9 @@ async function updateUsername(username) {
 	const modal = new bootstrap.Modal(modalElement);
     modal.show();
     const confirmSaveBtn = document.getElementById('confirm-save-changes');
-    confirmSaveBtn.addEventListener('click', async () => {
+    const newBtn = confirmSaveBtn.cloneNode(true);
+    confirmSaveBtn.parentNode.replaceChild(newBtn, confirmSaveBtn);
+    newBtn.addEventListener('click', async () => {
 		
 		const password = document.getElementById("confirm-changes-password").value;
 		if (!password) {
@@ -174,13 +214,19 @@ async function updateUsername(username) {
 async function saveNameChanges(elements) {
     const nameInput = elements.username.querySelector('input')
     const newName = nameInput.value;
-    if (newName !== getUsername()) {
-        await updateUsername(newName);
-        nameInput.value = '';
+
+console.log("on save nae changes: ");
+    if (!newName || newName == '' ) {
+        return throwAlert("Name field can't be empty");
+    } else if (!parseUsername(newName)) {
         return ;
-    } else {
-        await initializeProfileEvents(true);
     }
+    else if (newName !== getUsername()) {
+        await updateUsername(newName);
+        nameInput.value = getUsername();
+        return ;
+    }
+    await initializeProfileEvents(true);
  
 }
 

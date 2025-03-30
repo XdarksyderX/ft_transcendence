@@ -62,7 +62,6 @@ export function initializeSidebarEvents() {
 }
 
 export function toggleSidebarDisplay(show) {
-    console.log("on toggle, show: ", show);
     const sidebarContainer = document.getElementById('sidebar-container');
     const sidebarToggle = document.getElementById('sidebar-toggle-container');
     const margin = (show && window.innerWidth > 991) ? '250px' : 'auto'

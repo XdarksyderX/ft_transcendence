@@ -2,9 +2,12 @@ import { getNotifications, markNotification } from "../../app/notifications.js";
 import { initializeNotificationsSocket } from "./socket.js";
 import { getUsername } from "../../app/auth.js";
 
+import { notiSocket } from "./socket.js";
+
 const bell = document.getElementById('bell');
 
 export function initializeNotificationEvents() {
+    if (notiSocket && notiSocket.readyState === WebSocket.OPEN) return ;
     initializeNotificationsSocket();
     updateNotificationBell();
     document.getElementById("notifications-toggle").addEventListener('click', renderNotifications);

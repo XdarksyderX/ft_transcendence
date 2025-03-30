@@ -26,13 +26,14 @@ async function loadChat() {
 }
 
 async function loadSidebar() {
-    const sidebarContainer = document.getElementById('sidebar-container');
-    const sidebarToggle = document.getElementById('sidebar-toggle-container');
-
-    if (sidebarContainer.innerHTML != '') {
-      console.log("sidebar already loaded");
-      return ;
-    }
+  const sidebarContainer = document.getElementById('sidebar-container');
+  const sidebarToggle = document.getElementById('sidebar-toggle-container');
+  
+  if (sidebarContainer.innerHTML != '') {
+    console.log("sidebar already loaded");
+    return ;
+  }
+  console.log("loading sidebar")
 
     try {
         const response = await fetch('./components/sidebar/sidebar.html'); // Ensure the path is correct
@@ -50,7 +51,6 @@ async function loadSidebar() {
 }
 
 export function toggleSidebar(show) {
-  console.log("on toggle, show: ", show);
   const sidebarContainer = document.getElementById('sidebar-container');
   const sidebarToggle = document.getElementById('sidebar-toggle-container');
 

@@ -10,10 +10,36 @@
                             <img id="profile-picture" alt="profile picture" class="img-fluid ctm-img">
                             <button id="change-picture" class="btn">Change</button>
                         </div>
-                        <h3 id="username" class="mb-2"></h3>
-                        <p id="registration" class="mb-1"></p>
-                        <p id="total-friends" class="mb-1"></p>
-                        <p id="total-matches" class="mb-3"></p>
+                        <h4 class="ctm-text-title mb-2">User data</h4>
+                        <p class="d-flex justify-content-between fw-bold mb-1">
+                            <span>Username:</span>
+                            <span id="username"></span>
+                        </p>
+                        <p class="d-flex justify-content-between fw-bold mb-1">
+                            <span>Alias:</span>
+                            <span id="alias">Patata</span>
+                        </p>
+                        <p class="d-flex justify-content-between fw-bold mb-1">
+                            <span>Friends:</span>
+                            <span id="total-friends"></span>
+                        </p>
+                        <h4 class="ctm-text-title mb-2">Stats</h4>
+                        <p class="d-flex justify-content-between fw-bold mb-1">
+                            <span>Total Pong Matches:</span>
+                            <span id="total-pong-matches"></span>
+                        </p>
+                        <p class="d-flex justify-content-between fw-bold mb-1">
+                            <span>Total Chess Matches:</span>
+                            <span id="total-chess-matches"></span>
+                        </p>
+                        <p class="d-flex justify-content-between fw-bold mb-1">
+                            <span>Tournament Wins:</span>
+                            <span id="tournament-first"></span>
+                        </p>
+                        <p class="d-flex justify-content-between fw-bold mb-1">
+                            <span>Chess Elo:</span>
+                            <span id="chess-elo"></span>
+                        </p>
                         <div class="d-flex justify-content-center">
                             <button id="edit-profile" class="btn ctm-btn me-1">Edit profile</button>
                             <button id="save-changes" class="btn ctm-btn" style="display: none;">Save changes</button>
@@ -93,7 +119,9 @@
             </div>
             <div class="modal-body">
                 <p>Password is required to change username:</p>
-                <input type="password" id="confirm-changes-password" class="password-field form-control ctm-form" placeholder="Enter your password">
+                <form id="confirm-changes-form">
+                    <input type="password" id="confirm-changes-password" class="password-field form-control ctm-form" placeholder="Enter your password" autocomplete="password">
+                </form>            
             </div>
             <div class="modal-footer text-center">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>

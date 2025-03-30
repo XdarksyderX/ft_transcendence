@@ -2,7 +2,7 @@
 from django.urls import path, include
 from .views.blocked import BlockUserView, UnblockUserView, IsUserBlockedView, BlockedListView
 from .views.friends import FriendsListView, RemoveFriendView
-from .views.profile import ProfileView, SearchUsersView, ChangeAvatarView
+from .views.profile import ProfileView, SearchUsersView, ChangeAvatarView, ChangeAliasView
 from .views.requests import (PendingReceivedRequestsView, PendingSentRequestsView,
 							AcceptRequestView, DeclineRequestView, CancelRequestView, SendRequestView)
 
@@ -29,6 +29,7 @@ urlpatterns = [
     ])),
     path('profile/', ProfileView.as_view(), name='profile'),
 	path('change-avatar', ChangeAvatarView.as_view(), name='change_avatar'),
+	path('change-alias', ChangeAliasView.as_view(), name='change_alias'),
     path('profile/<str:username>/', ProfileView.as_view(), name='user_profile'),
     path('search/<str:username>/', SearchUsersView.as_view(), name='search_users'),
 ]

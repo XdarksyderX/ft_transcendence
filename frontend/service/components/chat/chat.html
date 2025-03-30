@@ -9,7 +9,7 @@
 <!-- card body -->
 <div id="chat-body" class="card-body p-0" style="display: none;">
     <!-- recent chats tab -->
-    <div id="recent-chats">
+    <div id="recent-chats"class="chat-tab">
         <div id="recent-chats-list" class="list-group list-group-flush p-2 ms-1 me-1">
             <!-- recent chats will be rendered here -->
         </div>
@@ -18,8 +18,8 @@
         </button>    
     </div> <!-- this closes the recent chats tab -->
     <!-- new chat tab -->
-    <div id="new-chat" style="display:none;">
-        <div id="back-to-recents" class="list-group-item back-to-recents" style="display: none;">
+    <div id="new-chat" class="chat-tab" style="display:none;">
+        <div id="back-to-recents" class="list-group-item chat-subheader back-to-recents header-hover" style="display: none;">
             <i class="fas fa-arrow-left me-2"></i>
             <span>back to recents</span>
         </div>
@@ -32,10 +32,10 @@
         </div>
     </div> <!-- this closes the new chat tab -->
     <!-- chat tab -->
-    <div id="chat-window" style="display:none;">
-        <div class="p-2 back-to-recents list-group-item">
-            <i class="fas fa-arrow-left p-2"></i>
-            <span id="current-chat-name"></span>
+    <div id="chat-window" class="chat-tab" style="display:none;">
+        <div class="chat-subheader d-flex align-items-center">
+            <i class="back-to-recents fas fa-arrow-left p-2 px-4 header-hover"></i>
+            <span id="current-chat-name" class="ms-auto p-2 flex-grow-1 text-end header-hover"></span>
         </div>
         <div id="chat-messages" class="p-3">
             <!-- chat messages are rendered here -->
@@ -49,4 +49,12 @@
             </div>
         </form>
     </div> <!-- this closes chat window -->
+    <div id="chat-profile" class="chat-tab" style="display:none;">
+        <div id="back-to-chat" class="list-group-item chat-subheader header-hover">
+            <i class="fas fa-arrow-left me-2"></i>
+            <span>back to chat</span>
+        </div>
+        <div id="profile-data-container" class="d-flex flex-column justify-items-center align-items-center ctm-text-light h-100">
+        </div>
+    </div> <!-- this closes the new chat tab -->
 </div> <!-- this closes the card-body -->

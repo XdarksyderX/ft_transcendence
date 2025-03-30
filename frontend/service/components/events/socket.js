@@ -81,7 +81,10 @@ export function initializeNotificationsSocket() {
     };
 
     notiSocket.onclose = () => {
-        if (state.intentionalClose) return ;
+        if (state.intentionalClose) {
+            notiSocket = null;
+            return ; 
+        }
         console.warn("[WebSocket] Disconnected, attempting to reconnect...");
         scheduleReconnect();
     };

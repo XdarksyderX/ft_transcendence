@@ -83,3 +83,28 @@ class ChangeAvatarView(APIView):
         publish_event("social", "social.avatar_changed", {"user_id": user.id, "new_avatar": avatar_url})
 
         return Response({'status': 'success', 'message': 'Avatar updated successfully.', 'avatar': avatar_url}, status=status.HTTP_200_OK)
+
+class ChangeAliasView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        new_alias = request.data.get('alias', '').strip()
+
+        # Validate the alias
+        if not new_alias:
+            return Response({'status': 'error', 'message': 'Alias cannot be empty.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if len(new_alias) > 20:
+            return Response({'status': 'error', 'message': 'Alias cannot exceed 20 characters.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Update the alias
+        user = request.user
+        user.alias = new_alias
+        user.save()
+
+        # Return success response
+        return Response({
+            'status': 'success',
+            'message': 'Alias updated successfully.',
+            'alias': user.alias
+        }, status=status.HTTP_200_OK)

@@ -34,7 +34,7 @@ function init42cosa() { // socorro esto es súper provisional
 async function authenticateUser(userCredentials) {
     try {
         if (!parseUsername) {
-            return throwAlert('Invalid username');
+            return;
         }
         const loginData = await login(userCredentials);
 

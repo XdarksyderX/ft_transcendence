@@ -278,7 +278,6 @@ class ChessConsumer(AsyncWebsocketConsumer):
 				
 				# Check for promotion in the result
 				promotion_data = None
-				logger.debug(f"AAAAA {result}")
 				if result.get('promotion_pending') == True:
 					promotion_data = {
 						"square": to_pos,
