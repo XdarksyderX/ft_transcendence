@@ -245,7 +245,10 @@ function updateNavbar(url) {
 }
 
 // Handle browser back/forward buttons
-window.addEventListener("popstate", initRouteEvents);
+window.addEventListener("popstate", async () => {
+    await navigateTo(window.location.pathname);
+    // router();
+});
 
 async function initRouteEvents() {
     //console.log("initRouteEvents function called");

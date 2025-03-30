@@ -51,7 +51,6 @@ async function loadSidebar() {
 }
 
 export function toggleSidebar(show) {
-  console.log("on toggle, show: ", show);
   const sidebarContainer = document.getElementById('sidebar-container');
   const sidebarToggle = document.getElementById('sidebar-toggle-container');
 
