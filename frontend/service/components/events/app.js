@@ -36,6 +36,7 @@ export async function renderNotifications() {
 async function hasPendingNotifications() {
     const all = await handleGetNotifications();
     const notifications = filterNotifications(all);
+    notifications.reverse();
     if (notifications.length === 0) {
         return ("off");
     }
