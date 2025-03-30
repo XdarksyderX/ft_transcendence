@@ -45,6 +45,8 @@
     margin-top: 20px;
     height: auto;
     width: auto;
+    padding: 1rem;
+    border-radius: 5px;
     background-color: white;
 }
 

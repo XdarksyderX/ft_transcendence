@@ -92,3 +92,48 @@ function renderChessGameStats(container, stats, isRanked = false) {
     <p class="mb-2"><span class="fw-bold">${rate.title}</span> ${rate.value}</p>
 	`;
 }
+
+export async function getResumeStats() {
+    try {
+        // Fetch stats for Pong Quick Match
+        const quickGameStats = await handleGetStats(getQuickMatchStats);
+        const pongQuickWins = quickGameStats ? quickGameStats.won : 0;
+        const pongQuickLosses = quickGameStats ? quickGameStats.lost : 0;
+        const pongQuickPlayed = quickGameStats ? quickGameStats.played : 0;
+
+        // Fetch stats for Pong Tournament
+        const tournamentStats = await handleGetStats(getTournamentStats);
+        const pongTournamentWins = tournamentStats ? tournamentStats.first : 0;
+        const pongTournamentPlayed = tournamentStats ? tournamentStats.played : 0;
+
+        // Fetch stats for Chess Casual
+        const casualChessStats = await handleGetStats(getCasualChessStats);
+        const chessCasualWins = casualChessStats ? casualChessStats.games_won : 0;
+        const chessCasualLosses = casualChessStats ? casualChessStats.games_lost : 0;
+        const chessCasualPlayed = casualChessStats ? casualChessStats.games_played : 0;
+
+        // Fetch stats for Chess Ranked
+        const rankedChessStats = await handleGetStats(getRankedChessStats);
+        const chessRankedWins = rankedChessStats ? rankedChessStats.games_won : 0;
+        const chessRankedLosses = rankedChessStats ? rankedChessStats.games_lost : 0;
+        const chessRankedPlayed = rankedChessStats ? rankedChessStats.games_played : 0;
+
+        // Calculate totals
+        const totalWins = pongQuickWins + pongTournamentWins + chessCasualWins + chessRankedWins;
+        const totalLosses = pongQuickLosses + chessCasualLosses + chessRankedLosses;
+        const totalPlayed = pongQuickPlayed + pongTournamentPlayed + chessCasualPlayed + chessRankedPlayed;
+
+        return {
+            totalWins,
+            totalLosses,
+            totalPlayed
+        };
+    } catch (error) {
+        console.error("Error while calculating resume stats:", error);
+        return {
+            totalWins: 0,
+            totalLosses: 0,
+            totalPlayed: 0
+        };
+    }
+}
