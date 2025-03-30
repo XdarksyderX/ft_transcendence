@@ -12,7 +12,7 @@ from django.dispatch import receiver
 
 
 class User(AbstractUser):
-    username = models.CharField(max_length=150, unique=True)
+    username = models.CharField(max_length=20, unique=True)
     friends = models.ManyToManyField('self', symmetrical=True, blank=True)
     elo_rating = models.IntegerField(default=1200)
     elo_games_played = models.IntegerField(default=0)

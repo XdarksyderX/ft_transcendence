@@ -7,7 +7,8 @@ def generate_random_bigint():
 
 class User(AbstractUser):
     id = models.BigIntegerField(primary_key=True, default=generate_random_bigint, editable=False)
-    username = models.CharField(max_length=50, unique=True)
+    username = models.CharField(max_length=20, unique=True)
+    alias = models.CharField(max_length=20, unique=False, blank=True, null=True)
     email = models.EmailField(unique=True)
     is_email_verified = models.BooleanField(default=False)
     two_fa_enabled = models.BooleanField(default=False)

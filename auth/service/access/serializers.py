@@ -43,6 +43,7 @@ class RegisterUserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = User(
             username=validated_data['username'],
+            alias=validated_data['username'],
             email=validated_data['email'],
             is_email_verified=settings.DEBUG
         )

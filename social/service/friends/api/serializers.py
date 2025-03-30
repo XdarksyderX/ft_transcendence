@@ -4,10 +4,11 @@ from core.models import User, Status
 class ProfileSerializer(serializers.ModelSerializer):
     status = serializers.SerializerMethodField()
     avatar = serializers.SerializerMethodField()
+    alias = serializers.CharField(required=False, allow_blank=True)
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'avatar', 'status']
+        fields = ['id', 'username', 'alias', 'avatar', 'status']
 
     def get_status(self, obj):
         return obj.status.name if hasattr(obj, 'status') and obj.status else None
