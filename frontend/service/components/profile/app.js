@@ -1,6 +1,6 @@
 import { getUsername, refreshAccessToken } from "../../app/auth.js";
 import { handleGetFriendList } from "../friends/app.js";
-import { getAvatar, changeAvatar } from "../../app/social.js";
+import { getAvatar, changeAvatar, getProfile } from "../../app/social.js";
 import { handleUsernameChange } from "../settings/app.js";
 import { throwAlert, throwToast } from "../../app/render.js";
 import { parseUsername } from "../signup/signup.js";
@@ -12,11 +12,34 @@ const avatarImages = [
     './resources/avatar/avatar_3.png',
 ];
 
+// async function handleAliasChange() {
+//     const newAlias ='pato';
+
+//     if (!newAlias) {
+//         alert('Alias cannot be empty.');
+//         return;
+//     }
+
+//     try {
+//         const response = await changeAlias(newAlias);
+//         if (response.status === 'success') {
+//             alert('Alias updated successfully!');
+//             document.getElementById('alias').textContent = response.alias;
+//         } else {
+//             alert(`Error: ${response.message}`);
+//         }
+//     } catch (error) {
+//         console.error('Error updating alias:', error);
+//         alert('An error occurred while updating the alias.');
+//     }
+// }
+
 export async function initializeProfileEvents(toggle = false) {
     const elements = getElements();
     const user = getUserData();
     await fillUserData(elements, user);
     loadCanvases();
+    handleAliasChange();
     if (!toggle) {
         btnHandler(elements);
     }
@@ -29,17 +52,25 @@ export async function initializeProfileEvents(toggle = false) {
 let chosenAvatarColor = null;
 let chosenBgColor = null;
 
+
 function getElements() { 
     return (
         {
+            // user data:
+            profilePicture: document.getElementById('profile-picture'),
             username: document.getElementById('username'),
-            registration: document.getElementById('registration'),
+            alias: document.getElementById('alias'),
             totalFriends: document.getElementById('total-friends'),
+            // stats
+            totalPongMatches: document.getElementById('total-pong-matches'), // New element
+            totalChessMatches: document.getElementById('total-chess-matches'), // New element
+            tournamentFirst: document.getElementById('tournament-first'), // New element
+            chessElo: document.getElementById('chess-elo'), // New element
+            // edit section
             editProfile: document.getElementById('edit-profile'),
             saveChanges: document.getElementById('save-changes'),
             cancelChanges: document.querySelectorAll('.cancel-btn'),
             profileCard: document.querySelector('#profile-section .card'),
-            profilePicture: document.getElementById('profile-picture'),
             fileInput: document.getElementById('file-input'),
             changePicture: document.getElementById('change-picture'),
             profileSection: document.getElementById('profile-section'),
@@ -51,36 +82,35 @@ function getElements() {
             backgroundColorButton: document.getElementById('choose-background-color'),
             backgroundColorPicker: document.getElementById('background-color-picker'),
             applyColor: document.getElementById('apply-color'),
-            totalPongMatches: document.getElementById('total-pong-matches'), // New element
-            totalChessMatches: document.getElementById('total-chess-matches'), // New element
-            tournamentFirst: document.getElementById('tournament-first'), // New element
-            chessElo: document.getElementById('chess-elo') // New element
         }
     );
 }
 
 async function getUserData() {
+    const response = await getProfile();
+    if (response.status !== 'success') {
+        return throwAlert("Error while fetching profile data");
+    }
+    const profileData = response.data;
     const name = getUsername();
     return {
         username: name,
-        totalFriends: await getNumberOfFriends(),
+        alias: profileData.alias,
+        totalFriends: profileData.total_friends,
         resumeStats: await handleGetResumeStats(name),
-        profilePicture: await getAvatar(name)
+        profilePicture: await getAvatar(null, null, profileData.avatar)
     };
 }
 
-async function getNumberOfFriends() {
-    const friends = await handleGetFriendList();
-    const number = friends.length;
-    return (number);
-}
 
 
 async function fillUserData(elements) {
+
     const user = await getUserData();
     console.log("on fill: ", user.resumeStats);
     console.log(user);
     elements.username.textContent = `${user.username}`;
+    elements.alias.textContent = user.alias || user.username;
     elements.totalFriends.textContent = `${user.totalFriends}`;
     elements.totalPongMatches.textContent = `${user.resumeStats.totalPong}`;
     elements.tournamentFirst.textContent = `${user.resumeStats.firstPlace}`;
@@ -103,7 +133,6 @@ export function toggleEditMode(isEditing, elements) {
     
     if (isEditing) {
         elements.username.innerHTML = `
-            <div class="mb-2">New username:</div>
             <input type="text" class="form-control ctm-form mb-2" value="${getUsername()}">
         `;
         elements.cancelChanges.forEach(button => button.style.display = 'block');

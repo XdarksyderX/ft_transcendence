@@ -77,7 +77,13 @@ export async function hasUnreadMessages() {
     return await sendRequestSocial('GET', `unread-messages/`);
 }
 
+
 // ==================== Avatar Endpoints ====================
+
+// export async function changeAlias(newAlias) {
+//     const payload = { alias: newAlias };
+//     return await sendRequestSocial('POST', 'change-alias/', payload);
+// }
 
 export async function changeAvatar(formData) {
     return await sendRequestSocial('POST', 'change-avatar', formData, true);

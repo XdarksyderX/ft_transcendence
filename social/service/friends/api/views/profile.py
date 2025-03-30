@@ -83,3 +83,4 @@ class ChangeAvatarView(APIView):
         publish_event("social", "social.avatar_changed", {"user_id": user.id, "new_avatar": avatar_url})
 
         return Response({'status': 'success', 'message': 'Avatar updated successfully.', 'avatar': avatar_url}, status=status.HTTP_200_OK)
+    
