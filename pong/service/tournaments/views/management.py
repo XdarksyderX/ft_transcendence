@@ -261,10 +261,7 @@ class TournamentStartView(APIView):
             "players_id": [player.id for player in tournament.players.all()]
         })
 
-        remaining_invitations = TournamentInvitation.objects.filter(tournament=tournament)
-        for invitation in remaining_invitations:
-            invitation.status = 'cancelled'
-            invitation.save()
+        remaining_invitations = TournamentInvitation.objects.filter(tournament=tournament).delete()
         
         return Response({
             "status": "success",
