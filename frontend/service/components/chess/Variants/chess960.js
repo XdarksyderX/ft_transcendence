@@ -2,12 +2,12 @@ import * as piece from "../Data/pieces.js";
 import { piecePositions } from "../Render/main.js";
 
 //reasign the intial positions of the pieces in the piecePostion var
-function getChess960Piece() {
-    const chess960Positions = generateChess960Position();
-    Object.keys(chess960Positions).forEach(key => {
-        piecePositions[key] = (key[1] === '1' ? piece[`white${chess960Positions[key]}`] : piece[`black${chess960Positions[key]}`]);
-    });
-}
+// function getChess960Piece() {
+//     const chess960Positions = generateChess960Position();
+//     Object.keys(chess960Positions).forEach(key => {
+//         piecePositions[key] = (key[1] === '1' ? piece[`white${chess960Positions[key]}`] : piece[`black${chess960Positions[key]}`]);
+//     });
+// }
 
 /**
  * This function generates a random initial position for the Chess960 variant.
@@ -65,4 +65,4 @@ function placePiece(positions, piece) {
     positions[pos] = piece;
 }
 
-export { getChess960Piece };
+export { generateChess960Position }

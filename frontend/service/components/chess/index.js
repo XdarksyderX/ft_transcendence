@@ -1,14 +1,18 @@
+/**
+ * this file initializes the chess game.
+ * with 'import' we take the functions from their files
+*/
+import { getChessPendingMatches } from "../../app/chess.js";
 import { initGame } from "./Data/data.js";
-import { initGameRender, clearHighlight, renderPlayers, toggleTurn } from "./Render/main.js";
-import { GlobalEvent, clearYellowHighlight, moveElement } from "./Events/global.js";
+import { initGameRender, clearHighlight } from "./Render/main.js";
+import { GlobalEvent, clearYellowHighlight } from "./Events/global.js";
 import { resingOption } from "./Helper/modalCreator.js";
+import { pawnPromotion } from "./Helper/modalCreator.js"; // fully provisional
 import { winGame } from "./Helper/modalCreator.js";
-import { getChessMatchDetail, getChessPendingMatches } from "../../app/chess.js";
-import { getUsername } from "../../app/auth.js";
-import { convertToPiecePositions } from "./Render/main.js";
-import { reloadMoveLogger } from "./Helper/logging.js";
-
-
+import { initOnlineChess, onlineInfo } from "./Handlers/online.js";
+import { offlineInfo } from "./Handlers/offline.js";
+import { initOfflineChess } from "./Handlers/offline.js";
+import { toggleTurn } from "./Render/main.js";
 
 let globalState = initGame();
 let keySquareMapper = {};
@@ -19,9 +23,8 @@ backgroundMusicChess.loop = true;
 backgroundMusicPong.loop = true;
 let isMusicPlaying = false;
 let currentMusic = null;
-let chessSocket = null;
-let attemptedReconnection = null;
-let whoIsWho = {};
+
+let gameMode;
 let inTurn;
 
 globalState.flat().forEach((square) => {
@@ -55,27 +58,25 @@ export async function initializeChessEvents(key) {
     const saveSettingsButton = document.getElementById('save-settings');
     const cancelSettingsButton = document.getElementById('cancel-settings');
     const pieceStyleSelect = document.getElementById('piece-style');
-
+    
+    
     if (key) {
-        console.log("on chess, key: ", key)
-        await initOnlineChess(key)
+        await initOnlineChess(key, true);
     } else {
         let res = await getChessPendingMatches();
         if (res.status === "success" && res.match) {
             key = res?.match?.game_key;
-            console.log("RECARGAR PAGINA");
-            await initOnlineChess(key);
+            await initOnlineChess(key, false);
+            // inTurn = onlineInfo.inTurn;
+        } else {
+            initOfflineChess();
+            
         }
+        gameMode = onlineInfo.gameMode || offlineInfo.gameMode ;
     }
-    const data = await waitForBoardStatus();
-    const inTurn = getUserColor(getUsername()) === data.current_player;
-    const piecePositions = convertToPiecePositions(data.board);
 
-
-    initGameRender(globalState, piecePositions, inTurn);
     GlobalEvent();
     generateCoordinates();
-    reloadMoveLogger();
     setupButtonEvents(settingsPanel, saveSettingsButton, cancelSettingsButton, pieceStyleSelect)
 
     document.addEventListener('click', (event) => {
@@ -83,121 +84,6 @@ export async function initializeChessEvents(key) {
             settingsPanel.classList.add('hidden');
         }
     });
-}
-
-let gameMode = null;
-
-async function handleGetChessMatchDetail(key) {
-    const res = await getChessMatchDetail(key);
-    if (res.status === "success") {
-        const white = res.match.player_white;
-        const black = res.match.player_black;
-
-        whoIsWho[white] = "white";
-        whoIsWho[black] = "black";
-
-        gameMode = res.match.game_mode;
-    }
-    console.log("on handleGetChessMatchDetail: ", res)
-}
-
-
-
-async function initOnlineChess(key) {
-    // white or black 
-    //getChessMatchDetail(key);
-    await handleGetChessMatchDetail(key);
-    renderPlayers(whoIsWho);
-    initializeChessSocket(key);
-    // initialize socket
-    
-}
-
-function checkPawnDoubleMoveInLastTurn(from, to) {
-    let tmp = keySquareMapper[to].piece;
-    if (tmp.piece_name.includes("PAWN")){
-        if (Math.abs(to[1] - from[1]) === 2) {
-            tmp.move = true;
-            sessionStorage.setItem("enPassantCapture", JSON.stringify({ position: to, color: tmp.color, move: tmp.move }));
-        } else {
-            tmp.move = false;
-            if (sessionStorage.getItem("enPassantCapture"))
-                sessionStorage.removeItem("enPassantCapture");
-        }
-    }
-}
-
-function handleGetChessReceivedMessage(event) {
-    try {
-        const data = JSON.parse(event.data);
-        if (data.status === "game_update" && !data.promotion) {
-            const { from, to } = data.last_move;
-            const piece = keySquareMapper[from].piece;
-            if (piece) {
-                moveElement(piece, to, false);
-                checkPawnDoubleMoveInLastTurn(from, to);
-            }
-        }
-        if (data.status === "game_over") {
-            winGame(data.winner);
-            // sessionStorage.removeItem("chessMoves");
-            // if (sessionStorage.getItem("enPassantCapture"))
-            //     sessionStorage.removeItem("enPassantCapture");
-            chessSocket.close(); // now we clear all the session storage on the socket.onclose()
-        }
-        if (data?.current_player) {
-            inTurn = data.current_player;
-            console.log('updating turn to: ', inTurn);
-            toggleTurn(inTurn);
-        }
-    }
-    catch (e) {
-        console.error("Error parsing WS message: ", e);
-    }
-}
-
-function initializeChessSocket(game_key) {
-    chessSocket = new WebSocket(`wss://${GATEWAY_HOST}/ws/chess/${game_key}/`);
-
-    chessSocket.onopen = () => {
-        sessionStorage.setItem('inGame', '/chess');
-        console.log("Chess WebSocket connected");
-        chessSocket.send(JSON.stringify({ action: "ready", color: getUserColor(getUsername()), username: getUsername() }));
-        attemptedReconnection = false;
-    }
-
-    chessSocket.onmessage = (event) => {
-        handleGetChessReceivedMessage(event);
-    }
-
-    chessSocket.onerror = (error) => {
-        console.error("ChessSocket error:", error);
-    };
-
-    chessSocket.onclose = async (event) => {
-        //sessionStorage.removeItem('inGame');
-        sessionStorage.clear();
-        console.log("Chess WebSocket closed");
-    }
-
-}
-
-function waitForBoardStatus() {
-    return new Promise((resolve, reject) => {
-        function onMessage(event) {
-            const data = JSON.parse(event.data);
-            if (data.status === "game_starting") {
-                chessSocket.removeEventListener('message', onMessage);
-                resolve(data);
-            }
-        }
-        chessSocket.addEventListener('message', onMessage);
-    });
-}
-
-
-function getUserColor(username) {
-    return whoIsWho[username];
 }
 
 function setupButtonEvents(settingsPanel, saveSettingsButton, cancelSettingsButton, pieceStyleSelect) {
@@ -340,6 +226,11 @@ function stopBackgroundMusic() {
       }
 }
 
+function updateInTurn(to) {
+    console.log('updating turn to: ', to);
+    inTurn = to;
+    toggleTurn(inTurn);
+}
 
 /*add a custom method to String prototipe that replace a part of an
 string in a specific position. Ex: str = "hello" -> str = str.replaceAt(1, "a") = "hallo" */ //borrar?
@@ -348,4 +239,4 @@ String.prototype.replaceAt = function (index, replacement) {
     return (this.substring(0, index) + replacement + this.substring(index + replacement.length));
 };
 
-export { globalState, keySquareMapper, highlightColor, imgStyle, stopBackgroundMusic, toggleBackgroundMusic, getUserColor , chessSocket, inTurn, gameMode};
+export { globalState, keySquareMapper, highlightColor, imgStyle, stopBackgroundMusic, toggleBackgroundMusic, inTurn, gameMode, updateInTurn };

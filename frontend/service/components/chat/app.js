@@ -241,8 +241,8 @@ export async function openChat(friendUsername, elements, newChat = false) {
 	//console.log("Opening chat with:", friendUsername);
 	currentChat = { username: friendUsername, messages: [] };
 	renderedMessages.clear(); // Reinicia el set de mensajes renderizados
+	elements.chatMessages.innerHTML = ''; // clears the dom before fetching messages
 	if (!newChat) { // si no es un chat nuevo que acabo de crear
-		elements.chatMessages.innerHTML = ''; // clears the dom before fetching messages
 		await fetchChatMessages(friendUsername);
 		await markMessagesAsRead(friendUsername);
 	}

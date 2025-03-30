@@ -1,10 +1,11 @@
 import * as piece from "../Data/pieces.js";
-import { globalState, highlightColor, keySquareMapper, gameMode } from "../index.js";
-import { getChess960Piece } from "../Variants/chess960.js";
-import { renderHordePieces } from "../Variants/horde.js";
+import { globalState, highlightColor, keySquareMapper } from "../index.js";
+// import { getChess960Piece } from "../Variants/chess960.js";
+// import { renderHordePieces } from "../Variants/horde.js";
 import { initGame } from "../Data/data.js";
 
 const globalPiece = new Object();
+const chessVariantTmp = sessionStorage.getItem('chessVariant'); //borrar -> solucion temporal para asegurar la persistencia de la variable hasta que tengamos backend
 
 /**
  * funciton globlaStateRender is usefull to render pieces from globalStateData,
@@ -108,13 +109,14 @@ const piecePositions = {
  * representing the piece to the square's HTML element.
  * @param {*} data a 2D array representing the chessboard, where each element is a row of squares.
  */
-function initGameRender(data, piecePositiont, inTurn)
+function initGameRender(data, piecePositions, detail)
 {
+
   globalPiece.black_pawns = [];
   globalPiece.white_pawns = [];
 
-  if (gameMode === "960")
-    getChess960Piece();
+  // if (detail.gameMode === "960")
+  //   getChess960Piece();
 
   document.getElementById('root').innerHTML = '';
   data.forEach(element => {
@@ -124,14 +126,15 @@ function initGameRender(data, piecePositiont, inTurn)
       squareDiv.id = square.id;
       squareDiv.classList.add(square.color, "square");
       
-      assignSpecificPiece(square, piecePositiont);
+      assignSpecificPiece(square, piecePositions);
       rowEl.appendChild(squareDiv);
       });
       rowEl.classList.add("squareRow");
       document.getElementById('root').appendChild(rowEl);
     });
     pieceRender(data);
-    const enpassantItem = inTurn ? 'enPassantCapture' : 'enPassantTarget'
+    // migración enpassant
+    const enpassantItem = detail.inTurn ? 'enPassantCapture' : 'enPassantTarget'
     const enPassantState = JSON.parse(localStorage.getItem(enpassantItem));
     if (enPassantState) {
       const { position, move } = enPassantState;
@@ -139,44 +142,52 @@ function initGameRender(data, piecePositiont, inTurn)
           keySquareMapper[position].piece.move = move;
       }
     }
-  }
+}
 
-  function assignSpecificPiece(square, piecePositiont) {
-    if (!piecePositiont[square.id]) {
-      square.piece = null;
-      return;
+function assignSpecificPiece(square, piecePositions) {
+  if (!piecePositions[square.id]) {
+    square.piece = null;
+    return;
+  }
+  const fullName = piecePositions[square.id].name;
+  const color = fullName.startsWith("black") ? "black" : "white";
+  const pieceType = fullName.replace(color, '').toLowerCase();
+  
+  if (pieceType === 'rook' || pieceType === 'knight' || pieceType === 'bishop'){
+    square.piece = piecePositions[square.id](square.id)
+    assignRepeatedPiece(square, color, pieceType);
+  }
+  else if (pieceType == 'pawn') {
+    if (color == "black"){
+      square.piece = piece.blackPawn(square.id);
+      globalPiece.black_pawns.push(square.piece);
     }
-    const fullName = piecePositiont[square.id].name;
-    const color = fullName.startsWith("black") ? "black" : "white";
-    const pieceType = fullName.replace(color, '').toLowerCase();
-    
-    if (pieceType === 'rook' || pieceType === 'knight' || pieceType === 'bishop'){
-      square.piece = piecePositiont[square.id](square.id)
-      assignRepeatedPiece(square, color, pieceType);
+    else {
+      square.piece = piece.whitePawn(square.id);
+      globalPiece.white_pawns.push(square.piece);
     }
-    else if (pieceType == 'pawn') {
-      if (color == "black"){
-        square.piece = piece.blackPawn(square.id);
-        globalPiece.black_pawns.push(square.piece);
-      }
-      else {
-        square.piece = piece.whitePawn(square.id);
-        globalPiece.white_pawns.push(square.piece);
-      }
-    }
-    else if (pieceType == 'king' || pieceType == 'queen'){
-      square.piece = piecePositiont[square.id](square.id)
-      globalPiece[`${color}_${pieceType}`] = square.piece;
-    }
+  }
+  else if (pieceType == 'king' || pieceType == 'queen'){
+    square.piece = piecePositions[square.id](square.id)
+    globalPiece[`${color}_${pieceType}`] = square.piece;
+  }
 }
 
 function assignRepeatedPiece(square, color, pieceType) {
-  let i = 1;
-  while (globalPiece[`${color}_${pieceType}_${i}`]) {
-    i++;
-  }
-  globalPiece[`${color}_${pieceType}_${i}`] = square.piece;
+  if (globalPiece[`${color}_${pieceType}_1`])
+    globalPiece[`${color}_${pieceType}_2`] = square.piece;
+  else
+    globalPiece[`${color}_${pieceType}_1`] = square.piece;
 }
+
+
+// // render highlight circle
+// function renderHighlight(squareId) {
+//   const highlightSpan = document.createElement("span");
+//   highlightSpan.classList.add("highlight");
+//   highlightSpan.style.backgroundColor = highlightColor; // Aplicar el color de highlight
+//   document.getElementById(squareId).appendChild(highlightSpan);
+// }
 
 // clear all hightlight from the board
 function clearHighlight() {
@@ -201,35 +212,16 @@ function circleHighlightRender(highlightSquareIds, keySquareMapper) {
   highlightSquareIds.forEach(highlight => {
     const element = keySquareMapper[highlight];
     element.highlight = true;
+
+    // create and add the element .highlight if doesn't exist
+    // let highlightSpan = document.getElementById(highlight).querySelector('.highlight');
+    // if (!highlightSpan) {
+    //   highlightSpan = document.createElement("span");
+    //   highlightSpan.classList.add("highlight");
+    //   document.getElementById(highlight).appendChild(highlightSpan);
+    // }
+    // highlightSpan.style.backgroundColor = highlightColor;
   });
-}
-
-function convertToPiecePositions(boardMap) {
-  const piecePositionsTmp = {};
-
-
-  Object.keys(boardMap).forEach(key => {
-    const square = boardMap[key];
-    if (!square) {
-      piecePositionsTmp[key] = null;
-    } else {
-      const pieceType = square.type.toLowerCase();
-      const pieceColor = square.color === "white" ? "white" : "black";
-      const pieceKey = `${pieceColor}${pieceType.charAt(0).toUpperCase() + pieceType.slice(1)}`;
-      piecePositionsTmp[key] = piece[pieceKey];
-    }
-  });
-
-  return piecePositionsTmp;
-}
-
-function getPlayerNameByColor(color, whoIsWho) {
-  for (const [player, playerColor] of Object.entries(whoIsWho)) {
-      if (playerColor === color) {
-          return player;
-      }
-  }
-  return null; // Return null if no player is found with the given color
 }
 
 function renderPlayers(whoIswho) {
@@ -270,32 +262,21 @@ function renderPlayers(whoIswho) {
   `
 }
 
+function getPlayerNameByColor(color, whoIsWho) {
+  for (const [player, playerColor] of Object.entries(whoIsWho)) {
+      if (playerColor === color) {
+          return player;
+      }
+  }
+  return null; // Return null if no player is found with the given color
+}
+
 function toggleTurn(inTurn) {
   const notInTurn = inTurn == 'white' ? 'black' : 'white';
-//  console.log("inTurn: ", inTurn, notInTurn);
   const inTurnElement = document.getElementById(`${inTurn}-turn`);
   inTurnElement?.classList.add('inturn');
   const notInTurnElement = document.getElementById(`${notInTurn}-turn`);
   notInTurnElement?.classList.remove('inturn');
 }
 
-// function toggleTurn(inTurn) {
-//     const whiteTurnElement = document.getElementById('white-turn');
-//     const blackTurnElement = document.getElementById('black-turn');
-
-//     console.log("toggliung turrnnr")
-//     if (whiteTurnElement) {
-//         whiteTurnElement.classList.remove('inturn');
-//     }
-//     if (blackTurnElement) {
-//       console.log("eee")
-//         blackTurnElement.classList.remove('inturn');
-//     }
-
-//     const currentTurnElement = document.querySelector(`.${inTurn}-turn`);
-//     if (currentTurnElement) {
-//         currentTurnElement.classList.add('inturn');
-//     }
-// }
-
-export { initGameRender, clearHighlight, selfHighlight, globalStateRender, globalPiece, circleHighlightRender, piecePositions, convertToPiecePositions, renderPlayers, toggleTurn };
+export { initGameRender, clearHighlight, selfHighlight, globalStateRender, globalPiece, circleHighlightRender, piecePositions, renderPlayers, toggleTurn };

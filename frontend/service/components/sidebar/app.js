@@ -11,6 +11,7 @@ export function initializeSidebarEvents() {
 
 	// Render the username in the sidebar and the navbar
 	username.textContent = `${getUsername()}`;
+    resizeSidebarUsername();
 
     // Function to toggle the sidebar
     function toggleSidebar(event) {
@@ -70,3 +71,37 @@ export function toggleSidebarDisplay(show) {
       document.getElementById('app').style.marginLeft = margin;
   }
   
+export function resizeSidebarUsername() {
+    const usernameElement = document.getElementById("sidebar-username");
+    const username = usernameElement.textContent; // Get the username text
+
+    if (username) {
+        // Adjust font size based on username length
+        const maxFontSize = 2; // Maximum font size in rem
+        const minFontSize = 0.8; // Minimum font size in rem
+        const maxLength = 20; // Length at which font size reaches minimum
+
+        const fontSize = Math.max(
+            minFontSize,
+            maxFontSize - (username.length / maxLength) * (maxFontSize - minFontSize)
+        );
+
+        // Adjust padding based on font size
+        const maxPadding = { topBottom: 8, leftRight: 16 }; // Maximum padding in px
+        const minPadding = { topBottom: 8, leftRight: 0 }; // Minimum padding in px
+
+        const paddingTopBottom = Math.max(
+            minPadding.topBottom,
+            maxPadding.topBottom - (username.length / maxLength) * (maxPadding.topBottom - minPadding.topBottom)
+        );
+
+        const paddingLeftRight = Math.max(
+            minPadding.leftRight,
+            maxPadding.leftRight - (username.length / maxLength) * (maxPadding.leftRight - minPadding.leftRight)
+        );
+
+        // Apply styles
+        usernameElement.style.fontSize = `${fontSize}rem`;
+        usernameElement.style.padding = `${paddingTopBottom}px ${paddingLeftRight}px`;
+    }
+}

@@ -20,13 +20,14 @@ const pieceMap = {
   "WHITE_QUEEN": pieces.blackQueen
 };
 
-function kirbyTransformation(square, capturedPiece) {
+function kirbyTransformation(square, capturedPiece, color) {
   let piece = square.piece;
 
   if (piece && piece.piece_name.includes("KING")) 
     return;
   if (getPieceType(capturedPiece) == getPieceType(piece))
     return;
+  
   const newPiece = pieceMap[capturedPiece.piece_name];
   if (newPiece)
     callbackPiece(newPiece, square.id);

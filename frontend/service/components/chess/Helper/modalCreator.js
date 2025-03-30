@@ -1,8 +1,10 @@
 import * as pieces from "../Data/pieces.js";
-import { imgStyle, chessSocket } from "../index.js";
+import { imgStyle, inTurn } from "../index.js";
 import { navigateTo } from "../../../app/router.js";
 import { isClick } from "../Events/global.js";
 import { globalPiece } from "../Render/main.js";
+import { chessSocket } from "../Handlers/online.js";
+
 
 /**
  * This class  is a design pattern aimed at creating
@@ -68,6 +70,7 @@ async function pawnPromotion(color, callback, id, pieceTo = null) {
   
   const createPieceImage = (pieceName) => {
     const img = document.createElement("img");
+    img.classList.add("promotion-choice")
     img.src = `components/chess/Assets/pieces/${imgStyle}/${color}/${pieceName}.png`;
     img.onclick = () => {
       callback(piecesMap[pieceName], id);
@@ -78,13 +81,13 @@ async function pawnPromotion(color, callback, id, pieceTo = null) {
   };
   
   if (!isClickBool) {
-    console.log("calling waitForPromotionChoice function");
+    //Checking enconsole.log("calling waitForPromotionChoice function");
     const promotionData = await waitForPromotionChoice();
-    console.log("leaving waitForPromotionChoice function");
-    console.log(promotionData);
+    //Checking enconsole.log("leaving waitForPromotionChoice function");
+    //Checking enconsole.log(promotionData);
     const {pieceColor, pieceType, to} = promotionData;
     callback(piecesMap[promotionData.pieceType], promotionData.to); 
-    console.log(globalPiece)
+    //Checking enconsole.log(globalPiece)
     return;
   }
   
@@ -105,10 +108,11 @@ async function pawnPromotion(color, callback, id, pieceTo = null) {
   
   const modal = new ModalCreator(finalContainer);
   modal.show();
-  console.log("pawnPromotion: globalPiece: ", globalPiece)
+  // console.log("pawnPromotion: globalPiece: ", globalPiece)
 }
 
 function handlePromotionChoice(pieceType) {
+  if (!chessSocket) return ;
   const data = {
     action: "promotion_choice",
     piece_type: pieceType
@@ -142,7 +146,7 @@ function winGame(winBool) {
 
     <div class="tv mx-4 position-relative mb-3">
        <p class="ctm-text-title">${winBool} Wins! </p>
-        <img src="../../resources/win.gif">
+        <img class="dancing-bot" src="../../resources/win.gif">
        </div>
        
        `;
@@ -152,7 +156,10 @@ function winGame(winBool) {
   homeButton.classList.add("btn");
   homeButton.classList.add("ctm-btn-secondary");
   homeButton.onclick = () => {
-    chessSocket.close();
+    // if (chessSocket) {
+    //   chessSocket.close();
+    // }
+    sessionStorage.clear();
     navigateTo('/home');
     modal.hide();
   }
@@ -165,24 +172,23 @@ function winGame(winBool) {
   finalContainer.appendChild(buttonContainer);
   finalContainer.classList.add("chess-modal");
   const modal = new ModalCreator(finalContainer);
-  modal.show();
+  setTimeout(() => { modal.show(); }, 500);
+
+
 }
 
 function resingOption() {
   const resignButton = document.getElementById("resign-button");
   resignButton.onclick = () => {
-    const data = { action: "resign" };
-    console.log("Attempting to send data through WebSocket:", data);
-
-    try {
-      if (chessSocket && chessSocket.readyState === WebSocket.OPEN) {
-        chessSocket.send(JSON.stringify(data));
-        console.log("Sending data through WebSocket:", data);
-      } else {
-        console.log("WebSocket is not open:", chessSocket);
-      }
-    } catch (e) {
-      console.error("Error sending data through WebSocket:", e);
+    
+    if (chessSocket && chessSocket.readyState === WebSocket.OPEN) {
+      const data = { action: "resign" };
+      console.log("Attempting to send data through WebSocket:", data);
+      chessSocket.send(JSON.stringify(data));
+      console.log("Sending data through WebSocket:", data);
+    } else if (!chessSocket) {
+        const winner = inTurn === 'white' ? 'black' : 'white';
+        winGame(winner);
     }
   }
 }

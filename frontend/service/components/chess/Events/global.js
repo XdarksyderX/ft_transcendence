@@ -1,4 +1,4 @@
-import { globalState, keySquareMapper, getUserColor, chessSocket } from "../index.js"; //import globalState object, a 2D array representing the state of the chessboard
+import { globalState, keySquareMapper, inTurn, updateInTurn, gameMode } from "../index.js"; //import globalState object, a 2D array representing the state of the chessboard
 import { clearHighlight, globalStateRender, selfHighlight, globalPiece, circleHighlightRender } from "../Render/main.js";
 import * as help from "../Helper/commonHelper.js"
 import { logMoves, appendPromotion } from "../Helper/logging.js"
@@ -6,9 +6,9 @@ import { pawnPromotion, winGame } from "../Helper/modalCreator.js";
 import { removeSurroundingPieces } from "../Variants/atomic.js";
 import { kirbyTransformation } from "../Variants/kirby.js";
 import { checkWinForBlackHorde, whitePawnHordeRenderMoves } from "../Variants/horde.js"
+import { getUserColor, chessSocket } from "../Handlers/online.js";
 import { getUsername } from "../../../app/auth.js";
-import { inTurn, gameMode } from "../index.js";
-
+import { filterMovesForKingProtection, checkForCheckmate, updateGlobalState, updatePiecePosition } from "./check.js";
 //highlighted or not => state
 let highlight_state = false;
 
@@ -17,24 +17,30 @@ let selfHighlightState = null;
 
 //in move state or not
 let moveState = null;
-//let inTurn = "white";
-let whoInCheck = null;
+
 let winBool = false;
 let captureNotation = false;
+let oneMore = false;
 
 const moveSound = new Audio('components/chess/Assets/music/sound2.mp3');
 
 function changeTurn() {
-  console.log("inTurn: ", inTurn)
+  // clean the previous pawn movements for en passant reasons
   const pawns = inTurn === "white" ? globalPiece.black_pawns : globalPiece.white_pawns;
   pawns.forEach(pawn => {
     pawn.move = false;
   });
+  captureNotation = false;
+  // update turn manually if we're in local play
+  if (!chessSocket) {
+    const newTurn = inTurn === "white" ? "black" : "white";
+    updateInTurn(newTurn);
+  }
 }
 
 function captureInTurn(square) {
   const piece = square.piece;
-  console.log('capture, variant:', gameMode);
+  //console.log('capture, variant:', gameMode);
   if (piece == selfHighlightState) {
     clearPreviousSelfHighlight(selfHighlightState);
     clearHighlightLocal();
@@ -42,15 +48,19 @@ function captureInTurn(square) {
   }
   
   if (square.captureHightlight) {
-    captureNotation = true
+    captureNotation = true;
+
     moveElement(selfHighlightState, piece.current_pos);
     if (gameMode === "bomb"){
-      console.log("captureInTurn: Bomb: square: ", square);
-      removeSurroundingPieces(square.id);
+      //console.log("captureInTurn: Bomb: square: ", square);
+      winBool = removeSurroundingPieces(square.id);
+      if (winBool && !chessSocket) {
+        
+      }
     }
     
     if (gameMode === "kirby"){
-      console.log("captureInTurn: Kirby: square: ", square);
+      //console.log("captureInTurn: Kirby: square: ", square);
       kirbyTransformation(square, piece);
     }
     clearPreviousSelfHighlight(selfHighlightState);
@@ -78,10 +88,13 @@ function checkForPawnPromotion(piece, id) {
 
 function checkWin(piece) {
   if (inTurn === "white" && piece.piece_name.includes("BLACK_KING"))
-    return "White";
+    winBool =  "White";
   else if (inTurn === "black" && piece.piece_name.includes("WHITE_KING"))
-    return "Black";
-  return false;
+    winBool = "Black";
+  if (winBool && !chessSocket) {
+    setTimeout(() => { winGame(winBool); }, 50);
+  }
+  winBool = false;
 }
 
 //this is the update for globalPiece when a pawn its promoted/demoted to other type of piece
@@ -180,46 +193,7 @@ function moveTwoCastlingPieces(piece, id) {
   return castlingType;
 }
 
-/**
- * Update the global state with the new piece position.
- * @param {*} piece An object representing a game piece.
- * @param {*} id The new position id where the piece should be moved.
- */
-function updateGlobalState(piece, id) {
-  const flatData =  globalState.flat();
-  //iterate throught each element to update the positions id the pieces.
-  flatData.forEach((el) => {
-    if (el.id == piece.current_pos) {
-      delete el.piece; //when the element with the current position is find, delete the piece property from it
-    }
-    if (el.id == id) {
-      if (el.piece) {
-        el.piece.current_pos = null;
-        winBool = checkWin(el.piece);
-      }
-      el.piece = piece; //find the element with the new position and asign the piece to it
-    }
-  });
-}
 
-/**
- * Update the HTML elements to reflect the new positions of the piece.
- * @param {*} piece An object representing a game piece.
- * @param {*} id The new position id where the piece should be moved.
- */
-function updatePiecePosition(piece, id) {
-  const previousPiece = document.getElementById(piece.current_pos);
-  const currentPiece = document.getElementById(id);
-
-  piece.current_pos = null;
-  previousPiece?.classList?.remove("highlightYellow");
-
-  currentPiece.innerHTML = previousPiece?.innerHTML;
-  if (previousPiece)
-    previousPiece.innerHTML = "";
-
-  piece.current_pos = id;
-}
 
 function makeEnPassant(piece, id) {
   if (!piece.piece_name.includes("PAWN"))
@@ -268,14 +242,16 @@ function moveElement(piece, id, castle) {
   let capturedPiece = null;
 
   if (isClickBool) {
+    if (chessSocket) {
+
       const data = {
         action: "move",
         from: piece.current_pos,
         to: id
       } 
       chessSocket.send(JSON.stringify(data));
-      console.log("Sending data through WebSocket:", data);
-
+      //console.log("Sending data through WebSocket:", data);
+    }
     if (piece.piece_name.includes("PAWN") && (Math.abs(id[1] - piece.current_pos[1]) === 2 )) {
       piece.move = true;
       sessionStorage.setItem("enPassantTarget", JSON.stringify({ position: id, move: piece.move }));
@@ -286,6 +262,7 @@ function moveElement(piece, id, castle) {
     const capturedSquare = keySquareMapper[id];
     if (capturedSquare.piece) {
       capturedPiece = capturedSquare.piece;
+      captureNotation = true;
     }
   }
 
@@ -295,32 +272,40 @@ function moveElement(piece, id, castle) {
     makeEnPassant(piece, id);
 
   updateGlobalState(piece, id);
+  //console.log("globalState after making move: ", globalState.flat());
   clearHighlight();
   updatePiecePosition(piece, id);
 
-  if (inTurn == getUserColor(getUsername()))
+  if (!chessSocket || inTurn == getUserColor(getUsername()))
     moveSound.play();
-
-  checkForCheck();
-
-  if (winBool) {
-    // setTimeout(() => { winGame(winBool); }, 50);
-    return;
-  }
-
+  
+  
   if (pawnPromotionBool)
     pawnPromotion(inTurn, callbackPiece, id);
-
+  
   logMoves({from: piece.current_pos, to: id, piece:piece.piece_name}, inTurn, piece, castlingType);
   if (!castle)
     changeTurn();
   if (!isClickBool && capturedPiece) {
     if (gameMode === "bomb")
       removeSurroundingPieces(id);
-
+    
     if (gameMode === "kirby") {
       const square = keySquareMapper[piece.current_pos];
       kirbyTransformation(square, capturedPiece);
+    }
+  }
+  //checkForCheck(); // pdte preguntar a marina
+
+  if (!chessSocket) {
+    if (gameMode === "horde" && inTurn === "white") { // white because the turn has already changed
+      winBool = checkWinForBlackHorde();
+    } else {
+      winBool = checkForCheckmate();
+    }
+    if (winBool) {
+      setTimeout(() => { winGame(winBool); }, 50);
+      return;
     }
   }
 }
@@ -350,140 +335,6 @@ function captureHightlightSquare(square, piece) {
   return false;
 }
 
-function checkForCheck() {
-  if (gameMode === "horde" && inTurn === "white") return null;
-
-  whoInCheck = null;
-  const kingPosition = inTurn === "white" ? globalPiece.white_king.current_pos : globalPiece.black_king.current_pos;
-  const enemyColor = inTurn === "white" ? "black" : "white";
-  const enemyPieces = Object.values(globalPiece).flat().filter(piece => piece && piece.piece_name && piece.piece_name.includes(enemyColor.toUpperCase()));
-  let finalListCheck = [];
-  
-  enemyPieces.forEach(piece => {
-    const pieceType = piece.piece_name.split('_')[1].toLowerCase();
-    switch (pieceType) {
-      case 'pawn':
-        finalListCheck.push(help.pawnCaptureOptions(piece.current_pos, enemyColor));
-        break;
-      case 'knight':
-        finalListCheck.push(help.giveKnightCaptureIds(piece.current_pos, enemyColor));
-        break;
-      case 'king':
-        finalListCheck.push(help.giveKingCaptureIds(piece.current_pos, enemyColor));
-        break;
-      case 'bishop':
-        finalListCheck.push(help.giveBishopCaptureIds(piece.current_pos, enemyColor));
-        break;
-      case 'rook':
-        finalListCheck.push(help.giveRookCaptureIds(piece.current_pos, enemyColor));
-        break;
-      case 'queen':
-        finalListCheck.push(help.giveQueenCaptureIds(piece.current_pos, enemyColor));
-        break;
-    }
-  });
-
-  finalListCheck = finalListCheck.flat();
-  const checkOrNot = finalListCheck.find((element) => element === kingPosition);
-  if (checkOrNot)
-    whoInCheck = inTurn;
-}  
-
-function simulateMoves(piece, possibleMoves, safeMoves, color) {
-  possibleMoves.forEach(move => {
-    const originalPosition = piece.current_pos;
-
-    updateGlobalState(piece, move);
-    updatePiecePosition(piece, move);
-
-    checkForCheck();
-
-    if (whoInCheck !== color)
-      safeMoves.push(move);
-
-    updateGlobalState(piece, originalPosition);
-    updatePiecePosition(piece, originalPosition);
-  });
-}
-
-function returnOnePieceCaptureOptions(piece, pieceType, opponentColor) {
-  let captureMoves = [];
-  switch (pieceType) {
-    case 'pawn':
-      captureMoves = help.pawnCaptureOptions(piece.current_pos, opponentColor);
-      break;
-    case 'knight':
-      captureMoves = help.giveKnightCaptureIds(piece.current_pos, opponentColor);
-      break;
-    case 'bishop':
-      captureMoves = help.giveBishopCaptureIds(piece.current_pos, opponentColor);
-      break;
-    case 'rook':
-      captureMoves = help.giveRookCaptureIds(piece.current_pos, opponentColor);
-      break;
-    case 'queen':
-      captureMoves = help.giveQueenCaptureIds(piece.current_pos, opponentColor);
-      break;
-    case 'king':
-      captureMoves = help.giveKingCaptureIds(piece.current_pos, opponentColor);
-      break;
-  }
-  return captureMoves;
-}
-
-function filterMovesForKingProtection(piece, color, movesGetterFunc, highlightIdsFunc, pieceType = null) {
-  let possibleMoves = movesGetterFunc(piece, highlightIdsFunc, color);
-  const safeMoves = [];
-  let captureOptions = [];
-
-  if (pieceType == "knight")
-    possibleMoves = possibleMoves.filter(move => !help.checkPieceExist(move));
-
-  simulateMoves(piece, possibleMoves, safeMoves, color);
-  selfHighlight(piece);
-
-  if (pieceType != "knight" && pieceType != "pawn")
-    captureOptions = help.markCaptureMoves(Object.values(highlightIdsFunc(piece.current_pos)), color);
-  else {
-    captureOptions = highlightIdsFunc(piece.current_pos, color);
-    captureOptions.forEach(element => {
-      help.checkOpponetPieceByElement(element, color);
-    });
-  }
-
-  checkForCheck();
-  if (whoInCheck === color) {
-    const opponentColor = color === "white" ? "black" : "white";
-    captureOptions.forEach(element => {
-      const square = keySquareMapper[element];
-      if (square && square.piece) {
-        const piece = square.piece;
-        const pieceType = piece.piece_name.split('_')[1].toLowerCase();
-        let captureMoves = [];
-
-        captureMoves = returnOnePieceCaptureOptions(piece, pieceType, opponentColor);
-
-        let kingInDangerBool = false;
-        for (let i = 0; i < captureMoves.length; i++) {
-          if (captureMoves[i] === globalPiece[`${color}_king`].current_pos) {
-            kingInDangerBool = true;
-            break;
-          }
-        }
-        if (!kingInDangerBool) {
-          const flatData = globalState.flat();
-          const el = flatData.find(el => el.id === element && el.captureHightlight);
-          if (el) {
-            document.getElementById(el.id).classList.remove("captureColor");
-            el.captureHightlight = false;
-          }
-        }
-      }
-    });
-  }
-  circleHighlightRender(safeMoves, keySquareMapper);
-}
-
 function handlePieceClick(square, color, pieceType) {
   const piece = square.piece;
   if (selfHighlightSquare(piece)) return;
@@ -496,7 +347,6 @@ function handlePieceClick(square, color, pieceType) {
   highlight_state = true;
   selfHighlightState = piece;
   moveState = piece;
-
   switch (pieceType) {
     case 'pawn':
       if (gameMode === "horde" && inTurn === "white")
@@ -517,12 +367,17 @@ function handlePieceClick(square, color, pieceType) {
       filterMovesForKingProtection(piece, color, help.getPossibleMoves, help.giveQueenHighlightIds);
       break;
     case 'king':
+      oneMore = true;
+      // debugger;
       const kingHighlightSquareIds = help.getPossibleMoves(piece, help.giveKingHighlightIds, color, true, (moves) => help.limitKingMoves(moves, color), true);
       circleHighlightRender(kingHighlightSquareIds, keySquareMapper);
+      oneMore = false;
       break;
   }
   globalStateRender();
 }
+
+
 
 //simple function that clear the yellow highlight when you click a square with a piece
 function clearPreviousSelfHighlight(piece)
@@ -545,7 +400,8 @@ function clearPreviousSelfHighlight(piece)
 function GlobalEvent() {
   const root = document.getElementById('root');
   root.addEventListener("click", function(event) {
-    if (inTurn !== getUserColor(getUsername())) { // esto iría fuera
+    if (chessSocket && inTurn !== getUserColor(getUsername())) { // esto iría fuera
+      //console.log("oh hi :D: ", inTurn, getUserColor(getUsername()))
       return;
     };
     const target = event.target;
@@ -609,4 +465,4 @@ function clearYellowHighlight() {
   selfHighlightState = null;
 }
 
-export { GlobalEvent, captureNotation, clearYellowHighlight, globalPieceUpdate, callbackPiece, moveElement, isClick };
+export { GlobalEvent, captureNotation, clearYellowHighlight, globalPieceUpdate, callbackPiece, moveElement, isClick, checkWin, oneMore };

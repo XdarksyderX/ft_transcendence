@@ -1,5 +1,6 @@
 import { highlightColor, keySquareMapper } from "../index.js";
 import { circleHighlightRender, globalPiece } from "../Render/main.js";
+import { oneMore } from "../Events/global.js";
 
 /**
  * function to check if opponnet piece exist and highlight it with captureColor,
@@ -15,7 +16,9 @@ function checkOpponetPieceByElement(id, color, captureHighlight = true) {
 
     if (!element)
         return false;
-
+    if (oneMore && forbiddenCaptures.includes(id)) {
+        return false;
+    }
     if (element.piece && element.piece.piece_name.includes(opponentColor)) {
         if (captureHighlight) {
             const el = document.getElementById(id);
@@ -36,14 +39,39 @@ function checkPieceExist(squareId) {
         return false;
 }
 
+
+let forbiddenCaptures = [];
+
+function checkForOneMore(attack, defense) {
+    if (oneMore) {
+        const attackColor = attack.piece_name.split('_')[0];
+        const kingColor = attackColor === 'WHITE' ? 'BLACK' : 'WHITE';
+
+        if (!attack.piece_name.includes('PAWN') && !attack.piece_name.includes('KNIGHT')) {
+            if (defense.piece_name.includes(`${kingColor}_KING`)) { 
+                return 1;
+            } else if (defense.piece_name.includes(attackColor)) {
+                forbiddenCaptures.push(defense.current_pos);
+                return 0;
+            }
+        }
+    }
+    return 0
+}
+
 //function to check capture id square
-function checkSquareCaptureId(array) {
+function checkSquareCaptureId(array, piece = null) {
     let returnArray = [];
     for (let i = 0; i < array.length; i++) {
-        const squareId = array[i];
+        let squareId = array[i];
         const square = keySquareMapper[squareId];
 
         if (square.piece) {
+            const extraMove = checkForOneMore(piece, square.piece);
+            if (extraMove) {
+                squareId = array[++i];
+                returnArray.push(squareId);
+            }
             break;
         }
         returnArray.push(squareId);
@@ -271,13 +299,13 @@ function giveKingCaptureIds(id, color) {
 function checkEnPassant(curr_pos, color, num) {
     const row = color === "white" ? 5 : 4; // Row where en passant is possible
     if (curr_pos && curr_pos[1] != row) return false;
-    console.log(`Checking en passant for ${color} at position ${curr_pos} on row ${row}`);
+    //console.log(`Checking en passant for ${color} at position ${curr_pos} on row ${row}`);
 
     const leftPos = `${String.fromCharCode(curr_pos[0].charCodeAt(0) - 1)}${curr_pos[1]}`;
     const rightPos = `${String.fromCharCode(curr_pos[0].charCodeAt(0) + 1)}${curr_pos[1]}`;
     const opponentColor = color === "white" ? "black" : "white";
     
-    console.log(`Left position: ${leftPos}, Right position: ${rightPos}, Opponent color: ${opponentColor}`);
+    //console.log(`Left position: ${leftPos}, Right position: ${rightPos}, Opponent color: ${opponentColor}`);
 
     // Helper function to check if a position is valid for en passant
     function isValidEnPassant(pos) {
@@ -285,8 +313,8 @@ function checkEnPassant(curr_pos, color, num) {
         const isOpponentPiece = pieceExists && keySquareMapper[pos].piece.piece_name.toLowerCase().includes(opponentColor);
         const hasMoved = pieceExists && keySquareMapper[pos].piece.move;
         
-        console.log(`Checking position ${pos}: pieceExists=${pieceExists}, isOpponentPiece=${isOpponentPiece}, hasMoved=${hasMoved}`);
-        console.log(keySquareMapper[pos]);
+        //console.log(`Checking position ${pos}: pieceExists=${pieceExists}, isOpponentPiece=${isOpponentPiece}, hasMoved=${hasMoved}`);
+        //console.log(keySquareMapper[pos]);
         
         return pos[0] >= 'a' && pos[0] <= 'h' && pieceExists && isOpponentPiece && hasMoved;
     }
@@ -308,6 +336,9 @@ function pawnMovesOptions(piece, unusedFunc = null, color) {
     const curr_pos = piece.current_pos;
     const row = color === "white" ? "2" : "7";
     const direction = color === "white" ? 1 : -1;
+    // if (!curr_pos) {
+    //     console.log("on PawnMovesOptions: ", piece);
+    // }
     if (curr_pos[1] == row) {
         highlightSquareIds = [
             `${curr_pos[0]}${Number(curr_pos[1]) + direction}`,
@@ -317,7 +348,6 @@ function pawnMovesOptions(piece, unusedFunc = null, color) {
         highlightSquareIds = [`${curr_pos[0]}${Number(curr_pos[1]) + direction}`,];
         let enPassant = "";
         if (enPassant = checkEnPassant(curr_pos, color, direction)) {
-            //isClick false no highlitees
             highlightSquareIds.push(enPassant);
         }
     }
@@ -347,32 +377,6 @@ function isPathSafeForCastling(kingPath, color) {
 
 /*this function check whether all castling conditions are true, and the push that possible move
  * to array tha contains all the moves that a king can make.*/
-// function castlingCheck(piece, color, res) {
-//     // if (!piece.piece_name.includes("KING")) return ;
-//     // const moveLogger = localStorage.getItem('chessMoves');
-//     if (piece.piece_name.includes("KING") && !piece.move) {
-//         const rook1 = globalPiece[`${color}_rook_1`];
-//         const rook2 = globalPiece[`${color}_rook_2`];
-
-//         if (!rook1.move) {
-//             const b = keySquareMapper[`${color === "white" ? 'b1' : 'b8'}`];
-//             const c = keySquareMapper[`${color === "white" ? 'c1' : 'c8'}`];
-//             const d = keySquareMapper[`${color === "white" ? 'd1' : 'd8'}`];
-//             const kingPath = [`${color === "white" ? 'e1' : 'e8'}`, `${color === "white" ? 'd1' : 'd8'}`, `${color === "white" ? 'c1' : 'c8'}`];
-            
-//             if (!b.piece && !c.piece && !d.piece && isPathSafeForCastling(kingPath, color))
-//                 res.push(`${color === "white" ? 'c1' : 'c8'}`);
-//         }
-//         if (!rook2.move) {
-//             const f = keySquareMapper[`${color === "white" ? 'f1' : 'f8'}`];
-//             const g = keySquareMapper[`${color === "white" ? 'g1' : 'g8'}`];
-//             const kingPath = [`${color === "white" ? 'e1' : 'e8'}`, `${color === "white" ? 'f1' : 'f8'}`, `${color === "white" ? 'g1' : 'g8'}`];
-            
-//             if (!f.piece && !g.piece && isPathSafeForCastling(kingPath, color))
-//                 res.push(`${color === "white" ? 'g1' : 'g8'}`);
-//         }
-//     }
-// }
 
 function castlingCheck(piece, color, res) {
     if (!piece.piece_name.includes("KING")) return ;
@@ -404,12 +408,12 @@ function castlingCheck(piece, color, res) {
 }
 
 function hasPieceMoved(square, pieceName, moveLogger) {
+    if (!moveLogger) return false;
     if (!square.piece || !square.piece.piece_name || !square.piece.piece_name.includes(pieceName.toUpperCase())) {
         console.log(`${pieceName} is not the expected piece`);
         return true;
     }
     for (const move of moveLogger) {
-        // console.log("move : ", move);
         if (move.notation.includes(square.id)) {
             console.log(`${pieceName} has already moved`);
             return true;
@@ -455,11 +459,11 @@ function getPossibleMoves(piece, highlightIdsFunc, color, renderBool = false, pr
     let tmp = [], res = [];
   
     for (const direction in highlightSquareIds) {
-      if (highlightSquareIds.hasOwnProperty(direction)) {
+        if (highlightSquareIds.hasOwnProperty(direction)) {
         const squares = highlightSquareIds[direction];
-        res.push(checkSquareCaptureId(squares));
+        res.push(checkSquareCaptureId(squares, piece));
         tmp.push(squares);
-      }
+        }
     }
     if (skipCastlingCheck)
         castlingCheck(piece, color, res);
@@ -468,11 +472,20 @@ function getPossibleMoves(piece, highlightIdsFunc, color, renderBool = false, pr
         preRenderCallback(highlightSquareIds);
     if (renderBool) {
         circleHighlightRender(highlightSquareIds, keySquareMapper);
+        cleanForbiddenCaptures(tmp);
         markCaptureMoves(tmp, color);
+        forbiddenCaptures = [];
     }
     return highlightSquareIds;
 }
 
+function cleanForbiddenCaptures(tmp) {
+    for (let i = forbiddenCaptures.length - 1; i >= 0; i--) {
+        if (!tmp.find(element => element == forbiddenCaptures[i])) {
+            forbiddenCaptures.splice(i, 1);
+        }
+    }
+}
 // this function return all the possible moves of the opponent pices
 function getOpponentMoves(color) {
     let res = new Set();
@@ -513,12 +526,14 @@ function getOpponentMoves(color) {
 can be a direct checkmate, the it remove that option to avoid the checkmate*/
 function limitKingMoves(kingInitialMoves, color) {
     let res = getOpponentMoves(color);
-
+    // console.log("limitKingMoves -> kingInitialMoves: ", kingInitialMoves);
+    // console.log("limitKingMoves -> res: ", res);
     for (let i = kingInitialMoves.length - 1; i >= 0; i--) {
         if (res.has(kingInitialMoves[i])) {
             kingInitialMoves.splice(i, 1);
         }
     }
+    // console.log("limitKingMoves -> kingInitialMoves despues de eliminar opciones de mov: ", kingInitialMoves);
 }
 
 //this funtion is to fix some bug for the knight circle highlight moves
