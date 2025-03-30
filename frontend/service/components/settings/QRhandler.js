@@ -40,31 +40,30 @@ export function handle2FAmodal(status, secret = null) {
     refreshAccessToken();
   }
 
-  function generate2FAQrCode(containerId, service, user, secret) {
+function generate2FAQrCode(containerId, service, user, secret) {
     if (!containerId || !service || !user || !secret) {
         console.error("Missing parameters: containerId, service, user, or secret.");
         return;
     }
 
-    // Construir la URL en formato otpauth
-    //const otpUrl = `otpauth://totp/${encodeURIComponent(service)}:${encodeURIComponent(user)}?secret=${secret}&issuer=${encodeURIComponent(service)}`;
     const otpUrl = `otpauth://totp/${encodeURIComponent(service)}:${encodeURIComponent(user)}?secret=${secret}&issuer=${encodeURIComponent(service)}&algorithm=SHA1&digits=6`;
 
+    console.log("Generated OTP URL:", otpUrl);
 
-    // Obtener el contenedor donde se insertará el QR
     const qrContainer = document.getElementById(containerId);
     if (!qrContainer) {
         console.error(`Container with ID '${containerId}' not found.`);
         return;
     }
 
-    qrContainer.innerHTML = ''; // Limpiar contenido previo
+    qrContainer.innerHTML = ''; // Clear previous content
 
-    // Generar el código QR usando qrcode.js
+    // Generate the QR code with increased size and error correction
     new QRCode(qrContainer, {
         text: otpUrl,
-        width: 200,
-        height: 200
+        width: 300, // Increased size
+        height: 300, // Increased size
+        correctLevel: QRCode.CorrectLevel.H // High error correction
     });
 
     console.log(`QR Code generated in container: #${containerId}`);
