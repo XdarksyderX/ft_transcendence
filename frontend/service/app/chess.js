@@ -15,6 +15,10 @@ export async function getRankedChessStats() {
 export async function getCasualChessStats() {
     return await sendRequestChess('GET', `stats/casual/`);
 }
+
+export async function getUserChessStats(username) {
+  return await sendRequestChess('GET', `stats/${username}/`);
+}
 // ==================== Tournament Invitation Endpoints ====================
 
 export async function getPendingChessInvitationsOutgoing() {

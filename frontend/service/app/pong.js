@@ -137,3 +137,7 @@ export async function getQuickMatchStats() {
 export async function getTournamentStats() {
   return await sendRequestPong('GET', 'stats/tournaments');
 }
+
+export async function getUserPongStats(username) {
+  return await sendRequestPong('GET', `stats/${username}`);
+}

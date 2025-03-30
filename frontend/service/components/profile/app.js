@@ -4,6 +4,7 @@ import { getAvatar, changeAvatar } from "../../app/social.js";
 import { handleUsernameChange } from "../settings/app.js";
 import { throwAlert, throwToast } from "../../app/render.js";
 import { parseUsername } from "../signup/signup.js";
+import { handleGetResumeStats } from "../stats/app.js";
 
 const avatarImages = [
     './resources/avatar/avatar_1.png',
@@ -22,6 +23,8 @@ export async function initializeProfileEvents(toggle = false) {
     if (toggle) {
         toggleEditMode(false, elements);
     }
+    const stats = await handleGetResumeStats(getUsername());
+    console.log("AAAAA ", stats);
 }
 let chosenAvatarColor = null;
 let chosenBgColor = null;
@@ -32,7 +35,6 @@ function getElements() {
             username: document.getElementById('username'),
             registration: document.getElementById('registration'),
             totalFriends: document.getElementById('total-friends'),
-            totalMatches: document.getElementById('total-matches'),
             editProfile: document.getElementById('edit-profile'),
             saveChanges: document.getElementById('save-changes'),
             cancelChanges: document.querySelectorAll('.cancel-btn'),
@@ -48,7 +50,11 @@ function getElements() {
             avatarColorPicker: document.getElementById('avatar-color-picker'),
             backgroundColorButton: document.getElementById('choose-background-color'),
             backgroundColorPicker: document.getElementById('background-color-picker'),
-            applyColor: document.getElementById('apply-color')
+            applyColor: document.getElementById('apply-color'),
+            totalPongMatches: document.getElementById('total-pong-matches'), // New element
+            totalChessMatches: document.getElementById('total-chess-matches'), // New element
+            tournamentFirst: document.getElementById('tournament-first'), // New element
+            chessElo: document.getElementById('chess-elo') // New element
         }
     );
 }
@@ -57,9 +63,8 @@ async function getUserData() {
     const name = getUsername();
     return {
         username: name,
-        registration: '3/11/24',
         totalFriends: await getNumberOfFriends(),
-        totalMatches: 42,
+        resumeStats: await handleGetResumeStats(name),
         profilePicture: await getAvatar(name)
     };
 }
@@ -73,11 +78,14 @@ async function getNumberOfFriends() {
 
 async function fillUserData(elements) {
     const user = await getUserData();
+    console.log("on fill: ", user.resumeStats);
     console.log(user);
-    elements.username.textContent = user.username;
-    elements.registration.textContent = `Registered on: ${user.registration}`;
-    elements.totalFriends.textContent = `Friends: ${user.totalFriends}`;
-    elements.totalMatches.textContent = `Total matches: ${user.totalMatches}`;
+    elements.username.textContent = `${user.username}`;
+    elements.totalFriends.textContent = `${user.totalFriends}`;
+    elements.totalPongMatches.textContent = `${user.resumeStats.totalPong}`;
+    elements.tournamentFirst.textContent = `${user.resumeStats.firstPlace}`;
+    elements.totalChessMatches.textContent = `${user.resumeStats.totalChess}`;
+    elements.chessElo.textContent = `${user.resumeStats.chessElo}`;
     if (!user.profilePicture)
         user.profilePicture = avatarImages[0];
     elements.profilePicture.src = user.profilePicture;
