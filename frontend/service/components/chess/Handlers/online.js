@@ -8,6 +8,7 @@ import { moveElement } from "../Events/global.js";
 import { reloadMoveLogger } from "../Helper/logging.js";
 import { winGame } from "../Helper/modalCreator.js";
 import { renderPlayers } from "../Render/main.js";
+import { GATEWAY_HOST } from "../../../app/sendRequest.js";
 
 
 let onlineInfo = {
@@ -52,7 +53,7 @@ async function handleGetChessMatchDetail(key) {
 
 // initializes the chess socket
 function initializeChessSocket(game_key) {
-	chessSocket = new WebSocket(`ws://localhost:5090/ws/chess/${game_key}/`);
+	chessSocket = new WebSocket(`wss://${GATEWAY_HOST}/ws/chess/${game_key}/`);
 
 	chessSocket.onopen = () => {
 		sessionStorage.setItem('inGame', '/chess');
