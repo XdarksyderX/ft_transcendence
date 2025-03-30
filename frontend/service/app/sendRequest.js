@@ -1,8 +1,16 @@
 import jwtDecode from 'https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.esm.js';
 
-const GATEWAY_URL = 'http://localhost:5090';
 
 let isRefreshingToken = false;
+
+const GATEWAY_PORT = 5090
+
+function getGatewayHost() {
+    return window.location.hostname + `:${GATEWAY_PORT}`;
+}
+
+export const GATEWAY_URL = 'https://' + getGatewayHost();
+export const GATEWAY_HOST = getGatewayHost();
 
 async function refreshAccessToken() {
     if (isRefreshingToken) {

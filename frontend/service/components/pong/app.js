@@ -142,7 +142,7 @@ function initBoard()
 
 function connectToOnlineGame(gameKey)
 {
-    const socket = new WebSocket(`ws://localhost:5090/ws/pong/${gameKey}/`);
+    const socket = new WebSocket(`wss://${GATEWAY_HOST}/ws/pong/${gameKey}/`);
     
     // Define event handler functions for consistent reference
     function handleKeyDown(event) {

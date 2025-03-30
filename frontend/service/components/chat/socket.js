@@ -2,6 +2,7 @@ import { updateNotificationIndicator, getElements, renderChat, renderRecentChats
 markMessagesAsRead, currentChat, currentView, isExpanded, toggleChat, openChat } from "./app.js";
 import { getUsername } from "../../app/auth.js";
 import { refreshAccessToken } from "../../app/auth.js";
+import { GATEWAY_HOST } from "../../app/sendRequest.js";
 
 let chatSocket = null;
 let attemptedReconnection = false;
@@ -12,7 +13,7 @@ export function initializeGlobalChatSocket() {
         return;
     }
 
-    chatSocket = new WebSocket(`ws://localhost:5090/ws/chat/`);
+    chatSocket = new WebSocket(`wss://${GATEWAY_HOST}/ws/chat/`);
 
     chatSocket.onopen = () => {
         console.log("Chat WebSocket connected");

@@ -11,7 +11,7 @@ check_success() {
 
 FIRSTUSERNAME="pepe${RANDOM}"
 
-curl -s -X POST http://localhost:5050/register \
+curl -k -s -X POST https://localhost:5090/api/auth/register \
 -H "Content-Type: application/json" \
 -d "{
 	\"email\": \"${FIRSTUSERNAME}@paco.com\",
@@ -22,7 +22,7 @@ check_success $? "Registro de primer usuario"
 
 SECONDUSERNAME="paco${RANDOM}"
 
-curl -s -X POST http://localhost:5050/register \
+curl -k -s -X POST https://localhost:5090/api/auth/register \
 -H "Content-Type: application/json" \
 -d "{
 	\"email\": \"${SECONDUSERNAME}@paco.com\",
@@ -34,7 +34,7 @@ check_success $? "Registro de segundo usuario"
 echo "Users created: ${FIRSTUSERNAME} and ${SECONDUSERNAME}"
 echo "Password: 12345678"
 
-FIRSTUSER_JWT=$(curl -s -X POST http://localhost:5050/login \
+FIRSTUSER_JWT=$(curl -k -s -X POST https://localhost:5090/api/auth/login \
 -H "Content-Type: application/json" \
 -d "{\"username\": \"${FIRSTUSERNAME}\", \"password\": \"12345678\"}" | jq -r '.access_token')
 
@@ -43,7 +43,7 @@ if [ "$FIRSTUSER_JWT" == "null" ] || [ -z "$FIRSTUSER_JWT" ]; then
 	exit 1
 fi
 
-SECONDUSER_JWT=$(curl -s -X POST http://localhost:5050/login \
+SECONDUSER_JWT=$(curl -k -s -X POST https://localhost:5090/api/auth/login \
 -H "Content-Type: application/json" \
 -d "{\"username\": \"${SECONDUSERNAME}\", \"password\": \"12345678\"}" | jq -r '.access_token')
 
@@ -55,11 +55,12 @@ fi
 echo "Making friends..."
 sleep 3
 
-curl -s -X POST "http://localhost:5051/requests/send/${SECONDUSERNAME}/" \
+# Enviar solicitud de amistad usando el servicio social
+curl -k -s -X POST "https://localhost:5090/api/social/requests/send/${SECONDUSERNAME}/" \
 -H "Cookie: access_token=${FIRSTUSER_JWT}" > /dev/null
 check_success $? "Envío de solicitud de amistad"
 
-REQUEST_ID=$(curl -s -X GET "http://localhost:5051/requests/pending/received/" \
+REQUEST_ID=$(curl -k -s -X GET "https://localhost:5090/api/social/requests/pending/received/" \
 -H "Cookie: access_token=${SECONDUSER_JWT}" | jq -r '.incoming[0].id')
 
 if [ -z "$REQUEST_ID" ] || [ "$REQUEST_ID" == "null" ]; then
@@ -67,7 +68,7 @@ if [ -z "$REQUEST_ID" ] || [ "$REQUEST_ID" == "null" ]; then
 	exit 1
 fi
 
-curl -s -X POST "http://localhost:5051/requests/accept/${REQUEST_ID}/" \
+curl -k -s -X POST "https://localhost:5090/api/social/requests/accept/${REQUEST_ID}/" \
 -H "Cookie: access_token=${SECONDUSER_JWT}" > /dev/null
 check_success $? "Aceptación de solicitud de amistad"
 

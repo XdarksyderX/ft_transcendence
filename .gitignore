@@ -9,3 +9,5 @@ volume-data/
 keys/
 *.rdb
 *.pem
+*.crt
+*.key

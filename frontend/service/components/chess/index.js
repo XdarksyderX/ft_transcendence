@@ -52,20 +52,6 @@ function updateHighlightYellowColor(whiteTileColor, blackTileColor) {
     styleSheet.insertRule(blackTileRule, styleSheet.cssRules.length);
 }
 
-// function provisionalModalHandle() {
-    
-//     document.getElementById("promote-btn").addEventListener("click", () => {
-//       pawnPromotion("white", (piece, id) => {
-//         console.log(`Promoted to: ${piece.name} at square: ${id}`);
-//       }, "e8");
-//     });
-
-//     document.getElementById("win-btn").addEventListener("click", () => {
-//         winGame(true);
-//     });
-    
-// }
-
 export async function initializeChessEvents(key) {
     const button1 = document.getElementById('button1');
     const settingsPanel = document.getElementById('settings-panel');
@@ -98,8 +84,6 @@ export async function initializeChessEvents(key) {
             settingsPanel.classList.add('hidden');
         }
     });
-
-    // provisionalModalHandle();
 }
 
 function setupButtonEvents(settingsPanel, saveSettingsButton, cancelSettingsButton, pieceStyleSelect) {

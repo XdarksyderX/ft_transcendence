@@ -29,6 +29,8 @@ DEBUG = True
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = True
 
+ALLOWED_HOSTS = ['*']
+
 CORS_ALLOW_HEADERS = [
     'accept',
     'accept-encoding',
