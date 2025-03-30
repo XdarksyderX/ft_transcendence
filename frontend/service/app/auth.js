@@ -52,10 +52,12 @@ export async function isLoggedIn() {
  */
 export async function logout() {
     try {
-        await fetch(`${GATEWAY_URL}/logout/`, {
-            method: 'POST',
-            credentials: 'include',
-        });
+
+        // await fetch(`${GATEWAY_URL}/logout/`, {
+        //     method: 'POST',
+        //     credentials: 'include',
+        // });
+        sendRequestAuth('POST', 'logout/');
         throwToast('Logged out successfully');
     } catch (error) {
         console.error('Logout error:', error);
@@ -67,8 +69,8 @@ export async function logout() {
             console.log("closing notisocket...");
             notiSocket.close();
         }
-        navigateTo('/');
         localStorage.clear();
+        navigateTo('/');
     }
 }
 

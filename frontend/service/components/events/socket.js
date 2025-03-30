@@ -14,10 +14,12 @@ import { handleJoinMatchmakingMatch } from "../home/matchMaking.js";
 import { handleJoinTournamentMatch } from "../tournament/started.js";
 import { initializeNewTournament } from "../tournament/new.js";
 import { initializeOngoingTournaments } from "../tournament/started.js";
+import { GATEWAY_HOST } from "../../app/sendRequest.js";
 
 let notiSocket = null;
 let reconnectAttempts = 0;
 const MAX_RECONNECT_DELAY = 30000; // Máximo 30s de espera entre reconexiones
+
 
 
 const notificationHandlers = {
@@ -47,7 +49,7 @@ const notificationHandlers = {
     pong_tournament_match_ready: (data) => handleJoinTournamentMatch(data.game_key),
     pong_tournament_players_update: () => handleTournamentEvents('invitation'),
     pong_tournament_match_finished: () => handleTournamentEvents('match'),
-    tournament_round_finished: () => handleTournamentEvents('match'),
+    pong_tournament_round_finished: () => handleTournamentEvents('match'),
     // Chess Match Events
     chess_match_accepted: (data) => handleAcceptedInvitation('chess', data.game_key),
     chess_match_decline: () => handleDeclinedInvitation(),

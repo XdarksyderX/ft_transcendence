@@ -94,7 +94,7 @@ export function getNotificationText(notiContent) {
         case 'pong_tournament_match_waiting':
             // return `Your tournament oponent, ${notiContent.opponent} is waiting for you`
             return `${notiContent.opponent}, your oponent on ${notiContent.tournament} tournament, is waiting for you`
-        case 'tournament_round_finished':
+        case 'pong_tournament_round_finished':
             return 'A tournament round has finished'
         default: // 'friend_removed' 'request_declined' 'request_cancelled'  'avatar_changed' shouldnt generate notification
             return null;

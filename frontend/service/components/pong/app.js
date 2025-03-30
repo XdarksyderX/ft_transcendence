@@ -1,5 +1,6 @@
 import { navigateTo } from "../../app/router.js";
 import { getMatchInProgress } from "../../app/pong.js";
+import { GATEWAY_HOST } from "../../app/sendRequest.js";
 
 //frame id
 let id;
