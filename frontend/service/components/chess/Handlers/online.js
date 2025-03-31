@@ -57,6 +57,7 @@ function initializeChessSocket(game_key) {
 
 	chessSocket.onopen = () => {
 		sessionStorage.setItem('inGame', '/chess');
+        document.getElementById('lc-text').style.display = 'none';
 		console.log("Chess WebSocket connected");
 		chessSocket.send(JSON.stringify({ action: "ready", color: getUserColor(getUsername()), username: getUsername() }));
 	}

@@ -231,12 +231,12 @@ function updateNavbar(url) {
         if (url === "/home") {
             lcText.innerHTML = `<div>Welcome ${getUsername()}</div>`;
         } else {
-            lcText.innerHTML = `<a href="/home" class="nav-link ctm-link ms-5" data-link>Home</a>`
+            lcText.innerHTML = `<a href="/home" class="nav-link ctm-link" data-link>Home</a>`
         }
         if (url === '/chess' || url === '/pong') {
             const button4 = document.getElementById('button4');
             button4.style.display = 'block';
-            lcText.style.display = 'none';
+            // lcText.style.display = 'none' ;
         }
         else {
             const button4 = document.getElementById('button4');

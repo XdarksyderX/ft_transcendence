@@ -30,7 +30,8 @@
 } */
 
 #friends-container {
-    height: 240px;
+    min-height: 240px;
+    max-height: 400px;
     overflow-y: auto;
 }
 
