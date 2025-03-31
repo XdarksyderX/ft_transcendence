@@ -1,5 +1,6 @@
 import { throwAlert, throwToast } from "../../app/render.js";
 import { getAvatar, getFriendsList, removeFriend, blockUser } from "../../app/social.js";
+import { handleGetResumeStats } from "../stats/app.js";
 import { initSearchFriendEvents, renderPendingFriendRequests } from "./requests.js";
 
 
@@ -131,15 +132,15 @@ async function createFriendBtn(friend, dataContainer) {
 
 	friendBtn.className = 'friend-btn d-flex align-items-center';
 	friendBtn.setAttribute('data-username', friend.username); //this probably will change when its connected w API
-	//let color = friend.is_online ? 'var(--accent)' : '#808080'
+	let color = friend.is_online ? 'var(--accent)' : '#808080'
 	friendBtn.innerHTML = `
 		<img src="${avatar}" alt="${friend.username}" class="friend-picture">
-		<div class="friend-info">
-			<p class="mt-2">${friend.username}</p>
+		<div class="friend-info flex-grow-1">
+			<p class="text-start mt-2">${friend.username}</p>
 			</div>
+            <span class="status-circle text-end" style="background-color: ${color};"></span>
 			`;
-			// <span class="status-circle" style="background-color: ${color};"></span>
-			// <span class="friend-status" style="color: ${color};">${friend.is_online ? 'online' : 'offline'}</span>
+            // <span class="friend-status" style="color: ${color};">${friend.is_online ? 'online' : 'offline'}</span>
 	friendBtn.style.color = `var(--light)`;
 	friendBtn.style.border = `1px solid var(--light)`;
 	friendBtn.addEventListener('click', () => renderFriendData(friend, avatar, dataContainer));
@@ -157,23 +158,43 @@ export function refreshFriendData(friendName) {
     }
 }
 
-function renderFriendData(friend, avatar, dataContainer) {
+async function renderFriendData(friend, avatar, dataContainer) {
 	let color = friend.is_online ? 'var(--accent)' : '#808080'
+    const stats = await handleGetResumeStats(friend.username);
+    console.log("stats: ", stats)
+    const aliasDiv = friend.alias ? `<p>Alias: ${friend.alias}</p>` : ''
 
-
-	dataContainer.innerHTML = `
-		<h2 id="friend-name" class="text-center ctm-text-title">${friend.username}</h2>
-		<img src="${avatar}" alt="${friend.username}" class="friend-picture-expanded mb-3">
-		<p>
-		  <span class="friend-status" style="color: ${color};">status: ${friend.is_online ? 'online' : 'offline'}</span>
-		  <span class="status-circle" style="background-color: ${color};"></span>
-		</p>
-		<p>friends since: 4/8/24</p>
-		<p>
-			<div class="btn ctm-btn-secondary "data-action="delete">delete</div>
-			<div class="btn ctm-btn-danger" data-action="block">block</div>
-		</p>
-	`;
+    dataContainer.innerHTML = `
+        <h2 id="friend-name" class="text-center ctm-text-title">${friend.username}</h2>
+        <img src="${avatar}" alt="${friend.username}" class="friend-picture-expanded mb-3">
+        <p>
+          <div class="friend-status">status: <span style="color: ${color};">${friend.is_online ? 'online' : 'offline'}</span>
+          <span class="status-circle" style="background-color: ${color};"></span></div>
+        </p>
+        ${aliasDiv}
+        <div class="d-flex flex-column align-items-start w-100">
+            <div class="d-flex justify-content-between w-100">
+                <span>Pong wins:</span>
+                <span>${stats.pongWins} / ${stats.totalPong}</span>
+            </div>
+            <div class="d-flex justify-content-between w-100">
+                <span>Chess wins:</span>
+                <span>${stats.chessWins} / ${stats.totalChess}</span>
+            </div>
+            <div class="d-flex justify-content-between w-100">
+                <span>Tournament wins:</span>
+                <span>${stats.firstPlace}</span>
+            </div>
+            <div class="d-flex justify-content-between w-100">
+                <span>Chess ELO:</span>
+                <span>${stats.chessElo}</span>
+            </div>
+        </div>
+        <p>
+            <div class="btn ctm-btn-secondary" data-action="delete">delete</div>
+            <div class="btn ctm-btn-danger" data-action="block">block</div>
+        </p>
+    `;
 	dataContainer.querySelector('[data-action="delete"]').addEventListener('click', () => showDeleteModal(friend.username));
     dataContainer.querySelector('[data-action="block"]').addEventListener('click', () => showBlockModal(friend.username));
 }

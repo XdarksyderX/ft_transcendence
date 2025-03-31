@@ -362,8 +362,6 @@ function applyColorChanges() {
     }
 }
 
-
-
 function btnHandler(elements) {
     elements.editProfile.addEventListener('click', () => toggleEditMode(true, elements));
     console.log("adding event listeners")

@@ -349,6 +349,7 @@ async function fillProfileData(username, container) {
     const user = await getUserData(username);
     const avatar = await getAvatar(null, null, user.avatar);
     let color = user.status === "online" ? 'var(--accent)' : '#808080';
+    // const aliasDiv = user.alias ? `<p>Alias: ${user.alias}</p>` : ''
 
     if (!user) return;
 
@@ -362,7 +363,7 @@ async function fillProfileData(username, container) {
                 <span class="status-circle" style="background-color: ${color};"></span>
 				</div>
             </p>
-            <p>Alias: ${user.alias || 'PENDIENTE 😭'}</p>
+            <p>Alias: ${user.alias || user.username}</p>
         </div>
     
     `;
