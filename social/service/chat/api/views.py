@@ -72,10 +72,6 @@ class RecentChatsView(APIView):
 
         recent_chats = {}
         for participant in conversation_users:
-            participat_user_model = User.objects.get(username=participant)
-            participant_blocked = participat_user_model.blocked.all()
-            
-            # if participant not in blocked_users and user not in participant_blocked:
             chat = Message.objects.filter(
                 Q(sender=user, receiver=participant) |
                 Q(sender=participant, receiver=user)

@@ -52,9 +52,12 @@ class GlobalChatConsumer(AsyncWebsocketConsumer):
             
             receiver = await sync_to_async(User.objects.get)(username=receiver_username)
             
-            friends = await sync_to_async(lambda: list(self.user.friends.all()))()
+            friends = await sync_to_async(lambda: list(self.user.blocked.all()))()
 
-            if receiver not in friends:
+            if receiver in friends:
+                return
+            friends = await sync_to_async(lambda: list(receiver.blocked.all()))()
+            if self.user in friends:
                 return
             
             msg = await sync_to_async(Message.objects.create)(
