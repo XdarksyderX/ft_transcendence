@@ -348,21 +348,21 @@ async function showProfileOnChat(elements, username) {
 async function fillProfileData(username, container) {
     const user = await getUserData(username);
     const avatar = await getAvatar(null, null, user.avatar);
-    let color = user.is_online ? 'var(--accent)' : '#808080';
+    let color = user.status === "online" ? 'var(--accent)' : '#808080';
 
     if (!user) return;
 
     container.innerHTML = `
         <h5 id="friend-name" class="ctm-text-title my-3">${user.username}</h5>
         <img src="${avatar}" alt="${user.username}" class="mb-3 friend-picture-expanded">
-        <div class="footer mt-auto mb-5">
+        <div class="footer mt-auto mb-5 text-center">
             <p>
 				<div> status:
-                <span class="friend-status" style="color: ${color};"> ${user.is_online ? 'online' : 'offline'}</span>
+                <span class="friend-status" style="color: ${color};"> ${user.status || 'unknown'}</span>
                 <span class="status-circle" style="background-color: ${color};"></span>
 				</div>
             </p>
-            <p>Alias: not_yet</p>
+            <p>Alias: ${user.alias || 'PENDIENTE 😭'}</p>
         </div>
     
     `;

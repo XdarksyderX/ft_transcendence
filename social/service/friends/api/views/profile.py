@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404
 from django.http import Http404
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.core.files.images import get_image_dimensions
-from friends.api.serializers import ProfileSerializer
+from friends.api.serializers import ProfileSerializer, SearchUserSerializer
 from core.utils.event_domain import publish_event
 from django.utils import timezone
 from core.models import User
@@ -36,14 +36,11 @@ class SearchUsersView(APIView):
 
     def get(self, request, username):
         users = User.objects.filter(username__icontains=username).order_by('username')[:50]
-        users_data = [
-            {"user_id": user.id, "username": user.username, "avatar": user.avatar.url if user.avatar else None}
-            for user in users
-        ]
+        serializer = SearchUserSerializer(users, many=True)
         return Response({
             'status': 'success',
             'message': 'Users retrieved successfully.',
-            'users': users_data
+            'users': serializer.data
         }, status=status.HTTP_200_OK)
 
 class ChangeAvatarView(APIView):
