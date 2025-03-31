@@ -64,7 +64,6 @@ async function router(key = null) {
             break;
         case "/home":
             initializeHomeEvents();
-
             break;
         case "/started-tournaments":
             initializeOngoingTournaments(true);
@@ -149,10 +148,10 @@ function loadLoggedContent(isLogged) {
 }
 
 async function navigateTo(fullUrl, key = null) {
-    console.log("navigating to: ", fullUrl);    
     try {
         const verify = await isLoggedIn();
         const url = redirectURL(verify, fullUrl);
+        console.log("navigating to: ", url);    
         //console.log("verify:", verify);
         
        // if (!(url !== "/login" && url !== "/signup" && !verify)) 
@@ -247,7 +246,7 @@ function updateNavbar(url) {
 // Handle browser back/forward buttons
 window.addEventListener("popstate", async () => {
     await navigateTo(window.location.pathname);
-    // router();
+    router();
 });
 
 async function initRouteEvents() {

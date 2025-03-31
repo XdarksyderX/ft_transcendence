@@ -15,7 +15,7 @@ export function initializeNotificationEvents() {
 
 export async function renderNotifications() {
     const allNotifications = await handleGetNotifications();
-    const notifications = filterNotifications(allNotifications);
+    const notifications = filterNotifications(allNotifications).reverse();
     const container = document.getElementById('notifications-container');
     console.log(allNotifications);
     container.innerHTML = '';
