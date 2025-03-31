@@ -129,18 +129,26 @@ function redirectURL(isLogged, fullUrl) {
 
 function unloadChatAndSidebar() {
     const chatContainer = document.getElementById('chat-container');
-    const sidebarContainer = document.getElementById('sidebar-container');
-    const sidebarToggle = document.getElementById('sidebar-toggle-container');
-
     chatContainer.innerHTML = '';
+    unloadSidebar();
+}
+
+function unloadSidebar() {
+    const sidebarContainer = document.getElementById('sidebar-container');
     sidebarContainer.innerHTML = '';
+    console.log("unload sidebar function called")
     toggleSidebarDisplay(false);
 }
 
-function loadLoggedContent(isLogged) {
+function loadLoggedContent(isLogged, url) {
     if (isLogged) {
+        if (sessionStorage.getItem('inGame')) {
+            console.log("before unloading sidebar")
+            unloadSidebar();
+        } else {
+            loadSidebar();
+        }
         loadChat();
-        loadSidebar();
     } else {
         unloadChatAndSidebar();
     }
@@ -160,7 +168,7 @@ async function navigateTo(fullUrl, key = null) {
             router(key);
         }
         document.title = getTitleForUrl(url); // Set the title based on the URL
-        loadLoggedContent(verify);
+        loadLoggedContent(verify, url);
     } catch (error) {
         console.error('Error during verification:', error);
     }
@@ -215,12 +223,11 @@ function updateNavbar(url) {
     
     const loggedContent = document.getElementById('logged-content');
     const unloggedContent = document.getElementById('unlogged-content');
-   // const bellDropdown = document.getElementById('bell-dropdown');
     const lcText = document.getElementById('lc-text');
 
     if (!allowed) {
         toggleNavbarContent(loggedContent, unloggedContent);
-        initializeNotificationEvents(); // this should be called only once, when you log in I guess or not bc I have to habdle refreshes
+        initializeNotificationEvents();
         if (url === "/home") {
             lcText.innerHTML = `<div>Welcome ${getUsername()}</div>`;
         } else {
@@ -230,7 +237,6 @@ function updateNavbar(url) {
             const button4 = document.getElementById('button4');
             button4.style.display = 'block';
             lcText.style.display = 'none';
-            toggleSidebarDisplay(false)
         }
         else {
             const button4 = document.getElementById('button4');

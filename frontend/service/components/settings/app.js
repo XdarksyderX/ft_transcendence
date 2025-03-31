@@ -208,7 +208,6 @@ function toggleChanges(changedData) {
     const saveChangesBtn = document.getElementById("save-changes-btn");
     let changesDetected = false;
 	const currentData = getCurrentData();
-	console.log("on toggle changes, changedData:", changedData);
 
     for (const key in currentData) {
         if (currentData[key] !== changedData[key]) {
