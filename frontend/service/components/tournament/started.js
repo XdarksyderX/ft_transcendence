@@ -108,7 +108,7 @@ function getTournamentBracketObject(tournament) {
 function renderNoneTournaments(container, finished) {
   if (finished) {
     container.innerHTML = `
-        <div id="no-tournaments-card" class="card ctm-card p-5">
+        <div id="no-tournaments-card" class="card ctm-card fancy p-5">
         <h3 class="my-2 ctm-text-light text-center">You don't have finished any tournament!</h3>
         <p class="my-3 ctm-text-light text-center">Going back to ongoing ones</p>
  <div class="text-center">
@@ -120,7 +120,7 @@ function renderNoneTournaments(container, finished) {
   } else {
 
     container.innerHTML = `
-    <div id="no-tournaments-card" class="card ctm-card p-5">
+    <div id="no-tournaments-card" class="card ctm-card fancy p-5">
 		<h3 class="my-2 ctm-text-light text-center">You don't have any ongoing tournament!</h3>
 		<p class="my-3 ctm-text-light text-center">But you can create one or check the status of the ones you already created here!</p>
     <div id="create-edit-btn" class="btn ctm-btn mb-3 flex-grow-1 d-flex align-items-center justify-content-center">Create/edit Tournament</div>
@@ -163,7 +163,7 @@ function renderAllTournaments(tournaments, container, finished) {
 // Generates the HTML element for a tournament
 function generateTournament(tournament) {
   const container = document.createElement('div');
-  container.classList.add("ctm-card", "p-3", "mb-2");
+  container.classList.add("ctm-card", "fancy", "p-3", "bracket-container");
   const bracket = generateBracket(tournament);
   container.innerHTML = `
     <h3 class="text-center ctm-text-title mb-3">${tournament.name}</h3>

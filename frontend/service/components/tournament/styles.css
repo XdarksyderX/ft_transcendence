@@ -1,8 +1,18 @@
+.fancy{
+	background: linear-gradient(225deg, var(--dark), var(--darkish),  var(--transition), var(--dark));
+	border: 1px solid var(--dark);
+	box-shadow: inset 0 0 10px var(--dark);
+}
+
 .bracket {
 	display: flex;
 	flex-direction: row;
 	justify-content: space-around;
 	align-items: center; /* Ensure all rounds stretch to the same height */
+}
+
+.bracket-container:not(:last-child) {
+  margin-bottom: 1.5rem; /* Adjust the value as needed */
 }
 
 .round {
@@ -36,6 +46,8 @@
 	background-color: var(--transparent-dark);
 	border-radius: 10px;
 	border: 1px solid var(--light);
+	/* background: linear-gradient(225deg, var(--dark), var(--darkish),  var(--transition), var(--title)); */
+
 }
 
 .match {
