@@ -291,8 +291,6 @@ async function triggerPlayMatchModal(match)
 }
 
 function toggleModalContent(modalEl) {
-/*   const yourself = getUsername();
-  const oponent = match.player1 === yourself ? match.player2 : match.player1; */
   const join = modalEl.querySelector('#join-queue');
   const wait = modalEl.querySelector('#wait-oponent');
   const bars = modalEl.querySelector('#loading-bars');

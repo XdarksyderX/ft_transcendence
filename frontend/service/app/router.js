@@ -10,7 +10,7 @@ import { initializeStatsEvents } from '../components/stats/app.js';
 import { initializeOngoingTournaments } from '../components/tournament/started.js';
 import { initializeNewTournament } from '../components/tournament/new.js';
 import { initializeChessEvents } from '../components/chess/index.js';
-import { loadChat, loadSidebar } from './render.js';
+import { loadChat, loadSidebar, attachHideModalGently } from './render.js';
 import { initializeIndexEvents } from '../components/index/app.js';
 import { isLoggedIn } from './auth.js';
 import { initializeSettingsEvents } from '../components/settings/app.js';
@@ -48,6 +48,7 @@ async function router(key = null) {
     const html = await fetch(match.file).then(res => res.text());
     document.getElementById('app').innerHTML = html;
 
+    attachHideModalGently();
     initializeNeonFrames(); // Inicializa estilos o frames
     stopBackgroundMusic();
 
@@ -194,7 +195,7 @@ function getTitleForUrl(url) {
             return "Settings";
         case "/started-tournaments":
             return "Started Tournaments";
-        case "/unstarted-tournament":
+        case "/unstarted-tournaments":
             return "New/Edit Tournament";
         case "/chess":
             return "Chess";

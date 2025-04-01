@@ -126,7 +126,49 @@ function throwToast(text, delay = 3000) {
   });
 }
 
+function hideModalGently(modal) {
+  // Buscar un elemento visible y enfocable fuera del modal
+  const fallbackElement = document.querySelector('button, a, input, [tabindex]:not([tabindex="-1"])');
+
+  if (fallbackElement) {
+      fallbackElement.focus(); // Enfocar el primer elemento visible
+  } else {
+      document.body.focus(); // Si no hay, enfocar el body
+  }
+
+  setTimeout(() => {
+      modal.hide();
+  }, 50);
+}
 
 
+function attachHideModalGently() {
+  const dismissElements = document.querySelectorAll('[data-bs-dismiss]');
+  console.log(`Found ${dismissElements.length} elements with [data-bs-dismiss] attribute.`); // Log the number of elements
 
-export { loadChat, loadSidebar, throwAlert, throwToast }
+  dismissElements.forEach((element) => {
+      console.log(`Attaching hideModalGently to element:`, element); // Log each element
+
+      element.addEventListener('click', (event) => {
+          event.preventDefault(); // Prevent the default dismiss behavior
+          console.log(`Clicked on element:`, event.target); // Log the clicked element
+
+          const modalElement = event.target.closest('.modal');
+          if (modalElement) {
+              console.log(`Found modal element:`, modalElement); // Log the modal element
+
+              const modalInstance = bootstrap.Modal.getInstance(modalElement);
+              if (modalInstance) {
+                  console.log(`Found Bootstrap modal instance:`, modalInstance); // Log the modal instance
+                  hideModalGently(modalInstance);
+              } else {
+                  console.warn(`No Bootstrap modal instance found for modal element:`, modalElement);
+              }
+          } else {
+              console.warn(`No modal element found for clicked element:`, event.target);
+          }
+      });
+  });
+}
+
+export { loadChat, loadSidebar, throwAlert, throwToast, hideModalGently, attachHideModalGently }

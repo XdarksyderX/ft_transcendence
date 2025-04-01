@@ -1,4 +1,4 @@
-import { throwAlert, throwToast } from "../../app/render.js";
+import { hideModalGently, throwAlert, throwToast } from "../../app/render.js";
 import { getAvatar, getFriendsList, removeFriend, blockUser } from "../../app/social.js";
 import { handleGetResumeStats } from "../stats/app.js";
 import { initSearchFriendEvents, renderPendingFriendRequests } from "./requests.js";
@@ -94,9 +94,9 @@ async function renderFriendList(container, dataContainer, refreshData = true, se
     const friends = await handleGetFriendList();
     if (friends.length === 0) {
         container.innerHTML = `
-        <div class="d-flex flex-column h-100">
-            <div> You don't have any friends, yet ;) </div>
-            <div class="mt-auto text-center">
+        <div class="d-flex flex-column h-100 bg-primary">
+            <div class="flex-grow-1"> You don't have any friends, yet ;) </div>
+            <div class="flex-grow-1 mt-auto text-center">
                 <div> You'll can add some down there </div>
                 <i class="fas fa-chevron-down"></i>
             </div>
@@ -207,9 +207,14 @@ function showDeleteModal(friendName) {
     `;
     const deleteModalInstance = new bootstrap.Modal(deleteModal);
     deleteModalInstance.show();
-	const deleteBtn = document.getElementById('delete-friend-btn');
-	deleteBtn.addEventListener('click', () => handleRemoveFriend(friendName, deleteModalInstance));
+
+    const deleteBtn = document.getElementById('delete-friend-btn');
+    // Remove any existing event listeners
+    deleteBtn.replaceWith(deleteBtn.cloneNode(true));
+    const newDeleteBtn = document.getElementById('delete-friend-btn');
+    newDeleteBtn.addEventListener('click', () => handleRemoveFriend(friendName, deleteModalInstance));
 }
+
 function showBlockModal(friendName) {
     const blockModal = document.getElementById('block-modal');
     const blockModalBody = blockModal.querySelector('.modal-body');
@@ -220,14 +225,17 @@ function showBlockModal(friendName) {
     blockModalInstance.show();
 
     const blockBtn = document.getElementById('block-friend-btn');
-    blockBtn.addEventListener('click', () => handleBlockFriend(friendName, blockModalInstance));
+    // Remove any existing event listeners
+    blockBtn.replaceWith(blockBtn.cloneNode(true));
+    const newBlockBtn = document.getElementById('block-friend-btn');
+    newBlockBtn.addEventListener('click', () => handleBlockFriend(friendName, blockModalInstance));
 }
 
 async function handleRemoveFriend(username, modal = null) {
     const response = await removeFriend(username);
 
     if (modal) {
-        modal.hide();
+        hideModalGently(modal);
     }
     if (response.status === 'success') {
         throwToast(`You and ${username} are not friends anymore`);
@@ -241,7 +249,7 @@ async function handleBlockFriend(username, modal = null) {
     const response = await blockUser(username);
 
     if (modal) {
-        modal.hide();
+        hideModalGently(modal);
     }
     if (response.status === 'success') {
         throwToast(`You and ${username} are not friends anymore >:(`);

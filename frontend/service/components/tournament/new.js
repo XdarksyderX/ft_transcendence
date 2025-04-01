@@ -58,7 +58,6 @@ function updateRequiredParticipants(total) {
 
     const startBtn = document.getElementById('start-tournament-btn');
 
-
     requiredParticipants = Number.parseInt(total, 10); // -1 cause we already include the creator 
     if (selectedFriends.length === requiredParticipants - 1) {
         startBtn.disabled = false;
@@ -113,8 +112,6 @@ function toggleFriendSelection(username, btn) {
         selectedFriends.push(username);
         console.log(`Selected friend with username: ${username}`);
     }
-    console.log("After toggle:", selectedFriends);
-    console.log("selected number: ", selectedFriends.length);
     startBtn.disabled = selectedFriends.length !== requiredParticipants - 1;
 }
 
@@ -134,6 +131,7 @@ function initStartNewTournament(elements) {
     const startBtn = document.getElementById('start-tournament-btn');
     const newStartBtn = startBtn.cloneNode(true);
     startBtn.parentNode.replaceChild(newStartBtn, startBtn);
+    selectedFriends = [];
     console.log("adding event listener");
     newStartBtn.addEventListener('click', (event) => {
         event.preventDefault();

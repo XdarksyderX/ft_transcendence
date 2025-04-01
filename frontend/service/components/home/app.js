@@ -2,7 +2,7 @@ import { throwAlert } from "../../app/render.js";
 import { navigateTo } from "../../app/router.js";
 import { handleSendGameInvitation } from "./game-invitation.js";
 import { handleGetFriendList } from "../friends/app.js";
-import { initMatchmaking } from "./matchMaking.js";
+import { initMatchmaking, closeMatchmakingModal, handleLeaveMatchmaking } from "./matchMaking.js";
 
 let chessVariant = null;
 let currentView = null;
@@ -201,6 +201,11 @@ function initMatchmakingBtns() {
 	const variantBtns = setVariantBtns();
 	const startBtn = document.getElementById('start-queue');
 	startBtn.addEventListener('click', () => clickStartQueueBtn(switches, variantBtns));
+	document.getElementById("close-matchmaking-modal").addEventListener("click", async () => {
+		if (await handleLeaveMatchmaking()) {
+		  closeMatchmakingModal()
+		}
+	  })
 }
 
 function setVariantBtns() {

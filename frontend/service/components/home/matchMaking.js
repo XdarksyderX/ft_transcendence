@@ -1,9 +1,21 @@
 import { joinMatchmaking, leaveMatchmaking } from "../../app/chess.js";
 import { navigateTo } from "../../app/router.js";
 import { getUsername } from "../../app/auth.js";
+import { hideModalGently } from "../../app/render.js";
 
 
 export async function initMatchmaking(variants, ranked) {
+
+  // document.getElementById('matchmaking-modal').addEventListener('shown.bs.modal', () => {
+  //   setTimeout(() => {
+  //       const buttonInsideModal = document.querySelector('#matchmaking-modal button');
+  //       if (buttonInsideModal) {
+  //           buttonInsideModal.focus();
+  //           console.log('Foco forzado dentro del modal:', document.activeElement);
+  //       }
+  //   }, 100);
+  // });
+
   if (await handleJoinMatchmaking(variants, ranked)) {
     launchMatchmakingModal()
     localStorage.setItem("isOnQueue", "true")
@@ -21,7 +33,7 @@ async function handleJoinMatchmaking(variants, ranked) {
   }
 }
 
-async function handleLeaveMatchmaking() {
+export async function handleLeaveMatchmaking() {
   try {
     const response = await leaveMatchmaking()
     if (response.status === "success") {
@@ -31,7 +43,7 @@ async function handleLeaveMatchmaking() {
     } else {
       // Check if the error is because we're not in the queue
       if (response.message && response.message.includes("not in any matchmaking queue")) {
-        console.log("Not in queue, cleaning up local state only")
+        //console.log("Not in queue, cleaning up local state only")
         localStorage.removeItem("isOnQueue")
         return true
       } else {
@@ -51,7 +63,6 @@ function launchMatchmakingModal() {
   // Clean up any existing modals first
   // cleanupExistingModals()
 
-  const username = getUsername()
   // const modalId = `matchmaking-modal-${username}`
 
   // const modalHTML = `
@@ -87,56 +98,28 @@ function launchMatchmakingModal() {
 
   // // Store modal instance in a data attribute for easy access later
   // modal.modalInstance = matchmakingModal
-
-  document.getElementById("close-matchmaking-modal").addEventListener("click", async () => {
-    if (await handleLeaveMatchmaking()) {
-      closeMatchmakingModal()
-    }
-  })
 }
 
-function cleanupExistingModals() {
-  // Remove any existing matchmaking modals
-  const existingModals = document.querySelectorAll('[id^="matchmaking-modal-"]')
-  existingModals.forEach((modal) => {
-    const instance = bootstrap.Modal.getInstance(modal)
-    if (instance) {
-      instance.dispose()
-    }
-    modal.remove()
-  })
-
-  // Clean up any leftover backdrops
-  const backdrops = document.querySelectorAll(".modal-backdrop")
-  backdrops.forEach((backdrop) => backdrop.remove())
-
-  // Reset body
-  document.body.classList.remove("modal-open")
-  document.body.style.removeProperty("padding-right")
-}
-
-function closeMatchmakingModal() {
-
-  const modalElement = document.getElementById('matchmaking-modal')
+export function closeMatchmakingModal() {
+  const modalElement = document.getElementById('matchmaking-modal');
 
   if (modalElement) {
-    const modalInstance = bootstrap.Modal.getInstance(modalElement)
-    if (modalInstance) {
-      console.log('calling hide()');
-      modalInstance.hide()
-    }
-    const dismissBtn = document.getElementById('dismiss');
-    dismissBtn.click();
 
-  //   modalElement.remove()
+      const modalInstance = bootstrap.Modal.getInstance(modalElement);
+      if (modalInstance) {
+          console.log('calling hide()');
+          hideModalGently(modalInstance);
+      }
 
-  //   // Clean up backdrop and body classes
-  //   const backdrop = document.querySelector(".modal-backdrop")
-  //   if (backdrop) backdrop.remove()
-  //   document.body.classList.remove("modal-open")
-  //   document.body.style.removeProperty("padding-right")
-   }
+      const dismissBtn = document.getElementById('dismiss');
+      if (dismissBtn) {
+          dismissBtn.click();
+      }
+  }
 }
+
+
+
 
 export function handleJoinMatchmakingMatch(gameKey) {
 
