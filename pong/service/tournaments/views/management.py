@@ -59,7 +59,7 @@ class TournamentEditableListView(APIView):
 
 class TournamentListView(APIView):
     def get(self, request):
-        tournaments = Tournament.objects.filter(players=request.user)
+        tournaments = Tournament.objects.filter(players=request.user).order_by('-created_at')
         
         tournaments_data = []
         for tournament in tournaments:
