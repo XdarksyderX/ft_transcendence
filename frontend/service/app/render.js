@@ -91,6 +91,7 @@ function throwAlert(text) {
 
     // Add event listener to re-add inert attribute when modal is hidden
     modalElement.addEventListener('hidden.bs.modal', () => {
+        focusOutFromModal();
         modalElement.setAttribute('inert', '');
         modalElement.remove();
     });
@@ -126,16 +127,19 @@ function throwToast(text, delay = 3000) {
   });
 }
 
-function hideModalGently(modal) {
-  // Buscar un elemento visible y enfocable fuera del modal
-  const fallbackElement = document.querySelector('button, a, input, [tabindex]:not([tabindex="-1"])');
 
+function focusOutFromModal() {
+
+  const fallbackElement = document.querySelector('button, a, input, [tabindex]:not([tabindex="-1"])');
+  
   if (fallbackElement) {
       fallbackElement.focus(); // Enfocar el primer elemento visible
   } else {
       document.body.focus(); // Si no hay, enfocar el body
   }
-
+}
+function hideModalGently(modal) {
+  focusOutFromModal();
   setTimeout(() => {
       modal.hide();
   }, 50);

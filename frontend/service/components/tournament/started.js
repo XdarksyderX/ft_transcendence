@@ -1,5 +1,5 @@
 import { getTournamentDetail, listTournaments,  joinTournamentQueue, leaveTournamentQueue} from "../../app/pong.js";
-import { throwAlert } from "../../app/render.js";
+import { hideModalGently, throwAlert } from "../../app/render.js";
 import { getUsername } from "../../app/auth.js";
 import { navigateTo } from "../../app/router.js";
 
@@ -305,7 +305,8 @@ function toggleModalContent(modalEl) {
 export function handleJoinTournamentMatch(gameKey) {
   const modalEl = document.getElementById('start-match-modal');
   const modal = bootstrap.Modal.getInstance(modalEl); 
-  modal.hide();
+
+  hideModalGently(modal);
   
   setTimeout(() => {
     navigateTo('/pong', gameKey);

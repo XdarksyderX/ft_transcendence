@@ -1,5 +1,5 @@
 import { isTwoFAEnabled, toggleTwoFA, changeUsername, changeEmail, changePassword, deleteAccount, refreshAccessToken, getUsername,  } from '../../app/auth.js';
-import { throwAlert, throwToast } from '../../app/render.js';
+import { hideModalGently, throwAlert, throwToast } from '../../app/render.js';
 import { parseNewPasswords } from '../signup/signup.js';
 import { parseEmail } from '../signup/signup.js';
 import { handle2FAmodal } from './QRhandler.js';
@@ -176,7 +176,7 @@ function initDeleteAccountEvents() {
         const confirmDeleteBtn = document.getElementById("confirm-delete-account");
         confirmDeleteBtn.addEventListener("click", async () => {
             await handleDeleteAccount(password);
-            deleteProfileModal.hide(); // Hide the modal after account deletion
+			hideModalGently(deleteProfileModal);
         });
     });
 }
