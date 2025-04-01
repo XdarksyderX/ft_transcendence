@@ -35,7 +35,7 @@ async function getTournamentsBracket(tourList, finished) {
 
   for (const token of tokens) {
     const tournamentDetail = await handleGetTournamentDetail(token);
-    const tournamentBracket = getTournamentBracket(tournamentDetail);
+    const tournamentBracket = getTournamentBracketObject(tournamentDetail);
     tournaments[token] = tournamentBracket;
   }
   return tournaments;
@@ -70,7 +70,7 @@ async function handleGetTournamentDetail(token) {
 }
 
 // Constructs the tournament bracket with rounds and games
-function getTournamentBracket(tournament) {
+function getTournamentBracketObject(tournament) {
   const rounds = [];
   const maxPlayers = tournament.max_players;
   const totalRounds = Math.ceil(Math.log2(maxPlayers));
@@ -187,7 +187,7 @@ function generateBracket(tournament) {
 function generateRound(round, token) {
   const roundElement = document.createElement('div');
   const openClass = round.status === 'open' ? 'open' : '';
-  const roundClass = round.round === 1 ? 'justify-content-between' : '';
+  const roundClass = round.round === 1 ? 'justify-content-between ' : '';
 
   roundElement.className = `round ${openClass} d-flex flex-column`;
   console.log("round: ", round);
@@ -220,14 +220,37 @@ function generateMatches(games, token) {
   });
 }
 
+
+function generatePlayerElement(player, winner) {
+  const playerName = player.alias || player.username || player;
+  let tooltip = '';
+  if (player.username) {
+    tooltip = `<i class="fas fa-question-circle text-end" data-bs-toggle="tooltip" data-bs-placement="top" title="${player.username}"></i>`;
+  }
+  // const playerElement = `
+  //   <div class="d-flex justify-content-between align-items-center">
+  //     <span class="fw-bold text-start ${winner === player.username ? 'winner' : ''}">${playerName}</span>
+  //     <span>${tooltip}</span>
+  //   </div>`;
+
+  const playerElement = `
+    <p class="d-flex justify-content-between mb-1">
+        <span> ${playerName}</span>
+        <span id="total-pong-matches"> ${tooltip} </span>
+    </p>
+  `
+  return playerElement;
+}
+
 // Generates the HTML element for a match in a round
 function generateMatch(game) {
   const matchElement = document.createElement('div');
   matchElement.id = game.game_id;
   matchElement.classList.add('match');
-  
-  if (!game.winner && game.player1 && game.player2) {
-    const itsMe = (getUsername() === game.player1 || getUsername() === game.player2);
+
+ 
+  if (!game.winner && game.player1.username && game.player2.username) {
+    const itsMe = (getUsername() === game.player1.username || getUsername() === game.player2.username);
     if (itsMe) {
       matchElement.classList.add('available');
     }
@@ -238,10 +261,14 @@ function generateMatch(game) {
     matchElement.classList.add('done');
   }
 
+  const player1Element = generatePlayerElement(game.player1, game.winner);
+  const player2Element = generatePlayerElement(game.player2, game.winner);
+  matchElement.className += 'col text-center';
   matchElement.innerHTML = `
-    <div class="${game.winner === game.player1 ? 'winner' : ''}">${game.player1}</div>
-    <div class="match-divider"></div>
-    <div class="${game.winner === game.player2 ? 'winner' : ''}">${game.player2}</div>
+  ${player1Element}
+  
+  <div class="text-center match-divider"></div>
+   ${player2Element}
   `;
 
   return matchElement;
