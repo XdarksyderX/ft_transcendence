@@ -30,26 +30,6 @@ class ChangeUsernameSerializer(serializers.Serializer):
         user.save()
         return user
 
-
-class ChangeAliasSerializer(serializers.Serializer):
-    new_alias = serializers.CharField(
-        error_messages={'required': 'This field is required: alias'}
-    )
-
-    def validate(self, data):
-        user = self.context['request'].user
-        
-        if user.alias == data['new_alias']:
-            raise serializers.ValidationError({"error": "New alias cannot be the same as the current alias."})
-
-        return data
-
-    def save(self):
-        user = self.context['request'].user
-        user.alias = self.validated_data['new_alias']
-        user.save()
-        return user
-
 class ChangeEmailSerializer(serializers.Serializer):
     new_email = serializers.EmailField(
         error_messages={'required': 'This field is required: email'}

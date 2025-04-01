@@ -151,10 +151,15 @@ class ChessConsumer(AsyncWebsocketConsumer):
 			if game["status"] == "finished":
 				winner = self.game_obj.winner
 				winner_color = "white" if winner == self.game_obj.player_white else "black"
+				last_move = game["move_history"][-1] if game["move_history"] else None
 				await self.send(text_data=json.dumps({
 					"status": "game_over",
 					"winner": winner_color,
-					"reason": "checkmate"
+					"reason": "checkmate",
+					"lastMovement": {
+						"from": last_move["from"],
+						"to": last_move["to"]
+					} if last_move else None
 				}))
 			
 			if self.color in game["ready"] and game["ready"][self.color]:

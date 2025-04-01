@@ -51,6 +51,15 @@ class GlobalChatConsumer(AsyncWebsocketConsumer):
             sanitized_message = escape(message_content)
             
             receiver = await sync_to_async(User.objects.get)(username=receiver_username)
+            
+            friends = await sync_to_async(lambda: list(self.user.blocked.all()))()
+
+            if receiver in friends:
+                return
+            friends = await sync_to_async(lambda: list(receiver.blocked.all()))()
+            if self.user in friends:
+                return
+            
             msg = await sync_to_async(Message.objects.create)(
                 content=sanitized_message,
                 sender=self.user,
