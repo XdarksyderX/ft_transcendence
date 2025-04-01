@@ -175,4 +175,11 @@ function attachHideModalGently() {
   });
 }
 
-export { loadChat, loadSidebar, throwAlert, throwToast, hideModalGently, attachHideModalGently }
+function initTooltips() {
+	const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+	const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+		return new bootstrap.Tooltip(tooltipTriggerEl);
+	});
+}
+
+export { loadChat, loadSidebar, throwAlert, throwToast, hideModalGently, attachHideModalGently, initTooltips }

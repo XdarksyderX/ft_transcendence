@@ -2,7 +2,7 @@
 	display: flex;
 	flex-direction: row;
 	justify-content: space-around;
-	align-items: stretch; /* Ensure all rounds stretch to the same height */
+	align-items: center; /* Ensure all rounds stretch to the same height */
 }
 
 .round {
@@ -42,14 +42,12 @@
 	display: flex;
 	flex-grow: 1;
 	flex-direction: column;
-	/* align-items: center;
-	justify-content: space-between; */
+	min-width: 105px;
 	width: 100%;
 	min-height: 50px;
 	padding: 1rem;
 	border: 2px solid var(--light);
 	box-shadow: 0 0 5px var(--light);
-
 	margin: 10px 0;
 	border-radius: 5px;
 	/* background-color: #fff; */
