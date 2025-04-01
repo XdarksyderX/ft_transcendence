@@ -50,15 +50,6 @@ async function loadSidebar() {
     }
 }
 
-export function toggleSidebar(show) {
-  const sidebarContainer = document.getElementById('sidebar-container');
-  const sidebarToggle = document.getElementById('sidebar-toggle-container');
-
-    sidebarContainer.style.display = show ? 'block' : 'none';
-    sidebarToggle.style.display = show ? 'inline-block' : 'none';
-    document.getElementById('app').style.marginLeft = show ? '250px' : 'auto';
-}
-
 function throwAlert(text) {
     // Eliminar cualquier modal previo
     const prevModal = document.getElementById('alert-modal');
@@ -100,6 +91,7 @@ function throwAlert(text) {
 
     // Add event listener to re-add inert attribute when modal is hidden
     modalElement.addEventListener('hidden.bs.modal', () => {
+        focusOutFromModal();
         modalElement.setAttribute('inert', '');
         modalElement.remove();
     });
@@ -136,6 +128,51 @@ function throwToast(text, delay = 3000) {
 }
 
 
+function focusOutFromModal() {
+
+  const fallbackElement = document.querySelector('button, a, input, [tabindex]:not([tabindex="-1"])');
+  
+  if (fallbackElement) {
+      fallbackElement.focus(); // Enfocar el primer elemento visible
+  } else {
+      document.body.focus(); // Si no hay, enfocar el body
+  }
+}
+function hideModalGently(modal) {
+  focusOutFromModal();
+  setTimeout(() => {
+      modal.hide();
+  }, 50);
+}
 
 
-export { loadChat, loadSidebar, throwAlert, throwToast }
+function attachHideModalGently() {
+  const dismissElements = document.querySelectorAll('[data-bs-dismiss]');
+  console.log(`Found ${dismissElements.length} elements with [data-bs-dismiss] attribute.`); // Log the number of elements
+
+  dismissElements.forEach((element) => {
+      console.log(`Attaching hideModalGently to element:`, element); // Log each element
+
+      element.addEventListener('click', (event) => {
+          event.preventDefault(); // Prevent the default dismiss behavior
+          console.log(`Clicked on element:`, event.target); // Log the clicked element
+
+          const modalElement = event.target.closest('.modal');
+          if (modalElement) {
+              console.log(`Found modal element:`, modalElement); // Log the modal element
+
+              const modalInstance = bootstrap.Modal.getInstance(modalElement);
+              if (modalInstance) {
+                  console.log(`Found Bootstrap modal instance:`, modalInstance); // Log the modal instance
+                  hideModalGently(modalInstance);
+              } else {
+                  console.warn(`No Bootstrap modal instance found for modal element:`, modalElement);
+              }
+          } else {
+              console.warn(`No modal element found for clicked element:`, event.target);
+          }
+      });
+  });
+}
+
+export { loadChat, loadSidebar, throwAlert, throwToast, hideModalGently, attachHideModalGently }

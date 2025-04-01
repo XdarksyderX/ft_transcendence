@@ -1,5 +1,5 @@
 import { navigateTo } from '../../app/router.js';
-import { /* loadChat, loadSidebar,  */throwAlert } from '../../app/render.js';
+import { /* loadChat, loadSidebar,  */hideModalGently, throwAlert } from '../../app/render.js';
 import { getUsername, refreshAccessToken, login, resetPassword } from '../../app/auth.js';
 import { requestPasswordReset } from '../../app/auth.js';
 import { parseEmail, parseUsername } from '../signup/signup.js';
@@ -76,7 +76,7 @@ async function showOTPForm(userCredentials) {
         }
 
         // Hide the OTP modal
-        otpModal.hide();
+        hideModalGently(otpModal);
     });
 }
 

@@ -60,6 +60,8 @@ export async function initializePongEvents(gameKey = null)
     // Check if a gameKey is provided through param
     if (gameKey) 
     {
+        sessionStorage.setItem('inGame', '/pong');
+        document.getElementById('lc-text').style.display = 'none';
         initBoard();
         startCountdownOnBoard(3, () => 
         {
@@ -78,6 +80,8 @@ export async function initializePongEvents(gameKey = null)
         
         if (response.match?.game_key) 
         {
+            sessionStorage.setItem('inGame', '/pong');
+            document.getElementById('lc-text').style.display = 'none';
             initBoard();
             startCountdownOnBoard(3, () => 
             {
@@ -157,6 +161,7 @@ function connectToOnlineGame(gameKey)
     socket.onopen = () =>
     {
         sessionStorage.setItem('inGame', '/pong');
+        document.getElementById('lc-text').style.display = 'none';
         console.log("WebSocket connected to game:", gameKey);
         socket.send(JSON.stringify({ action: "ready" })); // Send "ready" signal
 

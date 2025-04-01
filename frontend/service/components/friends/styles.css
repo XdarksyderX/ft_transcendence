@@ -29,8 +29,9 @@
 	cursor: pointer;
 } */
 
-#friends-container {
-    height: 240px;
+#friend-list #friends-container {
+    min-height: 380px;
+    max-height: 480px;
     overflow-y: auto;
 }
 

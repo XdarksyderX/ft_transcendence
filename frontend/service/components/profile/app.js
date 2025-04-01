@@ -12,34 +12,27 @@ const avatarImages = [
     './resources/avatar/avatar_3.png',
 ];
 
-async function handleAliasChange() {
-    const newAlias ='pato';
-
-    if (!newAlias) {
-        alert('Alias cannot be empty.');
-        return;
-    }
-
+async function handleAliasChange(newAlias) {
     try {
         const response = await changeAlias(newAlias);
         if (response.status === 'success') {
-            alert('Alias updated successfully!');
+            throwToast('Alias updated successfully!');
             document.getElementById('alias').textContent = response.alias;
         } else {
-            alert(`Error: ${response.message}`);
+            throwAlert(`Error: ${response.message}`);
         }
     } catch (error) {
         console.error('Error updating alias:', error);
-        alert('An error occurred while updating the alias.');
+        throwAlert('An error occurred while updating the alias.');
     }
 }
 
 export async function initializeProfileEvents(toggle = false) {
     const elements = getElements();
-    const user = getUserData();
+    const user = await getUserData();
     await fillUserData(elements, user);
     loadCanvases();
-    handleAliasChange();
+    // handleAliasChange();
     if (!toggle) {
         btnHandler(elements);
     }
@@ -47,7 +40,6 @@ export async function initializeProfileEvents(toggle = false) {
         toggleEditMode(false, elements);
     }
     const stats = await handleGetResumeStats(getUsername());
-    console.log("AAAAA ", stats);
 }
 let chosenAvatarColor = null;
 let chosenBgColor = null;
@@ -104,9 +96,10 @@ async function getUserData() {
 
 
 
-async function fillUserData(elements) {
-
-    const user = await getUserData();
+async function fillUserData(elements, user = null) {
+    if (!user) {
+        user = await getUserData();
+    }
     console.log("on fill: ", user.resumeStats);
     console.log(user);
     elements.username.textContent = `${user.username}`;
@@ -121,6 +114,7 @@ async function fillUserData(elements) {
     elements.profilePicture.src = user.profilePicture;
 }
 
+let oldAlias = null;
 //toggles from profile to edit mode
 export function toggleEditMode(isEditing, elements) {
     if (!elements) {
@@ -132,8 +126,12 @@ export function toggleEditMode(isEditing, elements) {
     elements.changePicture.style.display = isEditing ? 'inline-block' : 'none';
     
     if (isEditing) {
+        oldAlias = elements.alias.innerText;
         elements.username.innerHTML = `
-            <input type="text" class="form-control ctm-form mb-2" value="${getUsername()}">
+            <input type="text" class="form-control ctm-form mb-2 text-end" value="${getUsername()}">
+        `;
+        elements.alias.innerHTML = `
+            <input type="text" class="form-control ctm-form mb-2 text-end" value="${oldAlias}">
         `;
         elements.cancelChanges.forEach(button => button.style.display = 'block');
     } else {
@@ -214,14 +212,17 @@ async function updateUsername(username) {
 async function saveNameChanges(elements) {
     const nameInput = elements.username.querySelector('input')
     const newName = nameInput.value;
+    const newAlias = elements.alias.querySelector('input').value;
 
-console.log("on save nae changes: ");
-    if (!newName || newName == '' ) {
-        return throwAlert("Name field can't be empty");
+    if (newName == '' || newAlias == '') {
+        return throwAlert("None field can't be empty");
     } else if (!parseUsername(newName)) {
         return ;
     }
-    else if (newName !== getUsername()) {
+    if (newAlias !== oldAlias) {
+        await handleAliasChange(newAlias);
+    }
+    if (newName !== getUsername()) {
         await updateUsername(newName);
         nameInput.value = getUsername();
         return ;
@@ -361,10 +362,9 @@ function applyColorChanges() {
     }
 }
 
-
-
 function btnHandler(elements) {
     elements.editProfile.addEventListener('click', () => toggleEditMode(true, elements));
+    console.log("adding event listeners")
     elements.cancelChanges.forEach(button => {
         button.addEventListener('click', () => toggleEditMode(false, elements));
     });	

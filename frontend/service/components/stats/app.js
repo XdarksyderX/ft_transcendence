@@ -103,11 +103,13 @@ export async function handleGetResumeStats(username) {
         return throwAlert("Error while fetching stats");
     }
 
-    console.log("chess response: ", pongResponse);
+    console.log("chess response: ", chessResponse);
     
     let resumeStats = {
         totalPong: pongResponse.stats.quick.played,
+        pongWins: pongResponse.stats.quick.won,
         totalChess: chessResponse.stats.casual.games_played + chessResponse.stats.ranked.games_played,
+        chessWins: chessResponse.stats.casual.games_won + chessResponse.stats.ranked.games_won,
         firstPlace: pongResponse.stats.tournament.first,
         chessElo: chessResponse.stats.ranked.highest_rating
     }

@@ -10,7 +10,7 @@ import { initializeStatsEvents } from '../components/stats/app.js';
 import { initializeOngoingTournaments } from '../components/tournament/started.js';
 import { initializeNewTournament } from '../components/tournament/new.js';
 import { initializeChessEvents } from '../components/chess/index.js';
-import { loadChat, loadSidebar } from './render.js';
+import { loadChat, loadSidebar, attachHideModalGently } from './render.js';
 import { initializeIndexEvents } from '../components/index/app.js';
 import { isLoggedIn } from './auth.js';
 import { initializeSettingsEvents } from '../components/settings/app.js';
@@ -48,6 +48,7 @@ async function router(key = null) {
     const html = await fetch(match.file).then(res => res.text());
     document.getElementById('app').innerHTML = html;
 
+    attachHideModalGently();
     initializeNeonFrames(); // Inicializa estilos o frames
     stopBackgroundMusic();
 
@@ -64,7 +65,6 @@ async function router(key = null) {
             break;
         case "/home":
             initializeHomeEvents();
-
             break;
         case "/started-tournaments":
             initializeOngoingTournaments(true);
@@ -130,18 +130,26 @@ function redirectURL(isLogged, fullUrl) {
 
 function unloadChatAndSidebar() {
     const chatContainer = document.getElementById('chat-container');
-    const sidebarContainer = document.getElementById('sidebar-container');
-    const sidebarToggle = document.getElementById('sidebar-toggle-container');
-
     chatContainer.innerHTML = '';
+    unloadSidebar();
+}
+
+function unloadSidebar() {
+    const sidebarContainer = document.getElementById('sidebar-container');
     sidebarContainer.innerHTML = '';
+    console.log("unload sidebar function called")
     toggleSidebarDisplay(false);
 }
 
-function loadLoggedContent(isLogged) {
+function loadLoggedContent(isLogged, url) {
     if (isLogged) {
+        if (sessionStorage.getItem('inGame')) {
+            console.log("before unloading sidebar")
+            unloadSidebar();
+        } else {
+            loadSidebar();
+        }
         loadChat();
-        loadSidebar();
     } else {
         unloadChatAndSidebar();
     }
@@ -149,10 +157,10 @@ function loadLoggedContent(isLogged) {
 }
 
 async function navigateTo(fullUrl, key = null) {
-    console.log("navigating to: ", fullUrl);    
     try {
         const verify = await isLoggedIn();
         const url = redirectURL(verify, fullUrl);
+        console.log("navigating to: ", url);    
         //console.log("verify:", verify);
         
        // if (!(url !== "/login" && url !== "/signup" && !verify)) 
@@ -161,7 +169,7 @@ async function navigateTo(fullUrl, key = null) {
             router(key);
         }
         document.title = getTitleForUrl(url); // Set the title based on the URL
-        loadLoggedContent(verify);
+        loadLoggedContent(verify, url);
     } catch (error) {
         console.error('Error during verification:', error);
     }
@@ -187,7 +195,7 @@ function getTitleForUrl(url) {
             return "Settings";
         case "/started-tournaments":
             return "Started Tournaments";
-        case "/unstarted-tournament":
+        case "/unstarted-tournaments":
             return "New/Edit Tournament";
         case "/chess":
             return "Chess";
@@ -216,22 +224,20 @@ function updateNavbar(url) {
     
     const loggedContent = document.getElementById('logged-content');
     const unloggedContent = document.getElementById('unlogged-content');
-   // const bellDropdown = document.getElementById('bell-dropdown');
     const lcText = document.getElementById('lc-text');
 
     if (!allowed) {
         toggleNavbarContent(loggedContent, unloggedContent);
-        initializeNotificationEvents(); // this should be called only once, when you log in I guess or not bc I have to habdle refreshes
+        initializeNotificationEvents();
         if (url === "/home") {
             lcText.innerHTML = `<div>Welcome ${getUsername()}</div>`;
         } else {
-            lcText.innerHTML = `<a href="/home" class="nav-link ctm-link ms-5" data-link>Home</a>`
+            lcText.innerHTML = `<a href="/home" class="nav-link ctm-link" data-link>Home</a>`
         }
         if (url === '/chess' || url === '/pong') {
             const button4 = document.getElementById('button4');
             button4.style.display = 'block';
-            lcText.style.display = 'none';
-            toggleSidebarDisplay(false)
+            // lcText.style.display = 'none' ;
         }
         else {
             const button4 = document.getElementById('button4');
@@ -247,7 +253,7 @@ function updateNavbar(url) {
 // Handle browser back/forward buttons
 window.addEventListener("popstate", async () => {
     await navigateTo(window.location.pathname);
-    // router();
+    router();
 });
 
 async function initRouteEvents() {
