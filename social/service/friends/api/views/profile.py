@@ -86,20 +86,16 @@ class ChangeAliasView(APIView):
 
     def post(self, request):
         new_alias = request.data.get('alias', '').strip()
-
-        # Validate the alias
         if not new_alias:
             return Response({'status': 'error', 'message': 'Alias cannot be empty.'}, status=status.HTTP_400_BAD_REQUEST)
 
         if len(new_alias) > 20:
             return Response({'status': 'error', 'message': 'Alias cannot exceed 20 characters.'}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Update the alias
         user = request.user
         user.alias = new_alias
         user.save()
-
-        # Return success response
+        publish_event("social", "social.alias_changed", {"user_id": user.id, "new_alias": new_alias
+        })
         return Response({
             'status': 'success',
             'message': 'Alias updated successfully.',

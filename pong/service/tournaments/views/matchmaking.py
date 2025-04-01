@@ -124,6 +124,7 @@ class TournamentJoinQueue(APIView):
 
 		publish_event('pong', 'pong.tournament_match_waiting', {
 			'sender_id': request.user.id,
+			'sender_alias': request.user.alias,
 			'receiver_id': opponent.id,
 			'tournament_name': tournament.name,
 		})

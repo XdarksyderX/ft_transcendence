@@ -10,6 +10,7 @@ from core.utils.event_domain import publish_event
 
 class User(AbstractUser):
     username = models.CharField(max_length=20, unique=True)
+    alias = models.CharField(max_length=20, unique=False, default='')
     friends = models.ManyToManyField('self', symmetrical=True, blank=True)
     pong_statistics = models.OneToOneField(
         'PongStatistics',
@@ -152,12 +153,16 @@ class PongGame(models.Model):
                             }
                             publish_event('pong', 'pong.tournament_round_finished', event_round)
                 
-            # Update statistics only for quick games or tournament finals
             if not self.is_tournament or is_final:
                 for player, position in [(self.player1, player1_position), (self.player2, player2_position)]:
                     stats = player.statistics.first()
                     if stats:
                         stats.update_statistics(self, tournament_position=position)
+            if is_final:
+                publish_event('pong', 'pong.tournament_finished', {'tournament_name': self.tournament.name, 'players_id': list(players_id), 'winner': {
+                    'username': self.winner.username,
+                    'alias': self.winner.alias
+                }})
 
     def __str__(self):
         return f"Game {self.id}: {self.player1} vs {self.player2} (Key: {self.game_key})"
@@ -369,7 +374,6 @@ class Tournament(models.Model):
             if not self.seeding:
                 raise Exception("Seeding is not set. Close the tournament first.")
             if self.max_players == 4:
-                print("Creando torneo de 4!")
                 # For 4 players: seeding order [1,2,3,4]
                 game1 = PongGame.objects.create(
                 player1=User.objects.get(id=self.seeding[0]),
@@ -397,7 +401,6 @@ class Tournament(models.Model):
                     pong_game=game2
                 )
             elif self.max_players == 8:
-                # For 8 players: seeding order [1,2,3,4,5,6,7,8]
                 game1 = PongGame.objects.create(
                 player1=User.objects.get(id=self.seeding[0]),
                 player2=User.objects.get(id=self.seeding[7]),

@@ -184,6 +184,32 @@ def handle_pong_tournament_invitation_deny(event):
 
     return f"Notified new player accepted {sender.username}'s tournament invitation"
 
+@shared_task(name="pong.tournament_finished")
+def handle_pong_tournament_finished(event):
+    event_id = event["event_id"]
+    if event_already_processed(event_id):
+        return f"Event {event_id} already processed."
+
+    event_attributes = event["data"]["attributes"]
+    tournament_name = event_attributes["tournament_name"]
+    players_ids = event_attributes["players_id"]
+    winner = event_attributes["winner"]
+
+    players = User.objects.filter(id__in=players_ids)
+
+    payload = {
+        "event_type": "pong_tournament_finished",
+        "tournament_name": tournament_name,
+        "winner": {
+            "username": winner["username"],
+            "alias": winner["alias"]
+        }
+    }
+
+    for player in players:
+        send_event(player.id, payload)
+    mark_event_as_processed(event_id, payload["event_type"])
+    return f"Notified all players that tournament {tournament_name} has finished with winner {winner['username']}"
 
 @shared_task(name="pong.tournament_match_waiting")
 def handle_pong_tournament_match_waiting(event):
@@ -193,6 +219,7 @@ def handle_pong_tournament_match_waiting(event):
 
     event_attributes = event["data"]["attributes"]
     sender_id = event_attributes["sender_id"]
+    sender_alias = event_attributes["sender_alias"]
     receiver_id = event_attributes["receiver_id"]
     tournament_name = event_attributes["tournament_name"]
 
@@ -201,7 +228,10 @@ def handle_pong_tournament_match_waiting(event):
 
     payload = {
         "event_type": "pong_tournament_match_waiting",
-        "opponent": sender.username,
+        "opponent": {
+            'username': sender.username,
+            'alias': sender_alias,
+        },
         "tournament": tournament_name
     }
 

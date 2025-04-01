@@ -17,32 +17,19 @@ def mark_event_as_processed(event_id, event_type):
         event_type=event_type
     )
 
-@shared_task(name="consistency.subscribe_now.pong")
-def handle_subscribe_now():
-    try:
-        subscription_event = {
-            "service": "pong",
-            "subscribed_events": [
-                "auth.user_registered",
-                "auth.user_deleted",
-                "auth.username_changed",
-                "social.friend_removed",
-                "social.friend_added",
-            ],
-            "subscription_id": str(uuid.uuid4()),
-            "timestamp": time.time()
-        }
+@shared_task(name="social.alias_changed")
+def handle_alias_changed(event):
+    event_id = event["event_id"]
+    if event_already_processed(event_id):
+        return f"Event {event_id} already processed."
 
-        rabbitmq_client.publish(
-            exchange="consistency",
-            routing_key="consistency.subscribe",
-            message=subscription_event,
-            ttl=10000
-        )
+    event_data = event["data"]["attributes"]
+    user = User.objects.get(id=event_data["user_id"])
+    user.alias = event_data["new_alias"]
+    user.save()
 
-        return "Sent subscription request to consistency_service"
-    except Exception as e:
-        return f"Error handling subscribe_now: {e}"
+    mark_event_as_processed(event_id, event["event_type"])
+    return f"Alias updated to {event_data['new_alias']} in pong service."
 
 @shared_task(name="auth.user_registered")
 def handle_user_registered(event):
