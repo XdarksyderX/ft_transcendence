@@ -1,4 +1,4 @@
-import { throwAlert } from "../../app/render.js";
+import { throwAlert, initTooltips } from "../../app/render.js";
 import { navigateTo } from "../../app/router.js";
 import { handleSendGameInvitation } from "./game-invitation.js";
 import { handleGetFriendList } from "../friends/app.js";
@@ -166,11 +166,9 @@ function chooseClasicChess(toggleTo) {
 function showChessVariants(toggleTo) {
 	toggleView(currentView, toggleTo);
 	// Initialize the tooltips
-	const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-	const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-		return new bootstrap.Tooltip(tooltipTriggerEl);
-	});
+	initTooltips();
 }
+
 // select the chess variant clicked and goes to friend options
 function chooseChessVariant(toggleTo) {
 	const variant = event.target.closest('[id$="-chess"]')

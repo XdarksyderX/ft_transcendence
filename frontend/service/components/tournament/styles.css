@@ -1,8 +1,18 @@
+.fancy{
+	background: linear-gradient(225deg, var(--dark), var(--darkish),  var(--transition), var(--dark));
+	border: 1px solid var(--dark);
+	box-shadow: inset 0 0 10px var(--dark);
+}
+
 .bracket {
 	display: flex;
 	flex-direction: row;
 	justify-content: space-around;
-	align-items: stretch; /* Ensure all rounds stretch to the same height */
+	align-items: center; /* Ensure all rounds stretch to the same height */
+}
+
+.bracket-container:not(:last-child) {
+  margin-bottom: 1.5rem; /* Adjust the value as needed */
 }
 
 .round {
@@ -15,6 +25,7 @@
 	justify-content: center;
 	min-height: 280px;
 }
+
 #create-edit-btn {
 	min-height: 100px;
 }
@@ -35,28 +46,27 @@
 	background-color: var(--transparent-dark);
 	border-radius: 10px;
 	border: 1px solid var(--light);
+	/* background: linear-gradient(225deg, var(--dark), var(--darkish),  var(--transition), var(--title)); */
+
 }
 
 .match {
 	display: flex;
 	flex-grow: 1;
 	flex-direction: column;
-	align-items: center;
-	justify-content: space-around;
+	min-width: 105px;
 	width: 100%;
-	min-height: 60px;
+	min-height: 50px;
 	padding: 1rem;
 	border: 2px solid var(--light);
 	box-shadow: 0 0 5px var(--light);
-
 	margin: 10px 0;
 	border-radius: 5px;
 	/* background-color: #fff; */
 	cursor: pointer;
-	margin: 15px
 }
 
-	.match.pending {
+.match.pending {
 	border-color: var(--lorange);
 	box-shadow: 0 0 5px var(--lorange);
 
@@ -95,8 +105,8 @@ animation: lorange-blink 1s infinite;
 }
 
 .match-divider {
-border-top: 1px solid var(--light);
-width: 75%;
+	border-top: 1px solid var(--light);
+	width: 100%;
 }
 
 .switch {

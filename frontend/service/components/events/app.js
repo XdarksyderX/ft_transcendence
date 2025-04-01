@@ -96,8 +96,9 @@ export function getNotificationText(notiContent) {
         case 'pong_tournament_closed':
             return `The ${notiContent.tournament} tournament is ready to start!`;
         case 'pong_tournament_match_waiting':
+            const opponent = notiContent.opponent.alias || notiContent.opponent.username;
             // return `Your tournament oponent, ${notiContent.opponent} is waiting for you`
-            return `Your oponent ${notiContent.opponent}, is waiting for you on ${notiContent.tournament}`
+            return `Your opponent ${opponent}, is waiting for you on ${notiContent.tournament} tournament`
         case 'pong_tournament_round_finished':
             return `You have a new round available on ${notiContent.tournament} tournament`
         default: // 'friend_removed' 'request_declined' 'request_cancelled'  'avatar_changed' shouldnt generate notification

@@ -1,5 +1,5 @@
 import { getTournamentDetail, listTournaments,  joinTournamentQueue, leaveTournamentQueue} from "../../app/pong.js";
-import { hideModalGently, throwAlert } from "../../app/render.js";
+import { hideModalGently, initTooltips, throwAlert } from "../../app/render.js";
 import { getUsername } from "../../app/auth.js";
 import { navigateTo } from "../../app/router.js";
 
@@ -22,7 +22,7 @@ export async function initializeOngoingTournaments(addListener) {
   }
   renderAllTournaments(ongoing, ongoingContainer, false);
   renderAllTournaments(finished, finishedContainer, true);
-    
+  initTooltips();
 }
 
 // Fetches the list of tournaments and their details, then constructs the tournament brackets
@@ -35,7 +35,7 @@ async function getTournamentsBracket(tourList, finished) {
 
   for (const token of tokens) {
     const tournamentDetail = await handleGetTournamentDetail(token);
-    const tournamentBracket = getTournamentBracket(tournamentDetail);
+    const tournamentBracket = getTournamentBracketObject(tournamentDetail);
     tournaments[token] = tournamentBracket;
   }
   return tournaments;
@@ -70,7 +70,7 @@ async function handleGetTournamentDetail(token) {
 }
 
 // Constructs the tournament bracket with rounds and games
-function getTournamentBracket(tournament) {
+function getTournamentBracketObject(tournament) {
   const rounds = [];
   const maxPlayers = tournament.max_players;
   const totalRounds = Math.ceil(Math.log2(maxPlayers));
@@ -108,7 +108,7 @@ function getTournamentBracket(tournament) {
 function renderNoneTournaments(container, finished) {
   if (finished) {
     container.innerHTML = `
-        <div id="no-tournaments-card" class="card ctm-card p-5">
+        <div id="no-tournaments-card" class="card ctm-card fancy p-5">
         <h3 class="my-2 ctm-text-light text-center">You don't have finished any tournament!</h3>
         <p class="my-3 ctm-text-light text-center">Going back to ongoing ones</p>
  <div class="text-center">
@@ -120,7 +120,7 @@ function renderNoneTournaments(container, finished) {
   } else {
 
     container.innerHTML = `
-    <div id="no-tournaments-card" class="card ctm-card p-5">
+    <div id="no-tournaments-card" class="card ctm-card fancy p-5">
 		<h3 class="my-2 ctm-text-light text-center">You don't have any ongoing tournament!</h3>
 		<p class="my-3 ctm-text-light text-center">But you can create one or check the status of the ones you already created here!</p>
     <div id="create-edit-btn" class="btn ctm-btn mb-3 flex-grow-1 d-flex align-items-center justify-content-center">Create/edit Tournament</div>
@@ -163,12 +163,14 @@ function renderAllTournaments(tournaments, container, finished) {
 // Generates the HTML element for a tournament
 function generateTournament(tournament) {
   const container = document.createElement('div');
-  container.classList.add("ctm-card", "p-5");
+  container.classList.add("ctm-card", "fancy", "p-3", "bracket-container");
   const bracket = generateBracket(tournament);
   container.innerHTML = `
     <h3 class="text-center ctm-text-title mb-3">${tournament.name}</h3>
     ${bracket.outerHTML}
   `;
+  setTimeout(setEqualHeightForRounds, 0); // Use timeout to ensure DOM is fully rendered
+
   return container;
 }
 
@@ -183,19 +185,41 @@ function generateBracket(tournament) {
   return bracket;
 }
 
+
+function setEqualHeightForRounds() {
+  const tournamentElements = document.querySelectorAll('.ctm-card'); // Select each tournament container
+
+  tournamentElements.forEach(tournament => {
+    const roundElements = tournament.querySelectorAll('.round'); // Get rounds within this tournament
+    let maxHeight = 0;
+
+    // Calculate the maximum height for rounds in this tournament
+    roundElements.forEach(round => {
+      const height = round.offsetHeight;
+      if (height > maxHeight) {
+        maxHeight = height;
+      }
+    });
+
+    // Apply the maximum height to all rounds in this tournament
+    roundElements.forEach(round => {
+      round.style.height = `${maxHeight}px`;
+    });
+  });
+}
 // Generates the HTML element for a round in the tournament
 function generateRound(round, token) {
   const roundElement = document.createElement('div');
   const openClass = round.status === 'open' ? 'open' : '';
-  const roundClass = round.round === 1 ? 'justify-content-between' : '';
+  const roundClass = round.round !== 1 ? 'position-absolute' : '';
 
   roundElement.className = `round ${openClass} d-flex flex-column`;
   console.log("round: ", round);
 
   const matches = generateMatches(round.games, token);
   roundElement.innerHTML = `
-    <h4 class="mt-2 mb-4 position-absolute top-0">Round ${round.round}</h4>
-    <div class="matches-container align-items-center ms-0 d-flex flex-column ${roundClass}"></div>
+    <h4 class="${roundClass} mt-2 mb-2 top-0">Round ${round.round}</h4>
+    <div class="matches-container mb-3 align-items-center ms-0 d-flex flex-column"></div>
   `;
   
   const matchesContainer = roundElement.querySelector('.matches-container');
@@ -220,14 +244,41 @@ function generateMatches(games, token) {
   });
 }
 
+
+function generatePlayerElement(player, winner) {
+  const playerName = player.alias || player.username || player;
+  const colorClass = player.username === winner?.username ? 'ctm-text-accent' : '';
+  let centerClass;
+  let tooltip = '';
+  let playerElement; 
+  if (player.username) {
+    playerElement = `
+    <p class="d-flex justify-content-between mb-1">
+        <span class="${colorClass}"> ${playerName}</span>
+        <span id="total-pong-matches"><i class="fas fa-question-circle text-end ms-1" data-bs-toggle="tooltip" data-bs-placement="top" title="${player.username}"></i></span>
+    </p>
+  `
+} else {
+    playerElement = `
+    <div class="d-flex ms-3 mb-1">
+        ${playerName}
+    </div>
+  `
+  
+  }
+
+  return playerElement;
+}
+
 // Generates the HTML element for a match in a round
 function generateMatch(game) {
   const matchElement = document.createElement('div');
   matchElement.id = game.game_id;
   matchElement.classList.add('match');
-  
-  if (!game.winner && game.player1 && game.player2) {
-    const itsMe = (getUsername() === game.player1 || getUsername() === game.player2);
+
+ 
+  if (!game.winner && game.player1.username && game.player2.username) {
+    const itsMe = (getUsername() === game.player1.username || getUsername() === game.player2.username);
     if (itsMe) {
       matchElement.classList.add('available');
     }
@@ -238,10 +289,14 @@ function generateMatch(game) {
     matchElement.classList.add('done');
   }
 
+  const player1Element = generatePlayerElement(game.player1, game.winner);
+  const player2Element = generatePlayerElement(game.player2, game.winner);
+  matchElement.className += ' col text-center';
   matchElement.innerHTML = `
-    <div class="${game.winner === game.player1 ? 'winner' : ''}">${game.player1}</div>
-    <div class="match-divider"></div>
-    <div class="${game.winner === game.player2 ? 'winner' : ''}">${game.player2}</div>
+  ${player1Element}
+  
+  <div class="text-center match-divider"></div>
+   ${player2Element}
   `;
 
   return matchElement;
