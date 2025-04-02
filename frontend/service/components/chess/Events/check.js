@@ -243,7 +243,7 @@ function updateGlobalState(piece, id) {
 		el.piece = piece; //find the element with the new position and asign the piece to it
 	  }
 	});
-  }
+}
 
   
   

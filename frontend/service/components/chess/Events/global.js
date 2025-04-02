@@ -1,5 +1,5 @@
 import { globalState, keySquareMapper, inTurn, updateInTurn, gameMode } from "../index.js"; //import globalState object, a 2D array representing the state of the chessboard
-import { clearHighlight, globalStateRender, selfHighlight, globalPiece, circleHighlightRender } from "../Render/main.js";
+import { clearHighlight, globalStateRender, selfHighlight, globalPiece, circleHighlightRender, piecePositions } from "../Render/main.js";
 import * as help from "../Helper/commonHelper.js"
 import { logMoves, appendPromotion } from "../Helper/logging.js"
 import { pawnPromotion, winGame } from "../Helper/modalCreator.js";
@@ -272,9 +272,14 @@ function moveElement(piece, id, castle) {
     makeEnPassant(piece, id);
 
   updateGlobalState(piece, id);
-  //console.log("globalState after making move: ", globalState.flat());
+//  console.log("globalState after making move: ", globalState.flat());
   clearHighlight();
   updatePiecePosition(piece, id);
+
+  console.warn(`making a move via ${isClickBool ? 'click' : 'socket'}`);
+  console.log("globalPiece after the move: ", globalPiece);
+  console.log("globalState after the move: ", globalState.flat());
+  console.log("piecePosition after the move: ", piecePositions);
 
   if (!chessSocket || inTurn == getUserColor(getUsername()))
     moveSound.play();
@@ -295,7 +300,7 @@ function moveElement(piece, id, castle) {
       kirbyTransformation(square, capturedPiece);
     }
   }
-  //checkForCheck(); // pdte preguntar a marina
+  //checkForCheck();
 
   if (!chessSocket) {
     if (gameMode === "horde" && inTurn === "white") { // white because the turn has already changed
