@@ -23,7 +23,7 @@
             <i class="fas fa-arrow-left me-2"></i>
             <span>back to recents</span>
         </div>
-        <div id="start-a-new-chat" class="list-group-item"  style="display: none;"">
+        <div id="start-a-new-chat" class="list-group-item"  style="display: none;">
             <i class="fas fa-plus me-2"></i>
             <span>start a new chat</span>
         </div>
@@ -33,9 +33,13 @@
     </div> <!-- this closes the new chat tab -->
     <!-- chat tab -->
     <div id="chat-window" class="chat-tab" style="display:none;">
-        <div class="chat-subheader d-flex align-items-center">
+        <div class="chat-subheader d-flex align-items-center position-relative">
             <i class="back-to-recents fas fa-arrow-left p-2 px-4 header-hover"></i>
             <span id="current-chat-name" class="ms-auto p-2 flex-grow-1 text-end header-hover"></span>
+            <!-- Spinner in the middle of the subheader -->
+            <div id="chat-spinner" class="spinner-border ctm-text-light position-absolute d-none" role="status" style="width: 1.5rem; height: 1.5rem;">
+                <span class="visually-hidden">Loading...</span>
+            </div>
         </div>
         <div id="chat-messages" class="p-3">
             <!-- chat messages are rendered here -->

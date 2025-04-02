@@ -222,3 +222,7 @@
 	border-radius: 5px; /* Adjust as needed */
 	padding: 5px; /* Adjust as needed */
 }
+
+#chat-spinner {
+	left:20% !important;
+}

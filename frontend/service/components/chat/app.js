@@ -268,11 +268,14 @@ async function fetchChatMessages(friendUsername) {
             const existingMessageIds = new Set(currentChat.messages.map((msg) => msg.id));
             const newMessages = fetchedMessages.filter((msg) => !existingMessageIds.has(msg.id));
 
-            // Prepend new messages to the beginning of `currentChat.messages`
+            // Merge new messages with existing ones
             currentChat.messages = [...newMessages, ...currentChat.messages];
+            console.log("on feetch: currentChat: ", currentChat.messages);
+            // Sort messages by `sent_at` timestamp
+            currentChat.messages.sort((a, b) => new Date(a.sent_at) - new Date(b.sent_at));
 
             // Update the cache with the latest messages
-            //updateChatCache(friendUsername, currentChat.messages);
+            updateChatCache(friendUsername, currentChat.messages);
         }
     } catch (error) {
         console.error("Error fetching messages:", error);
@@ -309,7 +312,10 @@ const generateMessageId = (message) => `${message.sender}-${message.sent_at}`;
 export async function renderChat(elements, scroll = true) {
     if (currentChat) {
         let messageElements = [];
-
+        if (!scroll) {
+            renderedMessages.clear();
+            elements.chatMessages.innerHTML = '';
+        }
         for (const message of currentChat.messages) {
             const messageId = generateMessageId(message);
             if (!renderedMessages.has(messageId)) {
@@ -327,9 +333,17 @@ export async function renderChat(elements, scroll = true) {
         // Sort messages by timestamp before appending
         messageElements.sort((a, b) => a.timestamp - b.timestamp)
             .forEach(({ element }) => elements.chatMessages.appendChild(element));
-		if (scroll) {
-			elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
-		}
+        if (!scroll) {
+            const allMessages = elements.chatMessages.children;
+            const targetMessageIndex = Math.max(allMessages.length - 8, 0); // Ensure index is not negative
+            const targetMessage = allMessages[targetMessageIndex];
+            if (targetMessage) {
+                elements.chatMessages.scrollTop = targetMessage.offsetTop;
+            }
+        } else {
+            // Scroll to the bottom
+            elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+        }
     }
 }
 
@@ -378,19 +392,30 @@ async function fillProfileData(username, container) {
 
 
 async function handleScroll(event, elements) {
-    if (event.target.scrollTop === 0) { // User scrolled to the top
-		if (chatCache[currentChat.username]?.hasFetchedAllMessages) {
+    if (event.target.scrollTop === 0) {
+        const hasFirstMessage = currentChat.messages.some(msg => msg.message === "1");
+
+        if (hasFirstMessage) {
             console.log(`No more messages to fetch for ${currentChat.username}`);
             return;
         } else {
-			await fetchChatMessages(currentChat.username);
-			chatCache[currentChat.username].hasFetchedAllMessages = true;
-			if (currentChat.messages.length > 8) {
-				//currentChat.messages = [...olderMessages, ...currentChat.messages];
-				//updateChatCache(currentChat.username, currentChat.messages);
-				renderChat(elements, false);
-			}
-		}
+            // Show the spinner
+            const spinner = document.getElementById('chat-spinner');
+            spinner.classList.remove('d-none');
+
+            try {
+                // Fetch messages
+                await fetchChatMessages(currentChat.username);
+
+                if (currentChat.messages.length > 8) {
+                    renderChat(elements, false);
+                }
+            } catch (error) {
+                console.error("Error fetching messages:", error);
+            } finally {
+                setTimeout(() => {spinner.classList.add('d-none')}, 500);
+            }
+        }
     }
 }
 

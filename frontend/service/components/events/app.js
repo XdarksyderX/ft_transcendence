@@ -108,25 +108,6 @@ export function getNotificationText(notiContent) {
     }
 }
 
-event_type
-: 
-"pong_tournament_match_finished"
-is_notification
-: 
-false
-player1
-: 
-"Concha"
-player2
-: 
-"Marisa"
-tournament_token
-: 
-"736c88bf-a5a7-485e-8273-71b0351f2cba"
-winner
-: 
-"Marisa"
-
 // API Request: Mark a notification as read
 async function handleMarkNotification(event, notificationId, card) {
     event.preventDefault();
