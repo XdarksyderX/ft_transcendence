@@ -5,6 +5,8 @@ import { getPongInvitationDetail, acceptTournamentInvitation, denyTournamentInvi
 import { getChessInvitationDetail } from '../../app/chess.js';
 import { throwAlert } from '../../app/render.js';
 
+const invitationStatuses = new Map();
+
 /* * * * * * * * * * * * * * * * * * *  NORMAL MESSAGE BUBBLE  * * * * * * * * * * * * * * * * * * */
 
 export function createMessageBubble(message) {
@@ -49,9 +51,8 @@ function createOutdatedBubble(sender, game) {
 	card.innerHTML = `
 		<div class="d-flex">
 			<div class="me-2">[Outdated ${game} invitation]</div>
-			</div>
-			`;
-			// <small class="ms-auto text-muted timestamp">${formatTime(message.sent_at)}</small>
+		</div>
+		`;
 	return card;
 }
 
@@ -114,26 +115,21 @@ function calculateTimeRemaining(sentAt) {
 
 async function checkInvitationValidity(game, token) {
 
-	// const cachedStatus = chatCache[currentChat.username]?.invitationStatuses?.get(token);
-	// if (cachedStatus) {
-	// 	if (cachedStatus === 'outated')
-	// 		return false;
-	// 	else
-	// 		return true;
-	// }
-
+	if (invitationStatuses.get(token)) {
+		console.log("invitation already handled");
+		return (false); 
+	}
 	const response = game === 'pong' ? await getPongInvitationDetail(token) : await getChessInvitationDetail(token);
 	if (response.status === 'success') {
 		return (true);
 	}
-	// chatCache[currentChat.username].invitationStatuses.set(token, 'outdated');
 	return (false);
 }
 
 async function startProgressBar(card, btns, gameData) {
     const expirationTime = Date.now() + (gameData.remainingTime * 1000);
     const progressBar = card.querySelector('[data-progress] .progress-bar');
-	const isInvitationValid = gameData.remainingTime > 0.2 && await checkInvitationValidity(gameData.game, gameData.token);
+	const isInvitationValid = gameData.remainingTime > 0.1 && await checkInvitationValidity(gameData.game, gameData.token);
     if (!isInvitationValid) {
 		cleanProgressBar(progressBar, btns, null);
 		return;
@@ -175,7 +171,20 @@ function cleanProgressBar(progressBar, btns, interval) {
 	btns.timer.textContent = '0s';
 }
 
+export function setInvitationStatus(token, status) {
+    invitationStatuses.set(token, status);
+
+    // Im only using this for quick game invitations so I erase them after 1 minute
+    setTimeout(() => {
+        if (invitationStatuses.has(token)) {
+            invitationStatuses.delete(token);
+            console.log(`Token ${token} removed from invitationStatuses after 1 minute.`);
+        }
+    }, 60000);
+}
+
 export function handleCancelledInvitation(token) {
+
 	const card = document.querySelector(`[data-token="${CSS.escape(token)}"]`);
 	if (!card) {
 		console.error(`Card with token ${token} not found`);
@@ -188,7 +197,7 @@ export function handleCancelledInvitation(token) {
 	};
 
     const progressBar = card.querySelector('[data-progress] .progress-bar');
-
+	setInvitationStatus(token, 'cancelled');
 	const intervalId = activeIntervals.get(token);
 	console.log(`Recuperando interval para ${token}:`, intervalId);
     
