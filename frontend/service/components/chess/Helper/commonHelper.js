@@ -380,11 +380,20 @@ function pawnCaptureOptions(curr_pos, color) {
     
     let captureIds = [col1, col2].filter(pos => validColumns.has(pos[0]));
     if (oneMore) {
-        // FORBBIDEN PAWN CAPTURE
-        // busco las opciones de movimiento del rey (variable global kingMoves {})
-        // y guardo en forbidden captures del rey las que coincidan con el peon
+        setForbbidenCaptures(captureIds);
     }
     return captureIds;
+}
+
+function setForbbidenCaptures(captureIds) {
+    if (!kingMoves || !captureIds) return;
+
+    captureIds.forEach(captureId => {
+        if (kingMoves.includes(captureId)) {
+            console.log(`Adding ${captureId} to forbiddenCaptures because the pawn threatens the king.`);
+            forbiddenCaptures.push(captureId);
+        }
+    });
 }
 
 /* this function check if the path of the castling is safe from a chekmate */
@@ -475,6 +484,8 @@ function markCaptureMoves(allMoves, color) {
 
 
 // FORBBIDDEN PAWN CAPTURE const kingMoves {} aquí vamos a guardar tmp del rey
+let kingMoves = [];
+
 function getPossibleMoves(piece, highlightIdsFunc, color, renderBool = false, preRenderCallback = null, skipCastlingCheck = false) {
     //coño = false;
     const curr_pos = piece.current_pos;
@@ -489,6 +500,7 @@ function getPossibleMoves(piece, highlightIdsFunc, color, renderBool = false, pr
         tmp.push(squares);
         }
     }
+    kingMoves = oneMore ? tmp : [];
     if (skipCastlingCheck)
         castlingCheck(piece, color, res);
     highlightSquareIds = res.flat();
@@ -592,6 +604,7 @@ function knightMovesOptions(piece, highlightIdsFunc, color, renderBool = false) 
                 adjustKnightHighlighting(element);
         });
     }
+    setForbbidenCaptures(highlightSquareIds);
     return highlightSquareIds;
 }
 
