@@ -5,10 +5,10 @@ import { initializeGlobalChatSocket, handleSentMessage } from './socket.js';
 import { createMessageBubble, createSpecialBubble, escapeHTML } from './bubbles.js';
 import { throwAlert } from '../../app/render.js';
 
-import { GATEWAY_URL } from '../../app/sendRequest.js';
-
 let isExpanded = false;
 let currentView;
+
+const chatCache = {}
 
 let chats = {}
 let currentChat = {
@@ -61,6 +61,8 @@ function bindEventListeners(elements) {
     document.querySelectorAll('.back-to-recents').forEach(button => {
         button.addEventListener('click', () => showRecentChats(elements));
     });
+	// Attach the scroll event listener
+	elements.chatMessages.addEventListener('scroll', (event) => handleScroll(event, elements));	
 }
 
 // Toggle the chat window between expanded and collapsed states
@@ -77,7 +79,7 @@ export async function toggleChat(elements) {
 }
 
 export async function updateNotificationIndicator(indicator) {
-	console.log("Updating notification indicator...");  
+	//console.log("Updating notification indicator...");  
 	let indicatiorDisplay;
 	if (isExpanded) {
 		indicatiorDisplay = 'none';
@@ -167,18 +169,6 @@ async function handleGetRecentChats() {
 		return null;
 	}
 }
-// Fetch the last message for a specific user
-async function fetchLastMessageForUser(friendUsername) {
-    try {
-        const messagesResponse = await getMessages(friendUsername);
-        if (messagesResponse.status === "success" && messagesResponse.messages && messagesResponse.messages.length > 0) {
-            return messagesResponse.messages[messagesResponse.messages.length - 1];
-        }
-    } catch (error) {
-        console.error("Error fetching messages for", friendUsername, error);
-    }
-    return null;
-}
 
 // Handle clicks on the recent chats list to open a chat
 function handleRecentChatsClick(event, elements) {
@@ -238,42 +228,56 @@ function handleFriendListClick(event, elements) {
 
 /* * * * * * * * * * * * * * * * * * * *  CHATS TAB  * * * * * * * * * * * * * * * * * * * */
 
-// Open a chat with a specific friend
 export async function openChat(friendUsername, elements, newChat = false) {
-	//console.log("Opening chat with:", friendUsername);
-	currentChat = { username: friendUsername, messages: [] };
-	renderedMessages.clear(); // Reinicia el set de mensajes renderizados
-	elements.chatMessages.innerHTML = ''; // clears the dom before fetching messages
-	if (!newChat) { // si no es un chat nuevo que acabo de crear
-		await fetchChatMessages(friendUsername);
-		await markMessagesAsRead(friendUsername);
-	}
-	showChatWindow(elements, friendUsername);
-	renderChat(elements);
+    currentChat = { username: friendUsername, messages: [] };
+    renderedMessages.clear();
+	elements.chatMessages.innerHTML = '';
+
+    if (chatCache[friendUsername]) {
+        // Use cached messages
+		console.log("showing messagges on cache: ", chatCache[friendUsername]);
+		currentChat.messages = [...chatCache[friendUsername]];
+        //renderChat(elements);
+    } else {
+        // Fetch messages from the server
+        await fetchChatMessages(friendUsername);
+		updateChatCache(friendUsername, currentChat.messages);
+    }
+
+    showChatWindow(elements, friendUsername);
+    renderChat(elements);
 }
 
 // Fetch chat messages for a specific friend
 async function fetchChatMessages(friendUsername) {
-	try {
-		const messagesResponse = await getMessages(friendUsername);
-		//console.log("on fetch chat messages: ", messagesResponse.messages)
-		if (messagesResponse.status === "success" && messagesResponse.messages) {
-			currentChat.messages = messagesResponse.messages.map((msg, index) => ({
-				id: index + 1,
-				message: msg.content,
-				sender: msg.sender,
-				receiver: msg.receiver,
-				sent_at: msg.sent_at,
-				is_special: msg.is_special,
-				is_read: msg.is_read
-			}));
-			//console.log("Messages history:", currentChat.messages);
-		}
-	} catch (error) {
-		console.error("Error fetching messages:", error);
-	}
-}
+    try {
+        const messagesResponse = await getMessages(friendUsername);
 
+        if (messagesResponse.status === "success" && messagesResponse.messages) {
+            const fetchedMessages = messagesResponse.messages.map((msg, index) => ({
+                id: index + 1,
+                message: msg.content,
+                sender: msg.sender,
+                receiver: msg.receiver,
+                sent_at: msg.sent_at,
+                is_special: msg.is_special,
+                is_read: msg.is_read
+            }));
+
+            // Filter out messages that are already in `currentChat.messages`
+            const existingMessageIds = new Set(currentChat.messages.map((msg) => msg.id));
+            const newMessages = fetchedMessages.filter((msg) => !existingMessageIds.has(msg.id));
+
+            // Prepend new messages to the beginning of `currentChat.messages`
+            currentChat.messages = [...newMessages, ...currentChat.messages];
+
+            // Update the cache with the latest messages
+            //updateChatCache(friendUsername, currentChat.messages);
+        }
+    } catch (error) {
+        console.error("Error fetching messages:", error);
+    }
+}
 // Mark messages as read for a specific friend
 export async function markMessagesAsRead(friendUsername) { 
     try {
@@ -302,7 +306,7 @@ function showChatWindow(elements, friendUsername) {
 
 const generateMessageId = (message) => `${message.sender}-${message.sent_at}`;
 
-export async function renderChat(elements) {
+export async function renderChat(elements, scroll = true) {
     if (currentChat) {
         let messageElements = [];
 
@@ -323,8 +327,9 @@ export async function renderChat(elements) {
         // Sort messages by timestamp before appending
         messageElements.sort((a, b) => a.timestamp - b.timestamp)
             .forEach(({ element }) => elements.chatMessages.appendChild(element));
-
-        elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+		if (scroll) {
+			elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+		}
     }
 }
 
@@ -369,4 +374,32 @@ async function fillProfileData(username, container) {
     `;
 }
 
-export {currentChat, currentView, isExpanded}
+/* * * * * * * * * * * * * * * * * * * *  PRE-FETCH AND CACHE HANDLING  * * * * * * * * * * * * * * * * * * * */
+
+
+async function handleScroll(event, elements) {
+    if (event.target.scrollTop === 0) { // User scrolled to the top
+		if (chatCache[currentChat.username]?.hasFetchedAllMessages) {
+            console.log(`No more messages to fetch for ${currentChat.username}`);
+            return;
+        } else {
+			await fetchChatMessages(currentChat.username);
+			chatCache[currentChat.username].hasFetchedAllMessages = true;
+			if (currentChat.messages.length > 8) {
+				//currentChat.messages = [...olderMessages, ...currentChat.messages];
+				//updateChatCache(currentChat.username, currentChat.messages);
+				renderChat(elements, false);
+			}
+		}
+    }
+}
+
+
+
+export function updateChatCache(username, messages) {
+	console.log("updating chat cache")
+	chatCache[username] = messages.slice(-8);
+}
+  
+
+export {currentChat, currentView, isExpanded, chatCache}

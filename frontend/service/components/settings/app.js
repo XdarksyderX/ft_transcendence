@@ -11,7 +11,6 @@ import { resizeSidebarUsername } from '../sidebar/app.js';
 
 export function initializeSettingsEvents() {
 
-	console.log("initialize function called");
 	let currentData = getCurrentData();
 	let changedData = getCurrentData(); // this makes a copy of
 	// security settings events

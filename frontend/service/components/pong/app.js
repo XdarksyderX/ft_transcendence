@@ -1,6 +1,7 @@
 import { navigateTo } from "../../app/router.js";
 import { getMatchInProgress } from "../../app/pong.js";
 import { GATEWAY_HOST } from "../../app/sendRequest.js";
+import { consoleSuccess } from "../../app/render.js";
 
 //frame id
 let id;
@@ -162,7 +163,7 @@ function connectToOnlineGame(gameKey)
     {
         sessionStorage.setItem('inGame', '/pong');
         document.getElementById('lc-text').style.display = 'none';
-        console.log("WebSocket connected to game:", gameKey);
+        consoleSuccess("[PongSocket] Connection established succesfully");
         socket.send(JSON.stringify({ action: "ready" })); // Send "ready" signal
 
         // Attach event listeners once when the connection opens

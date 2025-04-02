@@ -191,10 +191,7 @@ body::before {
     border-radius: 10px;
     box-shadow: 0 0 10px #00F56A, 0 0 20px #00F56A, 0 0 30px #00F56A, 0 0 40px #00F56Acc;
 }
-.blinking-neon-frame {
-    /* padding: 10px; */
-    border-radius: 10px;
-}
+
 /* modals */
 .modal-header {
     border: none;
@@ -250,8 +247,8 @@ input:focus, select:focus, .ctm-btn:focus, .ctm-btn-secondary:focus,
 }
 
 /* Apply the animation to all child elements of #app */
-#app > * {
-  animation: fadeInSliceUp 0.4s ease-out;
+#app > *{
+  animation: fadeInSliceUp 0.8s ease-out;
 }
 
 @media (max-height: 900px) {
@@ -268,4 +265,57 @@ input:focus, select:focus, .ctm-btn:focus, .ctm-btn-secondary:focus,
 .password-field {
     /* font-size: 30px; */
     font-weight: bolder;
+}
+
+
+@keyframes neon-glow {
+    0% {
+        text-shadow: 0 0 2px rgba(0, 245, 106, 0.4),
+                     0 0 4px rgba(0, 245, 106, 0.3),
+                     0 0 8px rgba(0, 245, 106, 0.3),
+                     0 0 16px rgba(0, 245, 106, 0.3);
+    }
+    50% {
+        text-shadow: 0 0 4px rgba(0, 245, 106, 0.4),
+                     0 0 8px rgba(0, 245, 106, 0.4),
+                     0 0 16px rgba(0, 245, 106, 0.4),
+                     0 0 32px rgba(0, 245, 106, 0.4);
+    }
+    100% {
+        text-shadow: 0 0 2px rgba(0, 245, 106, 0.4),
+                     0 0 4px rgba(0, 245, 106, 0.3),
+                     0 0 8px rgba(0, 245, 106, 0.3),
+                     0 0 16px rgba(0, 245, 106, 0.3);
+    }
+}
+
+@keyframes neon-box-glow {
+    0% {
+        box-shadow: 0 0 2px rgba(0, 245, 106, 0.3),
+                    0 0 4px rgba(0, 245, 106, 0.3),
+                    0 0 8px rgba(0, 245, 106, 0.3),
+                    0 0 16px rgba(0, 245, 106, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 6px rgba(0, 245, 106, 0.6),
+                    0 0 12px rgba(0, 245, 106, 0.7),
+                    0 0 24px rgba(0, 245, 106, 0.7),
+                    0 0 48px rgba(0, 245, 106, 0.7);
+    }
+    100% {
+        box-shadow: 0 0 2px rgba(0, 245, 106, 0.3),
+                    0 0 4px rgba(0, 245, 106, 0.3),
+                    0 0 8px rgba(0, 245, 106, 0.3),
+                    0 0 16px rgba(0, 245, 106, 0.3);
+    }
+}
+
+.blinking-neon-frame {
+    animation: neon-box-glow 1.2s infinite alternate;
+    border-radius: 10px;
+}
+
+
+.neon-text {
+    animation: neon-glow 1s infinite alternate;
 }

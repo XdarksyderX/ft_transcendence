@@ -100,11 +100,32 @@ export function getNotificationText(notiContent) {
             // return `Your tournament oponent, ${notiContent.opponent} is waiting for you`
             return `Your opponent ${opponent}, is waiting for you on ${notiContent.tournament} tournament`
         case 'pong_tournament_round_finished':
-            return `You have a new round available on ${notiContent.tournament} tournament`
+            return `You have a new round available on ${notiContent.tournament_name} tournament`
+        case 'pong_tournament_finished':
+            return `${notiContent.winner} has won the ${notiContent.tournament_name} tournament :D`
         default: // 'friend_removed' 'request_declined' 'request_cancelled'  'avatar_changed' shouldnt generate notification
             return null;
     }
 }
+
+event_type
+: 
+"pong_tournament_match_finished"
+is_notification
+: 
+false
+player1
+: 
+"Concha"
+player2
+: 
+"Marisa"
+tournament_token
+: 
+"736c88bf-a5a7-485e-8273-71b0351f2cba"
+winner
+: 
+"Marisa"
 
 // API Request: Mark a notification as read
 async function handleMarkNotification(event, notificationId, card) {

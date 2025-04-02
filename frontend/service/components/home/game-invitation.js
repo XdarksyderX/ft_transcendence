@@ -3,6 +3,7 @@ import { createChessMatchInvitation, acceptChessInvitation, denyChessInvitation,
 import { throwAlert, throwToast } from "../../app/render.js";
 import { navigateTo } from "../../app/router.js";
 import { chessVariant } from "./app.js";
+import { setInvitationStatus } from "../chat/bubbles.js";
 
 export async function handleSendGameInvitation(gameData, button) {
     button.disabled = true;
@@ -69,6 +70,7 @@ export async function handleAcceptQuickGameInvitation(game, token) {
     const response = game ==='pong' ? await acceptPongInvitation(token) : await acceptChessInvitation(token);
     if (response.status === "success") {
         await navigateTo(`/${game}`, response.game_key);
+        setInvitationStatus(token, 'accepted');
         return (1);
     } else {
         console.error('Failed to accept invitation:', response.message);
@@ -80,6 +82,7 @@ export async function handleDeclineInvitation(game, token) {
     const response = game ==='pong' ? await denyPongInvitation(token) : await denyChessInvitation(token);
     if (response.status === "success") {
         console.log("invitation declined successfully");
+        setInvitationStatus(token, 'declined');
     } else {
         console.error('Failed to accept invitation:', response.message);
     }
@@ -87,6 +90,7 @@ export async function handleDeclineInvitation(game, token) {
 
 async function handleCancelQuickGameInvitation(game, token) {
     const response = game === 'pong' ? await cancelPongInvitation(token) : await cancelChessInvitation(token);
+    setInvitationStatus(token, 'cancelled');
     if (response.status === "success") {
         console.log("invitation canceled successfully");
     } else {

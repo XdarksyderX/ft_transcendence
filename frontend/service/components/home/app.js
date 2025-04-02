@@ -38,7 +38,7 @@ function getElements() {
 				playRandom: document.getElementById('pong-random'),
 				playMachine: document.getElementById('play-machine'),
 				friendList: document.getElementById('friend-list'),
-				friendsContainer: document.getElementById('friends-container'),
+				friendsContainer: document.getElementById('pong-friends-container'),
 				startGameWithFriendButton: document.getElementById('start-game-with-friend'),
 			},
 			tournament: {
@@ -338,11 +338,7 @@ async function renderFriendList(container) {
 	const friends = await handleGetFriendList();
 	container.innerHTML = '';
 	let startBtn = currentView.querySelector(`[data-action=start-game]`);
-/* 	if (container === elements.pong.quickPlay.friendsContainer)
-		startBtn = elements.pong.quickPlay.startGameWithFriendButton;
-	else 
-		startBtn = elements.chess.startGameWithFriendButton; */
-	//console.log("startBtn: ", startBtn);
+
 	friends.forEach(friend => {
 		const friendBtn = createFriendBtn(friend, startBtn);
 		container.appendChild(friendBtn);
@@ -364,7 +360,7 @@ function createFriendBtn(friend, startBtn) {
 export function refreshFriendStatusOnHome() {
 
 	if (!currentView) return ;
-	const container = currentView.querySelector('#friends-container') || currentView.querySelector('#friends-container');
+	const container = currentView.querySelector('#pong-friends-container') || currentView.querySelector('#chess-friends-container');
 	if (container) {
 		renderFriendList(container);
 	}

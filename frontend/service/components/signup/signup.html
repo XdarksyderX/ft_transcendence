@@ -1,35 +1,38 @@
 <!-- registration card -->
-<div class="blinking-neon-frame p-0 p-md-3">
-    <div class="card ctm-card p-5">
-        <button id="cancel-signup" class="btn cancel-btn position-absolute top-0 end-0 m-2">x</button>
-        <h2 class="text-center ctm-text-title">Register</h2>
-        <form id="register-form">
-            <div class="mb-3">
-                <label for="new-username" class="form-label ctm-text-light">Username</label>
-                <input type="text" class="form-control ctm-form" id="new-username" required autocomplete="username" maxlength="100">
+<div>
+
+    <div class="blinking-neon-frame p-0 p-md-3">
+        <div class="card ctm-card p-5">
+            <button id="cancel-signup" class="btn cancel-btn position-absolute top-0 end-0 m-2">x</button>
+            <h2 class="text-center ctm-text-title">Register</h2>
+            <form id="register-form">
+                <div class="mb-3">
+                    <label for="new-username" class="form-label ctm-text-light">Username</label>
+                    <input type="text" class="form-control ctm-form" id="new-username" required autocomplete="username" maxlength="100">
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label ctm-text-light">Email</label>
+                    <input type="email" class="form-control ctm-form" id="email" required autocomplete="email" maxlength="100">
+                </div>
+                <div class="mb-3">
+                    <label for="new-password" class="form-label ctm-text-light">Password</label>
+                    <input type="password" class="password-field form-control ctm-form" id="new-password" required autocomplete="new-password" maxlength="100">
+                </div>
+                <div class="mb-3">
+                    <label for="confirm-password" class="form-label ctm-text-light">Confirm Password</label>
+                    <input type="password" class="form-control ctm-form password-field" id="confirm-password" required autocomplete="new-password" maxlength="100">
+                </div>
+                <div class="d-flex justify-content-center">
+                    <button type="submit" class="btn ctm-btn" id="register">Register</button>
+                    <div class="text-center ctm-text-light p-1">or</div>
+                    <button type="submit" class="btn ctm-btn">Register with 42</button>
+                </div>
+            </form>
+            <div class="d-flex justify-content-center mt-3">
+                <a href="/login" class="ctm-text-light ctm-link">Already have an account? Log in</a>
             </div>
-            <div class="mb-3">
-                <label for="email" class="form-label ctm-text-light">Email</label>
-                <input type="email" class="form-control ctm-form" id="email" required autocomplete="email" maxlength="100">
-            </div>
-            <div class="mb-3">
-                <label for="new-password" class="form-label ctm-text-light">Password</label>
-                <input type="password" class="password-field form-control ctm-form" id="new-password" required autocomplete="new-password" maxlength="100">
-            </div>
-            <div class="mb-3">
-                <label for="confirm-password" class="form-label ctm-text-light">Confirm Password</label>
-                <input type="password" class="form-control ctm-form password-field" id="confirm-password" required autocomplete="new-password" maxlength="100">
-            </div>
-            <div class="d-flex justify-content-center">
-                <button type="submit" class="btn ctm-btn" id="register">Register</button>
-                <div class="text-center ctm-text-light p-1">or</div>
-                <button type="submit" class="btn ctm-btn">Register with 42</button>
-            </div>
-        </form>
-        <div class="d-flex justify-content-center mt-3">
-            <a href="/login" class="ctm-text-light ctm-link">Already have an account? Log in</a>
-        </div>
-    </div> <!-- this closes the card -->
+        </div> <!-- this closes the card -->
+    </div>
 </div>
 <!-- Modal -->
 <div class="modal fade" id="user-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">

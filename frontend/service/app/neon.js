@@ -78,7 +78,6 @@ function animateNeonCardHover(element, maxShadow, interval, blinkTimes) {
 function initializeNeonFrames() {
     const neonText = document.getElementById("neon-text");
     const neonFrames = document.querySelectorAll(".blinking-neon-frame");
-    const cards = document.querySelectorAll('.card-hover');
     
     if (neonText) {
         animateNeon(neonText, { maxShadow: 10, interval: 100, isTextShadow: true, stopOnComplete: false });
@@ -88,11 +87,7 @@ function initializeNeonFrames() {
             animateNeon(neonFrame, { maxShadow: 10, interval: 50, blinkTimes: 2, isTextShadow: false, stopOnComplete: false });
         });
     }
-    if (cards) {
-        cards.forEach(card => {
-            animateNeonCardHover(card, 10, 35, 2);
-        });
-    }
+    initializeNeonCardHover();
 }
 
 function initializeNeonChat() {
@@ -103,4 +98,13 @@ function initializeNeonChat() {
     }
 }
 
-export { initializeNeonFrames, initializeNeonChat, animateNeon };
+function initializeNeonCardHover() {
+    const cards = document.querySelectorAll('.card-hover');
+    if (cards) {
+        cards.forEach(card => {
+            animateNeonCardHover(card, 10, 35, 2);
+        });
+    }
+}
+
+export { initializeNeonFrames, initializeNeonChat, animateNeon, initializeNeonCardHover };
