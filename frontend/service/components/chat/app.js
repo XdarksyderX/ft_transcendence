@@ -5,8 +5,6 @@ import { initializeGlobalChatSocket, handleSentMessage } from './socket.js';
 import { createMessageBubble, createSpecialBubble, escapeHTML } from './bubbles.js';
 import { throwAlert } from '../../app/render.js';
 
-import { GATEWAY_URL } from '../../app/sendRequest.js';
-
 let isExpanded = false;
 let currentView;
 
@@ -242,9 +240,9 @@ function handleFriendListClick(event, elements) {
 export async function openChat(friendUsername, elements, newChat = false) {
 	//console.log("Opening chat with:", friendUsername);
 	currentChat = { username: friendUsername, messages: [] };
-	renderedMessages.clear(); // Reinicia el set de mensajes renderizados
+	renderedMessages.clear();
 	elements.chatMessages.innerHTML = ''; // clears the dom before fetching messages
-	if (!newChat) { // si no es un chat nuevo que acabo de crear
+	if (!newChat) {
 		await fetchChatMessages(friendUsername);
 		await markMessagesAsRead(friendUsername);
 	}
