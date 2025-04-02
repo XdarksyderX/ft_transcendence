@@ -1,6 +1,6 @@
 import { getUsername } from '../../app/auth.js';
 import { handleAcceptQuickGameInvitation, handleDeclineInvitation } from '../home/game-invitation.js';
-import { formatTime, toggleChat, getElements } from './app.js';
+import { formatTime, toggleChat, getElements, currentChat, } from './app.js';
 import { getPongInvitationDetail, acceptTournamentInvitation, denyTournamentInvitation, getTournamentInvitationDetail } from '../../app/pong.js';
 import { getChessInvitationDetail } from '../../app/chess.js';
 import { throwAlert } from '../../app/render.js';
@@ -103,10 +103,6 @@ export function createQuickGameInvitation(game, sent_at, sender, token) {
 	const progressBar = card.querySelector('[data-progress] .progress-bar');
 	progressBar.width = '0%';
 	startProgressBar(card, btns, {game: game, token: token, remainingTime: remainingTime});
-	// btns.accept.addEventListener('click', () => {
-	// 	if (handleAcceptQuickGameInvitation(game, token))
-	// 		toggleChat(getElements());
-	// });
 	return card; // Return the card element
 }
 
@@ -117,10 +113,20 @@ function calculateTimeRemaining(sentAt) {
 }
 
 async function checkInvitationValidity(game, token) {
+
+	// const cachedStatus = chatCache[currentChat.username]?.invitationStatuses?.get(token);
+	// if (cachedStatus) {
+	// 	if (cachedStatus === 'outated')
+	// 		return false;
+	// 	else
+	// 		return true;
+	// }
+
 	const response = game === 'pong' ? await getPongInvitationDetail(token) : await getChessInvitationDetail(token);
 	if (response.status === 'success') {
 		return (true);
 	}
+	// chatCache[currentChat.username].invitationStatuses.set(token, 'outdated');
 	return (false);
 }
 
