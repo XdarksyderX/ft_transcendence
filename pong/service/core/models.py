@@ -40,7 +40,7 @@ def create_user_statistics(sender, instance, created, **kwargs):
 
 class PongGame(models.Model):
     """
-    Modelo que representa una instancia de juego de Pong.
+    Model that represents a PongGame.
     """
     player1 = models.ForeignKey(
         User,
@@ -80,7 +80,7 @@ class PongGame(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    # Parámetros de configuración del juego
+    # Parameters
     board_width = models.IntegerField(default=700)
     board_height = models.IntegerField(default=500)
     player_height = models.IntegerField(default=50)

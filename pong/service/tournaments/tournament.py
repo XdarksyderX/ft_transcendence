@@ -10,10 +10,10 @@ def get_tournament_bracket(tournament):
                 'round': 1,
                 'games': [
                     {
-                        'game_id': <ID del juego>,
-                        'player1': <nombre de usuario>,
-                        'player2': <nombre de usuario>,
-                        'winner': <nombre de usuario o None>
+                        'game_id': <game ID>,
+                        'player1': <username or None>,
+                        'player2': <username or None>,
+                        'winner': <username or None>
                     },
                     ...
                 ]

@@ -283,8 +283,8 @@ function renderGame()
     // Draw scores
     context.fillStyle = lightColor; 
     context.font = "45px 'ROG LyonsType Regular'";
-    context.fillText(Lplayer.score, board.width / 5, 45);
-    context.fillText(Rplayer.score, board.width / 5 * 4 - 45, 45);
+    context.fillText(Lplayer.score, board.width / 5, 45); // 60
+    context.fillText(Rplayer.score, board.width / 5 * 4 - 45, 45); // 60
 
     // Draw paddles
     context.fillRect(Lplayer.x, Lplayer.y, playerWidth, playerHeight);

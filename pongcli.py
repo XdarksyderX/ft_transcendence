@@ -75,7 +75,7 @@ def check_in_progress_match(token):
         print("❌ Error: Invalid response from server")
         return None
 
-# Mejorado: sistema de entrada no bloqueante
+# Better: nonblocking entry system
 async def get_input(queue):
     while True:
         if select.select([sys.stdin], [], [], 0)[0]:
@@ -218,11 +218,11 @@ async def pong_game_client(token, game_key):
     print(f"Connecting to game {game_key}...")
     
     try:
-        # Debug información
+        # Debug information
         print(f"Attempting connection to: {uri}")
         print(f"With Authorization header: Bearer {token[:10]}...")
         
-        # IMPORTANTE: Enviar el token correctamente como header de autorización
+        # IMPORTANT: Sending correct token as authorization header
         headers = {
             "Authorization": f"Bearer {token}"
         }
@@ -239,7 +239,7 @@ async def pong_game_client(token, game_key):
             # Send ready signal
             await send_ready(ws)
             
-            # Mostrar debug de recepción de mensajes
+            # Show for debug
             print("Waiting for game messages...")
             
             while running[0]:
@@ -274,7 +274,7 @@ async def pong_game_client(token, game_key):
                         print(f"Message content: {message[:100]}...")
                     
                 except asyncio.TimeoutError:
-                    # No hay mensaje, seguir esperando
+                    # No message, keep waiting
                     pass
                 except Exception as e:
                     print(f"Error in game loop: {e}")
@@ -324,7 +324,7 @@ async def wait_for_match(token):
             
             if result is False:
                 print("Reconnecting to match search...")
-                # Pequeña pausa para evitar reconexiones demasiado rápidas
+                # Short pause to avoid fast reconnections
                 await asyncio.sleep(2)
                 continue
             else:
