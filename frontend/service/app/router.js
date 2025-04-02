@@ -1,5 +1,5 @@
 //import { initializeLoginEvents, initializeSignupEvents, initializeChatEvents } from './events.js';
-import { initializeNeonFrames } from './neon.js';
+import { initializeNeonCardHover, initializeNeonFrames } from './neon.js';
 import { initializeLoginEvents } from '../components/login/login.js';
 import { initializeSignupEvents, initializeVerifyEmailEvents } from '../components/signup/signup.js';
 import { initializeHomeEvents } from '../components/home/app.js';
@@ -49,9 +49,8 @@ async function router(key = null) {
     document.getElementById('app').innerHTML = html;
 
     attachHideModalGently();
-    initializeNeonFrames(); // Inicializa estilos o frames
+   // initializeNeonFrames(); // Inicializa estilos o frames
     stopBackgroundMusic();
-
     // Inicializa eventos específicos de cada vista
     switch (path) {
         case "/":
@@ -65,6 +64,7 @@ async function router(key = null) {
             break;
         case "/home":
             initializeHomeEvents();
+            initializeNeonCardHover();
             break;
         case "/started-tournaments":
             initializeOngoingTournaments(true);
@@ -160,7 +160,7 @@ async function navigateTo(fullUrl, key = null) {
     try {
         const verify = await isLoggedIn();
         const url = redirectURL(verify, fullUrl);
-        console.log("navigating to: ", url);    
+        console.log(`[Router] Navigating to -> '${url}'`);    
         //console.log("verify:", verify);
         
        // if (!(url !== "/login" && url !== "/signup" && !verify)) 

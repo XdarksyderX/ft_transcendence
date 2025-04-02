@@ -65,7 +65,6 @@ export function toggleSidebarDisplay(show) {
     const sidebarContainer = document.getElementById('sidebar-container');
     const sidebarToggle = document.getElementById('sidebar-toggle-container');
     const margin = (show && window.innerWidth > 991) ? '250px' : 'auto'
-    console.log("on toggleSidebarDisplay: ", margin);
     sidebarContainer.style.display = show ? 'block' : 'none';
     sidebarToggle.style.display = show ? 'inline-block' : 'none';
     document.getElementById('app').style.marginLeft = margin;

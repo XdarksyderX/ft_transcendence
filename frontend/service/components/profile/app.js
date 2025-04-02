@@ -100,8 +100,6 @@ async function fillUserData(elements, user = null) {
     if (!user) {
         user = await getUserData();
     }
-    console.log("on fill: ", user.resumeStats);
-    console.log(user);
     elements.username.textContent = `${user.username}`;
     elements.alias.textContent = user.alias || user.username;
     elements.totalFriends.textContent = `${user.totalFriends}`;

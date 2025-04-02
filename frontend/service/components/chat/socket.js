@@ -3,6 +3,7 @@ markMessagesAsRead, currentChat, currentView, isExpanded, toggleChat, openChat }
 import { getUsername } from "../../app/auth.js";
 import { refreshAccessToken } from "../../app/auth.js";
 import { GATEWAY_HOST } from "../../app/sendRequest.js";
+import { consoleSuccess } from "../../app/render.js";
 
 let chatSocket = null;
 let attemptedReconnection = false;
@@ -16,12 +17,12 @@ export function initializeGlobalChatSocket() {
     chatSocket = new WebSocket(`wss://${GATEWAY_HOST}/ws/chat/`);
 
     chatSocket.onopen = () => {
-        console.log("Chat WebSocket connected");
+		consoleSuccess("[ChatSocket] Connection established succesfully");
         attemptedReconnection = false;
     };
 
     chatSocket.onmessage = async (event) => {
-		console.log("[CHAT SOCKET]: ", event.data)
+		//console.log("[CHAT SOCKET]: ", event.data)
         await handleReceivedMessage(event);
     };
 
@@ -93,8 +94,6 @@ async function handleReceivedMessage(event) {
 			} if (!isExpanded) {
 				updateNotificationIndicator(document.getElementById('notification-indicator'));
 			}
-		} else {
-			console.error("WS error:", data.message);
 		}
 	} catch (e) {
 		console.error("Error parsing WS message:", e);

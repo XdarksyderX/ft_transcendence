@@ -133,7 +133,7 @@ export function handleJoinMatchmakingMatch(gameKey) {
 
 // Clean up on page load
 document.addEventListener("DOMContentLoaded", async () => {
-  console.log("DOM content loaded - checking queue status")
+  //console.log("DOM content loaded - checking queue status")
 
   // Clean up any existing modals
   // cleanupExistingModals()

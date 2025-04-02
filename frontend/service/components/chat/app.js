@@ -77,7 +77,7 @@ export async function toggleChat(elements) {
 }
 
 export async function updateNotificationIndicator(indicator) {
-	console.log("Updating notification indicator...");  
+	//console.log("Updating notification indicator...");  
 	let indicatiorDisplay;
 	if (isExpanded) {
 		indicatiorDisplay = 'none';

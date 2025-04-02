@@ -9,6 +9,7 @@ import { reloadMoveLogger } from "../Helper/logging.js";
 import { winGame } from "../Helper/modalCreator.js";
 import { renderPlayers } from "../Render/main.js";
 import { GATEWAY_HOST } from "../../../app/sendRequest.js";
+import { consoleSuccess } from "../../../app/render.js";
 
 
 let onlineInfo = {
@@ -58,7 +59,7 @@ function initializeChessSocket(game_key) {
 	chessSocket.onopen = () => {
 		sessionStorage.setItem('inGame', '/chess');
         document.getElementById('lc-text').style.display = 'none';
-		console.log("Chess WebSocket connected");
+        consoleSuccess("[ChessSocket] Connection established succesfully");
 		chessSocket.send(JSON.stringify({ action: "ready", color: getUserColor(getUsername()), username: getUsername() }));
 	}
 

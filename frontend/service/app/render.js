@@ -6,7 +6,6 @@ async function loadChat() {
     const chatContainer = document.getElementById('chat-container');
 
     if (chatContainer.innerHTML != '') {
-      console.log("chat already loaded");
       return ;
     }
 
@@ -20,6 +19,7 @@ async function loadChat() {
         initializeChatEvents();
         initializeNeonChat();
         chatContainer.style.display = 'block';
+        console.log("[Router] Chat loaded succesfully")
     } catch (error) {
         console.error('Error while loading chat: ', error);
     }
@@ -30,21 +30,20 @@ async function loadSidebar() {
   const sidebarToggle = document.getElementById('sidebar-toggle-container');
   
   if (sidebarContainer.innerHTML != '') {
-    console.log("sidebar already loaded");
+    //console.log("sidebar already loaded");
     return ;
   }
-  console.log("loading sidebar")
-
-    try {
-        const response = await fetch('./components/sidebar/sidebar.html'); // Ensure the path is correct
-        if (!response.ok) throw new Error('Error while loading sidebar');
-
-        const sidebarHTML = await response.text();
-        sidebarContainer.innerHTML = sidebarHTML;
-
-        initializeSidebarEvents();
-        sidebarContainer.style.display = 'block';
-        sidebarToggle.style.display = 'block';
+  
+  try {
+    const response = await fetch('./components/sidebar/sidebar.html'); // Ensure the path is correct
+    if (!response.ok) throw new Error('Error while loading sidebar');
+      const sidebarHTML = await response.text();
+      sidebarContainer.innerHTML = sidebarHTML;
+      
+      initializeSidebarEvents();
+      sidebarContainer.style.display = 'block';
+      sidebarToggle.style.display = 'block';
+      console.log("[Router] Sidebar loaded succesfully");
     } catch (error) {
         console.error('Error while loading sidebar: ', error);
     }
@@ -56,7 +55,6 @@ function throwAlert(text) {
     if (prevModal) {
         prevModal.remove();
     }
-
     // Crear el HTML del modal
     const alert = `
     <div class="modal fade" id="alert-modal" tabindex="-1" inert>
@@ -148,29 +146,29 @@ function hideModalGently(modal) {
 
 function attachHideModalGently() {
   const dismissElements = document.querySelectorAll('[data-bs-dismiss]');
-  console.log(`Found ${dismissElements.length} elements with [data-bs-dismiss] attribute.`); // Log the number of elements
+  //console.log(`Found ${dismissElements.length} elements with [data-bs-dismiss] attribute.`); // Log the number of elements
 
   dismissElements.forEach((element) => {
-      console.log(`Attaching hideModalGently to element:`, element); // Log each element
+      //console.log(`Attaching hideModalGently to element:`, element); // Log each element
 
       element.addEventListener('click', (event) => {
           event.preventDefault(); // Prevent the default dismiss behavior
-          console.log(`Clicked on element:`, event.target); // Log the clicked element
+          //console.log(`Clicked on element:`, event.target); // Log the clicked element
 
           const modalElement = event.target.closest('.modal');
           if (modalElement) {
-              console.log(`Found modal element:`, modalElement); // Log the modal element
+              //console.log(`Found modal element:`, modalElement); // Log the modal element
 
               const modalInstance = bootstrap.Modal.getInstance(modalElement);
               if (modalInstance) {
-                  console.log(`Found Bootstrap modal instance:`, modalInstance); // Log the modal instance
+                  //console.log(`Found Bootstrap modal instance:`, modalInstance); // Log the modal instance
                   hideModalGently(modalInstance);
-              } else {
-                  console.warn(`No Bootstrap modal instance found for modal element:`, modalElement);
-              }
-          } else {
-              console.warn(`No modal element found for clicked element:`, event.target);
-          }
+              } //else {
+                  //console.warn(`No Bootstrap modal instance found for modal element:`, modalElement);
+              //}
+          } //else {
+              //console.warn(`No modal element found for clicked element:`, event.target);
+          //}
       });
   });
 }
@@ -182,4 +180,8 @@ function initTooltips() {
 	});
 }
 
-export { loadChat, loadSidebar, throwAlert, throwToast, hideModalGently, attachHideModalGently, initTooltips }
+function consoleSuccess(message) {
+    console.log(`%c${message}`, 'background: green; color: white; font-weight: bold; padding: 2px 4px; border-radius: 3px;');
+}
+
+export { loadChat, loadSidebar, throwAlert, throwToast, hideModalGently, attachHideModalGently, initTooltips, consoleSuccess }

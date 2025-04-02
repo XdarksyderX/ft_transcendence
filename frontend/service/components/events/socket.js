@@ -1,5 +1,5 @@
 import { getUsername } from "../../app/auth.js";
-import { throwToast } from "../../app/render.js";
+import { consoleSuccess, throwToast } from "../../app/render.js";
 import { refreshFriendsFriendlist, refreshFriendData } from "../friends/app.js";
 import { refreshTournamentFriendList } from "../tournament/new.js";
 import { refreshChatFriendList, updateNotificationIndicator } from "../chat/app.js";
@@ -67,7 +67,8 @@ export function initializeNotificationsSocket() {
     notiSocket = new WebSocket(`wss://${GATEWAY_HOST}/ws/events/`);
 
     notiSocket.onopen = () => {
-        console.log("[WebSocket] Notifications connected");
+        
+        consoleSuccess("[NotiSocket] Connection established succesfully");
         reconnectAttempts = 0; // Reset reconnection attempts
         startKeepAlive(); // Inicia el keepalive pings
     };
@@ -77,7 +78,7 @@ export function initializeNotificationsSocket() {
     };
 
     notiSocket.onerror = (error) => {
-        console.error("[WebSocket] Error:", error);
+        console.error("[NotiSocket] Error:", error);
     };
 
     notiSocket.onclose = () => {
@@ -85,7 +86,7 @@ export function initializeNotificationsSocket() {
             notiSocket = null;
             return ; 
         }
-        console.warn("[WebSocket] Disconnected, attempting to reconnect...");
+        console.warn("[NotiSocket] Disconnected, attempting to reconnect...");
         scheduleReconnect();
     };
 }
@@ -101,25 +102,24 @@ function startKeepAlive() {
     setInterval(() => {
         if (notiSocket.readyState === WebSocket.OPEN) {
             notiSocket.send(JSON.stringify({ event_type: "ping" }));
-            console.log("[WebSocket] Sent keepalive ping");
+            //console.log("[WebSocket] Sent keepalive ping");
         }
     }, 30000); // Every 30 seconds
 }
 
 function handleReceivedNotification(event) {
-	console.log("[WebSocket] Notification received:", event.data);
     try {
         const data = JSON.parse(event.data);
 		const type = data.event_type;
 		if (data.user === getUsername() || type == 'ping') {
-			return ;
+            return ;
 		}
+        console.log("[NotiSocket] Notification received:", event.data);
 		const handler = notificationHandlers[type];
         if (handler) {
-            console.log("handler :D");
             handler(data);
         } else {
-            console.warn("[WebSocket] Unhandled notification type:", type);
+            return ;
         }
         const text = getNotificationText(data);
         if (text) {
