@@ -487,7 +487,6 @@ function markCaptureMoves(allMoves, color) {
 let kingMoves = [];
 
 function getPossibleMoves(piece, highlightIdsFunc, color, renderBool = false, preRenderCallback = null, skipCastlingCheck = false) {
-    //coño = false;
     const curr_pos = piece.current_pos;
     let highlightSquareIds = highlightIdsFunc(curr_pos);
     let tmp = [], res = [];
@@ -558,11 +557,10 @@ function getOpponentMoves(color) {
     return res;
 }
   
-let coño = false;
+
 /*function that recieve the initial king moves and then check if one of those possible options
 can be a direct checkmate, the it remove that option to avoid the checkmate*/
 function limitKingMoves(kingInitialMoves, color) {
-    coño = true;
     let res = getOpponentMoves(color);
     // console.log("limitKingMoves -> kingInitialMoves: ", kingInitialMoves);
     // console.log("limitKingMoves -> res: ", res);

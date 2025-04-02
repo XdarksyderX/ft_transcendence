@@ -42,13 +42,11 @@ class ChessPiece(ABC):
             logging.debug(f"Testing move {self.position} -> {move}")
             test_board = copy.deepcopy(board)
     
-            # Mueve la pieza en el tablero simulado
             test_board[move] = self
             test_board[self.position] = None
             old_position = self.position  # Guardar la posición original
             self.position = move  # Actualizar temporalmente la posición de la pieza
     
-            # Encontrar la posición del rey después del movimiento
             king_position = None
             for pos, piece in test_board.items():
                 if piece and piece.color == self.color and isinstance(piece, King):
@@ -60,13 +58,11 @@ class ChessPiece(ABC):
             else:
                 logging.warning(f"King not found for color {self.color} after move {move}")
     
-            # Verificar si el rey sigue en jaque después del movimiento
             if king_position and not is_in_check(test_board, self.color):
                 legal_moves.append(move)
             else:
                 logging.debug(f"Move {self.position} -> {move} leaves king in check or is invalid")
     
-            # Restaurar la posición original
             self.position = old_position  
     
         logging.debug(f"Legal moves for {self}: {legal_moves}")

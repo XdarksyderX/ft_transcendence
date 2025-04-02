@@ -130,8 +130,8 @@ class ClassicChess(ChessGameMode):
         piece.has_moved = True
 
         # Verify if move leaves king in check.
-        if is_in_check(new_board, player_color):
-            return False, "You cannot make a move that leaves your king in check", board, {}
+        # if is_in_check(new_board, player_color):
+        #     return False, "You cannot make a move that leaves your king in check", board, {}
 
         if isinstance(piece, Pawn) or captured_piece is not None:
             self.half_move_clock = 0
