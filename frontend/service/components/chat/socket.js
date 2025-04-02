@@ -71,7 +71,6 @@ async function handleReceivedMessage(event) {
 					return toggleChat(elements);
 				} 
 			}
-			debugger ;
 			currentChat.messages.push({
 				id: currentChat.messages.length + 1,
 				message: data.data.message,

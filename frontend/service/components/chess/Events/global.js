@@ -373,7 +373,6 @@ function handlePieceClick(square, color, pieceType) {
       break;
     case 'king':
       oneMore = true;
-      // debugger;
       const kingHighlightSquareIds = help.getPossibleMoves(piece, help.giveKingHighlightIds, color, true, (moves) => help.limitKingMoves(moves, color), true);
       circleHighlightRender(kingHighlightSquareIds, keySquareMapper);
       oneMore = false;
@@ -402,13 +401,18 @@ function clearPreviousSelfHighlight(piece)
  * an image of a chess piece is clicked.
  */
 
+
 function GlobalEvent() {
   const root = document.getElementById('root');
+  // const isClickBool = isClick();
+  // console.warn(`making a move via ${isClickBool ? 'click' : 'socket'}`);
+  // console.log("GlobalEvent: globalPiece: ", globalPiece);
   root.addEventListener("click", function(event) {
     if (chessSocket && inTurn !== getUserColor(getUsername())) { // esto iría fuera
       //console.log("oh hi :D: ", inTurn, getUserColor(getUsername()))
       return;
     };
+
     const target = event.target;
     const isPieceClick = target.localName === "img";
     const isHighlightClick = target.localName === "span" || target.querySelector(".highlight");
