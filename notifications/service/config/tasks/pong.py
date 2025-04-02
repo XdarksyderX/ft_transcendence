@@ -232,7 +232,7 @@ def handle_pong_tournament_match_waiting(event):
             'username': sender.username,
             'alias': sender_alias,
         },
-        "tournament": tournament_name
+        "tournament_name": tournament_name
     }
 
     send_notification(receiver_id, payload)
@@ -247,7 +247,7 @@ def handle_pong_tournament_closed(event):
         return f"Event {event_id} already processed."
 
     event_attributes = event["data"]["attributes"]
-    tournament_token = event_attributes["tournament_token"]
+    tournament_name = event_attributes["tournament_name"]
     players_ids = event_attributes["players_id"]
 
     players = User.objects.filter(id__in=players_ids)
@@ -255,14 +255,14 @@ def handle_pong_tournament_closed(event):
     for player in players:
         payload = {
             "event_type": "pong_tournament_closed",
-            "tournament_token": tournament_token
+            "tournament_name": tournament_name
         }
         
         send_event(player.id, payload)
     
     mark_event_as_processed(event_id, "pong_tournament_closed")
     
-    return f"Notified all players that tournament {tournament_token} has been closed"
+    return f"Notified all players that tournament {tournament_name} has been closed"
 
 @shared_task(name="pong.tournament_deleted")
 def handle_pong_tournament_deleted(event):

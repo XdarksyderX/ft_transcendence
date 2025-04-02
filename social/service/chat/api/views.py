@@ -1,4 +1,3 @@
-import logging
 from rest_framework import permissions
 from core.models import Message, User
 from chat.api.serializers import MessageSerializer
@@ -6,9 +5,6 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from django.db.models import Q
 from rest_framework.views import APIView
-
-logger = logging.getLogger(__name__)
-# logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class MessageListView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -54,17 +50,13 @@ class RecentChatsView(APIView):
 
     def get(self, request, format=None):
         user = request.user
-        logger.debug(f"Authenticated user: {user.username}")
 
         messages = Message.objects.filter(Q(sender=user) | Q(receiver=user))
-        logger.debug(f"Messages found: {messages.count()}")
 
         conversation_users = set()
         for msg in messages:
             participant = msg.receiver if msg.sender == user else msg.sender
             conversation_users.add(participant)
-
-        logger.debug(f"Conversation users: {[u.username for u in conversation_users]}")
 
         # Blocked users
         user_model = User.objects.get(username=user)
@@ -92,10 +84,8 @@ class RecentChatsView(APIView):
 @permission_classes([permissions.IsAuthenticated])
 def unread_messages_indicator(request):
     user = request.user
-    logger.debug(f"Authenticated user: {user.username}")
 
     unread_count = Message.objects.filter(receiver=user, is_read=False).count()
-    logger.debug(f"Unread messages count: {unread_count}")
 
     has_unread = unread_count > 0
     return Response({

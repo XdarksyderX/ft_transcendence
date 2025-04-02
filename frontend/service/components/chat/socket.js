@@ -57,7 +57,7 @@ export function initializeGlobalChatSocket() {
 async function handleReceivedMessage(event) {
 	try {
 		const data = JSON.parse(event.data);
-		//console.log("WS message received:", data);
+		console.log("WS message received:", data);
 		const currentUser = getUsername();
 		const imSender = getUsername() === data?.data?.sender;
 		if (data.status === "success" && data.data && data.data.message) {
@@ -71,7 +71,6 @@ async function handleReceivedMessage(event) {
 					return toggleChat(elements);
 				} 
 			}
-			debugger ;
 			currentChat.messages.push({
 				id: currentChat.messages.length + 1,
 				message: data.data.message,
@@ -81,6 +80,7 @@ async function handleReceivedMessage(event) {
 				is_special: data.data.is_special,
 				is_read: data.data.is_read
 			});
+			console.log("pushed")
 			if (!data.data.is_special) {
 				updateChatCache(currentChat.username, currentChat.messages);
 			}

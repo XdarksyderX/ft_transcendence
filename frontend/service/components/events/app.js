@@ -94,11 +94,11 @@ export function getNotificationText(notiContent) {
         case 'friend_added':
             return `${user} has accepted your friend request c:`;
         case 'pong_tournament_closed':
-            return `The ${notiContent.tournament} tournament is ready to start!`;
+            return `The ${notiContent.tournament_name} tournament is ready to start!`;
         case 'pong_tournament_match_waiting':
             const opponent = notiContent.opponent.alias || notiContent.opponent.username;
             // return `Your tournament oponent, ${notiContent.opponent} is waiting for you`
-            return `Your opponent ${opponent}, is waiting for you on ${notiContent.tournament} tournament`
+            return `Your opponent ${opponent}, is waiting for you on ${notiContent.tournament_name} tournament`
         case 'pong_tournament_round_finished':
             return `You have a new round available on ${notiContent.tournament_name} tournament`
         case 'pong_tournament_finished':

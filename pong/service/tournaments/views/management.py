@@ -257,7 +257,7 @@ class TournamentStartView(APIView):
 
         tournament.close_tournament()
         publish_event("pong", "pong.tournament_closed", {
-            "tournament_token": str(tournament.token),
+            "tournament_name": tournament.name,
             "players_id": [player.id for player in tournament.players.all()]
         })
 

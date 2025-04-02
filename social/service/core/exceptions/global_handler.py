@@ -7,14 +7,9 @@ from rest_framework.exceptions import (
 
 from django.http import JsonResponse
 from django.utils.deprecation import MiddlewareMixin
-import logging
-
-logger = logging.getLogger(__name__)
 
 class GlobalExceptionMiddleware(MiddlewareMixin):
     def process_exception(self, request, exception):
-        logger.error(f"Unhandled Exception: {exception}")
-
         if isinstance(exception, PermissionError):
             return JsonResponse({
                 "status": "error",
@@ -63,7 +58,6 @@ def global_exception_handler(exc, context):
     response = exception_handler(exc, context)
 
     if response is None:
-        logger.error(f"Unhandled DRF Exception: {exc}")
         return Response({
             "status": "error",
             "message": "An unexpected error occurred."
