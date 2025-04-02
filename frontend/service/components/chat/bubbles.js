@@ -30,8 +30,6 @@ export async function createSpecialBubble(message) {
     const { type } = messageContent;
     const isSender = message.sender === getUsername();
 
-	console.log("on create Special Bubble, message: ", message);
-
     let card;
 
 	if (type === 'pong-match' || type === 'chess-match') {
@@ -116,7 +114,7 @@ function calculateTimeRemaining(sentAt) {
 async function checkInvitationValidity(game, token) {
 
 	if (invitationStatuses.get(token)) {
-		console.log("invitation already handled");
+		//console.log("invitation already handled");
 		return (false); 
 	}
 	const response = game === 'pong' ? await getPongInvitationDetail(token) : await getChessInvitationDetail(token);
@@ -178,7 +176,7 @@ export function setInvitationStatus(token, status) {
     setTimeout(() => {
         if (invitationStatuses.has(token)) {
             invitationStatuses.delete(token);
-            console.log(`Token ${token} removed from invitationStatuses after 1 minute.`);
+            //console.log(`Token ${token} removed from invitationStatuses after 1 minute.`);
         }
     }, 60000);
 }
@@ -199,7 +197,7 @@ export function handleCancelledInvitation(token) {
     const progressBar = card.querySelector('[data-progress] .progress-bar');
 	setInvitationStatus(token, 'cancelled');
 	const intervalId = activeIntervals.get(token);
-	console.log(`Recuperando interval para ${token}:`, intervalId);
+	//console.log(`Recuperando interval para ${token}:`, intervalId);
     
 	if (intervalId) {
         cleanProgressBar(progressBar, btns, intervalId);
@@ -244,28 +242,19 @@ async function createTournamentInvitationCard(friendName, token) {
 }
 
 function toggleBtns(btns, status) {
-	console.log("toggling to accept");
 	Object.values(btns).forEach(btn => {
 		btn.style.display = 'none';
 	});
 	if (status === 'accepted') {
 		btns.accepted.style.display = 'block';
-/* 		btns.accepted.addEventListener('mouseenter', () => {
-			btns.accepted.innerText = 'cancel X';
-		});
-		btns.accepted.addEventListener('mouseleave', () => {
-			btns.accepted.innerText = 'Already accepted!';
-		}); */
-		//btns.accepted.addEventListener('click', () handle cancel etc etc
 	} else if (status === 'declined') {
 		btns.declined.style.display = 'block';
 		btns.declined.disabled = true;
 	} else {
-		//return ;
 		btns.accept.style.display = 'block';
 		btns.decline.style.display = 'block';
 	}
-	// else if cancelled
+
 }
 
 async function handleAcceptTournamentInvitation(token, btns) {

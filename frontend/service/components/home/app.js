@@ -330,7 +330,6 @@ function toggleView(from, to, elements) {
         from.style.display = 'none';
     }
 	currentView = to;
-	//console.log("toggle view togling from: ", from, "to: ", to);
 }
 
 /* * * * * * * * * * * * * * * FRIEND HANDLE * * * * * * * * * * * * * * */
@@ -338,7 +337,7 @@ async function renderFriendList(container) {
 	const friends = await handleGetFriendList();
 	container.innerHTML = '';
 	let startBtn = currentView.querySelector(`[data-action=start-game]`);
-
+	//debugger
 	friends.forEach(friend => {
 		const friendBtn = createFriendBtn(friend, startBtn);
 		container.appendChild(friendBtn);
