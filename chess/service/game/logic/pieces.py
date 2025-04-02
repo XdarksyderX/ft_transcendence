@@ -2,9 +2,9 @@ import copy
 from abc import ABC, abstractmethod
 from .utils import is_position_under_attack, is_in_check
 
-# import logging
+import logging
 
-# # logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 # Constant for board files
 FILES = "abcdefgh"
 
@@ -39,28 +39,33 @@ class ChessPiece(ABC):
         """Retorna solo los movimientos que no dejan al rey en jaque."""
         legal_moves = []
         for move in self.get_possible_moves(board):
+            logging.debug(f"Testing move {self.position} -> {move}")
             test_board = copy.deepcopy(board)
-
-            # Mueve la pieza en el tablero simulado
+    
             test_board[move] = self
             test_board[self.position] = None
             old_position = self.position  # Guardar la posición original
             self.position = move  # Actualizar temporalmente la posición de la pieza
-            
-            # Encontrar la posición del rey después del movimiento
+    
             king_position = None
             for pos, piece in test_board.items():
                 if piece and piece.color == self.color and isinstance(piece, King):
                     king_position = pos
                     break
-            
-            # Verificar si el rey sigue en jaque después del movimiento
+    
+            if king_position:
+                logging.debug(f"King position after move: {king_position}")
+            else:
+                logging.warning(f"King not found for color {self.color} after move {move}")
+    
             if king_position and not is_in_check(test_board, self.color):
                 legal_moves.append(move)
-
-            # Restaurar la posición original
+            else:
+                logging.debug(f"Move {self.position} -> {move} leaves king in check or is invalid")
+    
             self.position = old_position  
-
+    
+        logging.debug(f"Legal moves for {self}: {legal_moves}")
         return legal_moves
 
 

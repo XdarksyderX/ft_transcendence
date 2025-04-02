@@ -108,6 +108,7 @@ class ClassicChess(ChessGameMode):
         possible_moves = piece.get_possible_moves(board, self.en_passant_target) if isinstance(piece, Pawn) else piece.get_possible_moves(board)
 
         if to_pos not in possible_moves:
+            logger.debug(f"on validate_move, to_pos: {to_pos} is not in {possible_moves}")
             return False, "Invalid move for this piece", board, {}
 
         new_board = copy.deepcopy(board)
@@ -129,8 +130,8 @@ class ClassicChess(ChessGameMode):
         piece.has_moved = True
 
         # Verify if move leaves king in check.
-        if is_in_check(new_board, player_color):
-            return False, "You cannot make a move that leaves your king in check", board, {}
+        # if is_in_check(new_board, player_color):
+        #     return False, "You cannot make a move that leaves your king in check", board, {}
 
         if isinstance(piece, Pawn) or captured_piece is not None:
             self.half_move_clock = 0

@@ -151,17 +151,15 @@ def is_checkmate(board, color, depth=0, memo=None):
     if key in memo:
         return memo[key]
 
-    # Si el rey no está en jaque, no puede ser jaque mate.
     if not is_in_check(board, color, depth=depth+1, memo=memo):
         memo[key] = False
         return False
 
-    # Buscar si existe algún movimiento legal que saque del jaque.
     for pos, piece in board.items():
         if piece is not None and piece.color == color:
             try:
                 moves = piece.get_legal_moves(board)
-                if moves:  # Se encontró al menos una jugada legal.
+                if moves: 
                     memo[key] = False
                     return False
             except (RecursionError, Exception):
@@ -195,12 +193,10 @@ def is_stalemate(board, color, depth=0, memo=None):
     if key in memo:
         return memo[key]
 
-    # Si el jugador está en jaque, no es ahogado.
     if is_in_check(board, color, depth=depth+1, memo=memo):
         memo[key] = False
         return False
 
-    # Verificar que no existan movimientos legales.
     for pos, piece in board.items():
         if piece is not None and piece.color == color:
             try:
@@ -252,19 +248,15 @@ def is_insufficient_material(board):
         else:
             other_pieces += 1
 
-    # Si hay piezas distintas de rey, caballo o alfil, hay material suficiente
     if other_pieces > 0:
         return False
 
-    # Sólo los reyes
     if king_count == 2 and knight_count == 0 and bishop_count == 0:
         return True
 
-    # Rey contra rey con un solo caballo o alfil
     if king_count == 2 and ((knight_count == 1 and bishop_count == 0) or (knight_count == 0 and bishop_count == 1)):
         return True
 
-    # Dos alfiles de casillas del mismo color
     if king_count == 2 and knight_count == 0 and bishop_count > 0:
         if white_bishop_squares == 0 or black_bishop_squares == 0:
             return True
@@ -284,7 +276,6 @@ def is_threefold_repetition(game_history):
     """
     position_counts = {}
     for fen in game_history:
-        # Considera solo la parte de la posición (antes del primer espacio)
         position = fen.split(' ')[0]
         position_counts[position] = position_counts.get(position, 0) + 1
         if position_counts[position] >= 3:
@@ -302,7 +293,7 @@ def is_fifty_move_rule(halfmove_clock):
     Returns:
         True si se han alcanzado 50 movimientos completos (100 halfmoves), False en caso contrario
     """
-    return halfmove_clock >= 100  # 50 movimientos completos = 100 halfmoves
+    return halfmove_clock >= 100 
 
 
 def get_promotion_options(piece):
@@ -331,15 +322,12 @@ def can_claim_draw(board, color, halfmove_clock, game_history):
     Returns:
         True si se puede reclamar tablas, False en caso contrario
     """
-    # Regla de 50 movimientos
     if is_fifty_move_rule(halfmove_clock):
         return True
 
-    # Repetición triple
     if is_threefold_repetition(game_history):
         return True
 
-    # Material insuficiente
     if is_insufficient_material(board):
         return True
 

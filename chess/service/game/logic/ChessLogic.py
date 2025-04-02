@@ -144,7 +144,9 @@ class ChessLogic:
     def get_possible_moves(self, position: str):
         if position not in self.board or self.board[position] is None:
             return []
-        return self.board[position].get_legal_moves(self.board)
+        return self.board[position].get_possible_moves(self.board)
+        #return self.board[position].get_legal_moves(self.board)
+
 
     def get_all_possible_moves(self, player_color: str):
         moves = {

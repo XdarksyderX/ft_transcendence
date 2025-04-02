@@ -1,4 +1,4 @@
-import { highlightColor, keySquareMapper } from "../index.js";
+import { highlightColor, inTurn, keySquareMapper } from "../index.js";
 import { circleHighlightRender, globalPiece } from "../Render/main.js";
 import { oneMore } from "../Events/global.js";
 
@@ -17,6 +17,7 @@ function checkOpponetPieceByElement(id, color, captureHighlight = true) {
     if (!element)
         return false;
     if (oneMore && forbiddenCaptures.includes(id)) {
+        console.log(`avoiding to render the capture on ${id}`);
         return false;
     }
     if (element.piece && element.piece.piece_name.includes(opponentColor)) {
@@ -46,18 +47,31 @@ function checkForOneMore(attack, defense) {
     if (oneMore) {
         const attackColor = attack.piece_name.split('_')[0];
         const kingColor = attackColor === 'WHITE' ? 'BLACK' : 'WHITE';
-
+        // debugger ;
+    
         if (!attack.piece_name.includes('PAWN') && !attack.piece_name.includes('KNIGHT')) {
             if (defense.piece_name.includes(`${kingColor}_KING`)) { 
                 return 1;
-            } else if (defense.piece_name.includes(attackColor)) {
-                forbiddenCaptures.push(defense.current_pos);
-                return 0;
             }
+        }
+        if (attack.piece_name.current_pos == 'd5' && defense.piece_name.includes('QUEEN')) {
+            console.log("CHECKING lo que nos interesa xd")
+            console.log(attack, defense, attackColor, kingColor)
+        }
+
+        if (defense.piece_name.includes(attackColor)) {
+            console.log(`adding ${defense.current_pos} to forbbiden captures`)
+            forbiddenCaptures.push(defense.current_pos);
+            return 0;
         }
     }
     return 0
 }
+
+// function checkForOneMore(king, defense) {
+//     if (!oneMore) return 0;
+ 
+// }
 
 //function to check capture id square
 function checkSquareCaptureId(array, piece = null) {
@@ -359,13 +373,27 @@ function pawnCaptureOptions(curr_pos, color) {
     if (!curr_pos)
 		return null;
     const auxNum = color === "white" ? 1 : -1;
-
+    
     const validColumns = new Set(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']);
     const col1 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) - 1)}${Number(curr_pos[1]) + auxNum}`;
     const col2 = `${String.fromCharCode(curr_pos[0].charCodeAt(0) + 1)}${Number(curr_pos[1]) + auxNum}`;
     
     let captureIds = [col1, col2].filter(pos => validColumns.has(pos[0]));
+    if (oneMore) {
+        setForbbidenCaptures(captureIds);
+    }
     return captureIds;
+}
+
+function setForbbidenCaptures(captureIds) {
+    if (!kingMoves || !captureIds) return;
+
+    captureIds.forEach(captureId => {
+        if (kingMoves.includes(captureId)) {
+            console.log(`Adding ${captureId} to forbiddenCaptures because the pawn threatens the king.`);
+            forbiddenCaptures.push(captureId);
+        }
+    });
 }
 
 /* this function check if the path of the castling is safe from a chekmate */
@@ -453,6 +481,11 @@ function markCaptureMoves(allMoves, color) {
  * @param {*} preRenderCallback this callback funcion is just for the king, that call limitKingMoves to avoid an auto checkmate
  * @returns 
  */
+
+
+// FORBBIDDEN PAWN CAPTURE const kingMoves {} aquí vamos a guardar tmp del rey
+let kingMoves = [];
+
 function getPossibleMoves(piece, highlightIdsFunc, color, renderBool = false, preRenderCallback = null, skipCastlingCheck = false) {
     const curr_pos = piece.current_pos;
     let highlightSquareIds = highlightIdsFunc(curr_pos);
@@ -461,10 +494,12 @@ function getPossibleMoves(piece, highlightIdsFunc, color, renderBool = false, pr
     for (const direction in highlightSquareIds) {
         if (highlightSquareIds.hasOwnProperty(direction)) {
         const squares = highlightSquareIds[direction];
+        //debugger
         res.push(checkSquareCaptureId(squares, piece));
         tmp.push(squares);
         }
     }
+    kingMoves = oneMore ? tmp : [];
     if (skipCastlingCheck)
         castlingCheck(piece, color, res);
     highlightSquareIds = res.flat();
@@ -522,6 +557,7 @@ function getOpponentMoves(color) {
     return res;
 }
   
+
 /*function that recieve the initial king moves and then check if one of those possible options
 can be a direct checkmate, the it remove that option to avoid the checkmate*/
 function limitKingMoves(kingInitialMoves, color) {
@@ -566,6 +602,7 @@ function knightMovesOptions(piece, highlightIdsFunc, color, renderBool = false) 
                 adjustKnightHighlighting(element);
         });
     }
+    setForbbidenCaptures(highlightSquareIds);
     return highlightSquareIds;
 }
 
