@@ -142,7 +142,7 @@ function handleFriendChanges(type, data, add = 0) {
 			refreshFriendData(username);
 		}
     } if (path === '/home' && type === 'friend_status_updated') {
-        refreshFriendStatusOnHome();
+        //refreshFriendStatusOnHome(); this is causing double invitation
     }
     if (add) { // we dont see avatar or status on chat or tournament
         refreshChatFriendList(); // chat refreshes in all paths

@@ -241,7 +241,8 @@ export async function openChat(friendUsername, elements, newChat = false) {
     } else {
         // Fetch messages from the server
         await fetchChatMessages(friendUsername);
-		updateChatCache(friendUsername, currentChat.messages);
+        //console.log("updating on open chat")
+		//updateChatCache(friendUsername, currentChat.messages);
     }
 
     showChatWindow(elements, friendUsername);
@@ -270,11 +271,11 @@ async function fetchChatMessages(friendUsername) {
 
             // Merge new messages with existing ones
             currentChat.messages = [...newMessages, ...currentChat.messages];
-            console.log("on feetch: currentChat: ", currentChat.messages);
             // Sort messages by `sent_at` timestamp
             currentChat.messages.sort((a, b) => new Date(a.sent_at) - new Date(b.sent_at));
 
             // Update the cache with the latest messages
+            console.log("updating on fetch")
             updateChatCache(friendUsername, currentChat.messages);
         }
     } catch (error) {
@@ -422,8 +423,11 @@ async function handleScroll(event, elements) {
 
 
 export function updateChatCache(username, messages) {
+    //debugger
 	console.log("updating chat cache")
 	chatCache[username] = messages.slice(-8);
+    console.warn("after update: ", chatCache[currentChat.username]);
+    console.log("current chat: ", currentChat);
 }
   
 

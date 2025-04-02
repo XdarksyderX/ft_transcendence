@@ -64,13 +64,14 @@ async function handleReceivedMessage(event) {
 			if (imSender && !data.data.is_special) return;
 			if (!imSender && data.data.is_special) {
 				const elements = getElements();
-				if (!isExpanded) {
-					toggleChat(elements);
-				} if (currentChat.username !== data.data.sender) {
+				if (currentChat.username !== data.data.sender || currentView !== 'chat') {
 					openChat(data.data.sender, elements);
 				}
+				if (!isExpanded) {
+					return toggleChat(elements);
+				} 
 			}
-
+			debugger ;
 			currentChat.messages.push({
 				id: currentChat.messages.length + 1,
 				message: data.data.message,
@@ -80,10 +81,12 @@ async function handleReceivedMessage(event) {
 				is_special: data.data.is_special,
 				is_read: data.data.is_read
 			});
-			updateChatCache(currentChat.username, currentChat.messages);
+			if (!data.data.is_special) {
+				updateChatCache(currentChat.username, currentChat.messages);
+			}
 
 			// Update the view if the current view is the chat with the sender or the recent-chats tab
-			if (currentView === 'chat' && currentChat.username === data.data.sender) { /* && currentChat.username === data.data.sender */
+			if (currentView === 'chat' && currentChat.username === data.data.sender) {
 				if (isExpanded) {
 					markMessagesAsRead(currentChat.username);
 				}
