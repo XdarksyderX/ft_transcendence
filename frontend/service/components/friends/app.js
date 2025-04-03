@@ -94,7 +94,7 @@ async function renderFriendList(container, dataContainer, refreshData = true, se
     const friends = await handleGetFriendList();
     if (friends.length === 0) {
         container.innerHTML = `
-        <div class="d-flex flex-column h-100 bg-primary">
+        <div class="d-flex flex-column h-100">
             <div class="flex-grow-1"> You don't have any friends, yet ;) </div>
             <div class="flex-grow-1 mt-auto text-center">
                 <div> You'll can add some down there </div>
