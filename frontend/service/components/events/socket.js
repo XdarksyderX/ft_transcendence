@@ -2,9 +2,8 @@ import { getUsername } from "../../app/auth.js";
 import { consoleSuccess, throwToast } from "../../app/render.js";
 import { refreshFriendsFriendlist, refreshFriendData } from "../friends/app.js";
 import { refreshTournamentFriendList } from "../tournament/new.js";
-import { refreshChatFriendList, updateNotificationIndicator } from "../chat/app.js";
+import { refreshChatFriendList } from "../chat/app.js";
 import { renderPendingFriendRequests, refreshIfDeclined } from "../friends/requests.js";
-import { navigateTo } from "../../app/router.js";
 import { getNotificationText, updateNotificationBell } from "./app.js";
 import { handleAcceptedInvitation, handleDeclinedInvitation } from "../home/game-invitation.js";
 import { handleCancelledInvitation } from "../chat/bubbles.js";
@@ -18,7 +17,7 @@ import { GATEWAY_HOST } from "../../app/sendRequest.js";
 
 let notiSocket = null;
 let reconnectAttempts = 0;
-const MAX_RECONNECT_DELAY = 30000; // Máximo 30s de espera entre reconexiones
+const MAX_RECONNECT_DELAY = 30000;
 
 
 
@@ -38,14 +37,14 @@ const notificationHandlers = {
     request_cancelled: () => handleFriendRequestChanges('request_cancelled'),
 
     // Pong Match Events
-    match_invitation: () => console.log("[WebSocket] You have a match invitation"),
-    tournament_end: () => console.log("[WebSocket] Tournament ended"),
+    match_invitation: () => console.log("[NotiSocket] You match invitation received"),
+    tournament_end: () => console.log("[NotiSocket] Tournament ended"),
     pong_match_accepted: (data) => handleAcceptedInvitation('pong', data.game_key),
     pong_match_decline: () => handleDeclinedInvitation(),
     pong_match_cancelled: (data) => handleCancelledInvitation(data.invitation_token),
 
     // Pong Tournament Events
-    pong_tournament_closed: () => console.log("[WebSocket] Tournament started"),
+    pong_tournament_closed: () => console.log("[NotiSocket] Tournament started"),
     pong_tournament_match_ready: (data) => handleJoinTournamentMatch(data.game_key),
     pong_tournament_players_update: () => handleTournamentEvents('invitation'),
     pong_tournament_match_finished: () => handleTournamentEvents('match'),
@@ -103,9 +102,8 @@ function startKeepAlive() {
     setInterval(() => {
         if (notiSocket?.readyState === WebSocket.OPEN) {
             notiSocket.send(JSON.stringify({ event_type: "ping" }));
-            //console.log("[WebSocket] Sent keepalive ping");
         }
-    }, 30000); // Every 30 seconds
+    }, 30000);
 }
 
 function handleReceivedNotification(event) {
@@ -133,10 +131,10 @@ function handleReceivedNotification(event) {
 
 function handleFriendChanges(type, data, add = 0) {
     const path = window.location.pathname;
-    //console.log("on handleFriendChanges", path, type);
+
     if (path === '/friends') {
         const username = data.old_username || data.user;
-        refreshFriendsFriendlist(username, add); // aquí debo mandar el username del amigo
+        refreshFriendsFriendlist(username, add);
 		if (add === 0) {
 			refreshFriendData(username);
 		}
@@ -160,7 +158,7 @@ function handleFriendRequestChanges(type, data = null) {
 	}
 }
 function handleTournamentEvents(type) {
-    console.log("pong_tournament_players_update")
+
     switch (type) {
         case 'invitation':
             if (window.location.pathname === '/unstarted-tournaments') {
@@ -168,7 +166,6 @@ function handleTournamentEvents(type) {
             } break ;
         case 'match':
             if (window.location.pathname === '/started-tournaments') {
-                console.log("match played");
                 initializeOngoingTournaments(false);
             } break;
     }

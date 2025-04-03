@@ -59,7 +59,7 @@ export function refreshFriendsFriendlist(changedFriend, add) {
         } else if (add === -1) { // if I have more friends but I had selected the one I lost
             const selectedFriend = dataContainer.querySelector('#friend-name');
             const selectedFriendName = selectedFriend ? selectedFriend.innerText : null; // check if we had open their data
-            console.log("selected friend: ", selectedFriendName, "changed friend: ", changedFriend);
+            //console.log("selected friend: ", selectedFriendName, "changed friend: ", changedFriend);
             refresh = selectedFriendName === changedFriend ? true : false;
         }
 
@@ -75,12 +75,10 @@ export function refreshFriendsFriendlist(changedFriend, add) {
 // if the user is still present on search list when accepts the friend request,
 // erases the element from the DOM 
 function cleanSearchList(username) {
-    console.log("CleanSearch function called");
-    console.log("username: ", username);
+    //console.log("CleanSearch function called");
     const searchList = document.getElementById('search-list');
     const userCard = searchList.querySelector(`[data-username="${username}"]`);
     if (userCard) {
-        console.log("no amiga no");
         searchList.removeChild(userCard);
     }
 }
@@ -155,9 +153,8 @@ export function refreshFriendData(friendName) {
 }
 
 async function renderFriendData(friend, avatar, dataContainer) {
-	let color = friend.is_online ? 'var(--accent)' : '#808080'
+	let color = friend.is_online ? 'var(--accent)' : '#808080';
     const stats = await handleGetResumeStats(friend.username);
-    console.log("stats: ", stats)
     const aliasDiv = friend.alias ? `<p>Alias: ${friend.alias}</p>` : ''
 
     dataContainer.innerHTML = `

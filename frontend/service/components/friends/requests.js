@@ -46,7 +46,6 @@ export async function renderPendingFriendRequests(container = null) {
 async function handleGetPendingReceivedRequests() {
     const response = await getPendingReceivedRequests();
     if (response.status === "success") {
-        console.log("getPendingReceivedRequests says: ", response);
         return (response.incoming);
     } else {
         throwAlert(response.message);
@@ -150,18 +149,11 @@ function getFriendsFromDOM() {
 async function getUserStatusMap(users) {
     const userStatusMap = new Map();
     const pendingRequests = await getPendingSentRequests();
-    console.log('pengüins: ', pendingRequests);
-
-    // Log the structure of pendingRequests
-    console.log('pendingRequests structure: ', JSON.stringify(pendingRequests, null, 2));
 
     const pendingUsernames = (pendingRequests.status === "success" && Array.isArray(pendingRequests.outgoing)) ? pendingRequests.outgoing.map(request => ({
         username: request.receiver__username,
         invitationId: request.id
     })) : [];
-
-    // Log the pendingUsernames array
-    console.log('pendingUsernames: ', pendingUsernames);
 
     for (const user of users) {
         const response = await isUserBlocked(user.username);
@@ -169,7 +161,7 @@ async function getUserStatusMap(users) {
         const pendingRequest = pendingUsernames.find(pending => pending.username === user.username);
         const isPending = !!pendingRequest;
         const invitationId = pendingRequest ? pendingRequest.invitationId : null;
-        console.log(`User: ${user.username}, isBlocked: ${isBlocked}, isPending: ${isPending}, invitationId: ${invitationId}`);
+        //console.log(`User: ${user.username}, isBlocked: ${isBlocked}, isPending: ${isPending}, invitationId: ${invitationId}`);
         userStatusMap.set(user.username, { user, isBlocked, isPending, invitationId });
     }
     return userStatusMap;
@@ -180,13 +172,12 @@ async function getUserStatusMap(users) {
 async function renderSearchList(users, elements) {
     elements.searchList.innerHTML = '';
     elements.searchListContainer.classList.add('show');
-    console.log("on renderSearchList", users);
     if (users.size === 0) {
-        elements.searchList.appendChild(await createAddFriendCard(null)); // Use await here
+        elements.searchList.appendChild(await createAddFriendCard(null));
     } else {
         for (const [key, value] of users) {
             const status = value.isBlocked ? 'blocked' : value.isPending ? 'pendant' : 'default';
-            const addFriendCard = await createAddFriendCard(value.user, status, value.invitationId); // Use await here
+            const addFriendCard = await createAddFriendCard(value.user, status, value.invitationId);
             elements.searchList.appendChild(addFriendCard);
         }
     }
@@ -201,7 +192,6 @@ async function createAddFriendCard(user, status, invitationId) {
     } else {
         const btns = createCardBtns(card, user, invitationId);
         const avatar = await getAvatar(null, user);
-        console.log('avatar: ', avatar);
         card.setAttribute('data-username', user.username);
         card.innerHTML = `
         <div class="d-flex align-items-center mb-2 mb-md-0">
@@ -272,9 +262,7 @@ function createCardBtns(card, user, invitationId = null) {
 export function refreshIfDeclined(username) {
     const searchList = document.getElementById('search-list');
     const userCard = searchList.querySelector(`[data-username="${username}"]`);
-    console.log("refreshIfDeclined function called");
     if (userCard) {
-        console.log("refreshIfDeclined function called here too");
         toggleBtns(userCard, 'default');
     }
 }
@@ -324,7 +312,6 @@ async function handleBlockUser(username, card) {
 
 async function handleSendFriendRequest(username, card) {
     const response = await sendFriendRequest(username);
-//    console.log('handleSendFriendRequest response:', response);
     if (response.status === "success") {
         toggleBtns(card, 'pendant', response.invitation_id);
         //throwAlert(`Friend request sent to ${username}`);
@@ -345,7 +332,6 @@ async function handleUnblockUser(username, card) {
 }
 
 async function handleCancelFriendRequest(card, invitationId) {
-    console.log("handleCancelRequest function called")
     const response = await cancelFriendRequest(invitationId);
     if (response.status === "success") {
         toggleBtns(card, 'default');

@@ -18,16 +18,9 @@
     max-width: 40%;
     height: auto !important;
     border-radius: 50%;
-    /* margin-right: 10px; */
     vertical-align: middle;
 }
 
-/* #search-btn {
-	background-color: var(--title);
-	color: var(--dark);
-	border: none;
-	cursor: pointer;
-} */
 
 #friend-list #friends-container {
     min-height: 380px;
