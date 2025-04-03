@@ -2,7 +2,8 @@ import { throwAlert } from "../../app/render.js";
 import { handleGetFriendList } from "../friends/app.js";
 import { createTournament, createTournamentInvitation, deleteTournament} from "../../app/pong.js";
 import { handleGetEditableTournaments, showEditTournamentSection } from "./edit.js";
-
+import { preventMultipleClicks } from "../../app/router.js";
+import { invitationStatuses } from "../chat/bubbles.js";
 let requiredParticipants = 0;
 let selectedFriends = [];
 
@@ -82,9 +83,8 @@ export function refreshTournamentFriendList() {
 async function renderFriendList(elements) {
     elements.friendsContainer.innerHTML = '';
     const friends = await handleGetFriendList(); 
-    if (friends.length < 0) {
+    if (friends.length < 4) {
         elements.friendsContainer.innerText = `you dont have enough friends to start a tournament`
-        //elements.friendsContainer.innerText = `you dont have enough friends to start a ${requiredParticipants} players tournament`
         return ;
     }
     friends.forEach((friend) => {
@@ -133,16 +133,19 @@ function initStartNewTournament(elements) {
     startBtn.parentNode.replaceChild(newStartBtn, startBtn);
     selectedFriends = [];
     console.log("adding event listener");
-    newStartBtn.addEventListener('click', (event) => {
-        event.preventDefault();
-        const tournamentName = elements.nameInput.value;
-        if (parseTournamentName(tournamentName)) {
-            createNewTournament(tournamentName);
-        }
-    });
+    newStartBtn.addEventListener('click', () => preventMultipleClicks(newStartBtn, handleCreateNewTournament));
 }
+
+async function handleCreateNewTournament() {
+    console.log("CLICK")
+    const tournamentName = document.getElementById('tournament-name-input').value;
+    if (parseTournamentName(tournamentName)) {
+        await createNewTournament(tournamentName);
+    }
+}
+
 // Creates a new tournament with the selected friends
-function createNewTournament(tournamentName) {
+async function createNewTournament(tournamentName) {
     handleCreateTournament(tournamentName).then(async (token) => {
         if (token) {
             try {
@@ -183,3 +186,4 @@ export async function handleDeleteTournament(token) {
         initializeNewTournament(false);
     }
 }
+

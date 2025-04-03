@@ -26,24 +26,22 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 class SearchUserSerializer(serializers.ModelSerializer):
     avatar = serializers.SerializerMethodField()
-    is_friend = serializers.SerializerMethodField()
     status = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'avatar', 'alias', 'is_friend', 'status']
+        fields = ['id', 'username', 'avatar', 'alias', 'status']
 
     def get_avatar(self, obj):
         return obj.avatar.url if obj.avatar else "/media/avatars/default.png"
 
-    def get_is_friend(self, obj): #it doesnt work
-        request = self.context.get('request')
-        if request and hasattr(request.user, 'friends'):
-            return obj in request.user.friends.all()
-        return False
+    # def get_is_friend(self, obj): #it doesnt work
+    #     request = self.context.get('request')
+    #     if request and hasattr(request.user, 'friends'):
+    #         return obj in request.user.friends.all()
+    #     return False
 
     def get_status(self, obj):
         # Only return the status if the user is a friend
-        if self.get_is_friend(obj):
-            return "online" if obj.is_online else "offline"
-        return None
+        # if self.get_is_friend(obj):
+        return "online" if obj.is_online else "offline"

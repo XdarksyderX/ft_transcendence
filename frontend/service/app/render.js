@@ -50,12 +50,12 @@ async function loadSidebar() {
 }
 
 function throwAlert(text) {
-    // Eliminar cualquier modal previo
-    const prevModal = document.getElementById('alert-modal');
+
+  const prevModal = document.getElementById('alert-modal');
     if (prevModal) {
         prevModal.remove();
     }
-    // Crear el HTML del modal
+
     const alert = `
     <div class="modal fade" id="alert-modal" tabindex="-1" inert>
       <div class="modal-dialog">
@@ -81,6 +81,7 @@ function throwAlert(text) {
     // insert the modal on the dom
     document.body.insertAdjacentHTML("beforeend", alert);
 
+    attachHideModalGently(document.getElementById('alert-modal'));
     // Init and show the modal
     const modalElement = document.getElementById('alert-modal');
     const modal = new bootstrap.Modal(modalElement);
@@ -144,31 +145,28 @@ function hideModalGently(modal) {
 }
 
 
-function attachHideModalGently() {
-  const dismissElements = document.querySelectorAll('[data-bs-dismiss]');
+function attachHideModalGently(container = document) {
+
+  const dismissElements = container.querySelectorAll('[data-bs-dismiss]');
   //console.log(`Found ${dismissElements.length} elements with [data-bs-dismiss] attribute.`); // Log the number of elements
 
   dismissElements.forEach((element) => {
-      //console.log(`Attaching hideModalGently to element:`, element); // Log each element
+      console.log(`Attaching hideModalGently to element:`, element); // Log each element
 
       element.addEventListener('click', (event) => {
           event.preventDefault(); // Prevent the default dismiss behavior
-          //console.log(`Clicked on element:`, event.target); // Log the clicked element
+          console.log(`Clicked on element:`, event.target); // Log the clicked element
 
           const modalElement = event.target.closest('.modal');
           if (modalElement) {
-              //console.log(`Found modal element:`, modalElement); // Log the modal element
+              console.log(`Found modal element:`, modalElement); // Log the modal element
 
               const modalInstance = bootstrap.Modal.getInstance(modalElement);
               if (modalInstance) {
                   //console.log(`Found Bootstrap modal instance:`, modalInstance); // Log the modal instance
                   hideModalGently(modalInstance);
-              } //else {
-                  //console.warn(`No Bootstrap modal instance found for modal element:`, modalElement);
-              //}
-          } //else {
-              //console.warn(`No modal element found for clicked element:`, event.target);
-          //}
+              }
+          }
       });
   });
 }

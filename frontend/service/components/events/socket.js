@@ -83,6 +83,7 @@ export function initializeNotificationsSocket() {
 
     notiSocket.onclose = () => {
         if (state.intentionalClose) {
+            consoleSuccess("[NotiSocket] closed succesfully");
             notiSocket = null;
             return ; 
         }
@@ -100,7 +101,7 @@ function scheduleReconnect() {
 
 function startKeepAlive() {
     setInterval(() => {
-        if (notiSocket.readyState === WebSocket.OPEN) {
+        if (notiSocket?.readyState === WebSocket.OPEN) {
             notiSocket.send(JSON.stringify({ event_type: "ping" }));
             //console.log("[WebSocket] Sent keepalive ping");
         }
@@ -142,7 +143,7 @@ function handleFriendChanges(type, data, add = 0) {
 			refreshFriendData(username);
 		}
     } if (path === '/home' && type === 'friend_status_updated') {
-        //refreshFriendStatusOnHome(); this is causing double invitation
+        refreshFriendStatusOnHome(); //this is causing double invitation
     }
     if (add) { // we dont see avatar or status on chat or tournament
         refreshChatFriendList(); // chat refreshes in all paths
@@ -153,7 +154,7 @@ function handleFriendChanges(type, data, add = 0) {
 }
 
 function handleFriendRequestChanges(type, data = null) {
-//	request_sent, 	request_declined,     request_cancelled
+    if (window.location.pathname != '/friends') return ;
 	if (type === 'request_sent' || type === 'request_cancelled') {
 		renderPendingFriendRequests();
 	} else {

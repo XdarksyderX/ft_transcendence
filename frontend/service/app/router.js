@@ -277,4 +277,20 @@ async function initRouteEvents() {
 document.addEventListener("DOMContentLoaded", initRouteEvents);
 
 
-export { navigateTo };
+function preventMultipleClicks(button, callback, timeout = 5000) {
+    event.preventDefault();
+    if (button.disabled) return; // Prevent further clicks if the button is already disabled
+
+    button.disabled = true; // Disable the button
+    try {
+        callback(); // Execute the provided callback
+    } catch (error) {
+        console.error("Error during button action:", error);
+    } finally {
+        setTimeout(() => {
+            button.disabled = false; // Re-enable the button after the timeout
+        }, timeout); // Default timeout is 5000ms (5 seconds)
+    }
+}
+
+export { navigateTo, preventMultipleClicks };

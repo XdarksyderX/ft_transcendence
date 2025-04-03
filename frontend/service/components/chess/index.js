@@ -72,8 +72,9 @@ export async function initializeChessEvents(key) {
             initOfflineChess();
             
         }
-        gameMode = onlineInfo.gameMode || offlineInfo.gameMode ;
+        console.log("online info: ", onlineInfo);
     }
+    gameMode = onlineInfo.gameMode || offlineInfo.gameMode ;
 
     GlobalEvent();
     generateCoordinates();

@@ -6,6 +6,7 @@ import { getChessInvitationDetail } from '../../app/chess.js';
 import { throwAlert } from '../../app/render.js';
 
 const invitationStatuses = new Map();
+const tournamentInvitationStatuses = new Map();
 
 /* * * * * * * * * * * * * * * * * * *  NORMAL MESSAGE BUBBLE  * * * * * * * * * * * * * * * * * * */
 
@@ -17,9 +18,9 @@ export function createMessageBubble(message) {
 	card.innerHTML = `
 		<div class="d-flex">
 			<div class="me-2">${content}</div>
-			<small class="ms-auto text-muted timestamp">${formatTime(message.sent_at)}</small>
-		</div>
-	`;
+			</div>
+			`;
+			// <small class="ms-auto text-muted timestamp">${formatTime(message.sent_at)}</small>
 	return card;
 }
 
@@ -181,6 +182,10 @@ export function setInvitationStatus(token, status) {
     }, 60000);
 }
 
+export function setTournamentInvitationStatus(token, status) {
+    tournamentInvitationStatuses.set(token, status);
+}
+
 export function handleCancelledInvitation(token) {
 
 	const card = document.querySelector(`[data-token="${CSS.escape(token)}"]`);
@@ -207,39 +212,69 @@ export function handleCancelledInvitation(token) {
 /* * * * * * * * * * * * * * * * * * *  TOURNAMENT INVITATIONS  * * * * * * * * * * * * * * * * * * */
 
 async function createTournamentInvitationCard(friendName, token) {
+    const details = await getTournamentInvitationDetailFromCache(token);
 
-	const {invitation} = await getTournamentInvitationDetail(token);
-	if (!invitation) return createOutdatedBubble('in', 'tournament');
+    const card = document.createElement('div');
+    card.innerHTML = `
+    <div data-token=${token} class="card-border special-bubble">
+        <div class="game-invitation card overflow-hidden">
+            <div class="card-body position-relative p-2" style="z-index: 1;">
+                <h6 class="mb-2 ctm-text-title">New Tournament</h6>
+                <p class="card-text mb-2 small ctm-text-light"><span class="ctm-text-accent">${friendName}</span> invited you to the <span class="ctm-text-accent">${details.tournament}</span> tournament!</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <button data-action="accept" class="btn btn-sm ctm-btn flex-grow-1 me-1">Accept</button>
+                    <button data-action="decline" class="btn btn-sm ctm-btn-danger flex-grow-1 ms-1">Decline</button>
+                    <button data-info="accepted" class="btn btn-sm ctm-btn flex-grow-1 me-1" style="display: none;">Already accepted!</button>
+                    <button data-info="declined" class="btn btn-sm ctm-btn-danger flex-grow-1 ms-1" style="display: none;">Already declined</button>
+                </div>
+            </div>
+        </div>
+    </div>`;
 
-	const tourName = invitation.tournament
-	const card = document.createElement('div');
-	card.innerHTML = `
-	<div data-token=${token} class="card-border special-bubble">
-		<div class="game-invitation card overflow-hidden">
-			<div class="card-body position-relative p-2" style="z-index: 1;">
-				<h6 class="mb-2 ctm-text-title">New Tournament</h6>
-				<p class="card-text mb-2 small ctm-text-light"><span class="ctm-text-accent">${friendName}</span> invited you to the <span class="ctm-text-accent"> ${tourName} </span>tournament!</p>
-				<div class="d-flex justify-content-between align-items-center">
-					<button data-action="accept"class="btn btn-sm ctm-btn flex-grow-1 me-1">Accept</button>
-					<button data-action="decline" class="btn btn-sm ctm-btn-danger flex-grow-1 ms-1">Decline</button>
-					<button data-info="accepted"class="btn btn-sm ctm-btn flex-grow-1 me-1" style="display: none;">Already accepted!</button>
-					<button data-info="declined" class="btn btn-sm ctm-btn-danger flex-grow-1 ms-1" style="display: none;">Already declined</button>
-				</div>
-			</div>
-		</div>
-	</div> `;
+    const btns = {
+        accept: card.querySelector('[data-action="accept"]'),
+        decline: card.querySelector('[data-action="decline"]'),
+        accepted: card.querySelector('[data-info="accepted"]'),
+        declined: card.querySelector('[data-info="declined"]')
+    };
 
-	const btns = {
-		accept: card.querySelector('[data-action="accept"]'),
-		decline: card.querySelector('[data-action="decline"]'),
-		accepted: card.querySelector('[data-info="accepted"]'),
-		declined: card.querySelector('[data-info="declined"]')
-	}
-	btns.accept.addEventListener('click', () => handleAcceptTournamentInvitation(token, btns))
-	btns.decline.addEventListener('click', () => handleDeclineTournamentInvitation(token, btns))
-	toggleBtns(btns, invitation.status);
-	return card;
+    // Update the UI based on the status
+	console.log("before toggle: ", details)
+    toggleBtns(btns, details.status);
+
+    btns.accept.addEventListener('click', () => handleAcceptTournamentInvitation(token, btns));
+    btns.decline.addEventListener('click', () => handleDeclineTournamentInvitation(token, btns));
+
+    return card;
 }
+
+async function getTournamentInvitationDetailFromCache(token) {
+    // Check if the details are already cached
+    const cachedDetails = tournamentInvitationStatuses.get(token);
+    if (cachedDetails) {
+		console.log("retrieving invitation status from cache")
+        return cachedDetails; // Return the cached details
+    }
+	
+    // Fetch the invitation details from the server
+    const response = await getTournamentInvitationDetail(token);
+	
+    if (!response.status === 'success') {
+		// If the invitation is not found, mark it as outdated
+        const outdatedDetails = { status: 'outdated', token };
+        setTournamentInvitationStatus(token, outdatedDetails);
+		console.log("setting invitation status to outdated")
+        return outdatedDetails;
+    }
+	
+    // Cache the full invitation details
+    const details = { ...response.invitation, token };
+    setTournamentInvitationStatus(token, details);
+	console.log("setting invitation status from fetch")
+    return details;
+}
+
+
 
 function toggleBtns(btns, status) {
 	Object.values(btns).forEach(btn => {
@@ -247,7 +282,7 @@ function toggleBtns(btns, status) {
 	});
 	if (status === 'accepted') {
 		btns.accepted.style.display = 'block';
-	} else if (status === 'declined') {
+	} else if (status === 'declined' || status === 'denied') {
 		btns.declined.style.display = 'block';
 		btns.declined.disabled = true;
 	} else {
@@ -262,7 +297,15 @@ async function handleAcceptTournamentInvitation(token, btns) {
     if (response.status !== "success") {
         throwAlert(`Failed to accept tournament invitation: ${response.message}`);
     } else {
-		toggleBtns(btns, 'accepted');
+        // Access the cached invitation details
+        const cachedDetails = tournamentInvitationStatuses.get(token) || {};
+        
+        // Update the status in the cached details
+        cachedDetails.status = 'accepted';
+        setTournamentInvitationStatus(token, cachedDetails); // Update the cache
+
+        // Update the UI
+        toggleBtns(btns, 'accepted');
     }
 }
 
@@ -271,8 +314,16 @@ async function handleDeclineTournamentInvitation(token, btns) {
     if (response.status !== "success") {
         throwAlert(`Failed to decline tournament invitation: ${response.message}`);
     } else {
-		toggleBtns(btns, 'declined', false);
-	}
+        // Access the cached invitation details
+        const cachedDetails = tournamentInvitationStatuses.get(token) || {};
+        
+        // Update the status in the cached details
+        cachedDetails.status = 'declined';
+        setTournamentInvitationStatus(token, cachedDetails); // Update the cache
+
+        // Update the UI
+        toggleBtns(btns, 'declined');
+    }
 }
 
 export function escapeHTML(str) {
@@ -287,3 +338,10 @@ export function escapeHTML(str) {
 		return escape[match];
 	});
 }
+export function clearInvitationCache() {
+    invitationStatuses.clear();
+    tournamentInvitationStatuses.clear();
+	console.log("[Chat] invitation statuses cache cleared.")
+}
+
+export {invitationStatuses, tournamentInvitationStatuses} 
