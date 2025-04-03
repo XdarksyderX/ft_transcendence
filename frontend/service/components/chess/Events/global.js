@@ -230,9 +230,6 @@ function isClick() {
  * @param {*} id the new position id where the piece should be moved.
  * @param {boolean} castle Indicates if the move is a castling move.
  */
-
-//si el mov es por socket lo importante es llamar a moveElement y el unico problema es la promocion de peones
-
 function moveElement(piece, id, castle) {
   if (!piece)
     return;
@@ -381,8 +378,6 @@ function handlePieceClick(square, color, pieceType) {
   globalStateRender();
 }
 
-
-
 //simple function that clear the yellow highlight when you click a square with a piece
 function clearPreviousSelfHighlight(piece)
 {
@@ -400,16 +395,13 @@ function clearPreviousSelfHighlight(piece)
  * callback function is executed. We check if the clicked element is an <img> tag. This ensure that the code ontly runs when
  * an image of a chess piece is clicked.
  */
-
-
 function GlobalEvent() {
   const root = document.getElementById('root');
   // const isClickBool = isClick();
   // console.warn(`making a move via ${isClickBool ? 'click' : 'socket'}`);
   // console.log("GlobalEvent: globalPiece: ", globalPiece);
   root.addEventListener("click", function(event) {
-    if (chessSocket && inTurn !== getUserColor(getUsername())) { // esto iría fuera
-      //console.log("oh hi :D: ", inTurn, getUserColor(getUsername()))
+    if (chessSocket && inTurn !== getUserColor(getUsername())) {
       return;
     };
 
@@ -427,7 +419,7 @@ function GlobalEvent() {
       }
 
       const pieceName = square.piece.piece_name;
-      const pieceType = pieceName.split('_')[1].toLowerCase(); // Obtener el tipo de pieza pawn, bishop, etc..
+      const pieceType = pieceName.split('_')[1].toLowerCase();
       handlePieceClick(square, inTurn, pieceType); //this is the general funciotn in charge of the movement
     }
     else if (isHighlightClick) { //this is to know if the click is in a square with the round highlight, which is the posible move of a piece. Ensure that only valid moves are processed.

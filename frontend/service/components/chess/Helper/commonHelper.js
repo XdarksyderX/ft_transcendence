@@ -47,7 +47,6 @@ function checkForOneMore(attack, defense) {
     if (oneMore) {
         const attackColor = attack.piece_name.split('_')[0];
         const kingColor = attackColor === 'WHITE' ? 'BLACK' : 'WHITE';
-        // debugger ;
     
         if (!attack.piece_name.includes('PAWN') && !attack.piece_name.includes('KNIGHT')) {
             if (defense.piece_name.includes(`${kingColor}_KING`)) { 
@@ -67,11 +66,6 @@ function checkForOneMore(attack, defense) {
     }
     return 0
 }
-
-// function checkForOneMore(king, defense) {
-//     if (!oneMore) return 0;
- 
-// }
 
 //function to check capture id square
 function checkSquareCaptureId(array, piece = null) {
@@ -350,9 +344,6 @@ function pawnMovesOptions(piece, unusedFunc = null, color) {
     const curr_pos = piece.current_pos;
     const row = color === "white" ? "2" : "7";
     const direction = color === "white" ? 1 : -1;
-    // if (!curr_pos) {
-    //     console.log("on PawnMovesOptions: ", piece);
-    // }
     if (curr_pos[1] == row) {
         highlightSquareIds = [
             `${curr_pos[0]}${Number(curr_pos[1]) + direction}`,
@@ -389,8 +380,6 @@ function setForbbidenCaptures(captureIds) {
     if (!kingMoves || !captureIds) return;
 
     console.log("on setForbbidenCaptures: ", kingMoves, captureIds);
-
-    // Flatten the kingMoves array
     const flattenedKingMoves = kingMoves.flat();
 
     captureIds.forEach(captureId => {
@@ -487,8 +476,6 @@ function markCaptureMoves(allMoves, color) {
  * @returns 
  */
 
-
-// FORBBIDDEN PAWN CAPTURE const kingMoves {} aquí vamos a guardar tmp del rey
 let kingMoves = [];
 
 function getPossibleMoves(piece, highlightIdsFunc, color, renderBool = false, preRenderCallback = null, skipCastlingCheck = false) {
@@ -499,7 +486,6 @@ function getPossibleMoves(piece, highlightIdsFunc, color, renderBool = false, pr
     for (const direction in highlightSquareIds) {
         if (highlightSquareIds.hasOwnProperty(direction)) {
         const squares = highlightSquareIds[direction];
-        //debugger
         res.push(checkSquareCaptureId(squares, piece));
         tmp.push(squares);
         }
@@ -563,12 +549,11 @@ function getOpponentMoves(color) {
     return res;
 }
   
-
 /*function that recieve the initial king moves and then check if one of those possible options
 can be a direct checkmate, the it remove that option to avoid the checkmate*/
 function limitKingMoves(kingInitialMoves, color) {
     let res = getOpponentMoves(color);
-    // console.log("limitKingMoves -> kingInitialMoves: ", kingInitialMoves);
+     //console.log("limitKingMoves -> kingInitialMoves: ", kingInitialMoves);
     // console.log("limitKingMoves -> res: ", res);
     for (let i = kingInitialMoves.length - 1; i >= 0; i--) {
         if (res.has(kingInitialMoves[i])) {

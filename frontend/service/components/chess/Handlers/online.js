@@ -166,6 +166,7 @@ function waitForBoardStatus() {
 function convertToPiecePositions(boardMap) {
 	const piecePositionsTmp = {};
 
+   // console.log("boardMap on convert: ", boardMap);
 	Object.keys(boardMap).forEach(key => {
 	  const square = boardMap[key];
 	  if (!square) {
@@ -177,7 +178,7 @@ function convertToPiecePositions(boardMap) {
 		piecePositionsTmp[key] = piece[pieceKey];
 	  }
 	});
-	console.log("piecePositions: ", piecePositionsTmp);
+	//console.log("piecePositions: ", piecePositionsTmp);
 	return piecePositionsTmp;
 }
 

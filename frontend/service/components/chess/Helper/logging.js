@@ -67,12 +67,9 @@ function logMoves(logMoves, inTurn, piece, castlingType) {
         rightCol.appendChild(row);
     }
 
-    // // Save move to localStorage
-    // if (chessSocket && chessSocket.readyState === 'ready') {
-        const savedMoves = JSON.parse(sessionStorage.getItem("chessMoves")) || [];
-        savedMoves.push({ inTurn, notation: row.innerHTML });
-        sessionStorage.setItem("chessMoves", JSON.stringify(savedMoves));
-    // }
+    const savedMoves = JSON.parse(sessionStorage.getItem("chessMoves")) || [];
+    savedMoves.push({ inTurn, notation: row.innerHTML });
+    sessionStorage.setItem("chessMoves", JSON.stringify(savedMoves));
 
     // Scroll to the bottom of the move logger
     const moveLogger = document.getElementById("move-logger");

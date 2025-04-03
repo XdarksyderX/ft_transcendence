@@ -1,11 +1,8 @@
 import * as piece from "../Data/pieces.js";
 import { globalState, highlightColor, keySquareMapper } from "../index.js";
-// import { getChess960Piece } from "../Variants/chess960.js";
-// import { renderHordePieces } from "../Variants/horde.js";
 import { initGame } from "../Data/data.js";
 
 const globalPiece = new Object();
-const chessVariantTmp = sessionStorage.getItem('chessVariant'); //borrar -> solucion temporal para asegurar la persistencia de la variable hasta que tengamos backend
 
 /**
  * funciton globlaStateRender is usefull to render pieces from globalStateData,
@@ -115,9 +112,6 @@ function initGameRender(data, piecePositions, detail)
   globalPiece.black_pawns = [];
   globalPiece.white_pawns = [];
 
-  // if (detail.gameMode === "960")
-  //   getChess960Piece();
-
   document.getElementById('root').innerHTML = '';
   data.forEach(element => {
     const rowEl = document.createElement("div");
@@ -133,7 +127,6 @@ function initGameRender(data, piecePositions, detail)
       document.getElementById('root').appendChild(rowEl);
     });
     pieceRender(data);
-    // migración enpassant
     const enpassantItem = detail.inTurn ? 'enPassantCapture' : 'enPassantTarget'
     const enPassantState = JSON.parse(localStorage.getItem(enpassantItem));
     if (enPassantState) {
