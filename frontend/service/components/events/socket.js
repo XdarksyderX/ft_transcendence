@@ -74,6 +74,7 @@ export function initializeNotificationsSocket() {
     };
 
     notiSocket.onmessage = (event) => {
+        debugger
         handleReceivedNotification(event);
     };
 
@@ -119,8 +120,6 @@ function handleReceivedNotification(event) {
 		const handler = notificationHandlers[type];
         if (handler) {
             handler(data);
-        } else {
-            return ;
         }
         const text = getNotificationText(data);
         if (text) {

@@ -137,11 +137,16 @@ function focusOutFromModal() {
       document.body.focus(); // Si no hay, enfocar el body
   }
 }
+
 function hideModalGently(modal) {
-  focusOutFromModal();
-  setTimeout(() => {
-      modal.hide();
-  }, 50);
+    focusOutFromModal();
+    setTimeout(() => {
+        modal.hide();
+
+    if (document.querySelectorAll('.modal.show').length === 0) {
+            document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+        }
+    }, 50);
 }
 
 
