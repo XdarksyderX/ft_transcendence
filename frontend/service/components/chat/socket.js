@@ -55,22 +55,14 @@ export function initializeGlobalChatSocket() {
 
 // Handle received WebSocket messages
 async function handleReceivedMessage(event) {
+	debugger
 	try {
 		const data = JSON.parse(event.data);
 		console.log("WS message received:", data);
 		const currentUser = getUsername();
-		const imSender = getUsername() === data?.data?.sender;
+		const imSender = currentUser === data?.data?.sender;
 		if (data.status === "success" && data.data && data.data.message) {
 			if (imSender && !data.data.is_special) return;
-			if (!imSender && data.data.is_special) {
-				const elements = getElements();
-				if (currentChat.username !== data.data.sender || currentView !== 'chat') {
-					openChat(data.data.sender, elements);
-				}
-				if (!isExpanded) {
-					return toggleChat(elements);
-				} 
-			}
 			currentChat.messages.push({
 				id: currentChat.messages.length + 1,
 				message: data.data.message,
@@ -80,10 +72,17 @@ async function handleReceivedMessage(event) {
 				is_special: data.data.is_special,
 				is_read: data.data.is_read
 			});
-			console.log("pushed")
-			if (!data.data.is_special) {
-				updateChatCache(currentChat.username, currentChat.messages);
+			updateChatCache(currentChat.username, currentChat.messages);
+			if (!imSender && data.data.is_special) {
+				const elements = getElements();
+				if (currentChat.username !== data.data.sender || currentView !== 'chat') {
+					openChat(data.data.sender, elements);
+				}
+				if (!isExpanded) {
+					toggleChat(elements);
+				} 
 			}
+			console.log("pushed")
 
 			// Update the view if the current view is the chat with the sender or the recent-chats tab
 			if (currentView === 'chat' && currentChat.username === data.data.sender) {
