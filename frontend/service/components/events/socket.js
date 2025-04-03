@@ -70,11 +70,10 @@ export function initializeNotificationsSocket() {
         
         consoleSuccess("[NotiSocket] Connection established succesfully");
         reconnectAttempts = 0; // Reset reconnection attempts
-        startKeepAlive(); // Inicia el keepalive pings
+        startKeepAlive();
     };
 
     notiSocket.onmessage = (event) => {
-        debugger
         handleReceivedNotification(event);
     };
 
