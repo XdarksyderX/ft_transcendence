@@ -13,7 +13,7 @@ const offlineInfo = {
 
 function initOfflineChess() {
 
-	console.log("initializing offline chess");
+	//console.log("initializing offline chess");
     const whoIsWho = {
         player1: 'white',
         player2: 'black'
@@ -32,7 +32,7 @@ function initOfflineChess() {
 
 function getBoard() {
     const variant = offlineInfo.gameMode;
-    console.log("variant: ", variant);
+    //console.log("variant: ", variant);
     switch (variant) {
         case 'horde':
             return getHordeBoard();
@@ -78,7 +78,7 @@ function getClassicBoard() {
             }
         }
     }
-    console.log("classic Board: ", board);
+    //console.log("classic Board: ", board);
     return board;
 }
 
@@ -105,7 +105,7 @@ function getHordeBoard() {
             }
         }
     }
-    console.log("hordeBoard: ", board)
+    //console.log("hordeBoard: ", board)
     return board;
 }
 

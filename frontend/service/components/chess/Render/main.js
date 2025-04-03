@@ -74,25 +74,6 @@ function pieceRender(data)
  * which we'll then use to assign the pieces to the board squares.
  */
 
-const piecePositions = {
-  "a8": piece.blackRook,
-  "h8": piece.blackRook,
-  "b8": piece.blackKnight,
-  "g8": piece.blackKnight,
-  "c8": piece.blackBishop,
-  "f8": piece.blackBishop,
-  "d8": piece.blackQueen,
-  "e8": piece.blackKing,
-  "a1": piece.whiteRook,
-  "h1": piece.whiteRook,
-  "b1": piece.whiteKnight,
-  "g1": piece.whiteKnight,
-  "c1": piece.whiteBishop,
-  "f1": piece.whiteBishop,
-  "d1": piece.whiteQueen,
-  "e1": piece.whiteKing
-};
-
 /**
  * This function takes the chessboard data and renders it as HTML elements on the web page.
  * It is only called when the game starts (only for one time).
@@ -221,7 +202,7 @@ function renderPlayers(whoIswho) {
   const whitePlayer = getPlayerNameByColor("white", whoIswho);
   const blackPlayer = getPlayerNameByColor("black", whoIswho);
 
-  console.log("rendeirng players");
+  //console.log("rendeirng players");
   const container = document.getElementById('players-container');
   container.innerHTML = `
   <div id="white-turn" class="col d-flex align-items-center justify-content-start chess-turn white-turn inturn me-2">
@@ -272,4 +253,4 @@ function toggleTurn(inTurn) {
   notInTurnElement?.classList.remove('inturn');
 }
 
-export { initGameRender, clearHighlight, selfHighlight, globalStateRender, globalPiece, circleHighlightRender, piecePositions, renderPlayers, toggleTurn };
+export { initGameRender, clearHighlight, selfHighlight, globalStateRender, globalPiece, circleHighlightRender, renderPlayers, toggleTurn };

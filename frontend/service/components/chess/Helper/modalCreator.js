@@ -110,7 +110,7 @@ function handlePromotionChoice(pieceType) {
   };
   try {
     chessSocket.send(JSON.stringify(data));
-    console.log("Sending promotion choice through WebSocket:", data);
+    //console.log("Sending promotion choice through WebSocket:", data);
   } catch (e) {
     console.error(e);
   }
@@ -176,9 +176,9 @@ function resingOption() {
     
     if (chessSocket && chessSocket.readyState === WebSocket.OPEN) {
       const data = { action: "resign" };
-      console.log("Attempting to send data through WebSocket:", data);
+      //console.log("Attempting to send data through WebSocket:", data);
       chessSocket.send(JSON.stringify(data));
-      console.log("Sending data through WebSocket:", data);
+      //console.log("Sending data through WebSocket:", data);
     } else if (!chessSocket) {
         const winner = inTurn === 'white' ? 'black' : 'white';
         winGame(winner);

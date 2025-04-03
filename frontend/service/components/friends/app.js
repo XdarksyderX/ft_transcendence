@@ -36,7 +36,6 @@ function clearContainers(elements) {
 
 export async function handleGetFriendList() {
 	const response = await getFriendsList();
-	console.log("handleGetFriendList, response: ", response);
     if (response.status === "success") {
 		return (response.friends);
     } else {
@@ -45,8 +44,6 @@ export async function handleGetFriendList() {
 }
 
 export function refreshFriendsFriendlist(changedFriend, add) {
-    console.log("refresh function called");
-    console.log("friend: ", changedFriend, "add: ", add);
     const friendsContainer = document.getElementById('friends-container');
     const dataContainer = document.getElementById('friend-data');
     let refresh = false;

@@ -72,7 +72,7 @@ export async function initializeChessEvents(key) {
             initOfflineChess();
             
         }
-        console.log("online info: ", onlineInfo);
+        //console.log("online info: ", onlineInfo);
     }
     gameMode = onlineInfo.gameMode || offlineInfo.gameMode ;
 
@@ -228,7 +228,7 @@ function stopBackgroundMusic() {
 }
 
 function updateInTurn(to) {
-    console.log('updating turn to: ', to);
+    //console.log('updating turn to: ', to);
     inTurn = to;
     toggleTurn(inTurn);
 }

@@ -1,5 +1,4 @@
 import * as piece from "../Data/pieces.js";
-import { piecePositions } from "../Render/main.js";
 
 //reasign the intial positions of the pieces in the piecePostion var
 // function getChess960Piece() {

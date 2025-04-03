@@ -17,7 +17,7 @@ function checkOpponetPieceByElement(id, color, captureHighlight = true) {
     if (!element)
         return false;
     if (oneMore && forbiddenCaptures.includes(id)) {
-        console.log(`avoiding to render the capture on ${id}`);
+        //console.log(`avoiding to render the capture on ${id}`);
         return false;
     }
     if (element.piece && element.piece.piece_name.includes(opponentColor)) {
@@ -54,12 +54,12 @@ function checkForOneMore(attack, defense) {
             }
         }
         if (attack.piece_name.current_pos == 'd5' && defense.piece_name.includes('QUEEN')) {
-            console.log("CHECKING lo que nos interesa xd")
-            console.log(attack, defense, attackColor, kingColor)
+            // console.log("CHECKING lo que nos interesa xd")
+            // console.log(attack, defense, attackColor, kingColor)
         }
 
         if (defense.piece_name.includes(attackColor)) {
-            console.log(`adding ${defense.current_pos} to forbbiden captures`)
+            //console.log(`adding ${defense.current_pos} to forbbiden captures`)
             forbiddenCaptures.push(defense.current_pos);
             return 0;
         }
@@ -379,12 +379,12 @@ function pawnCaptureOptions(curr_pos, color) {
 function setForbbidenCaptures(captureIds) {
     if (!kingMoves || !captureIds) return;
 
-    console.log("on setForbbidenCaptures: ", kingMoves, captureIds);
+    //console.log("on setForbbidenCaptures: ", kingMoves, captureIds);
     const flattenedKingMoves = kingMoves.flat();
 
     captureIds.forEach(captureId => {
         if (flattenedKingMoves.includes(captureId)) {
-            console.log(`Adding ${captureId} to forbiddenCaptures because the pawn threatens the king.`);
+            //console.log(`Adding ${captureId} to forbiddenCaptures because the pawn threatens the king.`);
             forbiddenCaptures.push(captureId);
         }
     });
@@ -432,17 +432,17 @@ function castlingCheck(piece, color, res) {
 function hasPieceMoved(square, pieceName, moveLogger) {
     if (!moveLogger) return false;
     if (!square.piece || !square.piece.piece_name || !square.piece.piece_name.includes(pieceName.toUpperCase())) {
-        console.log(`${pieceName} is not the expected piece`);
+        //console.log(`${pieceName} is not the expected piece`);
         return true;
     }
     for (const move of moveLogger) {
         if (move.notation.includes(square.id)) {
-            console.log(`${pieceName} has already moved`);
+            //console.log(`${pieceName} has already moved`);
             return true;
         }
     }
     
-    console.log(`${pieceName} hasn't moved! :D`);
+    //console.log(`${pieceName} hasn't moved! :D`);
     return false;
 }
 

@@ -133,7 +133,7 @@ function handleReceivedNotification(event) {
 
 function handleFriendChanges(type, data, add = 0) {
     const path = window.location.pathname;
-    console.log("on handleFriendChanges", path, type);
+    //console.log("on handleFriendChanges", path, type);
     if (path === '/friends') {
         const username = data.old_username || data.user;
         refreshFriendsFriendlist(username, add); // aquí debo mandar el username del amigo

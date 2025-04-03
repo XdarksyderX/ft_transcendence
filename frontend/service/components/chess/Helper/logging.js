@@ -13,7 +13,7 @@ const pieceNotation = {
 // Load moves from localStorage
 function reloadMoveLogger() {
     const savedMoves = JSON.parse(sessionStorage.getItem("chessMoves")) || [];
-    console.log("reloading move logger to: ", savedMoves);
+    //console.log("reloading move logger to: ", savedMoves);
     const leftCol = document.getElementById("leftCol");
     const rightCol = document.getElementById("rightCol");
     savedMoves.forEach(move => {
