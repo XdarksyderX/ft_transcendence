@@ -154,7 +154,7 @@ function handleFriendChanges(type, data, add = 0) {
 }
 
 function handleFriendRequestChanges(type, data = null) {
-//	request_sent, 	request_declined,     request_cancelled
+    if (window.location.pathname != '/friends') return ;
 	if (type === 'request_sent' || type === 'request_cancelled') {
 		renderPendingFriendRequests();
 	} else {

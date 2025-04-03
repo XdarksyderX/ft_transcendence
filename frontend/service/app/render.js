@@ -1,6 +1,7 @@
 import { initializeSidebarEvents } from "../components/sidebar/app.js";
 import { initializeChatEvents } from "../components/chat/app.js";
 import { initializeNeonChat } from "./neon.js";
+import { preventMultipleClicks } from "./router.js";
 
 async function loadChat() {
     const chatContainer = document.getElementById('chat-container');
@@ -50,12 +51,12 @@ async function loadSidebar() {
 }
 
 function throwAlert(text) {
-    // Eliminar cualquier modal previo
-    const prevModal = document.getElementById('alert-modal');
+
+  const prevModal = document.getElementById('alert-modal');
     if (prevModal) {
         prevModal.remove();
     }
-    // Crear el HTML del modal
+
     const alert = `
     <div class="modal fade" id="alert-modal" tabindex="-1" inert>
       <div class="modal-dialog">
@@ -81,6 +82,7 @@ function throwAlert(text) {
     // insert the modal on the dom
     document.body.insertAdjacentHTML("beforeend", alert);
 
+    attachHideModalGently(document.getElementById('alert-modal'));
     // Init and show the modal
     const modalElement = document.getElementById('alert-modal');
     const modal = new bootstrap.Modal(modalElement);
@@ -144,8 +146,9 @@ function hideModalGently(modal) {
 }
 
 
-function attachHideModalGently() {
-  const dismissElements = document.querySelectorAll('[data-bs-dismiss]');
+function attachHideModalGently(container = document) {
+
+  const dismissElements = container.querySelectorAll('[data-bs-dismiss]');
   //console.log(`Found ${dismissElements.length} elements with [data-bs-dismiss] attribute.`); // Log the number of elements
 
   dismissElements.forEach((element) => {

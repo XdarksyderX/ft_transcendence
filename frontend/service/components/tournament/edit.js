@@ -2,7 +2,7 @@ import { throwAlert } from "../../app/render.js";
 import { getEditableTournaments,  getTournamentDetail, getTournamentInvitationDetail, startTournament, joinTournamentQueue, leaveTournamentQueue} from "../../app/pong.js";
 import { handleGetFriendList } from "../friends/app.js";
 import { handleSendTournamentInvitation, handleDeleteTournament } from "./new.js";
-import { navigateTo } from "../../app/router.js";
+import { navigateTo, preventMultipleClicks } from "../../app/router.js";
 
 let selectedFriends = [];
 let maxPlayers = 0;
@@ -52,7 +52,7 @@ async function initEditTournamentSection(token, addListener, requiredParticipant
     // Replace the cancel button with a clone to remove all existing event listeners
     const newCancelBtn = cancelBtn.cloneNode(true);
     cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
-    newCancelBtn.addEventListener('click', () => handleDeleteTournament(token));
+    newCancelBtn.addEventListener('click', () => preventMultipleClicks(cancelBtn, () => handleDeleteTournament(token)));
     // Attach click event for the Start With Accepted button
     const startButton = document.getElementById("start-with-accepted-btn");
     if (startButton) {
