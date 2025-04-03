@@ -36,7 +36,7 @@ export async function createSpecialBubble(message) {
 	if (type === 'pong-match' || type === 'chess-match') {
 		const game = type.split('-')[0];
 		card = isSender ? createSentInvitation(game, message.receiver) : createQuickGameInvitation(game, message.sent_at, message.sender, messageContent.invitation_token);
-	} else if (type === 'tournament') {
+	} else if (type === 'pong-tournament') {
 		card = isSender ? createSentInvitation('tournament', message.receiver) : (await createTournamentInvitationCard(message.sender, messageContent.invitation_token));
 	}
 

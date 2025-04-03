@@ -1,17 +1,7 @@
 #!/bin/bash
 
-
 service postgresql start
 sleep 5
-
-#if [[ "$DROP_DB" == "TRUE" ]]; then
-#	if [[ -x "./dropdb.sh" ]]; then
-#		./dropdb.sh || { echo "Error: dropdb.sh failed to execute." >&2; }
-#	else
-#		echo "Error: dropdb.sh not found or not executable." >&2
-#	fi
-#fi
-
 
 sudo -u postgres psql -c "CREATE USER $SOCIALDB_USER WITH PASSWORD '$SOCIALDB_PASSWORD';"
 sudo -u postgres psql -c "CREATE DATABASE $SOCIALDB_NAME OWNER $SOCIALDB_USER;"
