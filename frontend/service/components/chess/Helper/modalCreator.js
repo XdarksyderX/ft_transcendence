@@ -28,13 +28,13 @@ class ModalCreator {
   show() {
     this.open = true;
     document.body.appendChild(this.body);
-    document.getElementById("app-container").classList.add("blur");
+    document.getElementById("app-container")?.classList.add("blur");
   }
   
   hide(){
     this.open = false;
     document.body.removeChild(this.body);
-    document.getElementById("app-container").classList.remove("blur");
+    document.getElementById("app-container")?.classList.remove("blur");
   }
 }
 
@@ -138,16 +138,16 @@ function waitForPromotionChoice() {
   });
 }
 
-function winGame(winBool) {
-  // if(!winBool)
-  //   return;
+function winGame(winBool, online = false) {
+
+  let winMsg = winBool ? `${winBool} Wins!` : 'there is a tie!';
   const modalBody = document.createElement("div");
   modalBody.innerHTML = `
 
     <div class="tv mx-4 position-relative mb-3">
-       <p class="ctm-text-title">${winBool} Wins! </p>
-        <img class="dancing-bot" src="../../resources/win.gif">
-       </div>
+       <p class="ctm-text-title">${winMsg}</p>
+      <img class="dancing-bot" src="../../resources/win.gif">
+    </div>
        
        `;
 
@@ -156,12 +156,15 @@ function winGame(winBool) {
   homeButton.classList.add("btn");
   homeButton.classList.add("ctm-btn-secondary");
   homeButton.onclick = () => {
-    // if (chessSocket) {
-    //   chessSocket.close();
-    // }
-    sessionStorage.clear();
-    navigateTo('/home');
-    modal.hide();
+
+  // this is to handle the case when someone with the winModal still open accepts a new game
+    const inGameValue = sessionStorage.getItem('inGame');
+    sessionStorage.clear(); // Clear all sessionStorage
+    if (inGameValue !== null && online) { //online to prevent us to not be able to clear in local chess in bug case
+        sessionStorage.setItem('inGame', inGameValue); // Restore 'inGame' if it existed
+    }
+      navigateTo('/home');
+      modal.hide();
   }
   
   const buttonContainer = document.createElement("div");
@@ -173,7 +176,6 @@ function winGame(winBool) {
   finalContainer.classList.add("chess-modal");
   const modal = new ModalCreator(finalContainer);
   setTimeout(() => { modal.show(); }, 500);
-
 
 }
 
