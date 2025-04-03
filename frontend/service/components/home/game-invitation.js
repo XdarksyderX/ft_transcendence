@@ -70,6 +70,8 @@ export function handleDeclinedInvitation() {
 export async function handleAcceptQuickGameInvitation(game, token) {
     const response = game ==='pong' ? await acceptPongInvitation(token) : await acceptChessInvitation(token);
     if (response.status === "success") {
+        if (window.location.pathname == `/${game}`) // if you're aready playing local
+            await navigateTo('/home');
         sessionStorage.setItem('inGame', `/${game}`);
         await navigateTo(`/${game}`, response.game_key);
         setInvitationStatus(token, 'accepted');

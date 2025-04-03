@@ -107,12 +107,10 @@ export async function getAvatar(username = null, user = null, path = null) {
                 throw new Error("Username, user object, or path must be provided");
             }
             try {
-                // Reuse getUserData to fetch the user object
                 user = await getUserData(username);
             } catch (error) {
                 console.error(`Error fetching user data for username "${username}":`, error.message);
-                // Optionally, return a default avatar if the user is not found
-                return `http://localhost:5051/media/default-avatar.png`;
+                return `${GATEWAY_URL}/api/social/media/default-avatar.png`;
             }
         }
         path = user.avatar;

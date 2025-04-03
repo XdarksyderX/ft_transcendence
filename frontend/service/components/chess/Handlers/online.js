@@ -91,9 +91,8 @@ function handleGetChessReceivedMessage(event) {
             }
         }
         if (data.status === "game_over") {
-            chessSocket.close();
-            chessSocket = null;
-            winGame(data.winner, true);
+            gameOverHandler(data);
+
         }
         if (data?.current_player) {
 			updateInTurn(data.current_player);
@@ -102,6 +101,31 @@ function handleGetChessReceivedMessage(event) {
     catch (e) {
         console.error("Error parsing WS message: ", e);
     }
+}
+
+
+function gameOverHandler(data) {
+    console.log("on gameOverHandler: ", data)
+    const amIwinner = getUserColor(getUsername()) == data.winner;
+    let delay = 50;
+    if (!amIwinner) {
+        if (data.last_move) {
+            delay = 2000;
+            const { from, to } = data.last_move;
+            const piece = keySquareMapper[from].piece;
+            if (piece) {
+                console.log("Moving element: ", piece, to);
+                moveElement(piece, to, false); // Emulate the last move
+            }
+        }
+    }
+    chessSocket.close();
+    chessSocket = null;
+
+    // Delay showing the winGame modal to allow the last move to render
+    setTimeout(() => {
+        winGame(data.winner, true);
+    }, delay);
 }
 
 function checkPawnDoubleMoveInLastTurn(from, to) {

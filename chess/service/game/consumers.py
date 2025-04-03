@@ -152,11 +152,14 @@ class ChessConsumer(AsyncWebsocketConsumer):
 				winner = self.game_obj.winner
 				winner_color = "white" if winner == self.game_obj.player_white else "black"
 				last_move = game["move_history"][-1] if game["move_history"] else None
+				reason = {
+					"status": "checkmate"
+				}
 				await self.send(text_data=json.dumps({
 					"status": "game_over",
 					"winner": winner_color,
-					"reason": "checkmate",
-					"lastMovement": {
+					"reason": reason,
+					"last_move": {
 						"from": last_move["from"],
 						"to": last_move["to"]
 					} if last_move else None
@@ -492,17 +495,31 @@ class ChessConsumer(AsyncWebsocketConsumer):
 		await self.send(text_data=json.dumps(update_data))
 
 	async def game_over(self, event):
+		# Default last_move to None
+		last_move = None
+	
+		game = chess_games.get(self.game_key)
+	
+		# Handle cases where reason is a dictionary or a string
+		reason_status = event["reason"].get("status") if isinstance(event["reason"], dict) else event["reason"]
+	
+		# Check if the game-ending reason requires a last move (e.g., checkmate)
+		if reason_status == "checkmate" and game and "move_history" in game and game["move_history"]:
+			last_move = game["move_history"][-1]  # Get the last move from the move history
+	
+		# Construct the game_over_data object
 		game_over_data = {
 			"status": "game_over",
 			"winner": event["winner"],
-			"reason": event["reason"]
+			"reason": {
+				"status": reason_status,
+				"winner": event["winner"]
+			},
+			"last_move": {
+				"from": last_move["from"],
+				"to": last_move["to"]
+			} if last_move else None
 		}
-		
-		if "promotion_square" in event and "promotion_piece" in event:
-			game_over_data["promotion"] = {
-				"square": event["promotion_square"],
-				"piece_type": event["promotion_piece"],
-				"color": event["winner"]
-			}
-		
+	
+		# Send the constructed data to the client
 		await self.send(text_data=json.dumps(game_over_data))
