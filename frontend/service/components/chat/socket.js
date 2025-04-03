@@ -1,10 +1,12 @@
 import { updateNotificationIndicator, getElements, renderChat, renderRecentChats, 
 markMessagesAsRead, currentChat, currentView, isExpanded, toggleChat, openChat, 
-updateChatCache} from "./app.js";
+updateChatCache,
+clearChatCache} from "./app.js";
 import { getUsername } from "../../app/auth.js";
 import { refreshAccessToken } from "../../app/auth.js";
 import { GATEWAY_HOST } from "../../app/sendRequest.js";
 import { consoleSuccess } from "../../app/render.js";
+import { clearInvitationCache } from "./bubbles.js";
 
 let chatSocket = null;
 let attemptedReconnection = false;
@@ -36,6 +38,8 @@ export function initializeGlobalChatSocket() {
 		if (state.intentionalClose) {
 			chatSocket = null;
 			consoleSuccess("[ChatSocket] closed succesfully");
+			clearChatCache();
+			clearInvitationCache();
 			return ;
 		} 
         console.log("WebSocket cerrado, código:", event.code);
@@ -124,6 +128,7 @@ export async function handleSentMessage(event, elements) {
 		elements.messageInput.value = '';
 	}
 }
+
 
 export { chatSocket }
 export const state = {

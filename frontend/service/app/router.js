@@ -278,6 +278,7 @@ document.addEventListener("DOMContentLoaded", initRouteEvents);
 
 
 function preventMultipleClicks(button, callback, timeout = 5000) {
+    event.preventDefault();
     if (button.disabled) return; // Prevent further clicks if the button is already disabled
 
     button.disabled = true; // Disable the button

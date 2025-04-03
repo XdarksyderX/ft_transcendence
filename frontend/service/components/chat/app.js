@@ -8,7 +8,7 @@ import { throwAlert } from '../../app/render.js';
 let isExpanded = false;
 let currentView;
 
-const chatCache = {}
+let chatCache = {}
 
 let chats = {}
 let currentChat = {
@@ -429,6 +429,14 @@ export function updateChatCache(username, messages) {
 	chatCache[username] = messages.slice(-8);
     console.warn("after update: ", chatCache[currentChat.username]);
     console.log("current chat: ", currentChat);
+}
+
+export function clearChatCache() {
+    // Clear chat-related caches
+    chatCache = {};
+    renderedMessages.clear();
+
+    console.log("[Chat] Chat cache cleared.");
 }
   
 

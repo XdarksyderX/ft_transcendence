@@ -6,16 +6,6 @@ import { hideModalGently } from "../../app/render.js";
 
 export async function initMatchmaking(variants, ranked) {
 
-  // document.getElementById('matchmaking-modal').addEventListener('shown.bs.modal', () => {
-  //   setTimeout(() => {
-  //       const buttonInsideModal = document.querySelector('#matchmaking-modal button');
-  //       if (buttonInsideModal) {
-  //           buttonInsideModal.focus();
-  //           console.log('Foco forzado dentro del modal:', document.activeElement);
-  //       }
-  //   }, 100);
-  // });
-
   if (await handleJoinMatchmaking(variants, ranked)) {
     launchMatchmakingModal()
     localStorage.setItem("isOnQueue", "true")
@@ -60,33 +50,6 @@ export async function handleLeaveMatchmaking() {
 }
 
 function launchMatchmakingModal() {
-  // Clean up any existing modals first
-  // cleanupExistingModals()
-
-  // const modalId = `matchmaking-modal-${username}`
-
-  // const modalHTML = `
-  //       <div class="modal fade" id="matchmaking-modal" data-username="${username}" tabindex="-1" aria-labelledby="waitGameLabel" aria-hidden="true">
-  //           <div class="modal-dialog">
-  //               <div class="modal-content">
-  //                   <div class="modal-header">
-  //                       <h5 class="modal-title ctm-text-title" id="waitGameLabel">Matchmaking</h5>
-  //                       <button id="close-matchmaking-modal" type="button" class="close-modal" aria-label="Close">x</button>
-  //                   </div>
-  //                   <div class="modal-body">
-  //                       <div class="loading-bars d-flex justify-content-center align-items-center mb-2">
-  //                           <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
-  //                       </div>
-  //                       <p id="waiting-text" class="text-center"> Waiting for a match</p>
-  //                   </div>
-  //               </div>
-  //           </div>
-  //       </div>
-  //   `
-
-  // const modalElement = document.createElement("div")
-  // modalElement.innerHTML = modalHTML
-  // document.body.appendChild(modalElement)
 
   const modalEl = document.getElementById('matchmaking-modal')
   const modal = new bootstrap.Modal(modalEl, {
@@ -107,7 +70,7 @@ export function closeMatchmakingModal() {
 
       const modalInstance = bootstrap.Modal.getInstance(modalElement);
       if (modalInstance) {
-          console.log('calling hide()');
+          //console.log('calling hide()');
           hideModalGently(modalInstance);
       }
 
@@ -118,13 +81,10 @@ export function closeMatchmakingModal() {
   }
 }
 
-
-
-
 export function handleJoinMatchmakingMatch(gameKey) {
 
+  sessionStorage.setItem('inGame', '/chess');
   localStorage.removeItem("isOnQueue")
-
   setTimeout(() => {
     closeMatchmakingModal();
     navigateTo("/chess", gameKey)
@@ -133,10 +93,6 @@ export function handleJoinMatchmakingMatch(gameKey) {
 
 // Clean up on page load
 document.addEventListener("DOMContentLoaded", async () => {
-  //console.log("DOM content loaded - checking queue status")
-
-  // Clean up any existing modals
-  // cleanupExistingModals()
 
   // If user was in queue, try to leave the queue
   if (localStorage.getItem("isOnQueue")) {
@@ -149,8 +105,5 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 })
 
-// // Add an unload listener to clean up when navigating away
-// window.addEventListener("beforeunload", () => {
-//   cleanupExistingModals()
-// })
+
 

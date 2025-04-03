@@ -1,7 +1,6 @@
 import { initializeSidebarEvents } from "../components/sidebar/app.js";
 import { initializeChatEvents } from "../components/chat/app.js";
 import { initializeNeonChat } from "./neon.js";
-import { preventMultipleClicks } from "./router.js";
 
 async function loadChat() {
     const chatContainer = document.getElementById('chat-container');
