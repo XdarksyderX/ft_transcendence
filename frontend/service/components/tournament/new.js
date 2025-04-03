@@ -82,9 +82,8 @@ export function refreshTournamentFriendList() {
 async function renderFriendList(elements) {
     elements.friendsContainer.innerHTML = '';
     const friends = await handleGetFriendList(); 
-    if (friends.length < 0) {
+    if (friends.length < 4) {
         elements.friendsContainer.innerText = `you dont have enough friends to start a tournament`
-        //elements.friendsContainer.innerText = `you dont have enough friends to start a ${requiredParticipants} players tournament`
         return ;
     }
     friends.forEach((friend) => {

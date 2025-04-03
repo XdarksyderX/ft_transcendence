@@ -388,8 +388,13 @@ function pawnCaptureOptions(curr_pos, color) {
 function setForbbidenCaptures(captureIds) {
     if (!kingMoves || !captureIds) return;
 
+    console.log("on setForbbidenCaptures: ", kingMoves, captureIds);
+
+    // Flatten the kingMoves array
+    const flattenedKingMoves = kingMoves.flat();
+
     captureIds.forEach(captureId => {
-        if (kingMoves.includes(captureId)) {
+        if (flattenedKingMoves.includes(captureId)) {
             console.log(`Adding ${captureId} to forbiddenCaptures because the pawn threatens the king.`);
             forbiddenCaptures.push(captureId);
         }
@@ -499,7 +504,8 @@ function getPossibleMoves(piece, highlightIdsFunc, color, renderBool = false, pr
         tmp.push(squares);
         }
     }
-    kingMoves = oneMore ? tmp : [];
+    if (piece.piece_name.includes(`${inTurn.toUpperCase()}_KING`))
+        kingMoves = tmp;
     if (skipCastlingCheck)
         castlingCheck(piece, color, res);
     highlightSquareIds = res.flat();

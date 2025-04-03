@@ -41,7 +41,6 @@ async function initEditTournamentSection(token, addListener, requiredParticipant
     renderReplacementFriends(invitations);
   }
   if (addListener) {
-    console.log("ADDING EVENT LISTENERS")
     const sendBtn = document.getElementById("send-replacement-btn");
     const cancelBtn = document.getElementById("cancel-tournament-btn");
 

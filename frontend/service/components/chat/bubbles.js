@@ -17,9 +17,9 @@ export function createMessageBubble(message) {
 	card.innerHTML = `
 		<div class="d-flex">
 			<div class="me-2">${content}</div>
-			<small class="ms-auto text-muted timestamp">${formatTime(message.sent_at)}</small>
-		</div>
-	`;
+			</div>
+			`;
+			// <small class="ms-auto text-muted timestamp">${formatTime(message.sent_at)}</small>
 	return card;
 }
 

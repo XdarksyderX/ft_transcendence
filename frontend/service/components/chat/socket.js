@@ -34,6 +34,7 @@ export function initializeGlobalChatSocket() {
     chatSocket.onclose = async (event) => {
 		if (state.intentionalClose) {
 			chatSocket = null;
+			consoleSuccess("[ChatSocket] closed succesfully");
 			return ;
 		} 
         console.log("WebSocket cerrado, código:", event.code);

@@ -1,59 +1,60 @@
-<section id="new-tournament-container" class="blinking-neon-frame p-0 p-md-3" style="display: none;">
-	<div class="card ctm-card p-5 ctm-text-light">
-		<h2 class="text-center ctm-text-title">New Tournament</h2>
-		<form id="tournament-form">
+<div>
+	<section id="new-tournament-container" class="blinking-neon-frame p-0 p-md-3" style="display: none;">
+		<div class="card ctm-card p-5 ctm-text-light">
+			<h2 class="text-center ctm-text-title">New Tournament</h2>
+			<form id="tournament-form">
+				<div class="mb-3">
+					<label for="tournament-name-input" class="form-label">Tournament's name</label>
+					<input type="text" class="form-control ctm-form" id="tournament-name-input" name="tournament-name" placeholder="Where the hell have you been loca" required maxlength="50">
+				</div>
+				<div class="mb-3 d-flex flex-column align-items-center">
+					<label for="tournament-participants" class="form-label ctm-text-title">Participants</label>
+					<div class="switch w-100">
+						<button class="switch-btn switch-btn-left w-50 mx-1" data-participants="4">4</button>
+						<button class="switch-btn switch-btn-right w-50 mx-1" data-participants="8">8</button>
+					</div>
+				</div>
+				<section id="tournament-friends-list" class="collapsible">
+					<div class="d-flex flex-column text-center">
+						<div id="friends-container" class="mb-3 friends-container w-100"></div>
+						<button type="submit" id="start-tournament-btn" class="btn ctm-btn mb-3 w-100" disabled>
+							Start tournament
+						</button>
+					</div>
+				</section>
+			</form>
+		</div>
+	</div>
+	</section>   
+	<section id="pendant-tournament-container" class="blinking-neon-frame p-0 p-md-3" style="display: none;">
+		<div class="card ctm-card p-5 ctm-text-light">
+		<h2 class="text-center ctm-text-title">Tournament Status</h2>
+		<h4 class="text-center ctm-text-light">Tournament name: <span id="edit-tournament-name"></span></h4>
+		<div id="tournament-status-container">
 			<div class="mb-3">
-				<label for="tournament-name-input" class="form-label">Tournament's name</label>
-				<input type="text" class="form-control ctm-form" id="tournament-name-input" name="tournament-name" placeholder="Where the hell have you been loca" required maxlength="50">
+			<h4 id="tournament-name-display" class="ctm-text-title text-center"></h4>
+			<div class="progress mb-2">
+				<div id="acceptance-progress" class="progress-bar bg-accent" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
 			</div>
-			<div class="mb-3 d-flex flex-column align-items-center">
-				<label for="tournament-participants" class="form-label ctm-text-title">Participants</label>
-				<div class="switch w-100">
-					<button class="switch-btn switch-btn-left w-50 mx-1" data-participants="4">4</button>
-					<button class="switch-btn switch-btn-right w-50 mx-1" data-participants="8">8</button>
-				</div>
+			<p class="text-center mb-3">
+				<span id="accepted-count"></span>
+			</p>
 			</div>
-			<section id="tournament-friends-list" class="collapsible">
-				<div class="d-flex flex-column text-center">
-					<div id="friends-container" class="mb-3 friends-container w-100"></div>
-					<button type="submit" id="start-tournament-btn" class="btn ctm-btn mb-3 w-100" disabled>
-						Start tournament
-					</button>
-				</div>
-			</section>
-		</form>
-	</div>
+			<div class="mb-4">
+			<h5 class="ctm-text-title">Invitations</h5>
+			<div id="invitations-container" class="friends-container w-100"></div>
+			</div>
+			<div id="replacement-section" class="mb-4 d-none">
+			<h5 class="ctm-text-title">Invite Replacement</h5>
+			<p class="small mb-2">Some players declined. Select new friends to invite:</p>
+			<div id="replacement-friends-container" class="friends-container w-100 mb-3"></div>
+			<button id="send-replacement-btn" class="btn ctm-btn w-100 mb-3" disabled>Send Invitations</button>
+			</div>
+			<div class="d-flex justify-content-center">
+			<button id="cancel-tournament-btn" class="btn ctm-btn-danger me-1">Cancel Tournament</button>
+			<button id="start-with-accepted-btn" class="btn ctm-btn ms-1" disabled>Start With Accepted</button>
+			</div>
+		</div>
+		</div>
+	</section>
 </div>
-</section>   
-<section id="pendant-tournament-container" class="blinking-neon-frame p-0 p-md-3" style="display: none;">
-	<div class="card ctm-card p-5 ctm-text-light">
-	  <h2 class="text-center ctm-text-title">Tournament Status</h2>
-	  <h4 class="text-center ctm-text-light">Tournament name: <span id="edit-tournament-name"></span></h4>
-	  <div id="tournament-status-container">
-		<div class="mb-3">
-		  <h4 id="tournament-name-display" class="ctm-text-title text-center"></h4>
-		  <div class="progress mb-2">
-			<div id="acceptance-progress" class="progress-bar bg-accent" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-		  </div>
-		  <p class="text-center mb-3">
-			<span id="accepted-count"></span>
-		  </p>
-		</div>
-		<div class="mb-4">
-		  <h5 class="ctm-text-title">Invitations</h5>
-		  <div id="invitations-container" class="friends-container w-100"></div>
-		</div>
-		<div id="replacement-section" class="mb-4 d-none">
-		  <h5 class="ctm-text-title">Invite Replacement</h5>
-		  <p class="small mb-2">Some players declined. Select new friends to invite:</p>
-		  <div id="replacement-friends-container" class="friends-container w-100 mb-3"></div>
-		  <button id="send-replacement-btn" class="btn ctm-btn w-100 mb-3" disabled>Send Invitations</button>
-		</div>
-		<div class="d-flex justify-content-center">
-		  <button id="cancel-tournament-btn" class="btn ctm-btn-danger me-1">Cancel Tournament</button>
-		  <button id="start-with-accepted-btn" class="btn ctm-btn ms-1" disabled>Start With Accepted</button>
-		</div>
-	  </div>
-	</div>
-</section>
-  

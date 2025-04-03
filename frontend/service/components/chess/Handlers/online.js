@@ -48,6 +48,7 @@ async function handleGetChessMatchDetail(key) {
         whoIsWho[white] = "white";
         whoIsWho[black] = "black";
         onlineInfo.gameMode = res.match.game_mode;
+        console.log("setting game mode to: ", onlineInfo.gameMode, res)
     }
     console.log("on handleGetChessMatchDetail: ", res)
 }

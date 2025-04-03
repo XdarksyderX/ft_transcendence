@@ -1,6 +1,6 @@
 import { createPongMatchInvitation, acceptPongInvitation, denyPongInvitation, cancelPongInvitation } from "../../app/pong.js";
 import { createChessMatchInvitation, acceptChessInvitation, denyChessInvitation, cancelChessInvitation, getChessInvitationDetail } from "../../app/chess.js";
-import { throwAlert, throwToast } from "../../app/render.js";
+import { hideModalGently, throwAlert, throwToast } from "../../app/render.js";
 import { navigateTo } from "../../app/router.js";
 import { chessVariant } from "./app.js";
 import { setInvitationStatus } from "../chat/bubbles.js";
@@ -60,7 +60,8 @@ export function handleDeclinedInvitation() {
     if (modalElement) {
         const modalInstance = bootstrap.Modal.getInstance(modalElement);
         if (modalInstance) {
-            modalInstance.hide();
+            hideModalGently(modalInstance);
+            // modalInstance.hide();
         }
         const name = modalElement.querySelector('#modal-text').dataset.username;
         throwToast(`${name} declined your invitation`);
