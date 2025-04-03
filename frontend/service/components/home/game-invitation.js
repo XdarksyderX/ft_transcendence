@@ -49,6 +49,7 @@ export function handleAcceptedInvitation(game, key) {
         if (modalInstance) {
             modalInstance.hide();
         }
+        sessionStorage.setItem('inGame', `/${game}`);
     }
     navigateTo(`/${game}`, key);
 }
@@ -69,6 +70,7 @@ export function handleDeclinedInvitation() {
 export async function handleAcceptQuickGameInvitation(game, token) {
     const response = game ==='pong' ? await acceptPongInvitation(token) : await acceptChessInvitation(token);
     if (response.status === "success") {
+        sessionStorage.setItem('inGame', `/${game}`);
         await navigateTo(`/${game}`, response.game_key);
         setInvitationStatus(token, 'accepted');
         return (1);

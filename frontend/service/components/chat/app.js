@@ -233,6 +233,7 @@ export async function openChat(friendUsername, elements, newChat = false) {
     renderedMessages.clear();
 	elements.chatMessages.innerHTML = '';
 
+    await markMessagesAsRead(friendUsername);
     if (chatCache[friendUsername]) {
         // Use cached messages
 		console.log("showing messagges on cache: ", chatCache[friendUsername]);

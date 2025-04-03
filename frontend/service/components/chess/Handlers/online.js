@@ -57,7 +57,7 @@ function initializeChessSocket(game_key) {
 	chessSocket = new WebSocket(`wss://${GATEWAY_HOST}/ws/chess/${game_key}/`);
 
 	chessSocket.onopen = () => {
-		sessionStorage.setItem('inGame', '/chess');
+		//sessionStorage.setItem('inGame', '/chess');
         document.getElementById('lc-text').style.display = 'none';
         consoleSuccess("[ChessSocket] Connection established succesfully");
 		chessSocket.send(JSON.stringify({ action: "ready", color: getUserColor(getUsername()), username: getUsername() }));
@@ -72,6 +72,7 @@ function initializeChessSocket(game_key) {
 	};
 
 	chessSocket.onclose = async (event) => {
+        sessionStorage.removeItem('inGame');
 		console.log("Chess WebSocket closed");
 	}
 
@@ -90,9 +91,9 @@ function handleGetChessReceivedMessage(event) {
             }
         }
         if (data.status === "game_over") {
-            winGame(data.winner);
             chessSocket.close();
             chessSocket = null;
+            winGame(data.winner, true);
         }
         if (data?.current_player) {
 			updateInTurn(data.current_player);

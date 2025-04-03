@@ -61,7 +61,7 @@ export async function initializePongEvents(gameKey = null)
     // Check if a gameKey is provided through param
     if (gameKey) 
     {
-        sessionStorage.setItem('inGame', '/pong');
+        //sessionStorage.setItem('inGame', '/pong');
         document.getElementById('lc-text').style.display = 'none';
         initBoard();
         startCountdownOnBoard(3, () => 
@@ -81,7 +81,7 @@ export async function initializePongEvents(gameKey = null)
         
         if (response.match?.game_key) 
         {
-            sessionStorage.setItem('inGame', '/pong');
+            //sessionStorage.setItem('inGame', '/pong');
             document.getElementById('lc-text').style.display = 'none';
             initBoard();
             startCountdownOnBoard(3, () => 
