@@ -202,7 +202,6 @@ export function handleCancelledInvitation(token) {
     const progressBar = card.querySelector('[data-progress] .progress-bar');
 	setInvitationStatus(token, 'cancelled');
 	const intervalId = activeIntervals.get(token);
-	//console.log(`Recuperando interval para ${token}:`, intervalId);
     
 	if (intervalId) {
         cleanProgressBar(progressBar, btns, intervalId);
@@ -241,7 +240,6 @@ async function createTournamentInvitationCard(friendName, token) {
     };
 
     // Update the UI based on the status
-	console.log("before toggle: ", detail)
     toggleBtns(btns, detail.status);
 
     btns.accept.addEventListener('click', () => handleAcceptTournamentInvitation(token, btns));
@@ -254,25 +252,24 @@ async function getTournamentInvitationDetailFromCache(token) {
     // Check if the details are already cached
     const cachedDetails = tournamentInvitationStatuses.get(token);
     if (cachedDetails) {
-		console.log("retrieving invitation status from cache")
+		//console.log("retrieving invitation status from cache")
         return cachedDetails; // Return the cached details
     }
 	
     // Fetch the invitation details from the server
     const response = await getTournamentInvitationDetail(token);
-	console.log("on getmimimi : ", response)
     if (response.status == 'error') {
 		// If the invitation is not found, mark it as outdated
         const outdatedDetails = { status: 'outdated', token };
         setTournamentInvitationStatus(token, outdatedDetails);
-		console.log("setting invitation status to outdated")
+		//console.log("setting invitation status to outdated")
         return outdatedDetails;
     }
 	
     // Cache the full invitation details
     const details = { ...response.invitation, token };
     setTournamentInvitationStatus(token, details);
-	console.log("setting invitation status from fetch")
+	//console.log("setting invitation status from fetch")
     return details;
 }
 

@@ -1,5 +1,4 @@
 import { getMessages, markAsReadMessage, getRecentChats, hasUnreadMessages, getUserData, getAvatar } from '../../app/social.js';
-import { getUsername } from '../../app/auth.js';
 import { handleGetFriendList } from '../friends/app.js';
 import { initializeGlobalChatSocket, handleSentMessage } from './socket.js';
 import { createMessageBubble, createSpecialBubble, escapeHTML } from './bubbles.js';
@@ -80,19 +79,19 @@ export async function toggleChat(elements) {
 
 export async function updateNotificationIndicator(indicator) {
 	//console.log("Updating notification indicator...");  
-	let indicatiorDisplay;
+	let indicatorDisplay;
 	if (isExpanded) {
-		indicatiorDisplay = 'none';
+		indicatorDisplay = 'none';
 	} else {
 		const response = await hasUnreadMessages();
 		if (response.status === 'success') {
 			const hasUnreadMessages = response.has_unread_messages;
-			indicatiorDisplay = hasUnreadMessages ? 'block' : 'none';
+			indicatorDisplay = hasUnreadMessages ? 'block' : 'none';
 		} else {
 			throwAlert('Error while fetching unread messages status');
 		}
 	}
-	indicator.style.display = indicatiorDisplay;
+	indicator.style.display = indicatorDisplay;
 }
 
 /* * * * * * * * * * * * * * * * * *  RECENT CHATS TAB  * * * * * * * * * * * * * * * * * */
@@ -112,10 +111,6 @@ export async function renderRecentChats(elements) {
 	const recentChats = await handleGetRecentChats();
 	chats = { ... recentChats};
 
-/* 	if (Object.keys(recentChats).length === 0) {
-		showFriendList(elements, false);
-		return;
-	} */
 	let html = '';
 	for (const [username, chatData] of Object.entries(recentChats)) {
 		const unreadClass = (!chatData.is_read && chatData.sender === 'in') ? 'unread' : '';
@@ -235,15 +230,10 @@ export async function openChat(friendUsername, elements, newChat = false) {
 
     await markMessagesAsRead(friendUsername);
     if (chatCache[friendUsername]) {
-        // Use cached messages
-		console.log("showing messagges on cache: ", chatCache[friendUsername]);
+		//console.log("showing messagges on cache: ", chatCache[friendUsername]);
 		currentChat.messages = [...chatCache[friendUsername]];
-        //renderChat(elements);
     } else {
-        // Fetch messages from the server
         await fetchChatMessages(friendUsername);
-        //console.log("updating on open chat")
-		//updateChatCache(friendUsername, currentChat.messages);
     }
 
     showChatWindow(elements, friendUsername);
@@ -276,7 +266,6 @@ async function fetchChatMessages(friendUsername) {
             currentChat.messages.sort((a, b) => new Date(a.sent_at) - new Date(b.sent_at));
 
             // Update the cache with the latest messages
-            console.log("updating on fetch")
             updateChatCache(friendUsername, currentChat.messages);
         }
     } catch (error) {
@@ -286,7 +275,6 @@ async function fetchChatMessages(friendUsername) {
 // Mark messages as read for a specific friend
 export async function markMessagesAsRead(friendUsername) { 
     try {
-		console.log("marking as read");
         const markResponse = await markAsReadMessage(friendUsername);
         if (markResponse.status !== "success") {
             console.error("Error marking messages as read:", markResponse.message);
@@ -398,7 +386,7 @@ async function handleScroll(event, elements) {
         const hasFirstMessage = currentChat.messages.some(msg => msg.message === "1");
 
         if (hasFirstMessage) {
-            console.log(`No more messages to fetch for ${currentChat.username}`);
+            //console.log(`No more messages to fetch for ${currentChat.username}`);
             return;
         } else {
             // Show the spinner

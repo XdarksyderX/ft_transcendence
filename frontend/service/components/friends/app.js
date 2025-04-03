@@ -67,7 +67,6 @@ export function refreshFriendsFriendlist(changedFriend, add) {
     if (add === 1) {
         cleanSearchList(changedFriend);
     }
-    // there I could handle avatar cand status hanges but too much for now
     const selectedFriend = dataContainer.querySelector('#friend-name');
     const selectedFriendName = selectedFriend ? selectedFriend.innerText : null;
     renderFriendList(friendsContainer, dataContainer, refresh, selectedFriendName);

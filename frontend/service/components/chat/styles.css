@@ -215,12 +215,12 @@
 .card-border {
 	background: linear-gradient(to left, var(--lorange), var(--title), #920505cc);
 	padding: 6px;
-	border-radius: 5px; /* Adjust as needed */
+	border-radius: 5px;
 }
 .game-invitation {
 	background-color: var(--dark);
-	border-radius: 5px; /* Adjust as needed */
-	padding: 5px; /* Adjust as needed */
+	border-radius: 5px;
+	padding: 5px;
 }
 
 #chat-spinner {
