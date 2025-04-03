@@ -55,7 +55,6 @@ export function initializeGlobalChatSocket() {
 
 // Handle received WebSocket messages
 async function handleReceivedMessage(event) {
-	debugger
 	try {
 		const data = JSON.parse(event.data);
 		console.log("WS message received:", data);
@@ -82,7 +81,6 @@ async function handleReceivedMessage(event) {
 					toggleChat(elements);
 				} 
 			}
-			console.log("pushed")
 
 			// Update the view if the current view is the chat with the sender or the recent-chats tab
 			if (currentView === 'chat' && currentChat.username === data.data.sender) {
