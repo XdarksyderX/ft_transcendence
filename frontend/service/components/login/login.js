@@ -1,6 +1,6 @@
 import { navigateTo } from '../../app/router.js';
-import { /* loadChat, loadSidebar,  */hideModalGently, throwAlert } from '../../app/render.js';
-import { getUsername, refreshAccessToken, login, resetPassword } from '../../app/auth.js';
+import { hideModalGently, throwAlert } from '../../app/render.js';
+import { login } from '../../app/auth.js';
 import { requestPasswordReset } from '../../app/auth.js';
 import { parseEmail, parseUsername } from '../signup/signup.js';
 
@@ -21,15 +21,14 @@ export async function initializeLoginEvents() {
         cancelLogin.addEventListener('click', () => navigateTo('/'));
     }
     initRequestResetPasswordEvents();
-    init42cosa();
     initOTPform();
 }
 
-function init42cosa() { // socorro esto es súper provisional
-    document.getElementById('login42-button').addEventListener('click', () => {
-        window.location.href = 'http://localhost:5050/oauth/42/';
-    });
-}
+// function init42Auth() {
+//     document.getElementById('login42-button').addEventListener('click', () => {
+//         window.location.href = 'http://localhost:5050/oauth/42/';
+//     });
+// }
 
 async function authenticateUser(userCredentials) {
     try {

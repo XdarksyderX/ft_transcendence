@@ -212,7 +212,9 @@ export function handleCancelledInvitation(token) {
 /* * * * * * * * * * * * * * * * * * *  TOURNAMENT INVITATIONS  * * * * * * * * * * * * * * * * * * */
 
 async function createTournamentInvitationCard(friendName, token) {
-    const details = await getTournamentInvitationDetailFromCache(token);
+    const detail = await getTournamentInvitationDetailFromCache(token);
+	
+	if (detail.status == 'outdated') return createOutdatedBubble();
 
     const card = document.createElement('div');
     card.innerHTML = `
@@ -239,8 +241,8 @@ async function createTournamentInvitationCard(friendName, token) {
     };
 
     // Update the UI based on the status
-	console.log("before toggle: ", details)
-    toggleBtns(btns, details.status);
+	console.log("before toggle: ", detail)
+    toggleBtns(btns, detail.status);
 
     btns.accept.addEventListener('click', () => handleAcceptTournamentInvitation(token, btns));
     btns.decline.addEventListener('click', () => handleDeclineTournamentInvitation(token, btns));
@@ -258,8 +260,8 @@ async function getTournamentInvitationDetailFromCache(token) {
 	
     // Fetch the invitation details from the server
     const response = await getTournamentInvitationDetail(token);
-	
-    if (!response.status === 'success') {
+	console.log("on getmimimi : ", response)
+    if (response.status == 'error') {
 		// If the invitation is not found, mark it as outdated
         const outdatedDetails = { status: 'outdated', token };
         setTournamentInvitationStatus(token, outdatedDetails);
