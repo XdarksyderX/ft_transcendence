@@ -221,7 +221,7 @@ async function createTournamentInvitationCard(friendName, token) {
         <div class="game-invitation card overflow-hidden">
             <div class="card-body position-relative p-2" style="z-index: 1;">
                 <h6 class="mb-2 ctm-text-title">New Tournament</h6>
-                <p class="card-text mb-2 small ctm-text-light"><span class="ctm-text-accent">${friendName}</span> invited you to the <span class="ctm-text-accent">${details.tournament}</span> tournament!</p>
+                <p class="card-text mb-2 small ctm-text-light"><span class="ctm-text-accent">${friendName}</span> invited you to the <span class="ctm-text-accent">${detail.tournament}</span> tournament!</p>
                 <div class="d-flex justify-content-between align-items-center">
                     <button data-action="accept" class="btn btn-sm ctm-btn flex-grow-1 me-1">Accept</button>
                     <button data-action="decline" class="btn btn-sm ctm-btn-danger flex-grow-1 ms-1">Decline</button>

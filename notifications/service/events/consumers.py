@@ -40,30 +40,67 @@ class NotificationConsumer(AsyncWebsocketConsumer):
             await self.close()
 
     async def disconnect(self, close_code):
-        if hasattr(self, "room_group_name"):
-            try:
-                await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
-
-                print(f"[WebSocket] Disconnected: user {self.user.id}")
-
-                await self.publish_event_async("events", "events.user_disconnected", {"user_id": self.user.id})
-
-                friends = await self.get_user_friends()
-
-                for friend in friends:
-                    notification = {
-                        "event_type": "friend_status_updated",
-                        "user": self.user.username,
-                        "other": friend["username"],
-                        "is_online": False
-                    }
-                    await self.send_event_async(friend["id"], notification)
-
-            except Exception as e:
-                print(f"[WebSocket] Error during disconnection: {e}")
-
+        print(f"[WebSocket] Disconnecting with code: {close_code}")
+        
         if hasattr(self, "keepalive_task"):
             self.keepalive_task.cancel()
+        
+        if hasattr(self, "user") and self.user and self.user.is_authenticated:
+            try:
+                if hasattr(self, "room_group_name"):
+                    await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+                
+                print(f"[WebSocket] Disconnected: user {self.user.id}")
+                
+                # Siempre enviar el evento de desconexión, incluso si hay errores posteriores
+                await self.publish_event_async("events", "events.user_disconnected", {"user_id": self.user.id})
+                
+                try:
+                    friends = await self.get_user_friends()
+                    
+                    for friend in friends:
+                        notification = {
+                            "event_type": "friend_status_updated",
+                            "user": self.user.username,
+                            "other": friend["username"],
+                            "is_online": False
+                        }
+                        await self.send_event_async(friend["id"], notification)
+                except Exception as e:
+                    print(f"[WebSocket] Error notifying friends during disconnection: {e}")
+                    
+            except Exception as e:
+                print(f"[WebSocket] Error during disconnection: {e}")
+                # Intento de último recurso para enviar el evento
+                try:
+                    await self.publish_event_async("events", "events.user_disconnected", {"user_id": self.user.id})
+                except Exception as ex:
+                    print(f"[WebSocket] Failed final attempt to send disconnect event: {ex}")
+
+            if hasattr(self, "room_group_name"):
+                try:
+                    await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+
+                    print(f"[WebSocket] Disconnected: user {self.user.id}")
+
+                    await self.publish_event_async("events", "events.user_disconnected", {"user_id": self.user.id})
+
+                    friends = await self.get_user_friends()
+
+                    for friend in friends:
+                        notification = {
+                            "event_type": "friend_status_updated",
+                            "user": self.user.username,
+                            "other": friend["username"],
+                            "is_online": False
+                        }
+                        await self.send_event_async(friend["id"], notification)
+
+                except Exception as e:
+                    print(f"[WebSocket] Error during disconnection: {e}")
+
+            if hasattr(self, "keepalive_task"):
+                self.keepalive_task.cancel()
 
     async def receive(self, text_data):
         try:
@@ -90,6 +127,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
                 await self.send(json.dumps({"event_type": "ping"}))
             except Exception as e:
                 print(f"[WebSocket] Connection lost: {e}")
+                publish_event("events", "events.user_disconnected", {"user_id": self.user.id})
                 break
             await asyncio.sleep(30)
 

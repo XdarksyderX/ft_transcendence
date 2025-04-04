@@ -120,36 +120,7 @@ networks:
 
 volumes:
   auth-data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ./volume-data/auth
-
   social-data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ./volume-data/social
-
   pong-data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ./volume-data/pong
-
   chess-data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ./volume-data/chess
-
   notifications-data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ./volume-data/notifications

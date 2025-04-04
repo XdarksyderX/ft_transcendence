@@ -116,8 +116,13 @@ class PongGame(models.Model):
             # Check if it's a tournament game
             is_final = False
             if self.is_tournament and hasattr(self, 'tournament_match'):
-                tournament = self.tournament_match.tournament
-                is_final = tournament.current_round == tournament.matches.count() // 2
+                tournament = self.tournament
+                # Calculate total rounds expected based on number of players
+                max_rounds = 1 if tournament.max_players <= 2 else (tournament.max_players - 1).bit_length()
+                
+                # A match is final if it's in the last round
+                is_final = tournament.current_round == max_rounds
+                
                 if is_final:
                     if self.winner == self.player1:
                         player1_position = 1
@@ -151,18 +156,18 @@ class PongGame(models.Model):
                                 "round_number": self.tournament.current_round,
                                 "alive_players": alive_players
                             }
-                            publish_event('pong', 'pong.tournament_round_finished', event_round)
+                            if not is_final:
+                                print("Publishing event for round finished")
+                                publish_event('pong', 'pong.tournament_round_finished', event_round)
+                            else:
+                                print("Publishing event for tournament finished")
+                                publish_event('pong', 'pong.tournament_finished', event_round)
                 
             if not self.is_tournament or is_final:
                 for player, position in [(self.player1, player1_position), (self.player2, player2_position)]:
                     stats = player.statistics.first()
                     if stats:
                         stats.update_statistics(self, tournament_position=position)
-            if is_final:
-                publish_event('pong', 'pong.tournament_finished', {'tournament_name': self.tournament.name, 'players_id': list(players_id), 'winner': {
-                    'username': self.winner.username,
-                    'alias': self.winner.alias
-                }})
 
     def __str__(self):
         return f"Game {self.id}: {self.player1} vs {self.player2} (Key: {self.game_key})"

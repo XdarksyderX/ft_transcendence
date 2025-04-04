@@ -12,9 +12,8 @@ def handle_user_connected(event):
 		return f"Event {event_id} already processed."
 
 	event_data = event["data"]["attributes"]
-	user = User.objects.get(id=event_data["user_id"])
 	with transaction.atomic():
-		user = User.objects.select_for_update().get(id=event_data["user_id"])
+		user = User.objects.get(id=event_data["user_id"])
 		user.is_online = True
 		user.save()
 	mark_event_as_processed(event_id, event["event_type"])
@@ -27,9 +26,8 @@ def handle_user_disconnected(event):
 		return f"Event {event_id} already processed."
 
 	event_data = event["data"]["attributes"]
-	user = User.objects.get(id=event_data["user_id"])
 	with transaction.atomic():
-		user = User.objects.select_for_update().get(id=event_data["user_id"])
+		user = User.objects.get(id=event_data["user_id"])
 		user.is_online = False
 		user.save()
 	mark_event_as_processed(event_id, event["event_type"])

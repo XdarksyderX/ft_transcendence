@@ -28,6 +28,10 @@ class RegisterUserSerializer(serializers.ModelSerializer):
         }
 
     def validate(self, data):
+        username_regex = r'^[a-zA-Z0-9_]+$'
+        if not re.match(username_regex, data['username']):
+            raise serializers.ValidationError({"error": "Username must contain only letters, numbers, and underscores."})
+            
         email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         if not re.match(email_regex, data['email']):
             raise serializers.ValidationError({"error": "The email must be a valid address."})
