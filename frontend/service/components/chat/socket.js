@@ -88,6 +88,7 @@ async function handleReceivedMessage(event) {
 					toggleChat(elements);
 					//await renderChat(elements);
 				}
+				markMessagesAsRead(msg.sender);
 			} else {
 				// Render the message if the chat is open
 				if (currentView === 'chat' && activeChat === msg.sender) {
@@ -98,7 +99,6 @@ async function handleReceivedMessage(event) {
 				} else if (currentView === 'recent-chats') {
 				renderRecentChats(elements);
 			}
-			
 			if (!isExpanded) {
 				updateNotificationIndicator(document.getElementById('notification-indicator'));
 			}
