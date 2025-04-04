@@ -15,7 +15,7 @@ export async function initMatchmaking(variants, ranked) {
 async function handleJoinMatchmaking(variants, ranked) {
   const response = await joinMatchmaking(variants, ranked)
   if (response.status === "success") {
-    console.log("[chess] joining to matchmaking queue...")
+    console.log("[CHESS] joining to matchmaking queue...")
     return true
   } else {
     console.error("Error while joining matchmaking queue:", response.message)
@@ -27,7 +27,7 @@ export async function handleLeaveMatchmaking() {
   try {
     const response = await leaveMatchmaking()
     if (response.status === "success") {
-      console.log("[chess] Successfully left matchmaking queue")
+      console.log("[CHESS] Successfully left matchmaking queue")
       localStorage.removeItem("isOnQueue")
       return true
     } else {

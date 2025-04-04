@@ -340,7 +340,7 @@ export function escapeHTML(str) {
 export function clearInvitationCache() {
     invitationStatuses.clear();
     tournamentInvitationStatuses.clear();
-	console.log("[Chat] invitation statuses cache cleared.")
+	console.log("[CHAT] invitation statuses cache cleared.")
 }
 
 export {invitationStatuses, tournamentInvitationStatuses} 

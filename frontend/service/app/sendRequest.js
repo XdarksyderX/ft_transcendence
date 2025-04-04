@@ -77,7 +77,7 @@ async function sendRequest(service, method, endpoint, body = null, isFormData = 
             console.warn(`[${service.toUpperCase()}] Unauthorized, attempting token refresh...`);
             const refreshed = await refreshAccessToken();
             if (refreshed) {
-                // Reintenta la petición original solo una vez.
+                // Retries original request only once
                 return sendRequest(service, method, endpoint, body, isFormData, true);
             }
         }

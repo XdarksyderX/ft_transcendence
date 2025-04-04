@@ -37,14 +37,14 @@ const notificationHandlers = {
     request_cancelled: () => handleFriendRequestChanges('request_cancelled'),
 
     // Pong Match Events
-    match_invitation: () => console.log("[NotiSocket] You match invitation received"),
-    tournament_end: () => console.log("[NotiSocket] Tournament ended"),
+    match_invitation: () => console.log("[NOTISOCKET] You match invitation received"),
+    tournament_end: () => console.log("[NOTISOCKET] Tournament ended"),
     pong_match_accepted: (data) => handleAcceptedInvitation('pong', data.game_key),
     pong_match_decline: () => handleDeclinedInvitation(),
     pong_match_cancelled: (data) => handleCancelledInvitation(data.invitation_token),
 
     // Pong Tournament Events
-    pong_tournament_closed: () => console.log("[NotiSocket] Tournament started"),
+    pong_tournament_closed: () => console.log("[NOTISOCKET] Tournament started"),
     pong_tournament_match_ready: (data) => handleJoinTournamentMatch(data.game_key),
     pong_tournament_players_update: () => handleTournamentEvents('invitation'),
     pong_tournament_match_finished: () => handleTournamentEvents('match'),
@@ -59,7 +59,7 @@ const notificationHandlers = {
 
 export function initializeNotificationsSocket() {
     if (notiSocket && notiSocket.readyState !== WebSocket.CLOSED) {
-        console.log("[WebSocket] Already connected or connecting...");
+        console.log("[NOTISOCKET] Already connected or connecting...");
         return;
     }
 
@@ -67,7 +67,7 @@ export function initializeNotificationsSocket() {
 
     notiSocket.onopen = () => {
         
-        consoleSuccess("[NotiSocket] Connection established succesfully");
+        consoleSuccess("[NOTISOCKET] Connection established succesfully");
         reconnectAttempts = 0; // Reset reconnection attempts
         startKeepAlive();
     };
@@ -77,23 +77,23 @@ export function initializeNotificationsSocket() {
     };
 
     notiSocket.onerror = (error) => {
-        console.error("[NotiSocket] Error:", error);
+        console.error("[NOTISOCKET] Error:", error);
     };
 
     notiSocket.onclose = () => {
         if (state.intentionalClose) {
-            consoleSuccess("[NotiSocket] closed succesfully");
+            consoleSuccess("[NOTISOCKET] closed succesfully");
             notiSocket = null;
             return ; 
         }
-        console.warn("[NotiSocket] Disconnected, attempting to reconnect...");
+        console.warn("[NOTISOCKET] Disconnected, attempting to reconnect...");
         scheduleReconnect();
     };
 }
 
 function scheduleReconnect() {
     const delay = Math.min(1000 * (2 ** reconnectAttempts), MAX_RECONNECT_DELAY);
-    console.log(`[NotiSocket] Reconnecting in ${delay / 1000} seconds...`);
+    console.log(`[NOTISOCKET] Reconnecting in ${delay / 1000} seconds...`);
     setTimeout(initializeNotificationsSocket, delay);
     reconnectAttempts++;
 }
@@ -113,7 +113,7 @@ function handleReceivedNotification(event) {
 		if (data.user === getUsername() || type == 'ping') {
             return ;
 		}
-        console.log("[NotiSocket] Notification received:", event.data);
+        console.log("[NOTISOCKET] Notification received:", event.data);
 		const handler = notificationHandlers[type];
         if (handler) {
             handler(data);
@@ -125,7 +125,7 @@ function handleReceivedNotification(event) {
         }
 
     } catch (error) {
-        console.error("[WebSocket] Error parsing message:", error);
+        console.error("[NOTISOCKET] Error parsing message:", error);
     }
 }
 

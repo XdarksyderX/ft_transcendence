@@ -19,7 +19,7 @@ async function loadChat() {
         initializeChatEvents();
         initializeNeonChat();
         chatContainer.style.display = 'block';
-        console.log("[Router] Chat loaded succesfully")
+        console.log("[ROUTER] Chat loaded succesfully")
     } catch (error) {
         console.error('Error while loading chat: ', error);
     }
@@ -29,10 +29,7 @@ async function loadSidebar() {
   const sidebarContainer = document.getElementById('sidebar-container');
   const sidebarToggle = document.getElementById('sidebar-toggle-container');
   
-  if (sidebarContainer.innerHTML != '') {
-    //console.log("sidebar already loaded");
-    return ;
-  }
+  if (sidebarContainer.innerHTML != '') return ;
   
   try {
     const response = await fetch('./components/sidebar/sidebar.html'); // Ensure the path is correct
@@ -43,7 +40,7 @@ async function loadSidebar() {
       initializeSidebarEvents();
       sidebarContainer.style.display = 'block';
       sidebarToggle.style.display = 'block';
-      console.log("[Router] Sidebar loaded succesfully");
+      console.log("[ROUTER] Sidebar loaded succesfully");
     } catch (error) {
         console.error('Error while loading sidebar: ', error);
     }
@@ -112,15 +109,13 @@ function throwToast(text, delay = 3000) {
       </div>
   </div>`;
 
-  // Insertar el toast en el DOM
+
   document.body.insertAdjacentHTML("beforeend", toastHTML);
 
-  // Inicializar y mostrar el toast
   const toastElement = document.getElementById('ctm-toast');
   const toast = new bootstrap.Toast(toastElement, { delay: delay });
   toast.show();
 
-  // Eliminar el toast del DOM cuando se oculta
   toastElement.addEventListener('hidden.bs.toast', () => {
       toastElement.remove();
   });
@@ -132,9 +127,9 @@ function focusOutFromModal() {
   const fallbackElement = document.querySelector('button, a, input, [tabindex]:not([tabindex="-1"])');
   
   if (fallbackElement) {
-      fallbackElement.focus(); // Enfocar el primer elemento visible
+      fallbackElement.focus(); // focus on the first focusable element
   } else {
-      document.body.focus(); // Si no hay, enfocar el body
+      document.body.focus(); // focus the body
   }
 }
 
@@ -156,15 +151,15 @@ function attachHideModalGently(container = document) {
   //console.log(`Found ${dismissElements.length} elements with [data-bs-dismiss] attribute.`); // Log the number of elements
 
   dismissElements.forEach((element) => {
-      console.log(`Attaching hideModalGently to element:`, element); // Log each element
+      //console.log(`Attaching hideModalGently to element:`, element); // Log each element
 
       element.addEventListener('click', (event) => {
           event.preventDefault(); // Prevent the default dismiss behavior
-          console.log(`Clicked on element:`, event.target); // Log the clicked element
+          //console.log(`Clicked on element:`, event.target); // Log the clicked element
 
           const modalElement = event.target.closest('.modal');
           if (modalElement) {
-              console.log(`Found modal element:`, modalElement); // Log the modal element
+              //console.log(`Found modal element:`, modalElement); // Log the modal element
 
               const modalInstance = bootstrap.Modal.getInstance(modalElement);
               if (modalInstance) {

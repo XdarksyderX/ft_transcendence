@@ -262,7 +262,7 @@ function resetGlobalPiece() {
       globalPiece[key] = null; // Reset other properties to null
     }
   }
-  console.log("[chess] globalPiece has been reset");
+  console.log("[CHESS] globalPiece has been reset");
 }
 
 

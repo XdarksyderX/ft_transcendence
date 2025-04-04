@@ -13,7 +13,7 @@ let attemptedReconnection = false;
 
 export function initializeGlobalChatSocket() {
     if (chatSocket && chatSocket.readyState !== WebSocket.CLOSED) {
-        console.log("[ChatSocket] Already connected or connecting...");
+        console.log("[CHATSOCKET] Already connected or connecting...");
         return;
     }
 

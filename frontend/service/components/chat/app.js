@@ -423,7 +423,7 @@ export function clearChatCache() {
     chatCache = {};
     renderedMessages.clear();
 
-    console.log("[Chat] Chat cache cleared.");
+    console.log("[CHAT] Chat cache cleared.");
 }
   
 

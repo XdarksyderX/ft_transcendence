@@ -33,7 +33,7 @@ export async function handleSendGameInvitation(gameData, button) {
 async function sendQuickGameInvitation(game, friendName) {
     const response = game === 'pong' ? await createPongMatchInvitation(friendName) : await createChessMatchInvitation(friendName, chessVariant);
     if (response.status === "success") {
-        console.log(`[${game}] Invitation sent successfully`);
+        console.log(`[${game.toUpperCase()}] Invitation sent successfully`);
         return response.invitation.token;
     } else {
         console.error('Failed to send invitation:', response.message);
@@ -83,7 +83,7 @@ export async function handleAcceptQuickGameInvitation(game, token) {
 export async function handleDeclineInvitation(game, token) {
     const response = game ==='pong' ? await denyPongInvitation(token) : await denyChessInvitation(token);
     if (response.status === "success") {
-        console.log(`[${game}] invitation declined successfully`);
+        console.log(`[${game.toUpperCase()}] invitation declined successfully`);
         setInvitationStatus(token, 'declined');
     } else {
         console.error('Failed to accept invitation:', response.message);
@@ -94,7 +94,7 @@ async function handleCancelQuickGameInvitation(game, token) {
     const response = game === 'pong' ? await cancelPongInvitation(token) : await cancelChessInvitation(token);
     setInvitationStatus(token, 'cancelled');
     if (response.status === "success") {
-        console.log(`[${game}] invitation canceled successfully`);
+        console.log(`[${game.toUpperCase()}] invitation canceled successfully`);
     } else {
         console.error('Failed to accept invitation:', response.message);
     }

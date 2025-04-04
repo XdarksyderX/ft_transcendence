@@ -113,7 +113,7 @@ function resetGameState() {
     for (const key in keySquareMapper) {
         delete keySquareMapper[key];
     }
-    console.log("[chess] globalState and keySquareMapper have been reset");
+    console.log("[CHESS] globalState and keySquareMapper have been reset");
 }
 
 // checks if the win modal is present at starting a new game
