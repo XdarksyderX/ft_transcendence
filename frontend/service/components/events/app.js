@@ -17,7 +17,7 @@ export async function renderNotifications() {
     const allNotifications = await handleGetNotifications();
     const notifications = filterNotifications(allNotifications).reverse();
     const container = document.getElementById('notifications-container');
-    console.log(allNotifications);
+    //console.log(allNotifications);
     container.innerHTML = '';
     if (notifications.length === 0) {
         container.innerText = "You don't have any notifications";

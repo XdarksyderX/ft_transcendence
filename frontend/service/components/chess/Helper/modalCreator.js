@@ -1,10 +1,9 @@
 import * as pieces from "../Data/pieces.js";
-import { imgStyle, inTurn } from "../index.js";
+import { imgStyle, inTurn, resetGameState } from "../index.js";
 import { navigateTo } from "../../../app/router.js";
 import { isClick } from "../Events/global.js";
-import { globalPiece } from "../Render/main.js";
 import { chessSocket } from "../Handlers/online.js";
-
+import { resetGlobalPiece } from "../Render/main.js";
 
 /**
  * This class  is a design pattern aimed at creating
@@ -58,8 +57,6 @@ class ModalCreator {
  * @param {string} id - The ID of the square where the pawn promotion is happening.
  */
 async function pawnPromotion(color, callback, id, pieceTo = null) {
-  //if isClick == haz todo
-  //else { sin mostrar el modal llama a callback con el piezeTo con el nombre de la pieza a la que ha promocion }
   const isClickBool = isClick();
   const piecesMap = {
     rook: pieces[color === "white" ? "whiteRook" : "blackRook"],
@@ -81,13 +78,9 @@ async function pawnPromotion(color, callback, id, pieceTo = null) {
   };
   
   if (!isClickBool) {
-    //Checking enconsole.log("calling waitForPromotionChoice function");
     const promotionData = await waitForPromotionChoice();
-    //Checking enconsole.log("leaving waitForPromotionChoice function");
-    //Checking enconsole.log(promotionData);
     const {pieceColor, pieceType, to} = promotionData;
     callback(piecesMap[promotionData.pieceType], promotionData.to); 
-    //Checking enconsole.log(globalPiece)
     return;
   }
   
@@ -108,7 +101,6 @@ async function pawnPromotion(color, callback, id, pieceTo = null) {
   
   const modal = new ModalCreator(finalContainer);
   modal.show();
-  // console.log("pawnPromotion: globalPiece: ", globalPiece)
 }
 
 function handlePromotionChoice(pieceType) {
@@ -119,7 +111,7 @@ function handlePromotionChoice(pieceType) {
   };
   try {
     chessSocket.send(JSON.stringify(data));
-    console.log("Sending promotion choice through WebSocket:", data);
+    //console.log("Sending promotion choice through WebSocket:", data);
   } catch (e) {
     console.error(e);
   }
@@ -163,8 +155,10 @@ function winGame(winBool, online = false) {
     if (inGameValue !== null && online) { //online to prevent us to not be able to clear in local chess in bug case
         sessionStorage.setItem('inGame', inGameValue); // Restore 'inGame' if it existed
     }
-      navigateTo('/home');
-      modal.hide();
+    resetGlobalPiece();
+    resetGameState();
+    navigateTo('/home');
+    modal.hide();
   }
   
   const buttonContainer = document.createElement("div");
@@ -185,9 +179,9 @@ function resingOption() {
     
     if (chessSocket && chessSocket.readyState === WebSocket.OPEN) {
       const data = { action: "resign" };
-      console.log("Attempting to send data through WebSocket:", data);
+      //console.log("Attempting to send data through WebSocket:", data);
       chessSocket.send(JSON.stringify(data));
-      console.log("Sending data through WebSocket:", data);
+      //console.log("Sending data through WebSocket:", data);
     } else if (!chessSocket) {
         const winner = inTurn === 'white' ? 'black' : 'white';
         winGame(winner);

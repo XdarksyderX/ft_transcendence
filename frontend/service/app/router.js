@@ -137,14 +137,13 @@ function unloadChatAndSidebar() {
 function unloadSidebar() {
     const sidebarContainer = document.getElementById('sidebar-container');
     sidebarContainer.innerHTML = '';
-    console.log("unload sidebar function called")
+    console.log("[ROUTER] sidebar unloaded")
     toggleSidebarDisplay(false);
 }
 
 function loadLoggedContent(isLogged, url) {
     if (isLogged) {
         if (sessionStorage.getItem('inGame')) {
-            console.log("before unloading sidebar")
             unloadSidebar();
         } else {
             loadSidebar();

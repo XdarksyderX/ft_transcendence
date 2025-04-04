@@ -33,7 +33,7 @@ export async function handleSendGameInvitation(gameData, button) {
 async function sendQuickGameInvitation(game, friendName) {
     const response = game === 'pong' ? await createPongMatchInvitation(friendName) : await createChessMatchInvitation(friendName, chessVariant);
     if (response.status === "success") {
-        console.log('Invitation sent successfully:', response);
+        console.log(`[${game.toUpperCase()}] Invitation sent successfully`);
         return response.invitation.token;
     } else {
         console.error('Failed to send invitation:', response.message);
@@ -42,7 +42,6 @@ async function sendQuickGameInvitation(game, friendName) {
 }
 
 export function handleAcceptedInvitation(game, key) {
-    console.log("handleAcceptedInvitation function called");
     const modalElement = document.getElementById('wait-game');
     if (modalElement) {
         const modalInstance = bootstrap.Modal.getInstance(modalElement);
@@ -55,13 +54,11 @@ export function handleAcceptedInvitation(game, key) {
 }
 
 export function handleDeclinedInvitation() {
-    console.log("handleDeclinedInvitation function called");
     const modalElement = document.getElementById('wait-game');
     if (modalElement) {
         const modalInstance = bootstrap.Modal.getInstance(modalElement);
         if (modalInstance) {
             hideModalGently(modalInstance);
-            // modalInstance.hide();
         }
         const name = modalElement.querySelector('#modal-text').dataset.username;
         throwToast(`${name} declined your invitation`);
@@ -86,7 +83,7 @@ export async function handleAcceptQuickGameInvitation(game, token) {
 export async function handleDeclineInvitation(game, token) {
     const response = game ==='pong' ? await denyPongInvitation(token) : await denyChessInvitation(token);
     if (response.status === "success") {
-        console.log("invitation declined successfully");
+        console.log(`[${game.toUpperCase()}] invitation declined successfully`);
         setInvitationStatus(token, 'declined');
     } else {
         console.error('Failed to accept invitation:', response.message);
@@ -97,7 +94,7 @@ async function handleCancelQuickGameInvitation(game, token) {
     const response = game === 'pong' ? await cancelPongInvitation(token) : await cancelChessInvitation(token);
     setInvitationStatus(token, 'cancelled');
     if (response.status === "success") {
-        console.log("invitation canceled successfully");
+        console.log(`[${game.toUpperCase()}] invitation canceled successfully`);
     } else {
         console.error('Failed to accept invitation:', response.message);
     }

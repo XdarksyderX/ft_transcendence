@@ -17,7 +17,7 @@ function checkOpponetPieceByElement(id, color, captureHighlight = true) {
     if (!element)
         return false;
     if (oneMore && forbiddenCaptures.includes(id)) {
-        console.log(`avoiding to render the capture on ${id}`);
+        //console.log(`avoiding to render the capture on ${id}`);
         return false;
     }
     if (element.piece && element.piece.piece_name.includes(opponentColor)) {
@@ -47,7 +47,6 @@ function checkForOneMore(attack, defense) {
     if (oneMore) {
         const attackColor = attack.piece_name.split('_')[0];
         const kingColor = attackColor === 'WHITE' ? 'BLACK' : 'WHITE';
-        // debugger ;
     
         if (!attack.piece_name.includes('PAWN') && !attack.piece_name.includes('KNIGHT')) {
             if (defense.piece_name.includes(`${kingColor}_KING`)) { 
@@ -55,23 +54,18 @@ function checkForOneMore(attack, defense) {
             }
         }
         if (attack.piece_name.current_pos == 'd5' && defense.piece_name.includes('QUEEN')) {
-            console.log("CHECKING lo que nos interesa xd")
-            console.log(attack, defense, attackColor, kingColor)
+            // console.log("CHECKING lo que nos interesa xd")
+            // console.log(attack, defense, attackColor, kingColor)
         }
 
         if (defense.piece_name.includes(attackColor)) {
-            console.log(`adding ${defense.current_pos} to forbbiden captures`)
+            //console.log(`adding ${defense.current_pos} to forbbiden captures`)
             forbiddenCaptures.push(defense.current_pos);
             return 0;
         }
     }
     return 0
 }
-
-// function checkForOneMore(king, defense) {
-//     if (!oneMore) return 0;
- 
-// }
 
 //function to check capture id square
 function checkSquareCaptureId(array, piece = null) {
@@ -350,9 +344,6 @@ function pawnMovesOptions(piece, unusedFunc = null, color) {
     const curr_pos = piece.current_pos;
     const row = color === "white" ? "2" : "7";
     const direction = color === "white" ? 1 : -1;
-    // if (!curr_pos) {
-    //     console.log("on PawnMovesOptions: ", piece);
-    // }
     if (curr_pos[1] == row) {
         highlightSquareIds = [
             `${curr_pos[0]}${Number(curr_pos[1]) + direction}`,
@@ -388,14 +379,12 @@ function pawnCaptureOptions(curr_pos, color) {
 function setForbbidenCaptures(captureIds) {
     if (!kingMoves || !captureIds) return;
 
-    console.log("on setForbbidenCaptures: ", kingMoves, captureIds);
-
-    // Flatten the kingMoves array
+    //console.log("on setForbbidenCaptures: ", kingMoves, captureIds);
     const flattenedKingMoves = kingMoves.flat();
 
     captureIds.forEach(captureId => {
         if (flattenedKingMoves.includes(captureId)) {
-            console.log(`Adding ${captureId} to forbiddenCaptures because the pawn threatens the king.`);
+            //console.log(`Adding ${captureId} to forbiddenCaptures because the pawn threatens the king.`);
             forbiddenCaptures.push(captureId);
         }
     });
@@ -443,17 +432,17 @@ function castlingCheck(piece, color, res) {
 function hasPieceMoved(square, pieceName, moveLogger) {
     if (!moveLogger) return false;
     if (!square.piece || !square.piece.piece_name || !square.piece.piece_name.includes(pieceName.toUpperCase())) {
-        console.log(`${pieceName} is not the expected piece`);
+        //console.log(`${pieceName} is not the expected piece`);
         return true;
     }
     for (const move of moveLogger) {
         if (move.notation.includes(square.id)) {
-            console.log(`${pieceName} has already moved`);
+            //console.log(`${pieceName} has already moved`);
             return true;
         }
     }
     
-    console.log(`${pieceName} hasn't moved! :D`);
+    //console.log(`${pieceName} hasn't moved! :D`);
     return false;
 }
 
@@ -487,8 +476,6 @@ function markCaptureMoves(allMoves, color) {
  * @returns 
  */
 
-
-// FORBBIDDEN PAWN CAPTURE const kingMoves {} aquí vamos a guardar tmp del rey
 let kingMoves = [];
 
 function getPossibleMoves(piece, highlightIdsFunc, color, renderBool = false, preRenderCallback = null, skipCastlingCheck = false) {
@@ -499,7 +486,6 @@ function getPossibleMoves(piece, highlightIdsFunc, color, renderBool = false, pr
     for (const direction in highlightSquareIds) {
         if (highlightSquareIds.hasOwnProperty(direction)) {
         const squares = highlightSquareIds[direction];
-        //debugger
         res.push(checkSquareCaptureId(squares, piece));
         tmp.push(squares);
         }
@@ -563,12 +549,11 @@ function getOpponentMoves(color) {
     return res;
 }
   
-
 /*function that recieve the initial king moves and then check if one of those possible options
 can be a direct checkmate, the it remove that option to avoid the checkmate*/
 function limitKingMoves(kingInitialMoves, color) {
     let res = getOpponentMoves(color);
-    // console.log("limitKingMoves -> kingInitialMoves: ", kingInitialMoves);
+     //console.log("limitKingMoves -> kingInitialMoves: ", kingInitialMoves);
     // console.log("limitKingMoves -> res: ", res);
     for (let i = kingInitialMoves.length - 1; i >= 0; i--) {
         if (res.has(kingInitialMoves[i])) {

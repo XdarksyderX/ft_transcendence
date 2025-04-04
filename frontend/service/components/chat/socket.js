@@ -13,7 +13,7 @@ let attemptedReconnection = false;
 
 export function initializeGlobalChatSocket() {
     if (chatSocket && chatSocket.readyState !== WebSocket.CLOSED) {
-        console.log("[ChatSocket] Already connected or connecting...");
+        console.log("[CHATSOCKET] Already connected or connecting...");
         return;
     }
 
@@ -25,8 +25,6 @@ export function initializeGlobalChatSocket() {
     };
 
     chatSocket.onmessage = async (event) => {
-		//console.log("[CHAT SOCKET]: ", event.data)
-		// debugger
         await handleReceivedMessage(event);
     };
 
@@ -42,7 +40,7 @@ export function initializeGlobalChatSocket() {
 			clearInvitationCache();
 			return ;
 		} 
-        console.log("WebSocket cerrado, código:", event.code);
+        console.log("WebSocket closed, code:", event.code);
         if (!attemptedReconnection) {
             attemptedReconnection = true;
             const refreshed = await refreshAccessToken();
@@ -63,7 +61,7 @@ export function initializeGlobalChatSocket() {
 async function handleReceivedMessage(event) {
 	try {
 		const data = JSON.parse(event.data);
-		console.log("WS message received:", data);
+		//console.log("WS message received:", data);
 		const currentUser = getUsername();
 		const imSender = currentUser === data?.data?.sender;
 		if (data.status === "success" && data.data && data.data.message) {

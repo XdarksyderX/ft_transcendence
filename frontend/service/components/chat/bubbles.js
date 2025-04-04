@@ -202,7 +202,6 @@ export function handleCancelledInvitation(token) {
     const progressBar = card.querySelector('[data-progress] .progress-bar');
 	setInvitationStatus(token, 'cancelled');
 	const intervalId = activeIntervals.get(token);
-	//console.log(`Recuperando interval para ${token}:`, intervalId);
     
 	if (intervalId) {
         cleanProgressBar(progressBar, btns, intervalId);
@@ -212,7 +211,9 @@ export function handleCancelledInvitation(token) {
 /* * * * * * * * * * * * * * * * * * *  TOURNAMENT INVITATIONS  * * * * * * * * * * * * * * * * * * */
 
 async function createTournamentInvitationCard(friendName, token) {
-    const details = await getTournamentInvitationDetailFromCache(token);
+    const detail = await getTournamentInvitationDetailFromCache(token);
+	
+	if (detail.status == 'outdated') return createOutdatedBubble();
 
     const card = document.createElement('div');
     card.innerHTML = `
@@ -239,8 +240,7 @@ async function createTournamentInvitationCard(friendName, token) {
     };
 
     // Update the UI based on the status
-	console.log("before toggle: ", details)
-    toggleBtns(btns, details.status);
+    toggleBtns(btns, detail.status);
 
     btns.accept.addEventListener('click', () => handleAcceptTournamentInvitation(token, btns));
     btns.decline.addEventListener('click', () => handleDeclineTournamentInvitation(token, btns));
@@ -252,25 +252,24 @@ async function getTournamentInvitationDetailFromCache(token) {
     // Check if the details are already cached
     const cachedDetails = tournamentInvitationStatuses.get(token);
     if (cachedDetails) {
-		console.log("retrieving invitation status from cache")
+		//console.log("retrieving invitation status from cache")
         return cachedDetails; // Return the cached details
     }
 	
     // Fetch the invitation details from the server
     const response = await getTournamentInvitationDetail(token);
-	
-    if (!response.status === 'success') {
+    if (response.status == 'error') {
 		// If the invitation is not found, mark it as outdated
         const outdatedDetails = { status: 'outdated', token };
         setTournamentInvitationStatus(token, outdatedDetails);
-		console.log("setting invitation status to outdated")
+		//console.log("setting invitation status to outdated")
         return outdatedDetails;
     }
 	
     // Cache the full invitation details
     const details = { ...response.invitation, token };
     setTournamentInvitationStatus(token, details);
-	console.log("setting invitation status from fetch")
+	//console.log("setting invitation status from fetch")
     return details;
 }
 
@@ -341,7 +340,7 @@ export function escapeHTML(str) {
 export function clearInvitationCache() {
     invitationStatuses.clear();
     tournamentInvitationStatuses.clear();
-	console.log("[Chat] invitation statuses cache cleared.")
+	console.log("[CHAT] invitation statuses cache cleared.")
 }
 
 export {invitationStatuses, tournamentInvitationStatuses} 

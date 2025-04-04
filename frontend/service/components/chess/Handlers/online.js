@@ -48,9 +48,9 @@ async function handleGetChessMatchDetail(key) {
         whoIsWho[white] = "white";
         whoIsWho[black] = "black";
         onlineInfo.gameMode = res.match.game_mode;
-        console.log("setting game mode to: ", onlineInfo.gameMode, res)
+        //console.log("setting game mode to: ", onlineInfo.gameMode, res)
     }
-    console.log("on handleGetChessMatchDetail: ", res)
+    //console.log("on handleGetChessMatchDetail: ", res)
 }
 
 // initializes the chess socket
@@ -74,7 +74,7 @@ function initializeChessSocket(game_key) {
 
 	chessSocket.onclose = async (event) => {
         sessionStorage.removeItem('inGame');
-		console.log("Chess WebSocket closed");
+		//console.log("Chess WebSocket closed");
 	}
 
 }
@@ -106,7 +106,7 @@ function handleGetChessReceivedMessage(event) {
 
 
 function gameOverHandler(data) {
-    console.log("on gameOverHandler: ", data)
+    //console.log("on gameOverHandler: ", data)
     const amIwinner = getUserColor(getUsername()) == data.winner;
     let delay = 50;
     if (!amIwinner) {
@@ -115,7 +115,7 @@ function gameOverHandler(data) {
             const { from, to } = data.last_move;
             const piece = keySquareMapper[from].piece;
             if (piece) {
-                console.log("Moving element: ", piece, to);
+                //console.log("Moving element: ", piece, to);
                 moveElement(piece, to, false); // Emulate the last move
             }
         }
@@ -166,6 +166,7 @@ function waitForBoardStatus() {
 function convertToPiecePositions(boardMap) {
 	const piecePositionsTmp = {};
 
+   // console.log("boardMap on convert: ", boardMap);
 	Object.keys(boardMap).forEach(key => {
 	  const square = boardMap[key];
 	  if (!square) {
@@ -177,7 +178,7 @@ function convertToPiecePositions(boardMap) {
 		piecePositionsTmp[key] = piece[pieceKey];
 	  }
 	});
-	console.log("piecePositions: ", piecePositionsTmp);
+	//console.log("piecePositions: ", piecePositionsTmp);
 	return piecePositionsTmp;
 }
 

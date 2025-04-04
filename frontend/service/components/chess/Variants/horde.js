@@ -89,7 +89,7 @@ function checkWinForBlackHorde() {
         for (const piece of globalPiece[key]) {
           if (piece.current_pos !== null) {
             // debugger
-            console.log("on blackHordeCheck: ", piece.current_pos);
+            //console.log("on blackHordeCheck: ", piece.current_pos);
             return false;
           }
         }

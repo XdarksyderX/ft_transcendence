@@ -1,11 +1,8 @@
 import * as piece from "../Data/pieces.js";
 import { globalState, highlightColor, keySquareMapper } from "../index.js";
-// import { getChess960Piece } from "../Variants/chess960.js";
-// import { renderHordePieces } from "../Variants/horde.js";
 import { initGame } from "../Data/data.js";
 
 const globalPiece = new Object();
-const chessVariantTmp = sessionStorage.getItem('chessVariant'); //borrar -> solucion temporal para asegurar la persistencia de la variable hasta que tengamos backend
 
 /**
  * funciton globlaStateRender is usefull to render pieces from globalStateData,
@@ -77,25 +74,6 @@ function pieceRender(data)
  * which we'll then use to assign the pieces to the board squares.
  */
 
-const piecePositions = {
-  "a8": piece.blackRook,
-  "h8": piece.blackRook,
-  "b8": piece.blackKnight,
-  "g8": piece.blackKnight,
-  "c8": piece.blackBishop,
-  "f8": piece.blackBishop,
-  "d8": piece.blackQueen,
-  "e8": piece.blackKing,
-  "a1": piece.whiteRook,
-  "h1": piece.whiteRook,
-  "b1": piece.whiteKnight,
-  "g1": piece.whiteKnight,
-  "c1": piece.whiteBishop,
-  "f1": piece.whiteBishop,
-  "d1": piece.whiteQueen,
-  "e1": piece.whiteKing
-};
-
 /**
  * This function takes the chessboard data and renders it as HTML elements on the web page.
  * It is only called when the game starts (only for one time).
@@ -115,9 +93,6 @@ function initGameRender(data, piecePositions, detail)
   globalPiece.black_pawns = [];
   globalPiece.white_pawns = [];
 
-  // if (detail.gameMode === "960")
-  //   getChess960Piece();
-
   document.getElementById('root').innerHTML = '';
   data.forEach(element => {
     const rowEl = document.createElement("div");
@@ -133,7 +108,6 @@ function initGameRender(data, piecePositions, detail)
       document.getElementById('root').appendChild(rowEl);
     });
     pieceRender(data);
-    // migración enpassant
     const enpassantItem = detail.inTurn ? 'enPassantCapture' : 'enPassantTarget'
     const enPassantState = JSON.parse(localStorage.getItem(enpassantItem));
     if (enPassantState) {
@@ -142,6 +116,7 @@ function initGameRender(data, piecePositions, detail)
           keySquareMapper[position].piece.move = move;
       }
     }
+    console.log("globalPiece at the beggining of the game: ", globalPiece);
 }
 
 function assignSpecificPiece(square, piecePositions) {
@@ -228,7 +203,7 @@ function renderPlayers(whoIswho) {
   const whitePlayer = getPlayerNameByColor("white", whoIswho);
   const blackPlayer = getPlayerNameByColor("black", whoIswho);
 
-  console.log("rendeirng players");
+  //console.log("rendeirng players");
   const container = document.getElementById('players-container');
   container.innerHTML = `
   <div id="white-turn" class="col d-flex align-items-center justify-content-start chess-turn white-turn inturn me-2">
@@ -279,4 +254,16 @@ function toggleTurn(inTurn) {
   notInTurnElement?.classList.remove('inturn');
 }
 
-export { initGameRender, clearHighlight, selfHighlight, globalStateRender, globalPiece, circleHighlightRender, piecePositions, renderPlayers, toggleTurn };
+function resetGlobalPiece() {
+  for (const key in globalPiece) {
+    if (Array.isArray(globalPiece[key])) {
+      globalPiece[key] = []; // Reset arrays to empty
+    } else {
+      globalPiece[key] = null; // Reset other properties to null
+    }
+  }
+  console.log("[CHESS] globalPiece has been reset");
+}
+
+
+export { initGameRender, clearHighlight, selfHighlight, globalStateRender, globalPiece, circleHighlightRender, renderPlayers, toggleTurn, resetGlobalPiece };

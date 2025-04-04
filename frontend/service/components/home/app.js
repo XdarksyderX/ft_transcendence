@@ -8,12 +8,6 @@ let chessVariant = null;
 let currentView = null;
 let selectedFriend = null;
 
-/* const friends = [
-	{ id: 1, name: 'Alice', status: 'online' },
-	{ id: 2, name: 'Bob', status: 'offline' },
-	{ id: 3, name: 'Charlie', status: 'online' },
-	{ id: 4, name: 'David', status: 'away' }
-]; */
 
 export function initializeHomeEvents() {
 	const elements = getElements();
@@ -117,11 +111,11 @@ function playPongWithFriend(elements) {
 }
 
 function playAgainstMachine() {
-	console.log("Play against the machine option selected");
+	//console.log("Play against the machine option selected");
 	navigateTo('/pong');
 }
 function showTournamentOptions(elements) {
-	console.log("Tournament option selected");
+	//console.log("Tournament option selected");
 	toggleView(currentView, elements.pong.tournament.options);
 }
 
@@ -174,14 +168,13 @@ function chooseChessVariant(toggleTo) {
 	const variant = event.target.closest('[id$="-chess"]')
 	if (variant) {
 		chessVariant = variant.id.split('-')[0];
-		console.log('selected variant: ', chessVariant);
+		//console.log('selected variant: ', chessVariant);
 		sessionStorage.setItem('chessVariant', chessVariant);
 		toggleView(currentView, toggleTo);
 	}
 }
 
 function playChessWithFriend(elements) {
-    //    console.log("playchess tggles from: ", currentView);
         toggleView(currentView, elements.chess.friendList);
         renderFriendList(elements.chess.friendsContainer);
 }
@@ -246,8 +239,7 @@ function clickStartQueueBtn(switches, variants) {
 			}
 		});
 	}
-    console.log('Ranked:', ranked);
-    console.log('Selected Variants:', selectedVariants);
+    //console.log('Selected Variants:', selectedVariants, 'Ranked: ', ranked);
 	if (!ranked && selectedVariants.length === 0) {
 		return throwAlert('Please, choose at least one chess variant');
 	}
@@ -303,7 +295,7 @@ function hideOverlay(elements) {
         overlay.style.pointerEvents = ''; // Reactivate clicks
         overlay.removeEventListener('transitionend', handleTransitionEnd);
 
-        // Restaurar la vista original
+        // Reestore original view
         elements.overlay.chat.style.zIndex = 'auto';
         elements.pong.btn.style.zIndex = 'auto';
         elements.chess.btn.style.zIndex = 'auto';
@@ -337,7 +329,7 @@ async function renderFriendList(container) {
 	const friends = await handleGetFriendList();
 	container.innerHTML = '';
 	let startBtn = currentView.querySelector(`[data-action=start-game]`);
-	//debugger
+
 	friends.forEach(friend => {
 		const friendBtn = createFriendBtn(friend, startBtn);
 		container.appendChild(friendBtn);
@@ -377,7 +369,7 @@ function toggleFriendSelection(friend, btn) { // btn is for chess or for pong
 		unselectFriend(false, btn);
 		selectedFriend = friend;
 		newFriendBtn.classList.add('selected');
-		console.log("adding selected class to: ", newFriendBtn);
+		//console.log("adding selected class to: ", newFriendBtn);
 		btn.disabled = false;
 	}
 }

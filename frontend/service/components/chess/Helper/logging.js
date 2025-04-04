@@ -13,7 +13,7 @@ const pieceNotation = {
 // Load moves from localStorage
 function reloadMoveLogger() {
     const savedMoves = JSON.parse(sessionStorage.getItem("chessMoves")) || [];
-    console.log("reloading move logger to: ", savedMoves);
+    //console.log("reloading move logger to: ", savedMoves);
     const leftCol = document.getElementById("leftCol");
     const rightCol = document.getElementById("rightCol");
     savedMoves.forEach(move => {
@@ -67,12 +67,9 @@ function logMoves(logMoves, inTurn, piece, castlingType) {
         rightCol.appendChild(row);
     }
 
-    // // Save move to localStorage
-    // if (chessSocket && chessSocket.readyState === 'ready') {
-        const savedMoves = JSON.parse(sessionStorage.getItem("chessMoves")) || [];
-        savedMoves.push({ inTurn, notation: row.innerHTML });
-        sessionStorage.setItem("chessMoves", JSON.stringify(savedMoves));
-    // }
+    const savedMoves = JSON.parse(sessionStorage.getItem("chessMoves")) || [];
+    savedMoves.push({ inTurn, notation: row.innerHTML });
+    sessionStorage.setItem("chessMoves", JSON.stringify(savedMoves));
 
     // Scroll to the bottom of the move logger
     const moveLogger = document.getElementById("move-logger");

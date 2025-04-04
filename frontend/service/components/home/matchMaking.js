@@ -15,7 +15,7 @@ export async function initMatchmaking(variants, ranked) {
 async function handleJoinMatchmaking(variants, ranked) {
   const response = await joinMatchmaking(variants, ranked)
   if (response.status === "success") {
-    console.log("joining to matchmaking queue...")
+    console.log("[CHESS] joining to matchmaking queue...")
     return true
   } else {
     console.error("Error while joining matchmaking queue:", response.message)
@@ -27,7 +27,7 @@ export async function handleLeaveMatchmaking() {
   try {
     const response = await leaveMatchmaking()
     if (response.status === "success") {
-      console.log("Successfully left matchmaking queue")
+      console.log("[CHESS] Successfully left matchmaking queue")
       localStorage.removeItem("isOnQueue")
       return true
     } else {
@@ -59,8 +59,6 @@ function launchMatchmakingModal() {
 
   modal.show()
 
-  // // Store modal instance in a data attribute for easy access later
-  // modal.modalInstance = matchmakingModal
 }
 
 export function closeMatchmakingModal() {
@@ -70,7 +68,6 @@ export function closeMatchmakingModal() {
 
       const modalInstance = bootstrap.Modal.getInstance(modalElement);
       if (modalInstance) {
-          //console.log('calling hide()');
           hideModalGently(modalInstance);
       }
 

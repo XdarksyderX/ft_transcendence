@@ -6,10 +6,7 @@ let whoInCheck = null;
 
 function checkForCheck() {
 	if (gameMode === "horde" && inTurn === "white") {
-	//console.log("returning on checkForCheck");
-	return null;
-	} else {
-	//console.log("on checkForCheck: ", gameMode, inTurn);
+		return null;
 	}
 
 	whoInCheck = null;

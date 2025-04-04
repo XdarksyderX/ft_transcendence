@@ -4,7 +4,7 @@
 */
 import { getChessPendingMatches } from "../../app/chess.js";
 import { initGame } from "./Data/data.js";
-import { initGameRender, clearHighlight } from "./Render/main.js";
+import { initGameRender, clearHighlight, resetGlobalPiece } from "./Render/main.js";
 import { GlobalEvent, clearYellowHighlight } from "./Events/global.js";
 import { resingOption } from "./Helper/modalCreator.js";
 import { pawnPromotion } from "./Helper/modalCreator.js"; // fully provisional
@@ -13,8 +13,9 @@ import { initOnlineChess, onlineInfo } from "./Handlers/online.js";
 import { offlineInfo } from "./Handlers/offline.js";
 import { initOfflineChess } from "./Handlers/offline.js";
 import { toggleTurn } from "./Render/main.js";
+import { hideModalGently } from "../../app/render.js";
 
-let globalState = initGame();
+let globalState = null;
 let keySquareMapper = {};
 let imgStyle = "modern";
 let backgroundMusicChess = new Audio('components/chess/Assets/music/wiiChess.mp3');
@@ -26,10 +27,6 @@ let currentMusic = null;
 
 let gameMode;
 let inTurn;
-
-globalState.flat().forEach((square) => {
-    keySquareMapper[square.id] = square;
-});
 
 let highlightColor = 'rgba(0, 0, 0, 0.15)';
 
@@ -58,8 +55,13 @@ export async function initializeChessEvents(key) {
     const saveSettingsButton = document.getElementById('save-settings');
     const cancelSettingsButton = document.getElementById('cancel-settings');
     const pieceStyleSelect = document.getElementById('piece-style');
+
+    initGameState();
+    hideWinModal();
+
     
-    
+    console.log("globalState at the beggining of the game: ", globalState);
+    console.log("squareKeyMapper at the beggining of the game: ", keySquareMapper);
     if (key) {
         await initOnlineChess(key, true);
     } else {
@@ -67,25 +69,62 @@ export async function initializeChessEvents(key) {
         if (res.status === "success" && res.match) {
             key = res?.match?.game_key;
             await initOnlineChess(key, false);
-            // inTurn = onlineInfo.inTurn;
         } else {
             initOfflineChess();
-            
         }
-        console.log("online info: ", onlineInfo);
     }
     gameMode = onlineInfo.gameMode || offlineInfo.gameMode ;
-
+    
     GlobalEvent();
     generateCoordinates();
     setupButtonEvents(settingsPanel, saveSettingsButton, cancelSettingsButton, pieceStyleSelect)
-
+    
     document.addEventListener('click', (event) => {
         if (!settingsPanel.contains(event.target) && !button1.contains(event.target)) {
             settingsPanel.classList.add('hidden');
         }
     });
 }
+
+function initGameState() {
+
+    // just in case the previous game ended abruptely
+    resetGlobalPiece();
+    resetGameState();
+
+    // restets the default status 
+    globalState = initGame();
+
+    globalState.flat().forEach((square) => {
+        keySquareMapper[square.id] = square;
+    });
+
+}
+
+function resetGameState() {
+    if (!globalState) return ;
+    // Clear globalState by setting all pieces to null
+    globalState.forEach(row => {
+        row.forEach(square => {
+            square.piece = null; // Remove references to pieces
+        });
+    });
+    // Clear keySquareMapper by removing all keys
+    for (const key in keySquareMapper) {
+        delete keySquareMapper[key];
+    }
+    console.log("[CHESS] globalState and keySquareMapper have been reset");
+}
+
+// checks if the win modal is present at starting a new game
+function hideWinModal() {
+    const modals = document.getElementsByClassName('chess-modal');
+    Array.from(modals).forEach(modal => {
+        modal.remove();
+    });
+    document.getElementById("app-container")?.classList.remove("blur");
+}
+
 
 function setupButtonEvents(settingsPanel, saveSettingsButton, cancelSettingsButton, pieceStyleSelect) {
     const button1 = document.getElementById('button1');
@@ -228,16 +267,16 @@ function stopBackgroundMusic() {
 }
 
 function updateInTurn(to) {
-    console.log('updating turn to: ', to);
+    //console.log('updating turn to: ', to);
     inTurn = to;
     toggleTurn(inTurn);
 }
 
-/*add a custom method to String prototipe that replace a part of an
-string in a specific position. Ex: str = "hello" -> str = str.replaceAt(1, "a") = "hallo" */ //borrar?
+/*custom method to String prototipe that replace a part of an
+string in a specific position. Ex: str = "hello" -> str = str.replaceAt(1, "a") = "hallo" */
 
 String.prototype.replaceAt = function (index, replacement) {
     return (this.substring(0, index) + replacement + this.substring(index + replacement.length));
 };
 
-export { globalState, keySquareMapper, highlightColor, imgStyle, stopBackgroundMusic, toggleBackgroundMusic, inTurn, gameMode, updateInTurn };
+export { globalState, keySquareMapper, highlightColor, imgStyle, stopBackgroundMusic, toggleBackgroundMusic, inTurn, gameMode, updateInTurn, resetGameState };
