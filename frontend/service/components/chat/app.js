@@ -229,7 +229,6 @@ function handleFriendListClick(event, elements) {
 /* * * * * * * * * * * * * * * * * * * *  CHATS TAB  * * * * * * * * * * * * * * * * * * * */
 
 export async function openChat(friendUsername, elements) {
-    //console.log("on openChat: ", chatCache);
     elements.chatMessages.innerHTML = '';
     activeChat = friendUsername;
     renderedMessages.clear();

@@ -34,6 +34,7 @@ notifications.pong.tournament_deleted,\
 notifications.pong.tournament_match_waiting,\
 notifications.pong.tournament_match_ready,\
 notifications.pong.tournament_round_finished,\
+notifications.pong.tournament_finished,\
 notifications.chess.match_accepted,\
 notifications.chess.invitation_cancelled,\
 notifications.chess.match_accepted_random,\

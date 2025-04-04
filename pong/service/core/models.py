@@ -162,17 +162,18 @@ class PongGame(models.Model):
                             for match in self.tournament.matches.filter(round_number=self.tournament.current_round - 1):
                                 if match.pong_game.winner:
                                     alive_players.append(match.pong_game.winner.id)
-                            event_round = {
-                                "tournament_name": self.tournament.name,
-                                "round_number": self.tournament.current_round,
-                                "alive_players": alive_players
-                            }
                             if not is_final:
-                                print("Publishing event for round finished")
+                                event_round = {
+                                    "tournament_name": self.tournament.name,
+                                    "round_number": self.tournament.current_round,
+                                    "alive_players": alive_players
+                                }
                                 publish_event('pong', 'pong.tournament_round_finished', event_round)
                             else:
-                                print("Publishing event for tournament finished")
-                                publish_event('pong', 'pong.tournament_finished', event_round)
+                                publish_event('pong', 'pong.tournament_finished', {'tournament_name': self.tournament.name, 'players_id': list(players_id), 'winner': {
+                                    'username': self.winner.username,
+                                    'alias': self.winner.alias
+                                }})
 
     def __str__(self):
         return f"Game {self.id}: {self.player1} vs {self.player2} (Key: {self.game_key})"
