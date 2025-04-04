@@ -62,7 +62,6 @@ function renderQuickGameStats(container, stats) {
     <p><span class="fw-bold">Losses:</span> ${stats.lost}</p>
     <p><span class="fw-bold">Win rate:</span> ${winRate}%</p>
     <p><span class="fw-bold">Streak:</span> ${stats.streak}</p>
-    <p><span class="fw-bold">Highest score:</span> ${stats.highest_score}</p>
   `;
 }
 
