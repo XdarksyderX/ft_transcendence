@@ -159,7 +159,7 @@ async function navigateTo(fullUrl, key = null) {
     try {
         const verify = await isLoggedIn();
         const url = redirectURL(verify, fullUrl);
-        console.log(`[Router] Navigating to -> '${url}'`);    
+        console.log(`[ROUTER] Navigating to -> '${url}'`);    
         //console.log("verify:", verify);
         
        // if (!(url !== "/login" && url !== "/signup" && !verify)) 
@@ -276,7 +276,7 @@ async function initRouteEvents() {
 document.addEventListener("DOMContentLoaded", initRouteEvents);
 
 
-function preventMultipleClicks(button, callback, timeout = 5000) {
+function preventMultipleClicks(button, callback) {
     event.preventDefault();
     if (button.disabled) return; // Prevent further clicks if the button is already disabled
 
@@ -288,7 +288,7 @@ function preventMultipleClicks(button, callback, timeout = 5000) {
     } finally {
         setTimeout(() => {
             button.disabled = false; // Re-enable the button after the timeout
-        }, timeout); // Default timeout is 5000ms (5 seconds)
+        }, 500); // Default timeout is 5000ms (5 seconds)
     }
 }
 

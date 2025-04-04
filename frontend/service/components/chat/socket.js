@@ -40,13 +40,13 @@ export function initializeGlobalChatSocket() {
 			clearInvitationCache();
 			return ;
 		} 
-        console.log("WebSocket closed, code:", event.code);
+        console.log("[CHATSOCKET] WebSocket closed, code:", event.code);
         if (!attemptedReconnection) {
             attemptedReconnection = true;
             const refreshed = await refreshAccessToken();
 
             if (refreshed) {
-                console.log("Token refreshed, retrying WebSocket connection...");
+                console.log("[AUTH] Token refreshed, retrying WebSocket connection...");
                 setTimeout(initializeGlobalChatSocket, 1000);
                 return;
             } else {
