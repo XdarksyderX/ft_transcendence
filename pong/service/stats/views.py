@@ -30,9 +30,8 @@ class TournamentStatisticsView(APIView):
 		pong_statistics = PongStatistics.objects.filter(user=user).first()
 		data = {
 			"played": pong_statistics.tournaments_played,
-			"first": pong_statistics.tournaments_second,
-			"second": pong_statistics.tournaments_first,
-			
+			"first": pong_statistics.tournaments_first,
+			"second": pong_statistics.tournaments_second
 		}
 		return Response({
 			"status": "success",

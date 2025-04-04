@@ -364,7 +364,6 @@ export function handleJoinTournamentMatch(gameKey) {
   hideModalGently(modal);
   
   setTimeout(() => {
-    sessionStorage.setItem('inGame', '/pong')
     navigateTo('/pong', gameKey);
   }, 1000);
 }

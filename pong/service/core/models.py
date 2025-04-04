@@ -109,28 +109,40 @@ class PongGame(models.Model):
 
         # If the game just finished and has a winner, update statistics
         if is_finishing and self.winner:
-            # Determine tournament positions for finals
-            player1_position = None
-            player2_position = None
-            
-            # Check if it's a tournament game
+            # Determine if it's a tournament game and if it's the final
             is_final = False
             if self.is_tournament and hasattr(self, 'tournament_match'):
                 tournament = self.tournament
-                # Calculate total rounds expected based on number of players
                 max_rounds = 1 if tournament.max_players <= 2 else (tournament.max_players - 1).bit_length()
-                
-                # A match is final if it's in the last round
-                is_final = tournament.current_round == max_rounds
-                
-                if is_final:
-                    if self.winner == self.player1:
-                        player1_position = 1
-                        player2_position = 2
-                    else:
-                        player1_position = 2
-                        player2_position = 1
+                # Use the match's round number to determine if it's the final
+                is_final = self.tournament_match.round_number == max_rounds
 
+            if self.is_tournament:
+                if is_final:
+                    # Final game: Update both players with positions
+                    winner_position = 1
+                    loser_position = 2
+                    loser = self.player1 if self.winner == self.player2 else self.player2
+                    winner_stats = self.winner.statistics.first()
+                    loser_stats = loser.statistics.first()
+                    if winner_stats:
+                        winner_stats.update_statistics(self, tournament_position=winner_position)
+                    if loser_stats:
+                        loser_stats.update_statistics(self, tournament_position=loser_position)
+                else:
+                    # Intermediate game: Update only the loser
+                    loser = self.player1 if self.winner == self.player2 else self.player2
+                    loser_stats = loser.statistics.first()
+                    if loser_stats:
+                        loser_stats.update_statistics(self, tournament_position=None)
+            else:
+                # Non-tournament game: Update both players
+                for player in [self.player1, self.player2]:
+                    stats = player.statistics.first()
+                    if stats:
+                        stats.update_statistics(self)
+
+            # Existing tournament event handling
             if self.is_tournament:
                 players_id = self.tournament.players.values_list('id', flat=True)
                 event = {
@@ -143,8 +155,7 @@ class PongGame(models.Model):
                 publish_event('pong', 'pong.tournament_match_finished', event)
                 if self.tournament.is_current_round_finished():
                     with transaction.atomic():
-                        tournament_locked = Tournament.objects.select_for_update().get(id=self.tournament.id) #unused variable, but triggers database lock
-                        # Re-check condition within the lock
+                        tournament_locked = Tournament.objects.select_for_update().get(id=self.tournament.id)
                         if self.tournament.is_current_round_finished():
                             self.tournament.create_next_round_matches()
                             alive_players = []
@@ -162,12 +173,6 @@ class PongGame(models.Model):
                             else:
                                 print("Publishing event for tournament finished")
                                 publish_event('pong', 'pong.tournament_finished', event_round)
-                
-            if not self.is_tournament or is_final:
-                for player, position in [(self.player1, player1_position), (self.player2, player2_position)]:
-                    stats = player.statistics.first()
-                    if stats:
-                        stats.update_statistics(self, tournament_position=position)
 
     def __str__(self):
         return f"Game {self.id}: {self.player1} vs {self.player2} (Key: {self.game_key})"
