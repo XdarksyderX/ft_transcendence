@@ -1,7 +1,6 @@
 import { updateNotificationIndicator, getElements, renderChat, renderRecentChats, 
-markMessagesAsRead, currentChat, currentView, isExpanded, toggleChat, openChat, 
-updateChatCache,
-clearChatCache} from "./app.js";
+markMessagesAsRead, currentView, isExpanded, toggleChat, openChat, activeChat,
+updateChatCache, clearChatCache} from "./app.js";
 import { getUsername } from "../../app/auth.js";
 import { refreshAccessToken } from "../../app/auth.js";
 import { GATEWAY_HOST } from "../../app/sendRequest.js";
@@ -61,40 +60,48 @@ export function initializeGlobalChatSocket() {
 async function handleReceivedMessage(event) {
 	try {
 		const data = JSON.parse(event.data);
-		//console.log("WS message received:", data);
 		const currentUser = getUsername();
-		const imSender = currentUser === data?.data?.sender;
-		if (data.status === "success" && data.data && data.data.message) {
-			if (imSender && !data.data.is_special) return;
-			currentChat.messages.push({
-				id: currentChat.messages.length + 1,
-				message: data.data.message,
-				sender: data.data.sender,
-				receiver: currentUser,
-				sent_at: data.data.sent_at,
-				is_special: data.data.is_special,
-				is_read: data.data.is_read
+		const msg = data?.data;
+		const imSender = currentUser === msg?.sender;
+
+		if (data.status === "success" && msg?.message) {
+			if (imSender && !msg.is_special) return;
+
+			const chatUsername = imSender ? msg.receiver : msg.sender;
+
+			updateChatCache(chatUsername, {
+				id: Date.now(), // o algún id único si tienes
+				message: msg.message,
+				sender: msg.sender,
+				receiver: msg.receiver,
+				sent_at: msg.sent_at,
+				is_special: msg.is_special,
+				is_read: msg.is_read
 			});
-			updateChatCache(currentChat.username, currentChat.messages);
-			if (!imSender && data.data.is_special) {
-				const elements = getElements();
-				if (currentChat.username !== data.data.sender || currentView !== 'chat') {
-					openChat(data.data.sender, elements);
+
+			const elements = getElements();
+
+			// Open the chat if its a special message
+			if (!imSender && msg.is_special) {
+				if (activeChat !== msg.sender || currentView !== 'chat') {
+					openChat(msg.sender, elements);
 				}
 				if (!isExpanded) {
 					toggleChat(elements);
-				} 
+				}
 			}
 
-			// Update the view if the current view is the chat with the sender or the recent-chats tab
-			if (currentView === 'chat' && currentChat.username === data.data.sender) {
+			// Render the message if the chat is open
+			if (currentView === 'chat' && activeChat === msg.sender) {
 				if (isExpanded) {
-					markMessagesAsRead(currentChat.username);
+					markMessagesAsRead(msg.sender);
 				}
-				(await renderChat(getElements()));
+				await renderChat(elements);
 			} else if (currentView === 'recent-chats') {
-				renderRecentChats(getElements());
-			} if (!isExpanded) {
+				renderRecentChats(elements);
+			}
+
+			if (!isExpanded) {
 				updateNotificationIndicator(document.getElementById('notification-indicator'));
 			}
 		}
@@ -102,6 +109,7 @@ async function handleReceivedMessage(event) {
 		console.error("Error parsing WS message:", e);
 	}
 }
+
 
 // Handle the submission of the chat form to send a message
 export async function handleSentMessage(event, elements) {
@@ -111,17 +119,13 @@ export async function handleSentMessage(event, elements) {
 		const messageData = {
 			message: messageText,
 			sender: getUsername(),
-			receiver: currentChat.username,
+			receiver: activeChat,
 			sent_at: new Date().toISOString(),
 			is_special: false,
 			is_read: false
 		};
 		chatSocket.send(JSON.stringify(messageData));
-		currentChat.messages.push({
-			id: currentChat.messages.length + 1,
-			...messageData
-		});
-		updateChatCache(currentChat.username, currentChat.messages);
+		updateChatCache(activeChat, messageData);
 		await renderChat(elements);
 		elements.messageInput.value = '';
 	}

@@ -10,10 +10,7 @@ let currentView;
 let chatCache = {}
 
 let chats = {}
-let currentChat = {
-    username: null,
-    messages: []
-};
+let activeChat;
 
 const renderedMessages = new Set();
 
@@ -72,7 +69,7 @@ export async function toggleChat(elements) {
 	if (isExpanded && currentView === 'recent-chats') {
 		await showRecentChats(elements);
 	} else if (currentView === 'chat') {
-		await markMessagesAsRead(currentChat.username);
+		await markMessagesAsRead(activeChat);
 	} 
 	await updateNotificationIndicator(elements.notificationIndicator);
 }
@@ -99,6 +96,7 @@ export async function updateNotificationIndicator(indicator) {
 // Show the recent chats tab
 async function showRecentChats(elements) {
 	currentView = 'recent-chats';
+    activeChat = null;
 	elements.newChatTab.style.display = 'none';
 	elements.chatTab.style.display = 'none';
 	elements.recentChatsTab.style.display = 'flex';
@@ -179,6 +177,7 @@ function handleRecentChatsClick(event, elements) {
 // Show the friend list tab
 async function showFriendList(elements, hasChats = true) {
 	currentView = 'friend-list';
+    activeChat = null;
 	elements.recentChatsTab.style.display = 'none';
 	elements.newChatTab.style.display = 'flex';
 	if (!hasChats) {
@@ -223,55 +222,53 @@ function handleFriendListClick(event, elements) {
 
 /* * * * * * * * * * * * * * * * * * * *  CHATS TAB  * * * * * * * * * * * * * * * * * * * */
 
-export async function openChat(friendUsername, elements, newChat = false) {
-    currentChat = { username: friendUsername, messages: [] };
+export async function openChat(friendUsername, elements) {
+    activeChat = friendUsername;
     renderedMessages.clear();
-	elements.chatMessages.innerHTML = '';
-
-    await markMessagesAsRead(friendUsername);
     if (chatCache[friendUsername]) {
-		//console.log("showing messagges on cache: ", chatCache[friendUsername]);
-		currentChat.messages = [...chatCache[friendUsername]];
+        renderChat(elements, false);
     } else {
         await fetchChatMessages(friendUsername);
     }
 
     showChatWindow(elements, friendUsername);
-    renderChat(elements);
+    renderChat(elements, false);
 }
 
 // Fetch chat messages for a specific friend
 async function fetchChatMessages(friendUsername) {
-    try {
-        const messagesResponse = await getMessages(friendUsername);
+	try {
+		const messagesResponse = await getMessages(friendUsername);
 
-        if (messagesResponse.status === "success" && messagesResponse.messages) {
-            const fetchedMessages = messagesResponse.messages.map((msg, index) => ({
-                id: index + 1,
-                message: msg.content,
-                sender: msg.sender,
-                receiver: msg.receiver,
-                sent_at: msg.sent_at,
-                is_special: msg.is_special,
-                is_read: msg.is_read
-            }));
+		if (messagesResponse.status === "success" && messagesResponse.messages) {
+			const fetchedMessages = messagesResponse.messages.map((msg, index) => ({
+				id: msg.id ?? index + 1,
+				message: msg.content,
+				sender: msg.sender,
+				receiver: msg.receiver,
+				sent_at: msg.sent_at,
+				is_special: msg.is_special,
+				is_read: msg.is_read
+			}));
 
-            // Filter out messages that are already in `currentChat.messages`
-            const existingMessageIds = new Set(currentChat.messages.map((msg) => msg.id));
-            const newMessages = fetchedMessages.filter((msg) => !existingMessageIds.has(msg.id));
+			const existingMessages = chatCache[friendUsername] || [];
+			const existingIds = new Set(existingMessages.map(msg => msg.id));
 
-            // Merge new messages with existing ones
-            currentChat.messages = [...newMessages, ...currentChat.messages];
-            // Sort messages by `sent_at` timestamp
-            currentChat.messages.sort((a, b) => new Date(a.sent_at) - new Date(b.sent_at));
+			const newMessages = fetchedMessages.filter(msg => !existingIds.has(msg.id));
 
-            // Update the cache with the latest messages
-            updateChatCache(friendUsername, currentChat.messages);
-        }
-    } catch (error) {
-        console.error("Error fetching messages:", error);
-    }
+			const mergedMessages = [...newMessages, ...existingMessages];
+
+			mergedMessages.sort((a, b) => new Date(a.sent_at) - new Date(b.sent_at));
+
+			chatCache[friendUsername] = mergedMessages;
+            //debugger
+		}
+	} catch (error) {
+		console.error("Error fetching messages:", error);
+	}
 }
+
+
 // Mark messages as read for a specific friend
 export async function markMessagesAsRead(friendUsername) { 
     try {
@@ -299,14 +296,17 @@ function showChatWindow(elements, friendUsername) {
 
 const generateMessageId = (message) => `${message.sender}-${message.sent_at}`;
 
+
 export async function renderChat(elements, scroll = true) {
-    if (currentChat) {
+    if (activeChat) {
         let messageElements = [];
         if (!scroll) {
             renderedMessages.clear();
             elements.chatMessages.innerHTML = '';
         }
-        for (const message of currentChat.messages) {
+        const messages = chatCache[activeChat];
+    
+        for (const message of messages) {
             const messageId = generateMessageId(message);
             if (!renderedMessages.has(messageId)) {
                 let messageElement = message.is_special 
@@ -382,40 +382,45 @@ async function fillProfileData(username, container) {
 
 
 async function handleScroll(event, elements) {
-    if (event.target.scrollTop === 0) {
-        const hasFirstMessage = currentChat.messages.some(msg => msg.message === "1");
+	if (event.target.scrollTop !== 0 || !activeChat) return;
 
-        if (hasFirstMessage) {
-            //console.log(`No more messages to fetch for ${currentChat.username}`);
-            return;
-        } else {
-            // Show the spinner
-            const spinner = document.getElementById('chat-spinner');
-            spinner.classList.remove('d-none');
+	const messages = chatCache[activeChat] || [];
+	const hasFirstMessage = messages.some(msg => msg.message === "1");
 
-            try {
-                // Fetch messages
-                await fetchChatMessages(currentChat.username);
+	if (hasFirstMessage) {
+		//console.log(`No more messages to fetch for ${activeChat}`);
+		return;
+	}
 
-                if (currentChat.messages.length > 8) {
-                    renderChat(elements, false);
-                }
-            } catch (error) {
-                console.error("Error fetching messages:", error);
-            } finally {
-                setTimeout(() => {spinner.classList.add('d-none')}, 500);
-            }
-        }
-    }
+	const spinner = document.getElementById('chat-spinner');
+	spinner.classList.remove('d-none');
+
+	try {
+		await fetchChatMessages(activeChat);
+
+
+		if ((chatCache[activeChat] || []).length > messages.length) {
+			renderChat(elements, false);
+		}
+	} catch (error) {
+		console.error("Error fetching messages:", error);
+	} finally {
+		setTimeout(() => spinner.classList.add('d-none'), 500);
+	}
 }
 
 
 
-export function updateChatCache(username, messages) {
-	// console.log("updating chat cache")
-	chatCache[username] = messages.slice(-8);
-    // console.warn("after update: ", chatCache[currentChat.username]);
-    // console.log("current chat: ", currentChat);
+export function updateChatCache(username, message) {
+    if (!chatCache[username]) {
+        chatCache[username] = [];
+    }
+
+    chatCache[username].push(message);
+
+    if (chatCache[username].length > 8) {
+        chatCache[username] = chatCache[username].slice(-8);
+    }
 }
 
 export function clearChatCache() {
@@ -427,4 +432,4 @@ export function clearChatCache() {
 }
   
 
-export {currentChat, currentView, isExpanded, chatCache}
+export {currentView, isExpanded, chatCache, activeChat }

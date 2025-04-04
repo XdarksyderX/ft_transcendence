@@ -106,24 +106,18 @@ class ChessGame(models.Model):
         self.save()
 
     def get_last_board_state(self):
-        """Recupera el último estado del tablero guardado"""
         if self.board_states and len(self.board_states) > 0:
             return self.board_states[-1]
         return None
 
     def get_current_player(self):
-        """Devuelve el color del jugador que tiene el turno actual"""
         return self.current_player
 
     def get_move_history(self):
-        """Devuelve el historial completo de movimientos"""
         return self.move_history
 
     def add_move(self, move_data):
-        """
-        Añade un movimiento al historial
-        move_data debe ser un diccionario con 'from', 'to', 'player', etc.
-        """
+
         if not hasattr(self, 'move_history') or self.move_history is None:
             self.move_history = []
         
@@ -139,7 +133,6 @@ class ChessGame(models.Model):
             self.current_player = 'white'
 
     def get_game_duration(self):
-        """Calcula la duración del juego hasta ahora"""
         if self.status == 'finished' and hasattr(self, 'move_history') and self.move_history:
             first_move = self.move_history[0]['timestamp']
             last_move = self.move_history[-1]['timestamp']
@@ -149,7 +142,6 @@ class ChessGame(models.Model):
         return None
 
     def reset_game(self):
-        """Reinicia el juego a su estado inicial"""
         self.board_states = []
         self.move_history = []
         self.current_player = 'white'

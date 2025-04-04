@@ -1,6 +1,6 @@
 import { isTwoFAEnabled, toggleTwoFA, changeUsername, changeEmail, changePassword, deleteAccount, refreshAccessToken, getUsername,  } from '../../app/auth.js';
 import { hideModalGently, throwAlert, throwToast } from '../../app/render.js';
-import { parseNewPasswords } from '../signup/signup.js';
+import { parseNewPasswords, parseUsername } from '../signup/signup.js';
 import { parseEmail } from '../signup/signup.js';
 import { handle2FAmodal } from './QRhandler.js';
 import { logout } from '../../app/auth.js';
@@ -103,7 +103,7 @@ function initUsernameChangeEvents(changedData) {
 		if (!newUsername || newUsername === currentUsername) {
 			changedData.username = currentUsername
 			throwAlert(!newUsername ? "Please, fill in username field" : "New username must be different");
-		} else {
+		} else if (parseUsername(newUsername)) {
 			usernameInput.classList.add('selected');
 			changedData.username = newUsername;
 		}

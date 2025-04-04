@@ -1,6 +1,6 @@
 import { getUsername } from '../../app/auth.js';
 import { handleAcceptQuickGameInvitation, handleDeclineInvitation } from '../home/game-invitation.js';
-import { formatTime, toggleChat, getElements, currentChat, } from './app.js';
+import { formatTime, toggleChat, getElements, activeChat } from './app.js';
 import { getPongInvitationDetail, acceptTournamentInvitation, denyTournamentInvitation, getTournamentInvitationDetail } from '../../app/pong.js';
 import { getChessInvitationDetail } from '../../app/chess.js';
 import { throwAlert } from '../../app/render.js';

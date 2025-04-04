@@ -44,7 +44,7 @@ const notificationHandlers = {
     pong_match_cancelled: (data) => handleCancelledInvitation(data.invitation_token),
 
     // Pong Tournament Events
-    pong_tournament_closed: () => console.log("[NOTISOCKET] Tournament started"),
+    pong_tournament_closed: () => handleTournamentEvents('match'),
     pong_tournament_match_ready: (data) => handleJoinTournamentMatch(data.game_key),
     pong_tournament_players_update: () => handleTournamentEvents('invitation'),
     pong_tournament_match_finished: () => handleTournamentEvents('match'),
@@ -129,6 +129,8 @@ function handleReceivedNotification(event) {
     }
 }
 
+let friendStatusUpdateTimeout = null;
+
 function handleFriendChanges(type, data, add = 0) {
     const path = window.location.pathname;
 
@@ -139,7 +141,16 @@ function handleFriendChanges(type, data, add = 0) {
 			refreshFriendData(username);
 		}
     } if (path === '/home' && type === 'friend_status_updated') {
-        refreshFriendStatusOnHome(); //this is causing double invitation
+        // Clear any existing timeout for friend_status_updated
+        clearTimeout(friendStatusUpdateTimeout);
+
+        // Set a new timeout to handle the event
+        friendStatusUpdateTimeout = setTimeout(() => {
+            if (path === '/home') {
+                refreshFriendStatusOnHome(); // Handle the event after the timeout
+            }
+        }, 500); // Adjust the timeout duration as needed (500ms in this case)
+        return;
     }
     if (add) { // we dont see avatar or status on chat or tournament
         refreshChatFriendList(); // chat refreshes in all paths
