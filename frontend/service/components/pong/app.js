@@ -531,8 +531,8 @@ function startGame(gameConfig)
 	window.addEventListener("popstate", () => {stop()});
     const observer = new MutationObserver(() => {
         console.log('DOM updated cleaning event listeners...');
-        document.removeEventListener("keydown", handleKeyDown);
-        document.removeEventListener("keyup", handleKeyUp);
+        document.removeEventListener("keydown", keyDownHandler);
+        document.removeEventListener("keyup", keyUpHandler);
     });
     observer.observe(document.getElementById('app'), { childList: true, subtree: true });
     
@@ -735,6 +735,8 @@ function endMatch(LplayerScore, RplayerScore)
     context.textAlign = "center";
     context.fillText(message, board.width / 2, board.height / 2);
 
+    document.removeEventListener("keydown", keyDownHandler);
+    document.removeEventListener("keyup", keyUpHandler);
     // Wait 1.5s before showing menu again
     setTimeout(() => { toggleMenu();}, 1500);
 }
