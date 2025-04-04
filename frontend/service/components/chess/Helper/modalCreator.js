@@ -1,8 +1,9 @@
 import * as pieces from "../Data/pieces.js";
-import { imgStyle, inTurn } from "../index.js";
+import { imgStyle, inTurn, resetGameState } from "../index.js";
 import { navigateTo } from "../../../app/router.js";
 import { isClick } from "../Events/global.js";
 import { chessSocket } from "../Handlers/online.js";
+import { resetGlobalPiece } from "../Render/main.js";
 
 /**
  * This class  is a design pattern aimed at creating
@@ -154,8 +155,10 @@ function winGame(winBool, online = false) {
     if (inGameValue !== null && online) { //online to prevent us to not be able to clear in local chess in bug case
         sessionStorage.setItem('inGame', inGameValue); // Restore 'inGame' if it existed
     }
-      navigateTo('/home');
-      modal.hide();
+    resetGlobalPiece();
+    resetGameState();
+    navigateTo('/home');
+    modal.hide();
   }
   
   const buttonContainer = document.createElement("div");

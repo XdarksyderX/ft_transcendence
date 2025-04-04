@@ -116,6 +116,7 @@ function initGameRender(data, piecePositions, detail)
           keySquareMapper[position].piece.move = move;
       }
     }
+    console.log("globalPiece at the beggining of the game: ", globalPiece);
 }
 
 function assignSpecificPiece(square, piecePositions) {
@@ -253,4 +254,16 @@ function toggleTurn(inTurn) {
   notInTurnElement?.classList.remove('inturn');
 }
 
-export { initGameRender, clearHighlight, selfHighlight, globalStateRender, globalPiece, circleHighlightRender, renderPlayers, toggleTurn };
+function resetGlobalPiece() {
+  for (const key in globalPiece) {
+    if (Array.isArray(globalPiece[key])) {
+      globalPiece[key] = []; // Reset arrays to empty
+    } else {
+      globalPiece[key] = null; // Reset other properties to null
+    }
+  }
+  console.log("[chess] globalPiece has been reset");
+}
+
+
+export { initGameRender, clearHighlight, selfHighlight, globalStateRender, globalPiece, circleHighlightRender, renderPlayers, toggleTurn, resetGlobalPiece };

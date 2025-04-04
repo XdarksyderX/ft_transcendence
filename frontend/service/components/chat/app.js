@@ -412,11 +412,10 @@ async function handleScroll(event, elements) {
 
 
 export function updateChatCache(username, messages) {
-    //debugger
-	console.log("updating chat cache")
+	// console.log("updating chat cache")
 	chatCache[username] = messages.slice(-8);
-    console.warn("after update: ", chatCache[currentChat.username]);
-    console.log("current chat: ", currentChat);
+    // console.warn("after update: ", chatCache[currentChat.username]);
+    // console.log("current chat: ", currentChat);
 }
 
 export function clearChatCache() {
