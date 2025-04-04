@@ -102,7 +102,8 @@ export function getNotificationText(notiContent) {
         case 'pong_tournament_round_finished':
             return `You have a new round available on ${notiContent.tournament_name} tournament`
         case 'pong_tournament_finished':
-            return `${notiContent.winner} has won the ${notiContent.tournament_name} tournament :D`
+            const winner = notiContent.winner.alias || notiContent.winner.username;
+            return `${winner} has won the ${notiContent.tournament_name} tournament :D`
         default: // 'friend_removed' 'request_declined' 'request_cancelled'  'avatar_changed' shouldnt generate notification
             return null;
     }

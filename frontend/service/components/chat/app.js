@@ -230,7 +230,6 @@ function handleFriendListClick(event, elements) {
 
 export async function openChat(friendUsername, elements) {
     console.log("on openChat: ", chatCache);
-    debugger
     elements.chatMessages.innerHTML = '';
     activeChat = friendUsername;
     renderedMessages.clear();

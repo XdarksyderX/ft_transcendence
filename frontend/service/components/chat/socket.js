@@ -61,7 +61,6 @@ export function initializeGlobalChatSocket() {
 
 // Handle received WebSocket messages
 async function handleReceivedMessage(event) {
-	debugger
 	try {
 		const data = JSON.parse(event.data);
 		const currentUser = getUsername();
