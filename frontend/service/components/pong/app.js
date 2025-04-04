@@ -524,6 +524,9 @@ function startGame(gameConfig)
     }
 
     requestAnimationFrame(update); // Start game loop
+    document.addEventListener("keydown", keyDownHandler);
+    document.addEventListener("keyup", keyUpHandler);
+
 	// Stop the game when the back/forward button is clicked
 	window.addEventListener("popstate", () => {stop()});
     const observer = new MutationObserver(() => {
