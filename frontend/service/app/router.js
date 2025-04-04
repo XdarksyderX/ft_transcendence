@@ -16,7 +16,7 @@ import { isLoggedIn } from './auth.js';
 import { initializeSettingsEvents } from '../components/settings/app.js';
 import { getUsername } from './auth.js';
 import { initializeResetPasswordEvents } from '../components/login/reset-pw.js';
-import { clearPongListeners, initializePongEvents } from '../components/pong/app.js';
+import { initializePongEvents } from '../components/pong/app.js';
 import { initializeNotificationEvents } from '../components/events/app.js';
 import { stopBackgroundMusic, toggleBackgroundMusic } from '../components/chess/index.js';
 import { updateNotificationBell } from '../components/events/app.js';
@@ -164,10 +164,6 @@ async function navigateTo(fullUrl, key = null) {
         
        // if (!(url !== "/login" && url !== "/signup" && !verify)) 
         if (url !== window.location.pathname) {
-            if (window.location.pathname == '/pong') {
-                console.log("HOLA ELI")
-                clearPongListeners();
-            }
             history.pushState(null, null, url);
             router(key);
         }

@@ -524,21 +524,17 @@ function startGame(gameConfig)
     }
 
     requestAnimationFrame(update); // Start game loop
-    document.addEventListener("keydown", keyDownHandler);
-    document.addEventListener("keyup", keyUpHandler);
-	
 	// Stop the game when the back/forward button is clicked
-	window.addEventListener("popstate", clearPongListeners);    
+	window.addEventListener("popstate", () => {stop()});
+    const observer = new MutationObserver(() => {
+        console.log('DOM updated cleaning event listeners...');
+        document.removeEventListener("keydown", keyDownHandler);
+        document.removeEventListener("keyup", keyUpHandler);
+    });
+    observer.observe(document.getElementById('app'), { childList: true, subtree: true });  
 }
 
-export function clearPongListeners() {
-    stop(); // Stop the game loop and clear intervals
-    document.removeEventListener("keydown", keyDownHandler);
-    document.removeEventListener("keyup", keyUpHandler);
-    // Remove the URL change listeners
-    window.removeEventListener("popstate", clearPongListeners);
-    window.removeEventListener("hashchange", clearPongListeners);
-}
+
 function initGame(gameConfig)
 {
 	playerHeight = gameConfig.playerHeight;

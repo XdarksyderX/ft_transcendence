@@ -95,12 +95,18 @@ export async function updateNotificationIndicator(indicator) {
 
 // Show the recent chats tab
 async function showRecentChats(elements) {
-	currentView = 'recent-chats';
+    currentView = 'recent-chats';
+
+    // Ensure only the last 8 messages are kept in the cache for the active chat
+    if (activeChat && chatCache[activeChat] && chatCache[activeChat].length > 8) {
+        chatCache[activeChat] = chatCache[activeChat].slice(-8); // Keep only the last 8 messages
+    }
+
     activeChat = null;
-	elements.newChatTab.style.display = 'none';
-	elements.chatTab.style.display = 'none';
-	elements.recentChatsTab.style.display = 'flex';
-	await renderRecentChats(elements);
+    elements.newChatTab.style.display = 'none';
+    elements.chatTab.style.display = 'none';
+    elements.recentChatsTab.style.display = 'flex';
+    await renderRecentChats(elements);
 }
 
 // Renders the recent chats list
@@ -223,6 +229,7 @@ function handleFriendListClick(event, elements) {
 /* * * * * * * * * * * * * * * * * * * *  CHATS TAB  * * * * * * * * * * * * * * * * * * * */
 
 export async function openChat(friendUsername, elements) {
+    console.log("on openChat: ", chatCache);
     activeChat = friendUsername;
     renderedMessages.clear();
     if (chatCache[friendUsername]) {
@@ -236,36 +243,37 @@ export async function openChat(friendUsername, elements) {
 }
 
 // Fetch chat messages for a specific friend
-async function fetchChatMessages(friendUsername) {
-	try {
-		const messagesResponse = await getMessages(friendUsername);
+async function fetchChatMessages(friendUsername, isScrolling = false) {
+    try {
+        const messagesResponse = await getMessages(friendUsername);
 
-		if (messagesResponse.status === "success" && messagesResponse.messages) {
-			const fetchedMessages = messagesResponse.messages.map((msg, index) => ({
-				id: msg.id ?? index + 1,
-				message: msg.content,
-				sender: msg.sender,
-				receiver: msg.receiver,
-				sent_at: msg.sent_at,
-				is_special: msg.is_special,
-				is_read: msg.is_read
-			}));
+        if (messagesResponse.status === "success" && messagesResponse.messages) {
+            const fetchedMessages = messagesResponse.messages.map((msg, index) => ({
+                id: msg.id ?? index + 1,
+                message: msg.content,
+                sender: msg.sender,
+                receiver: msg.receiver,
+                sent_at: msg.sent_at,
+                is_special: msg.is_special,
+                is_read: msg.is_read
+            }));
 
-			const existingMessages = chatCache[friendUsername] || [];
-			const existingIds = new Set(existingMessages.map(msg => msg.id));
+            const existingMessages = chatCache[friendUsername] || [];
+            const existingIds = new Set(existingMessages.map(msg => msg.id));
 
-			const newMessages = fetchedMessages.filter(msg => !existingIds.has(msg.id));
+            // Filter out duplicates
+            const newMessages = fetchedMessages.filter(msg => !existingIds.has(msg.id));
+            const mergedMessages = [...newMessages, ...existingMessages];
+            console.log("mergedMessages: ", mergedMessages);
 
-			const mergedMessages = [...newMessages, ...existingMessages];
+            // Sort messages by timestamp
+            mergedMessages.sort((a, b) => new Date(a.sent_at) - new Date(b.sent_at));
 
-			mergedMessages.sort((a, b) => new Date(a.sent_at) - new Date(b.sent_at));
-
-			chatCache[friendUsername] = mergedMessages;
-            //debugger
-		}
-	} catch (error) {
-		console.error("Error fetching messages:", error);
-	}
+            chatCache[friendUsername] = isScrolling ? mergedMessages : mergedMessages.slice(-8);
+        }
+    } catch (error) {
+        console.error("Error fetching messages:", error);
+    }
 }
 
 
@@ -382,10 +390,11 @@ async function fillProfileData(username, container) {
 
 
 async function handleScroll(event, elements) {
-	if (event.target.scrollTop !== 0 || !activeChat) return;
 
+	if (event.target.scrollTop !== 0 || !activeChat) return;
+    //debugger
 	const messages = chatCache[activeChat] || [];
-	const hasFirstMessage = messages.some(msg => msg.message === "1");
+	const hasFirstMessage = messages.some(msg => msg.id == "1");
 
 	if (hasFirstMessage) {
 		//console.log(`No more messages to fetch for ${activeChat}`);
@@ -396,8 +405,7 @@ async function handleScroll(event, elements) {
 	spinner.classList.remove('d-none');
 
 	try {
-		await fetchChatMessages(activeChat);
-
+		await fetchChatMessages(activeChat, true);
 
 		if ((chatCache[activeChat] || []).length > messages.length) {
 			renderChat(elements, false);
@@ -411,18 +419,40 @@ async function handleScroll(event, elements) {
 
 
 
-export function updateChatCache(username, message) {
-    if (!chatCache[username]) {
-        chatCache[username] = [];
-    }
+export function updateChatCache(friendUsername, newMessage, isSocket = false) {
+    // Get the existing messages for the friend
+    const existingMessages = chatCache[friendUsername] || [];
 
-    chatCache[username].push(message);
+    // Determine the new ID if the message is from the socket and doesn't have an ID
+    const newId = isSocket && !newMessage.id
+        ? (existingMessages.length > 0
+            ? Math.max(...existingMessages.map(msg => msg.id)) + 1 // Use the highest existing ID + 1
+            : 1) // Start from 1 if no messages exist
+        : newMessage.id;
 
-    if (chatCache[username].length > 8) {
-        chatCache[username] = chatCache[username].slice(-8);
+    // Normalize the message format only if the message is from the socket
+    const normalizedMessage = isSocket
+        ? {
+            id: newId, // Use the calculated ID
+            message: newMessage.message,
+            sender: newMessage.sender,
+            receiver: newMessage.receiver,
+            sent_at: new Date(newMessage.sent_at).toISOString(), // Ensure ISO format
+            is_special: newMessage.is_special ?? false,
+            is_read: newMessage.is_read ?? false
+        }
+        : newMessage; // Use the message as-is if it's not from the socket
+
+    const existingIds = new Set(existingMessages.map(msg => msg.id));
+
+    // Avoid adding duplicates
+    if (!existingIds.has(normalizedMessage.id)) {
+        chatCache[friendUsername] = [...existingMessages, normalizedMessage];
+
+        // Sort messages by timestamp
+        chatCache[friendUsername].sort((a, b) => new Date(a.sent_at) - new Date(b.sent_at));
     }
 }
-
 export function clearChatCache() {
     // Clear chat-related caches
     chatCache = {};
