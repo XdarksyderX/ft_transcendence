@@ -24,7 +24,6 @@ export function initializeGlobalChatSocket() {
     };
 
     chatSocket.onmessage = async (event) => {
-		debugger
 		//console.log("before handler: ", chatCache)
         await handleReceivedMessage(event);
 		//console.log("after handler: ", chatCache)
