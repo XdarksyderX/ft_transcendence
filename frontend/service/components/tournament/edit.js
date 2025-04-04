@@ -32,11 +32,9 @@ export async function showEditTournamentSection(token, addListener, requiredPart
 async function initEditTournamentSection(token, addListener, requiredParticipants) {
   const detail = await handleGetTournamentDetail(token);
   const invitations = await getAllInvitationsStatusMap(detail);
-  console.log("detail: ", detail);
   renderTournamentName(detail.name);
   initVariables(requiredParticipants);
   renderInvitations(invitations);
-  console.log("on initEditTournamentSection, selected Friends: ", selectedFriends);
   if (isReplacementNeeded()) {
     renderReplacementFriends(invitations);
   }
@@ -100,7 +98,7 @@ async function getAllInvitationsStatusMap(detail) {
 export async function handleGetTournamentDetail(token) {
   const response = await getTournamentDetail(token);
   if (response.status === 'success') {
-    console.log("on handleGetTournamentDetail: ", response.tournament);
+    //console.log("on handleGetTournamentDetail: ", response.tournament);
     return response.tournament;
   } else {
     throwAlert('Error while getting tournament detail');
@@ -266,7 +264,7 @@ function toggleFriendSelection(friendName, friendBtn) {
     friendBtn.classList.add("selected")
     selectedFriends.push(friendName);
   }
-  console.log("selectedFriends.length: ", selectedFriends.length)
+  //console.log("selectedFriends.length: ", selectedFriends.length)
   const sendBtn = document.getElementById("send-replacement-btn");
   sendBtn.disabled = (selectedFriends.length === 0);
 } 

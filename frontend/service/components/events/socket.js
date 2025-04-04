@@ -37,7 +37,7 @@ const notificationHandlers = {
     request_cancelled: () => handleFriendRequestChanges('request_cancelled'),
 
     // Pong Match Events
-    match_invitation: () => console.log("[NOTISOCKET] You match invitation received"),
+    match_invitation: () => console.log("[NOTISOCKET] Match invitation received"),
     tournament_end: () => console.log("[NOTISOCKET] Tournament ended"),
     pong_match_accepted: (data) => handleAcceptedInvitation('pong', data.game_key),
     pong_match_decline: () => handleDeclinedInvitation(),

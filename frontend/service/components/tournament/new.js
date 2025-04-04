@@ -11,7 +11,7 @@ let selectedFriends = [];
 export async function initializeNewTournament(addListener) {
     selectedFriends = [];
     const pendantTour = await handleGetEditableTournaments();
-    console.log("pendanTour: ", pendantTour);
+    //console.log("pendanTour: ", pendantTour);
     if (!pendantTour) {
         showNewTournamentSection();
     } else {
@@ -99,18 +99,18 @@ async function renderFriendList(elements) {
 // Toggles the selection of friends for the tournament
 function toggleFriendSelection(username, btn) {
     const startBtn = document.getElementById('start-tournament-btn');
-    console.log("Before toggle:", selectedFriends);
+    //console.log("Before toggle:", selectedFriends);
     if (btn.classList.contains("selected")) {
         btn.classList.remove("selected");
         selectedFriends = selectedFriends.filter((u) => u !== username);
-        console.log(`Unselected friend with username: ${username}`);
+        //console.log(`Unselected friend with username: ${username}`);
     } else {
         if (selectedFriends.length === requiredParticipants - 1) {
             return throwAlert(`You already have ${requiredParticipants} selected friends`);
         }
         btn.classList.add("selected");
         selectedFriends.push(username);
-        console.log(`Selected friend with username: ${username}`);
+        //console.log(`Selected friend with username: ${username}`);
     }
     startBtn.disabled = selectedFriends.length !== requiredParticipants - 1;
 }
@@ -132,12 +132,11 @@ function initStartNewTournament(elements) {
     const newStartBtn = startBtn.cloneNode(true);
     startBtn.parentNode.replaceChild(newStartBtn, startBtn);
     selectedFriends = [];
-    console.log("adding event listener");
+    //console.log("adding event listener");
     newStartBtn.addEventListener('click', () => preventMultipleClicks(newStartBtn, handleCreateNewTournament));
 }
 
 async function handleCreateNewTournament() {
-    console.log("CLICK")
     const tournamentName = document.getElementById('tournament-name-input').value;
     if (parseTournamentName(tournamentName)) {
         await createNewTournament(tournamentName);

@@ -280,7 +280,7 @@ async function handleSaveChanges(password, changedData, otp) {
     const currentData = getCurrentData();
 
     if (currentData.enable2FA !== changedData.enable2FA) {
-        console.log('changes.enable2FA: ', changedData.enable2FA);
+       // console.log('changes.enable2FA: ', changedData.enable2FA);
         const success = await handle2FAChange(changedData, password, otp);
         changesMade = changesMade || success;
     }

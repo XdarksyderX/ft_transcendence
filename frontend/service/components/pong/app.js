@@ -66,14 +66,14 @@ export async function initializePongEvents(gameKey = null)
         initBoard();
         startCountdownOnBoard(3, () => 
         {
-            console.log("Countdown finished. Connecting to online game with key:", gameKey);
+            console.log("[PONG] Countdown finished. Connecting to online game");
             connectToOnlineGame(gameKey);
         });
         return;
     }
     
     // Check for 1v1 match through fetch
-    console.log("Searching online game through fetch...");
+    console.log("[PONG] Searching online game through fetch...");
     try 
     {
         const response = await getMatchInProgress();
@@ -177,7 +177,7 @@ function connectToOnlineGame(gameKey)
         
         if (message.status === "game_starting")
         {
-            console.log("Game is starting!");
+            console.log("[PONG] Game is starting!");
             hideMenu();
         }
         else if (message.status === "game_update")
@@ -186,7 +186,7 @@ function connectToOnlineGame(gameKey)
         }
         else if (message.status === "game_over")
         {
-            console.log("RECEIVED GAME OVER");
+            //console.log("RECEIVED GAME OVER");
             if (message.state)
                 updateGameState(message.state);
             socket.close();
@@ -205,7 +205,7 @@ function connectToOnlineGame(gameKey)
     socket.onclose = () =>
     {
         sessionStorage.removeItem('inGame');
-        console.log("WebSocket Closed.");
+        console.log("[PONG] WebSocket Closed.");
         // Remove event listeners using the same function references
         document.removeEventListener("keydown", handleKeyDown);
         document.removeEventListener("keyup", handleKeyUp);
@@ -373,7 +373,7 @@ function keyUpHandlerOnline(event, socket) {
 
 function endOnlineMatch(message)
 {
-    console.log("FINAL MESSAGE: " + message.state);
+   // console.log("FINAL MESSAGE: " + message.state);
     context.clearRect(0, 0, board.width, board.height);
     context.fillStyle = accentColor;
     context.font = "45px 'ROG LyonsType Regular'";

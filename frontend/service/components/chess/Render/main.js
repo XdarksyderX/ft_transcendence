@@ -116,7 +116,7 @@ function initGameRender(data, piecePositions, detail)
           keySquareMapper[position].piece.move = move;
       }
     }
-    console.log("globalPiece at the beggining of the game: ", globalPiece);
+    //console.log("globalPiece at the beggining of the game: ", globalPiece);
 }
 
 function assignSpecificPiece(square, piecePositions) {

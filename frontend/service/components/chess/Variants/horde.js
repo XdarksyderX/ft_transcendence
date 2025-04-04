@@ -3,31 +3,6 @@ import { globalPiece } from "../Render/main.js";
 import { checkEnPassant, checkSquareCaptureId, pawnCaptureOptions, checkOpponetPieceByElement } from "../Helper/commonHelper.js";
 import { keySquareMapper } from "../index.js";
 
-// const piecePositionsHorde = {
-//   "a8": piece.blackRook,
-//   "h8": piece.blackRook,
-//   "b8": piece.blackKnight,
-//   "g8": piece.blackKnight,
-//   "c8": piece.blackBishop,
-//   "f8": piece.blackBishop,
-//   "d8": piece.blackQueen,
-//   "e8": piece.blackKing,
-// };
-
-// function renderHordePieces(square, globalPiece, assignSpecificPiece) {
-//   if (square.id[1] == 7) {
-//     square.piece = piece.blackPawn(square.id);
-//     globalPiece.black_pawns.push(square.piece);
-//   } else if (square.id[1] == 1 || square.id[1] == 2 || square.id[1] == 3 || square.id[1] == 4
-//     || square.id == "b5" || square.id == "c5" || square.id == "f2" || square.id == "g2") {
-//     square.piece = piece.whitePawn(square.id);
-//     globalPiece.white_pawns.push(square.piece);
-//   } else if (piecePositionsHorde[square.id]) {
-//     square.piece = piecePositionsHorde[square.id](square.id);
-//     assignSpecificPiece(square);
-//   }
-// }
-
 function generateHordePosition() {
     const positionMap = {};
     const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];

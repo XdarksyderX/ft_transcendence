@@ -1,5 +1,5 @@
 import { navigateTo } from '../../app/router.js';
-import { hideModalGently, throwAlert } from '../../app/render.js';
+import { consoleSuccess, hideModalGently, throwAlert } from '../../app/render.js';
 import { login } from '../../app/auth.js';
 import { requestPasswordReset } from '../../app/auth.js';
 import { parseEmail, parseUsername } from '../signup/signup.js';
@@ -38,7 +38,7 @@ async function authenticateUser(userCredentials) {
         const loginData = await login(userCredentials);
 
         if (loginData.status === "success") {
-            console.log("Login successful:", loginData.access_token);
+            consoleSuccess("[AUTH]: Login succesfull");
             navigateTo('/home');
         } 
         else if (loginData.status === "otp_required") {

@@ -48,7 +48,6 @@ async function handleGetTournamentList() {
   if (response.status !== 'success') {
     return throwAlert("Error while fetching tournament list");
   }
-  console.log(response);
   return response.tournaments;
 }
 
@@ -139,7 +138,7 @@ function renderAllTournaments(tournaments, container, finished) {
 
   container.innerHTML = '';
 
-  console.log("generating one tournament element");
+  //console.log("generating one tournament element");
   Object.values(tournaments).forEach(tournament => {
     const tournamentElement = generateTournament(tournament);
     container.appendChild(tournamentElement);
@@ -214,7 +213,7 @@ function generateRound(round, token) {
   const roundClass = round.round !== 1 ? 'position-absolute' : '';
 
   roundElement.className = `round ${openClass} d-flex flex-column`;
-  console.log("round: ", round);
+  //console.log("round: ", round);
 
   const matches = generateMatches(round.games, token);
   roundElement.innerHTML = `
@@ -303,7 +302,7 @@ function generateMatch(game) {
 }
 
 async function initModalEvents() {
-  console.log("adding event listeners");
+  //console.log("adding event listeners");
   const modalEl = document.getElementById('start-match-modal');
   // const modal = new bootstrap.Modal(modalEl);
   const playButton = modalEl.querySelector('#play-btn'); // The "Play" button
@@ -317,6 +316,7 @@ async function initModalEvents() {
     const response = await joinTournamentQueue(token)
     if (response.status === 'success') {
       inQueue = true;
+      console.log("[PONG] joined game queue succesfuly");
       toggleModalContent(modalEl);
     } else {
       throwAlert(`Error joining match queue`);
@@ -324,11 +324,11 @@ async function initModalEvents() {
   });
 
   modalEl.addEventListener('hide.bs.modal', async () => {
-    console.log("modal closed, queue:", inQueue)
     if (inQueue) {
       const token = modalEl.getAttribute('data-token');
       await leaveTournamentQueue(token);
       toggleModalContent(modalEl);
+      console.log("[PONG] game queue succesfuly left");
       inQueue = false;
     }
   });
@@ -338,7 +338,7 @@ let inQueue = false;
 // Triggers the modal to play a match
 async function triggerPlayMatchModal(match)
 {
-  console.log("Reached triggerPlayMatchModal");
+  //console.log("Reached triggerPlayMatchModal");
   const modalEl = document.getElementById('start-match-modal');
   const modal = new bootstrap.Modal(modalEl);
   modal.show();

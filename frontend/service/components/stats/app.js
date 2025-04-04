@@ -102,8 +102,6 @@ export async function handleGetResumeStats(username) {
     if (chessResponse.status !== "success") {
         return throwAlert("Error while fetching stats");
     }
-
-    console.log("chess response: ", chessResponse);
     
     let resumeStats = {
         totalPong: pongResponse.stats.quick.played,

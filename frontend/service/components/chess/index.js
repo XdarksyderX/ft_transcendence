@@ -60,8 +60,8 @@ export async function initializeChessEvents(key) {
     hideWinModal();
 
     
-    console.log("globalState at the beggining of the game: ", globalState);
-    console.log("squareKeyMapper at the beggining of the game: ", keySquareMapper);
+    //console.log("globalState at the beggining of the game: ", globalState);
+    //console.log("squareKeyMapper at the beggining of the game: ", keySquareMapper);
     if (key) {
         await initOnlineChess(key, true);
     } else {

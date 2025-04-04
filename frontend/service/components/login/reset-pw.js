@@ -14,16 +14,15 @@ async function handlePasswordReset(event) {
     const confirmPassword = document.getElementById('confirm-new-password').value;
 
     const urlParams = new URLSearchParams(window.location.search);
-    console.log("URL: ", window.location.href); // Log the full URL
     const token = urlParams.get('token');
-    console.log("Token: ", token); // Log the token
+
     if (!parseNewPasswords(password, confirmPassword)) {
         return ;
     }
     try {
         const response = await resetPassword(token, password);
         if (response.status === "success") {
-            throwAlert("Password changed successfully");
+            throwToast("Password changed successfully");
         } else {
             throwAlert(response.message);
         }
