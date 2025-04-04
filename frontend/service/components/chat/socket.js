@@ -61,6 +61,7 @@ export function initializeGlobalChatSocket() {
 // Handle received WebSocket messages
 async function handleReceivedMessage(event) {
 	try {
+		debugger
 		const data = JSON.parse(event.data);
 		const currentUser = getUsername();
 		const msg = data?.data;
@@ -77,14 +78,15 @@ async function handleReceivedMessage(event) {
 
 			// Open the chat if its a special message
 			if (!imSender && msg.is_special) {
+				if (isExpanded && currentView === 'chat' && activeChat == msg.sender) {
+					await renderChat(elements);
+				}
 				if (activeChat !== msg.sender || currentView !== 'chat') {
 					openChat(msg.sender, elements);
 				}
 				if (!isExpanded) {
 					toggleChat(elements);
-				}
-				if (isExpanded && currentView === 'chat' && activeChat == msg.sender) {
-					await renderChat(elements);
+					//await renderChat(elements);
 				}
 			} else {
 				
