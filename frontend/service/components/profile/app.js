@@ -3,7 +3,7 @@ import { handleGetFriendList } from "../friends/app.js";
 import { getAvatar, changeAvatar, getProfile, changeAlias } from "../../app/social.js";
 import { handleUsernameChange } from "../settings/app.js";
 import { throwAlert, throwToast } from "../../app/render.js";
-import { parseUsername } from "../signup/signup.js";
+import { parseUsername, parseAlias } from "../signup/signup.js";
 import { handleGetResumeStats } from "../stats/app.js";
 
 const avatarImages = [
@@ -214,7 +214,7 @@ async function saveNameChanges(elements) {
 
     if (newName == '' || newAlias == '') {
         return throwAlert("None field can't be empty");
-    } else if (!parseUsername(newName)) {
+    } else if (!parseUsername(newName) || !parseAlias(newAlias)) {
         return ;
     }
     if (newAlias !== oldAlias) {
