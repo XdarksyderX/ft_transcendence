@@ -11,6 +11,7 @@ from core.utils.event_domain import publish_event
 from django.utils import timezone
 from core.models import User
 import os
+import re
 
 class ProfileView(APIView):
     permission_classes = [IsAuthenticated]
@@ -88,6 +89,10 @@ class ChangeAliasView(APIView):
         new_alias = request.data.get('alias', '').strip()
         if not new_alias:
             return Response({'status': 'error', 'message': 'Alias cannot be empty.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        alias_regex = r'^[a-zA-Z0-9_]+$'
+        if not re.match(alias_regex, new_alias):
+            return Response({'status': 'error', 'message': 'Alias must contain only letters, numbers, and underscores.'}, status=status.HTTP_400_BAD_REQUEST)
 
         if len(new_alias) > 20:
             return Response({'status': 'error', 'message': 'Alias cannot exceed 20 characters.'}, status=status.HTTP_400_BAD_REQUEST)
