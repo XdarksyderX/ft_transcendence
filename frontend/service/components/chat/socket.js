@@ -61,7 +61,7 @@ export function initializeGlobalChatSocket() {
 // Handle received WebSocket messages
 async function handleReceivedMessage(event) {
 	try {
-		debugger
+		// debugger
 		const data = JSON.parse(event.data);
 		const currentUser = getUsername();
 		const msg = data?.data;
@@ -81,7 +81,7 @@ async function handleReceivedMessage(event) {
 				if (isExpanded && currentView === 'chat' && activeChat == msg.sender) {
 					await renderChat(elements);
 				}
-				if (activeChat !== msg.sender || currentView !== 'chat') {
+				if (activeChat !== msg.sender || currentView !== 'chat' || !isExpanded) {
 					openChat(msg.sender, elements);
 				}
 				if (!isExpanded) {
@@ -89,7 +89,6 @@ async function handleReceivedMessage(event) {
 					//await renderChat(elements);
 				}
 			} else {
-				
 				// Render the message if the chat is open
 				if (currentView === 'chat' && activeChat === msg.sender) {
 					if (isExpanded) {
@@ -109,7 +108,6 @@ async function handleReceivedMessage(event) {
 		console.error("Error parsing WS message:", e);
 	}
 }
-
 
 // Handle the submission of the chat form to send a message
 export async function handleSentMessage(event, elements) {
