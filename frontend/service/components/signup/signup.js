@@ -50,6 +50,16 @@ export function parseUsername(username) {
     return true;
 }
 
+export function parseAlias(alias) {
+    const aliasRegex = /^[a-zA-Z0-9_]{1,18}$/;
+    
+    if (!aliasRegex.test(alias)) {
+        throwAlert('Alias can only contain alphanumeric characters and underscores, and must be no more than 18 characters long.');
+        return false;
+    }
+    return true;
+}
+
 export function initializeSignupEvents() {
     const cancelSignup = document.getElementById('cancel-signup');
     const registerForm = document.getElementById('register');
