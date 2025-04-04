@@ -12,10 +12,9 @@ def handle_user_connected(event):
 		return f"Event {event_id} already processed."
 
 	event_data = event["data"]["attributes"]
-	with transaction.atomic():
-		user = User.objects.get(id=event_data["user_id"])
-		user.is_online = True
-		user.save()
+	user = User.objects.get(id=event_data["user_id"])
+	user.is_online = True
+	user.save()
 	mark_event_as_processed(event_id, event["event_type"])
 	return f"User {user.username} connected to social service."
 
@@ -26,9 +25,8 @@ def handle_user_disconnected(event):
 		return f"Event {event_id} already processed."
 
 	event_data = event["data"]["attributes"]
-	with transaction.atomic():
-		user = User.objects.get(id=event_data["user_id"])
-		user.is_online = False
-		user.save()
+	user = User.objects.get(id=event_data["user_id"])
+	user.is_online = False
+	user.save()
 	mark_event_as_processed(event_id, event["event_type"])
 	return f"User {user.username} disconnected from social service."
