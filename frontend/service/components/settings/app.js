@@ -1,6 +1,6 @@
 import { isTwoFAEnabled, toggleTwoFA, changeUsername, changeEmail, changePassword, deleteAccount, refreshAccessToken, getUsername,  } from '../../app/auth.js';
 import { hideModalGently, throwAlert, throwToast } from '../../app/render.js';
-import { parseNewPasswords } from '../signup/signup.js';
+import { parseNewPasswords, parseUsername } from '../signup/signup.js';
 import { parseEmail } from '../signup/signup.js';
 import { handle2FAmodal } from './QRhandler.js';
 import { logout } from '../../app/auth.js';

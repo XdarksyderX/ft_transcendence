@@ -529,6 +529,13 @@ function startGame(gameConfig)
 	
 	// Stop the game when the back/forward button is clicked
 	window.addEventListener("popstate", () => {stop()});
+    const observer = new MutationObserver(() => {
+        console.log('DOM updated cleaning event listeners...');
+        document.removeEventListener("keydown", handleKeyDown);
+        document.removeEventListener("keyup", handleKeyUp);
+    });
+    observer.observe(document.getElementById('app'), { childList: true, subtree: true });
+    
 }
 
 function initGame(gameConfig)
