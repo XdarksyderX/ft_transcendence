@@ -135,7 +135,7 @@ function handleFriendChanges(type, data, add = 0) {
     const path = window.location.pathname;
 
     if (type === 'friend_status_updated')
-        return handleStatusUpdate(path, add);
+        return handleStatusUpdate(path, data, add);
     if (path === '/friends') {
         const username = data.old_username || data.user;
         refreshFriendsFriendlist(username, add);
@@ -153,7 +153,7 @@ function handleFriendChanges(type, data, add = 0) {
 	}
 }
 
-function handleStatusUpdate(path, add) {
+function handleStatusUpdate(path, data, add) {
         // Clear any existing timeout for friend_status_updated
         clearTimeout(friendStatusUpdateTimeout);
 
