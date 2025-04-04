@@ -305,6 +305,7 @@ function giveKingCaptureIds(id, color) {
 }
 
 function checkEnPassant(curr_pos, color, num) {
+    if (!curr_pos) return false
     const row = color === "white" ? 5 : 4; // Row where en passant is possible
     if (curr_pos && curr_pos[1] != row) return false;
     //console.log(`Checking en passant for ${color} at position ${curr_pos} on row ${row}`);

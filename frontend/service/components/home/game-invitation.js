@@ -76,6 +76,7 @@ export async function handleAcceptQuickGameInvitation(game, token) {
         return (1);
     } else {
         console.error('Failed to accept invitation:', response.message);
+        if (response.message.includes("already")) throwAlert(response.message);
         return (0);
     }
 }
