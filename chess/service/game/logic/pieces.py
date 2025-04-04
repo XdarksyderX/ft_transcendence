@@ -36,7 +36,7 @@ class ChessPiece(ABC):
         pass
     # new method to return only the movements that doesnt leave you on check
     def get_legal_moves(self, board):
-        """Retorna solo los movimientos que no dejan al rey en jaque."""
+
         legal_moves = []
         for move in self.get_possible_moves(board):
             logging.debug(f"Testing move {self.position} -> {move}")
@@ -44,8 +44,8 @@ class ChessPiece(ABC):
     
             test_board[move] = self
             test_board[self.position] = None
-            old_position = self.position  # Guardar la posición original
-            self.position = move  # Actualizar temporalmente la posición de la pieza
+            old_position = self.position
+            self.position = move
     
             king_position = None
             for pos, piece in test_board.items():

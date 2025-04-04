@@ -117,7 +117,7 @@ let oldAlias = null;
 export function toggleEditMode(isEditing, elements) {
     if (!elements) {
         elements = getElements();
-        console.log("elements getted", elements);
+        //console.log("elements getted", elements);
     }
     elements.editProfile.style.display = isEditing ? 'none' : 'inline-block';
     elements.saveChanges.style.display = isEditing ? 'inline-block' : 'none';
@@ -181,7 +181,7 @@ async function savePhotoChanges(elements) {
 
 async function updateChanges() {
     await refreshAccessToken();
-    console.log("updating access token")
+    console.log("[AUTH] Updating access token after changes")
     document.getElementById('sidebar-username').innerText = getUsername();
     await initializeProfileEvents(true);
 }
@@ -362,7 +362,7 @@ function applyColorChanges() {
 
 function btnHandler(elements) {
     elements.editProfile.addEventListener('click', () => toggleEditMode(true, elements));
-    console.log("adding event listeners")
+ //   console.log("adding event listeners")
     elements.cancelChanges.forEach(button => {
         button.addEventListener('click', () => toggleEditMode(false, elements));
     });	
@@ -388,7 +388,7 @@ function loadCanvases() {
 
     Promise.all(canvases.map((canvas, index) => loadImageToCanvas(canvas, avatarImages[index])))
         .then(() => {
-            console.log('All avatars loaded');
+            console.log('[SOCIAL] All avatars loaded');
         });
 }
 

@@ -62,7 +62,7 @@ function removeSurroundingPieces(pos) {
     });
     if (kingHasDied && !chessSocket) {
         const winner = inTurn === 'white' ? 'black' : 'white';
-        //console.log(`not to be dramatic but ${inTurn} king has exploded`);
+        console.log(`[CHESS] not to be dramatic but ${inTurn} king has exploded`);
         setTimeout(() => { winGame(winner); }, 50);
     }
 }

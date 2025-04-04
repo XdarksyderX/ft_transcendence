@@ -32,18 +32,15 @@ class ChessLogic:
         if self.state == 'GAME_OVER':
             return False, "Game is already over", self.board, {}
             
-        # Si hay una promoción pendiente, no se permiten otros movimientos
         if self.state == 'PROMOTION_PENDING' and not promotion_choice:
             return False, "You must choose a piece for promotion first", self.board, {
                 'promotion_pending': True,
                 'promotion_position': self.promotion_position
             }
     
-        # Validar turno del jugador
         if player_color != self.current_player:
             return False, "Not your turn", self.board, {}
     
-        # Validar el movimiento mediante el game_mode
         success, message, new_board, info = self.game_mode.validate_move(
             self.board, from_pos, to_pos, player_color, promotion_choice
         )
@@ -53,7 +50,6 @@ class ChessLogic:
     
         self.board = new_board
     
-        # Manejo de promoción pendiente
         if info.get('promotion_pending', False):
             self.state = 'PROMOTION_PENDING'
             self.promotion_position = to_pos
@@ -76,9 +72,7 @@ class ChessLogic:
         return True, message, self.board, result
 
     def handle_promotion(self, promotion_choice: str):
-        """
-        Maneja la elección de promoción cuando un peón alcanza la última fila.
-        """
+
         if self.state != 'PROMOTION_PENDING' or not self.promotion_position:
             return False, "No promotion pending", self.board, {}
 
@@ -101,14 +95,12 @@ class ChessLogic:
             }
         logger.debug(f"handle_promotion 3")
 
-        # Buscar el último movimiento que culmina en la posición de promoción
         from_pos = next(
             (move['from'] for move in reversed(self.move_history) if move['to'] == self.promotion_position),
             self.promotion_position
         )
 
         self.board = new_board
-        # Se registra el movimiento con la promoción completada
         self._complete_move(from_pos, self.promotion_position, self.current_player, {
             **info,
             'promotion': promotion_choice

@@ -7,6 +7,7 @@ import { logout } from '../../app/auth.js';
 import { getBlockedList, unblockUser, getAvatar } from '../../app/social.js'
 import { initOTPform } from '../login/login.js';
 import { resizeSidebarUsername } from '../sidebar/app.js';
+import { preventMultipleClicks } from '../../app/router.js';
 
 
 export function initializeSettingsEvents() {
@@ -218,49 +219,65 @@ function toggleChanges(changedData) {
 }
 
 function showSaveChangesModal(enabled, changedData) {
-	const modalElement = document.getElementById('save-changes-modal');
-	const modal = new bootstrap.Modal(modalElement);
-	const otpForm = document.getElementById('otp-form');
-	const otpRequired = enabled && !changedData.enable2FA;
+    const modalElement = document.getElementById('save-changes-modal');
+    const modal = new bootstrap.Modal(modalElement);
+	toggleOTPForm(enabled, changedData);
+    modal.show();
+}
 
-	if (otpRequired) {
-		otpForm.style.display = 'block';
-	} else {
-		otpForm.style.display = 'none';
-	}
-	modal.show();
+function toggleOTPForm(enabled, changedData) {
+    const otpForm = document.getElementById('otp-form');
+    const otpInputs = otpForm.querySelectorAll('.otp-input');
+    const otpRequired = enabled && !changedData.enable2FA;
+
+    if (otpRequired) {
+        otpForm.style.display = 'block';
+        otpInputs.forEach(input => input.setAttribute('required', 'true')); // Add 'required' attribute
+    } else {
+        otpForm.style.display = 'none';
+        otpInputs.forEach(input => {
+            input.removeAttribute('required');
+            input.value = '';
+        });
+    }
 }
 
 function initSaveChangesEvents(changedData) {
 	const saveBtn = document.getElementById("save-changes-btn");
 	
-	saveBtn.addEventListener("click", () => showSaveChangesModal(isTwoFAEnabled(), changedData));
-	
+	//saveBtn.addEventListener("click", () => showSaveChangesModal(isTwoFAEnabled(), changedData));
+
+	saveBtn.addEventListener("click", (event) => {
+        preventMultipleClicks(saveBtn, () => showSaveChangesModal(isTwoFAEnabled(), changedData));
+    });
+
 	const confirmSaveBtn = document.getElementById('confirm-save-changes');
 	confirmSaveBtn.addEventListener('click', async () => {
-		
-		const password = document.getElementById("confirm-changes-password").value;
-		if (!password) {
-			throwAlert("Password required");
-			return;
-		}
-		const otpRequired = isTwoFAEnabled() && !changedData.enable2FA;
-		        const otpInputs = document.querySelectorAll('.otp-input');
-        let otpCode = '';
-        otpInputs.forEach(input => {
-            otpCode += input.value;
-        });
-		if (otpRequired && !otpCode) {
-			throwAlert("OTP required");
-			return;
-		} 
-		const modal = bootstrap.Modal.getInstance(document.getElementById('save-changes-modal'));
-		if (modal) { //Hide the modal after saving changes
-			modal.hide();
-		}
-		await handleSaveChanges(password, changedData, otpCode);
+		preventMultipleClicks(saveBtn, () => confirmSaveChanges(changedData));
 	})
-	
+}
+
+async function confirmSaveChanges(changedData) {
+	const password = document.getElementById("confirm-changes-password").value;
+	if (!password) {
+		throwAlert("Password required");
+		return;
+	}
+	const otpRequired = isTwoFAEnabled() && !changedData.enable2FA;
+			const otpInputs = document.querySelectorAll('.otp-input');
+	let otpCode = '';
+	otpInputs.forEach(input => {
+		otpCode += input.value;
+	});
+	if (otpRequired && !otpCode) {
+		throwAlert("OTP required");
+		return;
+	} 
+	const modal = bootstrap.Modal.getInstance(document.getElementById('save-changes-modal'));
+	if (modal) { //Hide the modal after saving changes
+		modal.hide();
+	}
+	await handleSaveChanges(password, changedData, otpCode);
 }
 
 function cleanAfterChanges(changedData) {
@@ -280,7 +297,7 @@ async function handleSaveChanges(password, changedData, otp) {
     const currentData = getCurrentData();
 
     if (currentData.enable2FA !== changedData.enable2FA) {
-        console.log('changes.enable2FA: ', changedData.enable2FA);
+       // console.log('changes.enable2FA: ', changedData.enable2FA);
         const success = await handle2FAChange(changedData, password, otp);
         changesMade = changesMade || success;
     }

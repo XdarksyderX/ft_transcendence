@@ -59,8 +59,7 @@ async function sendRequest(service, method, endpoint, body = null, isFormData = 
             body: body ? (isFormData ? body : JSON.stringify(body)) : null
         };
 
-        console.log(`Sending request to ${GATEWAY_URL}/api/${service}/${endpoint}`, requestPayload);
-
+        //console.log(`Sending request to ${GATEWAY_URL}/api/${service}/${endpoint}`, requestPayload);
         const response = await fetch(`${GATEWAY_URL}/api/${service}/${endpoint}`, requestPayload);
 
         let responseData = null;

@@ -8,8 +8,6 @@ export function handle2FAmodal(status, secret = null) {
         backdrop: 'static', // Evita cerrar la modal al hacer clic fuera
         keyboard: false     // Evita cerrar la modal con la tecla escape
     });
-
-    console.log('status: ', status);
     
     if (!status) {
         throwToast(`2FA disabled succesfully`);
@@ -48,7 +46,7 @@ function generate2FAQrCode(containerId, service, user, secret) {
 
     const otpUrl = `otpauth://totp/${encodeURIComponent(service)}:${encodeURIComponent(user)}?secret=${secret}&issuer=${encodeURIComponent(service)}&algorithm=SHA1&digits=6`;
 
-    console.log("Generated OTP URL:", otpUrl);
+    console.log("[AUTH] Generated OTP URL:", otpUrl);
 
     const qrContainer = document.getElementById(containerId);
     if (!qrContainer) {
@@ -66,5 +64,5 @@ function generate2FAQrCode(containerId, service, user, secret) {
         correctLevel: QRCode.CorrectLevel.H // High error correction
     });
 
-    console.log(`QR Code generated in container: #${containerId}`);
+    console.log(`[AUTH] QR Code generated in container: #${containerId}`);
 }

@@ -1,5 +1,5 @@
 import { navigateTo } from '../../app/router.js';
-import { hideModalGently, throwAlert } from '../../app/render.js';
+import { consoleSuccess, hideModalGently, throwAlert } from '../../app/render.js';
 import { login } from '../../app/auth.js';
 import { requestPasswordReset } from '../../app/auth.js';
 import { parseEmail, parseUsername } from '../signup/signup.js';
@@ -38,7 +38,7 @@ async function authenticateUser(userCredentials) {
         const loginData = await login(userCredentials);
 
         if (loginData.status === "success") {
-            console.log("Login successful:", loginData.access_token);
+            consoleSuccess("[AUTH]: Login succesfull");
             navigateTo('/home');
         } 
         else if (loginData.status === "otp_required") {
@@ -69,15 +69,17 @@ async function showOTPForm(userCredentials) {
 
         if (!otpCode) {
             throwAlert('Please enter the OTP code.');
-            return;
+            
         } else {
             await authenticateUser({ ...userCredentials, two_fa_code: otpCode });
+            hideModalGently(otpModal);
         }
-
-        // Hide the OTP modal
-        hideModalGently(otpModal);
+        otpInputs.forEach(input => {
+            input.value = '';
+        });
     });
 }
+
 
 export function initOTPform() {
     const otpInputs = document.querySelectorAll('.otp-input');
