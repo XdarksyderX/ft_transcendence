@@ -386,8 +386,11 @@ async function fillProfileData(username, container) {
 
 /* * * * * * * * * * * * * * * * * * * *  PRE-FETCH AND CACHE HANDLING  * * * * * * * * * * * * * * * * * * * */
 
+let retryFetch = false;
 
 async function handleScroll(event, elements) {
+
+
 
 	if (event.target.scrollTop !== 0 || !activeChat) return;
     //debugger
@@ -395,8 +398,12 @@ async function handleScroll(event, elements) {
 	const hasFirstMessage = messages.some(msg => msg.id == "1");
 
 	if (hasFirstMessage) {
-		//console.log(`No more messages to fetch for ${activeChat}`);
-		return;
+		if (!retryFetch) {
+            retryFetch = true;
+            return;
+        } else {
+            retryFetch = false;
+        }
 	}
 
 	const spinner = document.getElementById('chat-spinner');

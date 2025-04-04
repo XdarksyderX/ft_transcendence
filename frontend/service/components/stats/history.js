@@ -68,7 +68,7 @@ function createPongMatchCard(match) {
           </div>
           <div class="col-2">vs</div>
           <div class="col-5 text-center">
-            <p class="ctm-text-title score">${match.score_player2}</p>
+            <p class="ctm-text-title score ${isPlayer2Winner ? 'winner' : ''}">${match.score_player2}</p>
             <div class="ctm-text-light">
               ${match.player2} ${isPlayer2Winner ? "👑" : ""}
             </div>
