@@ -103,7 +103,7 @@ function initUsernameChangeEvents(changedData) {
 		if (!newUsername || newUsername === currentUsername) {
 			changedData.username = currentUsername
 			throwAlert(!newUsername ? "Please, fill in username field" : "New username must be different");
-		} else {
+		} else if (parseUsername(newUsername)) {
 			usernameInput.classList.add('selected');
 			changedData.username = newUsername;
 		}
