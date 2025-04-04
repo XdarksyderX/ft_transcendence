@@ -1,6 +1,6 @@
 import { updateNotificationIndicator, getElements, renderChat, renderRecentChats, 
 markMessagesAsRead, currentView, isExpanded, toggleChat, openChat, activeChat,
-updateChatCache, clearChatCache} from "./app.js";
+updateChatCache, clearChatCache, chatCache} from "./app.js";
 import { getUsername } from "../../app/auth.js";
 import { refreshAccessToken } from "../../app/auth.js";
 import { GATEWAY_HOST } from "../../app/sendRequest.js";
@@ -24,7 +24,10 @@ export function initializeGlobalChatSocket() {
     };
 
     chatSocket.onmessage = async (event) => {
+		//debugger
+		//console.log("before handler: ", chatCache)
         await handleReceivedMessage(event);
+		//console.log("after handler: ", chatCache)
     };
 
     chatSocket.onerror = (error) => {
@@ -69,15 +72,7 @@ async function handleReceivedMessage(event) {
 
 			const chatUsername = imSender ? msg.receiver : msg.sender;
 
-			updateChatCache(chatUsername, {
-				id: Date.now(), // o algún id único si tienes
-				message: msg.message,
-				sender: msg.sender,
-				receiver: msg.receiver,
-				sent_at: msg.sent_at,
-				is_special: msg.is_special,
-				is_read: msg.is_read
-			});
+			updateChatCache(chatUsername, msg, true);
 
 			const elements = getElements();
 
@@ -115,21 +110,28 @@ async function handleReceivedMessage(event) {
 export async function handleSentMessage(event, elements) {
 	event.preventDefault();
 	const messageText = elements.messageInput.value.trim();
+
 	if (messageText && chatSocket && chatSocket.readyState === WebSocket.OPEN) {
-		const messageData = {
+		const now = new Date().toISOString();
+
+		const msg = {
 			message: messageText,
 			sender: getUsername(),
 			receiver: activeChat,
-			sent_at: new Date().toISOString(),
+			sent_at: now,
 			is_special: false,
 			is_read: false
 		};
-		chatSocket.send(JSON.stringify(messageData));
-		updateChatCache(activeChat, messageData);
+
+		chatSocket.send(JSON.stringify(msg));
+
+		updateChatCache(activeChat, msg, true);
+
 		await renderChat(elements);
 		elements.messageInput.value = '';
 	}
 }
+
 
 
 export { chatSocket }

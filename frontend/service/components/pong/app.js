@@ -398,9 +398,9 @@ function endOnlineMatch(message)
 
 function toggleMenu() {
     const menu = document.getElementById('customizationMenu');
-    menu.classList.toggle('hidden');
+    menu?.classList.toggle('hidden');
     const board = document.getElementById("board-container");
-    board.classList.toggle('hidden');
+    board?.classList.toggle('hidden');
 }
 
 function startLocalGame() 
@@ -524,9 +524,6 @@ function startGame(gameConfig)
     }
 
     requestAnimationFrame(update); // Start game loop
-    document.addEventListener("keydown", keyDownHandler);
-    document.addEventListener("keyup", keyUpHandler);
-	
 	// Stop the game when the back/forward button is clicked
 	window.addEventListener("popstate", () => {stop()});
     const observer = new MutationObserver(() => {
@@ -534,9 +531,9 @@ function startGame(gameConfig)
         document.removeEventListener("keydown", keyDownHandler);
         document.removeEventListener("keyup", keyUpHandler);
     });
-    observer.observe(document.getElementById('app'), { childList: true, subtree: true });
-    
+    observer.observe(document.getElementById('app'), { childList: true, subtree: true });  
 }
+
 
 function initGame(gameConfig)
 {

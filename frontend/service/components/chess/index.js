@@ -74,7 +74,6 @@ export async function initializeChessEvents(key) {
         }
     }
     gameMode = onlineInfo.gameMode || offlineInfo.gameMode ;
-    
     GlobalEvent();
     generateCoordinates();
     setupButtonEvents(settingsPanel, saveSettingsButton, cancelSettingsButton, pieceStyleSelect)

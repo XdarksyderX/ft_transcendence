@@ -134,6 +134,8 @@ let friendStatusUpdateTimeout = null;
 function handleFriendChanges(type, data, add = 0) {
     const path = window.location.pathname;
 
+    if (type === 'friend_status_updated')
+        return handleStatusUpdate(path, add);
     if (path === '/friends') {
         const username = data.old_username || data.user;
         refreshFriendsFriendlist(username, add);
@@ -141,16 +143,7 @@ function handleFriendChanges(type, data, add = 0) {
 			refreshFriendData(username);
 		}
     } if (path === '/home' && type === 'friend_status_updated') {
-        // Clear any existing timeout for friend_status_updated
-        clearTimeout(friendStatusUpdateTimeout);
 
-        // Set a new timeout to handle the event
-        friendStatusUpdateTimeout = setTimeout(() => {
-            if (path === '/home') {
-                refreshFriendStatusOnHome(); // Handle the event after the timeout
-            }
-        }, 500); // Adjust the timeout duration as needed (500ms in this case)
-        return;
     }
     if (add) { // we dont see avatar or status on chat or tournament
         refreshChatFriendList(); // chat refreshes in all paths
@@ -158,6 +151,25 @@ function handleFriendChanges(type, data, add = 0) {
             refreshTournamentFriendList();
         }
 	}
+}
+
+function handleStatusUpdate(path, add) {
+        // Clear any existing timeout for friend_status_updated
+        clearTimeout(friendStatusUpdateTimeout);
+
+        // Set a new timeout to handle the event
+        friendStatusUpdateTimeout = setTimeout(() => {
+            if (path === '/home') {
+                refreshFriendStatusOnHome(); // Handle the event after the timeout
+            } else if (path === '/friends') {
+                const username = data.old_username || data.user;
+                refreshFriendsFriendlist(username, add);
+                if (add === 0) {
+                    refreshFriendData(username);
+                }
+            }
+        }, 1000); // Adjust the timeout duration as needed (500ms in this case)
+        return;
 }
 
 function handleFriendRequestChanges(type, data = null) {
