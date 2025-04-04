@@ -236,7 +236,7 @@ export async function openChat(friendUsername, elements) {
     if (!chatCache[friendUsername]) {
         await fetchChatMessages(friendUsername);
     } 
-
+    markAsReadMessage(activeChat);
     showChatWindow(elements, friendUsername);
     renderChat(elements, true);
 }
