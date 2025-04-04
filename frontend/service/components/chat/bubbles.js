@@ -256,7 +256,7 @@ async function getTournamentInvitationDetailFromCache(token) {
         return cachedDetails; // Return the cached details
     }
 	
-    // Fetch the invitation details from the server
+    //  the invitation details from the server
     const response = await getTournamentInvitationDetail(token);
     if (response.status == 'error') {
 		// If the invitation is not found, mark it as outdated

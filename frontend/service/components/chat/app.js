@@ -230,16 +230,16 @@ function handleFriendListClick(event, elements) {
 
 export async function openChat(friendUsername, elements) {
     console.log("on openChat: ", chatCache);
+    debugger
+    elements.chatMessages.innerHTML = '';
     activeChat = friendUsername;
     renderedMessages.clear();
-    if (chatCache[friendUsername]) {
-        renderChat(elements, false);
-    } else {
+    if (!chatCache[friendUsername]) {
         await fetchChatMessages(friendUsername);
-    }
+    } 
 
     showChatWindow(elements, friendUsername);
-    renderChat(elements, false);
+    renderChat(elements, true);
 }
 
 // Fetch chat messages for a specific friend
