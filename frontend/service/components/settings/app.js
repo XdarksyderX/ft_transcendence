@@ -221,6 +221,11 @@ function toggleChanges(changedData) {
 function showSaveChangesModal(enabled, changedData) {
     const modalElement = document.getElementById('save-changes-modal');
     const modal = new bootstrap.Modal(modalElement);
+	toggleOTPForm(enabled, changedData);
+    modal.show();
+}
+
+function toggleOTPForm(enabled, changedData) {
     const otpForm = document.getElementById('otp-form');
     const otpInputs = otpForm.querySelectorAll('.otp-input');
     const otpRequired = enabled && !changedData.enable2FA;
@@ -230,10 +235,13 @@ function showSaveChangesModal(enabled, changedData) {
         otpInputs.forEach(input => input.setAttribute('required', 'true')); // Add 'required' attribute
     } else {
         otpForm.style.display = 'none';
-        otpInputs.forEach(input => input.removeAttribute('required')); // Remove 'required' attribute
+        otpInputs.forEach(input => {
+            input.removeAttribute('required');
+            input.value = '';
+        });
     }
-    modal.show();
 }
+
 function initSaveChangesEvents(changedData) {
 	const saveBtn = document.getElementById("save-changes-btn");
 	

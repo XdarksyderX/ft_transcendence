@@ -69,15 +69,17 @@ async function showOTPForm(userCredentials) {
 
         if (!otpCode) {
             throwAlert('Please enter the OTP code.');
-            return;
+            
         } else {
             await authenticateUser({ ...userCredentials, two_fa_code: otpCode });
+            hideModalGently(otpModal);
         }
-
-        // Hide the OTP modal
-        hideModalGently(otpModal);
+        otpInputs.forEach(input => {
+            input.value = '';
+        });
     });
 }
+
 
 export function initOTPform() {
     const otpInputs = document.querySelectorAll('.otp-input');
