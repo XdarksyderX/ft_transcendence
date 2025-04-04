@@ -1,5 +1,5 @@
 //import { initializeLoginEvents, initializeSignupEvents, initializeChatEvents } from './events.js';
-import { initializeNeonCardHover, initializeNeonFrames } from './neon.js';
+import { initializeNeonCardHover } from './neon.js';
 import { initializeLoginEvents } from '../components/login/login.js';
 import { initializeSignupEvents, initializeVerifyEmailEvents } from '../components/signup/signup.js';
 import { initializeHomeEvents } from '../components/home/app.js';

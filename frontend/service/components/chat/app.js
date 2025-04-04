@@ -229,14 +229,13 @@ function handleFriendListClick(event, elements) {
 /* * * * * * * * * * * * * * * * * * * *  CHATS TAB  * * * * * * * * * * * * * * * * * * * */
 
 export async function openChat(friendUsername, elements) {
-    console.log("on openChat: ", chatCache);
     elements.chatMessages.innerHTML = '';
     activeChat = friendUsername;
     renderedMessages.clear();
     if (!chatCache[friendUsername]) {
         await fetchChatMessages(friendUsername);
     } 
-
+    markAsReadMessage(activeChat);
     showChatWindow(elements, friendUsername);
     renderChat(elements, true);
 }
@@ -263,7 +262,7 @@ async function fetchChatMessages(friendUsername, isScrolling = false) {
             // Filter out duplicates
             const newMessages = fetchedMessages.filter(msg => !existingIds.has(msg.id));
             const mergedMessages = [...newMessages, ...existingMessages];
-            console.log("mergedMessages: ", mergedMessages);
+            //console.log("mergedMessages: ", mergedMessages);
 
             // Sort messages by timestamp
             mergedMessages.sort((a, b) => new Date(a.sent_at) - new Date(b.sent_at));

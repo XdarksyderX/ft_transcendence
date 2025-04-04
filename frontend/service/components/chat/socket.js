@@ -24,7 +24,6 @@ export function initializeGlobalChatSocket() {
     };
 
     chatSocket.onmessage = async (event) => {
-		//debugger
 		//console.log("before handler: ", chatCache)
         await handleReceivedMessage(event);
 		//console.log("after handler: ", chatCache)
@@ -84,22 +83,25 @@ async function handleReceivedMessage(event) {
 				if (!isExpanded) {
 					toggleChat(elements);
 				}
-				return ;
-			}
-
-			// Render the message if the chat is open
-			if (currentView === 'chat' && activeChat === msg.sender) {
-				if (isExpanded) {
-					markMessagesAsRead(msg.sender);
+				if (isExpanded && currentView === 'chat' && activeChat == msg.sender) {
+					await renderChat(elements);
 				}
-				await renderChat(elements);
-			} else if (currentView === 'recent-chats') {
+			} else {
+				
+				// Render the message if the chat is open
+				if (currentView === 'chat' && activeChat === msg.sender) {
+					if (isExpanded) {
+						markMessagesAsRead(msg.sender);
+					}
+					await renderChat(elements);
+				} else if (currentView === 'recent-chats') {
 				renderRecentChats(elements);
 			}
-
+			
 			if (!isExpanded) {
 				updateNotificationIndicator(document.getElementById('notification-indicator'));
 			}
+		}
 		}
 	} catch (e) {
 		console.error("Error parsing WS message:", e);
