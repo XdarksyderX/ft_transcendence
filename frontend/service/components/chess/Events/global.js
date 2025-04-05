@@ -55,7 +55,7 @@ function captureInTurn(square) {
       //console.log("captureInTurn: Bomb: square: ", square);
       winBool = removeSurroundingPieces(square.id);
       if (winBool && !chessSocket) {
-        
+        return ;
       }
     }
     

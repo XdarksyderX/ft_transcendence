@@ -96,7 +96,7 @@ function checkForCheckmate() {
 	}
 
 	//console.log("No safe moves found. Checkmate!");
-	return true;
+	return inTurn;
 }
 
 function getPossibleMovesForPiece(piece, pieceType, color) {
