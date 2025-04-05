@@ -1,6 +1,6 @@
 from django.urls import path
-from core.views import ProtectedMediaView
+from .views import GetProfilePicture
 
 urlpatterns = [
-    path('avatars/<path:path>', ProtectedMediaView.as_view(), name='protected_media'),
+    path('media/avatars/<str:file>', GetProfilePicture.as_view(), name='get_profile_picture'),
 ]

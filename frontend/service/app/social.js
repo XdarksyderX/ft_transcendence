@@ -110,7 +110,7 @@ export async function getAvatar(username = null, user = null, path = null) {
                 user = await getUserData(username);
             } catch (error) {
                 console.error(`Error fetching user data for username "${username}":`, error.message);
-                return `${GATEWAY_URL}/api/social/avatars/default-avatar.png`;
+                return `${GATEWAY_URL}/api/social/media/avatars/default-avatar.png`;
             }
         }
         path = user.avatar;
