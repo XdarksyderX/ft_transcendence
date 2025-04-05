@@ -36,6 +36,8 @@ services:
       - "5080:5080"
     depends_on:
       - auth
+    volumes:
+      # - ./frontend/service:/var/www/service
 
   social:
     build:

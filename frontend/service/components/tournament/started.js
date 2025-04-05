@@ -308,7 +308,7 @@ async function initModalEvents() {
   const playButton = modalEl.querySelector('#play-btn');
   const newPlayButton = playButton.cloneNode(true);
   playButton.parentNode.replaceChild(newPlayButton, playButton);
-
+  console.log("Adding event listener");
   newPlayButton.addEventListener('click', async (event) => {
     event.preventDefault();
     const token = modalEl.getAttribute('data-token');
@@ -348,6 +348,7 @@ async function triggerPlayMatchModal(match)
   const modalEl = document.getElementById('start-match-modal');
   const modal = new bootstrap.Modal(modalEl);
   modal.show();
+  console.log("on triggerPlayModal: matchToken: ", match.token)
   modalEl.setAttribute('data-token', match.token)
 }
 
