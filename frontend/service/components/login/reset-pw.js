@@ -1,4 +1,4 @@
-import { throwAlert } from "../../app/render.js";
+import { throwAlert, throwToast } from "../../app/render.js";
 import { resetPassword } from "../../app/auth.js";
 import { parseNewPasswords } from "../signup/signup.js";
 
