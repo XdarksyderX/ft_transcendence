@@ -44,7 +44,7 @@ const notificationHandlers = {
     pong_match_cancelled: (data) => handleCancelledInvitation(data.invitation_token),
 
     // Pong Tournament Events
-    pong_tournament_closed: () => handleTournamentEvents('match'),
+    pong_tournament_closed: () => handleTournamentEvents('open'),
     pong_tournament_match_ready: (data) => handleJoinTournamentMatch(data.game_key),
     pong_tournament_players_update: () => handleTournamentEvents('invitation'),
     pong_tournament_match_finished: () => handleTournamentEvents('match'),
@@ -190,6 +190,10 @@ function handleTournamentEvents(type) {
         case 'match':
             if (window.location.pathname === '/started-tournaments') {
                 initializeOngoingTournaments(false);
+            } break;
+        case 'open':
+            if (window.location.pathname === '/started-tournaments') {
+                initializeOngoingTournaments(true);
             } break;
     }
 }

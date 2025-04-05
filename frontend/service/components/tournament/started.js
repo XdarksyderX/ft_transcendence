@@ -302,36 +302,42 @@ function generateMatch(game) {
 }
 
 async function initModalEvents() {
-  //console.log("adding event listeners");
   const modalEl = document.getElementById('start-match-modal');
-  // const modal = new bootstrap.Modal(modalEl);
-  const playButton = modalEl.querySelector('#play-btn'); // The "Play" button
 
-  playButton.addEventListener('click', async (event) => {
-    
+  // Replace the "Play" button to avoid duplicate event listeners
+  const playButton = modalEl.querySelector('#play-btn');
+  const newPlayButton = playButton.cloneNode(true);
+  playButton.parentNode.replaceChild(newPlayButton, playButton);
+  console.log("Adding event listener");
+  newPlayButton.addEventListener('click', async (event) => {
     event.preventDefault();
-    // match.token is the tournament token we attached earlier
     const token = modalEl.getAttribute('data-token');
     await leaveTournamentQueue(token);
-    const response = await joinTournamentQueue(token)
+    const response = await joinTournamentQueue(token);
     if (response.status === 'success') {
       inQueue = true;
-      console.log("[PONG] joined game queue succesfuly");
+      console.log("[PONG] joined game queue successfully");
       toggleModalContent(modalEl);
     } else {
       throwAlert(`Error joining match queue`);
     }
   });
 
-  modalEl.addEventListener('hide.bs.modal', async () => {
-    if (inQueue) {
-      const token = modalEl.getAttribute('data-token');
-      await leaveTournamentQueue(token);
-      toggleModalContent(modalEl);
-      console.log("[PONG] game queue succesfuly left");
-      inQueue = false;
-    }
-  });
+  // Replace the modal close event listener to avoid duplicates
+  modalEl.removeEventListener('hide.bs.modal', handleModalHide); // Ensure no duplicate listeners
+  modalEl.addEventListener('hide.bs.modal', handleModalHide);
+}
+
+// Separate the modal hide logic into its own function
+async function handleModalHide() {
+  const modalEl = document.getElementById('start-match-modal');
+  if (inQueue) {
+    const token = modalEl.getAttribute('data-token');
+    await leaveTournamentQueue(token);
+    toggleModalContent(modalEl);
+    console.log("[PONG] game queue successfully left");
+    inQueue = false;
+  }
 }
 
 let inQueue = false;
@@ -342,6 +348,7 @@ async function triggerPlayMatchModal(match)
   const modalEl = document.getElementById('start-match-modal');
   const modal = new bootstrap.Modal(modalEl);
   modal.show();
+  console.log("on triggerPlayModal: matchToken: ", match.token)
   modalEl.setAttribute('data-token', match.token)
 }
 
