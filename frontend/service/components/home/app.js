@@ -55,7 +55,7 @@ function getElements() {
 			playFriend: document.getElementById('chess-friend'),
 			playRandom: document.getElementById('chess-random'),
 			matchmakingOptions: document.getElementById('matchmaking-options'),
-			playLocal: document.getElementById('chess-local'),
+			// playLocal: document.getElementById('chess-local'),
 
 			friendList: document.getElementById('chess-friend-list'),
 			friendsContainer: document.getElementById('chess-friends-container'),
@@ -128,7 +128,7 @@ function initChessEvents(elements) {
 	elements.chess.variants.container.addEventListener('click', () => chooseChessVariant(elements.chess.friendsOptions));
 	elements.chess.playFriend.addEventListener('click', () => playChessWithFriend(elements));
 	elements.chess.playRandom.addEventListener("click", () => playChessWithRandom(elements));
-	elements.chess.playLocal.addEventListener("click", () => navigateTo('/chess'));
+	// elements.chess.playLocal.addEventListener("click", () => navigateTo('/chess'));
 	
 	elements.chess.startGameWithFriendButton.addEventListener('click', () => {
 		const gameData = {
