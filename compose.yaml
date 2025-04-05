@@ -34,8 +34,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5080:5080"
-    volumes:
-      - ./frontend/service:/var/www/service
     depends_on:
       - auth
 
@@ -49,7 +47,6 @@ services:
       - .env
       - social/service/.env
     volumes:
-      # - ./social/service:/service
       - social-data:/var/lib/postgresql/data
     depends_on:
       - auth
@@ -79,7 +76,6 @@ services:
       - chess/service/.env
     volumes:
       - chess-data:/var/lib/postgresql/data
-      - ./chess/service:/service
     depends_on:
       - auth
 

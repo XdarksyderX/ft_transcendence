@@ -10,7 +10,7 @@ export async function initializeLoginEvents() {
         loginForm.addEventListener('submit', async function(event) {
             event.preventDefault();
             const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim() || '12345678';
+            const password = document.getElementById('password').value.trim();
             const otpCode = document.getElementById('otp')?.value.trim() || null;
             await authenticateUser({ username, password, two_fa_code: otpCode });
         });
