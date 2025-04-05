@@ -11,7 +11,7 @@ from core.exceptions.global_handler import (
 urlpatterns = [
     path('', include('friends.api.urls')),
     path('', include('chat.api.urls')),
-    PATH('', include('core.media.urls')),
+    path('', include('core.media.urls')),
 	path('', include('core.consistency.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
