@@ -52,7 +52,6 @@ class NotificationConsumer(AsyncWebsocketConsumer):
                 
                 print(f"[WebSocket] Disconnected: user {self.user.id}")
                 
-                # Siempre enviar el evento de desconexión, incluso si hay errores posteriores
                 await self.publish_event_async("events", "events.user_disconnected", {"user_id": self.user.id})
                 
                 try:
@@ -71,7 +70,6 @@ class NotificationConsumer(AsyncWebsocketConsumer):
                     
             except Exception as e:
                 print(f"[WebSocket] Error during disconnection: {e}")
-                # Intento de último recurso para enviar el evento
                 try:
                     await self.publish_event_async("events", "events.user_disconnected", {"user_id": self.user.id})
                 except Exception as ex:

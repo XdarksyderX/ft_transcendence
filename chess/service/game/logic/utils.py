@@ -55,15 +55,12 @@ def is_position_under_attack(board, position, color, depth=0, memo=None):
                         return True
 
         else:
-            # Si la pieza define un método especial para las casillas que ataca, úsalo.
             if hasattr(piece, 'get_attack_squares'):
                 possible_attacks = piece.get_attack_squares(board)
             else:
-                # Intentar llamar a get_possible_moves sin parámetros extra
                 try:
                     possible_attacks = piece.get_possible_moves(board)
                 except TypeError:
-                    # Si se requiere depth o memo, se ignoran para evitar problemas
                     possible_attacks = piece.get_possible_moves(board)
 
             if position in possible_attacks:
