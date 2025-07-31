@@ -250,11 +250,6 @@ NOTIFICATIONSDB_PORT=5432
 * Store secrets in a vault (not env/plain files).
 * Harden DB/network, enable observability, backups & migrations policy.
 
-## Contributing
-
-* Fork → feature branch → PR. Follow clear commit messages (Conventional Commits recommended).
-* Run lint/tests before PR (configure CI as needed).
-
 ## License
 
 This project is licensed under the **MIT License**. See [LICENSE](./LICENSE) for details.
